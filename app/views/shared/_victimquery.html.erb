@@ -1,0 +1,221 @@
+<% @myQuery.each do |query| %>
+	<tr>
+
+	<!-- 		VICTIM CELLS -->
+		<% if @cells["victim_name"]%>
+			<td class="center-align"> <%= query.legacy_name %> </td>
+		<% end %>	
+		<% if @cells["victim_alias"]%>
+			<td class="center-align"> <%= query.alias %> </td>
+		<% end %>	
+		<% if @cells["victim_gender"]%>
+			<td class="center-align"> <%= query.gender %> </td>
+		<% end %>	
+		<% if @cells["victim_age"]%>
+			<td class="center-align"> <%= query.age %> </td>
+		<% end %>
+		<% if @cells["victim_boolean"] %>
+			<td class="center-align">
+				<% if query.innocent_bystander %>
+					<i class="tiny material-icons">check</i> Daño colateral<br>
+				<% end %>
+				<% if query.reported_cartel_member %>
+					<i class="tiny material-icons">check</i> Probable miembro del crimen organizado<br> 
+				<% end %>
+				<% if query.agressor %>
+					<i class="tiny material-icons">check</i> Agresor<br> 
+				<% end %>
+				<% if query.acuchillado %>
+					<i class="tiny material-icons">check</i> Acuchillado<br> 
+				<% end %>
+				<% if query.a_golpes %>
+					<i class="tiny material-icons">check</i> A golpes<br> 
+				<% end %>
+				<% if query.asfixiado %>
+					<i class="tiny material-icons">check</i> Asfixiado<br> 
+				<% end %>
+				<% if query.baleado %>
+					<i class="tiny material-icons">check</i> Baleado<br> 
+				<% end %>
+				<% if query.con_tiro_de_gracia %>
+					<i class="tiny material-icons">check</i> Con tiro de gracia<br> 
+				<% end %>
+				<% if query.calcinado %>
+					<i class="tiny material-icons">check</i> Calcinado<br> 
+				<% end %>
+				<% if query.cinta_adhesiva_en_la_cabeza %>
+					<i class="tiny material-icons">check</i> Cinta adhesiva en la cabeza<br> 
+				<% end %>
+				<% if query.colgado %>
+					<i class="tiny material-icons">check</i> Colgado<br> 
+				<% end %>
+				<% if query.con_dedos_en_la_boca %>
+					<i class="tiny material-icons">check</i> Con dedos en la boca<br> 
+				<% end %>
+				<% if query.con_la_lengua_cortada %>
+					<i class="tiny material-icons">check</i> Con la lengua cortada<br> 
+				<% end %>
+				<% if query.con_mensaje_escrito %>
+					<i class="tiny material-icons">check</i> Con mensaje escrito<br> 
+				<% end %>
+				<% if query.con_mensaje_escrito_en_el_cuerpo %>
+					<i class="tiny material-icons">check</i> Con mensaje escrito en el cuerpo<br> 
+				<% end %>
+				<% if query.con_senales_de_tortura %>
+					<i class="tiny material-icons">check</i> Con señales de tortura<br> 
+				<% end %>
+				<% if query.crucificado %>
+					<i class="tiny material-icons">check</i> Crucificado<br> 
+				<% end %>
+				<% if query.decapitado_cabeza_sin_cuerpo %>
+					<i class="tiny material-icons">check</i> Decapitado cabeza sin cuerpo<br> 
+				<% end %>
+				<% if query.decapitado_cuerpo_sin_cabeza %>
+					<i class="tiny material-icons">check</i> Decapitado cuerpo sin cabeza<br> 
+				<% end %>
+				<% if query.degollado %>
+					<i class="tiny material-icons">check</i> Degollado<br> 
+				<% end %>
+				<% if query.descalzo %>
+					<i class="tiny material-icons">check</i> Descalzo<br> 
+				<% end %>
+				<% if query.descuartizado %>
+					<i class="tiny material-icons">check</i> Descuartizado<br> 
+				<% end %>
+				<% if query.desnudo %>
+					<i class="tiny material-icons">check</i> Desnudo<br> 
+				<% end %>
+				<% if query.disuelto_en_acido %>
+					<i class="tiny material-icons">check</i> Disuelto_en_acido<br> 
+				<% end %>
+				<% if query.encobijado %>
+					<i class="tiny material-icons">check</i> Encobijado<br> 
+				<% end %>
+				<% if query.enlonado %>
+					<i class="tiny material-icons">check</i> Enlonado<br> 
+				<% end %>
+				<% if query.enterrado %>
+					<i class="tiny material-icons">check</i> Enterrado<br> 
+				<% end %>
+				<% if query.esposado %>
+					<i class="tiny material-icons">check</i> Esposado<br> 
+				<% end %>
+				<% if query.extraccion_del_globo_ocular %>
+					<i class="tiny material-icons">check</i> Extraccion del globo ocular<br> 
+				<% end %>
+				<% if query.hincado %>
+					<i class="tiny material-icons">check</i> Hincado<br> 
+				<% end %>
+				<% if query.manos_atadas_al_frente %>
+					<i class="tiny material-icons">check</i> Manos atadas al frente<br> 
+				<% end %>
+				<% if query.manos_atadas_atras %>
+					<i class="tiny material-icons">check</i> Manos atadas atras<br> 
+				<% end %>
+				<% if query.mutilacion %>
+					<i class="tiny material-icons">check</i> Mutilacion<br> 
+				<% end %>
+				<% if query.mutilacion_de_genitales %>
+					<i class="tiny material-icons">check</i> Mutilacion de genitales<br> 
+				<% end %>
+				<% if query.mutilacion_de_otra_parte %>
+					<i class="tiny material-icons">check</i> Mutilacion de otra parte<br> 
+				<% end %>
+				<% if query.piedra_u_objeto_pesado %>
+					<i class="tiny material-icons">check</i> Piedra u objeto pesado<br> 
+				<% end %>
+				<% if query.pies_atados %>
+					<i class="tiny material-icons">check</i> Pies atados<br> 
+				<% end %>
+				<% if query.semidesnudo %>
+					<i class="tiny material-icons">check</i> Semidesnudo<br> 
+				<% end %>
+				<% if query.semienterrado %>
+					<i class="tiny material-icons">check</i> Semienterrado<br> 
+				<% end %>
+			</td>
+		<% end %>
+	
+	<!-- 					STATE CELLS -->
+		<% if @cells["state_name"] %>
+			<td class="center-align"> <%= query.killing.event.town.county.state.name %> </td>
+		<% end %>
+		<% if @cells["state_acronym"] %>
+			<td class="center-align"> <%= query.killing.event.town.county.state.shortname %> </td>
+		<% end %>
+		<% if @cells["state_code"] %>
+			<td class="right-align"> <%= query.killing.event.town.county.state.code %> </td>
+		<% end %>
+		<% if @cells["state_population"] %>
+			<td class="right-align"> <%= number_with_delimiter(query.killing.event.town.county.state.population) %> </td>
+		<% end %>
+
+	<!-- 					COUNTY CELLS -->
+		<% if @cells["city_name"] %>
+			<td class="center-align">
+				<% if query.killing.event.town.county.city %>
+					<%= query.killing.event.town.county.city.name %>
+				<% else %>
+					--
+				<% end %>
+			</td>
+		<% end %>
+		<% if @cells["county_name"] %>
+			<td class="center-align"> <%= query.killing.event.town.county.name %> </td>
+		<% end %>
+		<% if @cells["county_full_code"] %>
+			<td class="right-align"> <%= query.killing.event.town.county.full_code %> </td>
+		<% end %>
+		<% if @cells["county_population"] %>
+			<td class="right-align"> <%= number_with_delimiter(query.killing.event.town.county.population) %> </td>
+		<% end %>
+
+	<!-- 					KILLING CELLS-->
+		<% if @cells["event_date"] %>
+			<td class="right-align"> <%= query.killing.event.event_date.strftime("%d/%m/%Y") %> </td>
+		<% end %>
+		<% if @cells["killed_count"] %>
+			<td class="right-align"> <%= query.killing.killed_count %> </td>
+		<% end %>
+		<% if @cells["aggresor_count"] %>
+			<td class="right-align"> <%= query.killing.aggresor_count %> </td>
+		<% end %>
+		<% if @cells["type_of_place"] %>
+			<td class="center-align"> <%= query.killing.type_of_place %> </td>
+		<% end %>
+		<% if @cells["killer_vehicle_count"] %>
+			<td class="right-align"> <%= query.killing.killer_vehicle_count %> </td>
+		<% end %>
+		<% if @cells["killing_boolean"] %>
+			<td class="center-align">
+				<% if query.killing.aggression %>
+					<i class="tiny material-icons">check</i> Fue agresión<br>
+				<% end %>
+				<% if query.killing.shooting_among_criminals %>
+					<i class="tiny material-icons">check</i> Hubo enfrentamiento<br> 
+				<% end %>
+				<% if query.killing.shooting_between_criminals_and_authorities %>
+					<i class="tiny material-icons">check</i> Hubo enfrentamiento con autoridades<br> 
+				<% end %>
+				<% if query.killing.shooting_between_criminals_and_authorities %>
+					<i class="tiny material-icons">check</i> Hubo persecusión<br> 
+				<% end %>
+			</td>
+		<% end %>
+		<% if @cells["event_sources"] %>
+			<td class="right-align">
+				<% query.killing.event.sources.each do |source| %>
+					<% if source.member %>
+						<a class="waves-effect waves-light btn-small p12 white cyan-text table-btn tooltipped" href="<%= source.url %>" target="_blank" data-tooltip="<%= source.url %>">
+							<%= source.member.organization.name %>
+						</a>
+					<% else %>
+						<a class="waves-effect waves-light btn-small p12 white cyan-text table-btn tooltipped" href="<%= source.url %>" target="_blank" data-tooltip="<%= source.url %>">
+							Otro medio
+						</a>
+					<% end %>
+				<% end %>
+			</td>
+		<% end %>
+	</tr>
+<% end %>

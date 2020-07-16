@@ -1,0 +1,145 @@
+  <div class="row">
+    <div class="col s2">
+     <ul id="slide-out" class="sidenav">
+        <li><div class="user-view">
+          <div class="background">
+          	<%= image_tag "banxico-banner.jpeg", :id => "banner" %>
+          </div>
+          <%= image_tag "banxico_logo.jpeg", :class => "circle" %>
+          <a href="#name"><span class="white-text name">John Doe</span></a>
+          <a href="#email"><span class="white-text email">Banco de México</span></a>
+        </div></li>
+        <li><a><i class="material-icons small">view_list</i><p class="flow-text grey-text text-darken-1">Base de datos</p></a></li>
+        <li><a class="waves-effect waves-teal teal-text text-darken-2" href="#!">Incidentes nacionales</a></li>
+        <li><a class="waves-effect waves-teal teal-text text-darken-2" href="#!">Sistema financiero internacional</a></li>
+        <li><div class="divider"></div></li>
+        <li><a><i class="material-icons small">assignment</i><p class="flow-text grey-text text-darken-1">Reportes</p></a></li>
+        <li><a class="waves-effect waves-teal teal-text text-darken-2" href="#!">Compendios de viaje</a></li>
+        <li><a class="waves-effect waves-teal teal-text text-darken-2" href="#!">Panorama trimestral</a></li>
+        <li><a class="waves-effect waves-teal teal-text text-darken-2" href="#!">Tendencias de la seguridad</a></li>
+      </ul>
+      <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons medium teal-text text-darken-2 class">menu</i></a>
+    </div>
+    <div class="col s10 center">
+      <h5>Base de datos <br> Incidentes Nacionales</h5>
+    </div>
+  </div>
+  <div class="row">
+    <form action="/organizations/query" method="post">
+      <input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+      <div class="col l4 m6 s12">
+        <div class="row valign-wrapper short-row">
+          <div class="col s2">
+            <i class="material-icons prefix">place</i>
+          </div>
+          <div class="col s9">
+            <p class="flow-text">Por lugar</p>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <div class="input-field col s11 short-row">
+              <select id="operation-state-selector" class="admins-select browser-default" name="query[state_id]">
+                <option value="" selected>Todas</option>
+                <% @states.each do |state|%>
+                  <option value="<%= state.id %>"><%= state.name%></option>
+                <% end %>
+              </select>
+            </div>
+            <div class="col s11 label-row">
+              <label class="grey-text text-darken-4" for="operation-state-selector">ENTIDAD FEDERATIVA</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <div class="input-field col s11 short-row">
+              <select id="operation-county-selector" disabled class="admins-select browser-default" name="query[county_id]">
+              </select>
+            </div>
+            <div class="col s11 label-row">
+              <label class="grey-text text-darken-4" for="operation-county-selector">MUNICIPIO/ALCALDÍA</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <div class="input-field col s11 short-row">
+              <select id="operation-town-selector" disabled class="admins-select browser-default" name="query[town_id]">
+              </select>
+            </div>
+            <div class="col s11 label-row">
+              <label class="grey-text text-darken-4" for="operation-town-selector">LOCALIDAD</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col l4 m6 s12">
+        <div class="row valign-wrapper short-row">
+          <div class="col s2">
+            <i class="material-icons prefix">insert_invitation</i>
+          </div>
+          <div class="col s10">
+            <p class="flow-text">Por fecha</p>
+          </div>
+        </div>
+        <div class="row short-row">
+          <div class="col s11 short-row">
+            <p>
+              <label>
+                <input name="group1" type="radio" checked />
+                <span>Día exacto</span>
+              </label>
+            </p>
+            <input type="text" class="datepicker">
+            <br>
+            <p>
+              <label>
+                <input name="group1" type="radio" />
+                <span>Rango de fechas</span>
+              </label>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col l4 m6 s12">
+        <div class="row valign-wrapper short-row">
+          <div class="col s2">
+            <i class="material-icons prefix">pie_chart</i>
+          </div>
+          <div class="col s10">
+            <p class="flow-text">Por variable</p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<!--   MATERIALIZE AUTOCOPLETE --> 
+<!--   <div class="row">
+    <div class="col l4 m6 s12">
+      <form>
+          <input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+          <div class="row valign-wrapper">
+            <div class="col s2">
+              <i class="material-icons prefix">place</i>
+            </div>
+            <div class="col s10">
+              <p class="flow-text">Por ubicación</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input name="query[state]" type="text" id="autocomplete-input" class="autocomplete">
+              <label for="autocomplete-input">Entidad Federativa</label>
+            </div>
+            <div class="input-field col s12">
+              <input name="query[county]" type="text" id="autocomplete-input" class="autocomplete">
+              <label for="autocomplete-input">Municipio/Alcaldía</label>
+          </div>
+        </div>
+      </form>
+    </div> -->
+
+
+

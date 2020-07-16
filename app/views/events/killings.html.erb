@@ -1,0 +1,93 @@
+<div class="card cyan darken-1">
+	<div class="card-content white-text">	
+		<form action="/events/create_killing" method="post">
+		<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+			<div class="row">
+				<div class="col m6 s12">
+			        <div class="row valign-wrapper short-row white-text">
+			          <div class="col s1">
+			            <i class="material-icons prefix">today</i>
+			          </div>
+			          <div class="col s11 left">
+			            <span class="card-title">Evento</span>
+			          </div>
+			        </div>
+			        <div class="row">
+			        	<div class="col s5 short-row">
+				          	<div class="input-field short-row">
+				            	<input id="event-date-selector" type="text" class="datepicker white" name="event[date]">
+					        </div>
+				            <div class="label-row">
+				              <label class="white-text" for="event-date-selector">FECHA</label>
+				            </div>
+				        </div>
+				        <div class="col s5 short-row">
+				          	<div class="input-field short-row">
+				            	<input id="event-time-selector" type="text" class="timepicker white" name="event[time]">
+					        </div>
+				            <div class="label-row">
+				              <label class="white-text" for="event-date-selector">HORA</label>
+				            </div>
+				        </div>
+			        </div>
+			       	<%= render "shared/townsearch" %>
+			    </div>
+			    <%= render "shared/mediabox" %>
+			</div>
+			<div class="divider"></div>
+			<br>
+			<div class="row">
+				<div class="col s12">
+					<%= render "shared/tableheader" %>
+				</div>
+				<div class="col l4 m6 s12">
+			       	<% @killing_count_variables.each do |variable| %>
+				       	<div class="row">
+			       			<div class="col s8 short-row">
+			       				<label class="right white-text"><%=variable[:caption]%></label>
+			       			</div>
+				       		<div class="col s4 short-row">
+				       			<select id="killed-count-selector" class="browser-default" name="killing[<%=variable[:field_name]%>]">
+				       				<% (0..100).each do |x| %>
+				       					<option value="<%= x %>"><%= x %></option>
+				       				<% end %>
+				       			</select>
+				       		</div>
+				       	</div>
+				    <% end %>
+			    	<div class="row">
+			    		<div class="col s5 short-row">
+			    			<label class="right white-text">TIPO DE LUGAR</label>
+			    		</div>
+				    	<div class="col s7 short-row">
+				    		<select id="killing-type-of-place-selector" class="browser-default" name="killing[type_of_place]">
+						    	<% @myTypes.each do |mytype| %>
+									<option value="<%= mytype %>"><%= mytype %></option>
+						    	<% end %>
+					    	</select>
+				    	</div>
+			    	</div>
+				 </div>
+			    <div class="col l7 m6 s12 offset-l1">
+			       	<% @killing_boolean_variables.each do |variable| %>
+			       		<div class="col s6">
+			       			<label class="after-padding">
+			       				<input class="white" name="killing[<%=variable[:field_name]%>]" type="checkbox">
+			       				<span class="pseudo-label white-text"><%=variable[:caption]%></span>
+			       			</label>
+			       		</div>
+				    <% end %>
+					<div class="col s12 white tall-field">
+						<div class="input-field tall-textarea">
+				            <textarea id="killing-text-selector" class="materialize-textarea" name="killing[notes]"></textarea>
+				            <label for="killing-text-selector">Información adicional</label>
+						</div>
+					</div>
+			    </div>
+			</div>
+			<div class="card-action">
+				<%= render "shared/sendbutton"%>
+			</div>
+		</form>
+	</div>
+</div>

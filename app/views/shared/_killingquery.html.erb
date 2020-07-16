@@ -1,0 +1,86 @@
+<% @myQuery.each do |query| %>
+	<tr>
+
+	<!-- 					STATE CELLS -->
+		<% if @cells["state_name"] %>
+			<td class="center-align"> <%= query.event.town.county.state.name %> </td>
+		<% end %>
+		<% if @cells["state_acronym"] %>
+			<td class="center-align"> <%= query.event.town.county.state.shortname %> </td>
+		<% end %>
+		<% if @cells["state_code"] %>
+			<td class="right-align"> <%= query.event.town.county.state.code %> </td>
+		<% end %>
+		<% if @cells["state_population"] %>
+			<td class="right-align"> <%= number_with_delimiter(query.event.town.county.state.population) %> </td>
+		<% end %>
+
+	<!-- 					COUNTY CELLS -->
+		<% if @cells["city_name"] %>
+			<td class="center-align">
+				<% if query.event.town.county.city %>
+					<%= query.event.town.county.city.name %>
+				<% else %>
+					--
+				<% end %>
+			</td>
+		<% end %>
+		<% if @cells["county_name"] %>
+			<td class="center-align"> <%= query.event.town.county.name %> </td>
+		<% end %>
+		<% if @cells["county_full_code"] %>
+			<td class="right-align"> <%= query.event.town.county.full_code %> </td>
+		<% end %>
+		<% if @cells["county_population"] %>
+			<td class="right-align"> <%= number_with_delimiter(query.event.town.county.population) %> </td>
+		<% end %>
+
+	<!-- 					KILLING CELLS-->
+		<% if @cells["event_date"] %>
+			<td class="right-align"> <%= query.event.event_date.strftime("%d/%m/%Y") %> </td>
+		<% end %>
+		<% if @cells["killed_count"] %>
+			<td class="right-align"> <%= query.killed_count %> </td>
+		<% end %>
+		<% if @cells["aggresor_count"] %>
+			<td class="right-align"> <%= query.aggresor_count %> </td>
+		<% end %>
+		<% if @cells["type_of_place"] %>
+			<td class="center-align"> <%= query.type_of_place %> </td>
+		<% end %>
+		<% if @cells["killer_vehicle_count"] %>
+			<td class="right-align"> <%= query.killer_vehicle_count %> </td>
+		<% end %>
+		<% if @cells["killing_boolean"] %>
+			<td class="center-align">
+				<% if query.aggression %>
+					<i class="tiny material-icons">check</i> Fue agresión<br>
+				<% end %>
+				<% if query.shooting_among_criminals %>
+					<i class="tiny material-icons">check</i> Hubo enfrentamiento<br> 
+				<% end %>
+				<% if query.shooting_between_criminals_and_authorities %>
+					<i class="tiny material-icons">check</i> Hubo enfrentamiento con autoridades<br> 
+				<% end %>
+				<% if query.shooting_between_criminals_and_authorities %>
+					<i class="tiny material-icons">check</i> Hubo persecusión<br> 
+				<% end %>
+			</td>
+		<% end %>
+		<% if @cells["event_sources"] %>
+			<td class="right-align">
+				<% query.event.sources.each do |source| %>
+					<% if source.member %>
+						<a class="waves-effect waves-light btn-small p12 white cyan-text table-btn tooltipped" href="<%= source.url %>" target="_blank" data-tooltip="<%= source.url %>">
+							<%= source.member.organization.name %>
+						</a>
+					<% else %>
+						<a class="waves-effect waves-light btn-small p12 white cyan-text table-btn tooltipped" href="<%= source.url %>" target="_blank" data-tooltip="<%= source.url %>">
+							Otro medio
+						</a>
+					<% end %>
+				<% end %>
+			</td>
+		<% end %>
+	</tr>
+<% end %>

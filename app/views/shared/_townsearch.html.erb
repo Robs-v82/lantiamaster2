@@ -1,0 +1,35 @@
+<div class="row">
+  <div class="col s5">
+    <div class="input-field short-row">
+      <select id="operation-state-selector" class="admins-select browser-default" name="query[state_id]">
+        <option value="" selected>Todas</option>
+        <% @states.each do |state|%>
+          <option value="<%= state.id %>"><%= state.name%></option>
+        <% end %>
+      </select>
+    </div>
+    <div class="label-row">
+      <label class="white-text" for="operation-state-selector">ESTADO</label>
+    </div>
+  </div>
+  <div class="col s5">
+    <div class="input-field short-row">
+      <select id="operation-county-selector" disabled class="admins-select browser-default" name="query[county_id]">
+      </select>
+    </div>
+    <div class="label-row">
+      <label class="white-text" for="operation-county-selector">MUNICIPIO</label>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div>
+    <div class="input-field col s10 short-row">
+      <select id="operation-town-selector" disabled class="admins-select browser-default" name="<%=@my_input_name%>">
+      </select>
+    </div>
+    <div class="col s11 label-row">
+      <label class="white-text" for="operation-town-selector">LOCALIDAD</label>
+    </div>
+  </div>
+</div>

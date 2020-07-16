@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  publication: 2020-06-08 11:19:32
+  media_type: MyString
+  url: MyString
+  member: one
+  is_post: false
+
+two:
+  publication: 2020-06-08 11:19:32
+  media_type: MyString
+  url: MyString
+  member: two
+  is_post: false

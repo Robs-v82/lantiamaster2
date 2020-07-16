@@ -1,0 +1,94 @@
+<div class="card cyan darken-1">
+	<div class="card-content white-text">
+		<form action="/send_query" method="post">
+			<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+			<div class="row">
+				<div class="col l3 m6 s12 short-row">
+					<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+						<i class="material-icons small">storage</i><p5 class="query-header">Filas</p5>
+					</div>
+					<div id="general_query_selector">
+				    	<% @myQueries.each do |query| %>
+							<p>
+								<label>
+									<input  id="<%= query[:box_id] %>" name="query[killing_query_group]" value="<%= query[:name] %>" type="radio"/>
+									<span class="white-text p18 slim"><%= query[:caption] %></span>
+								</label>
+							</p>
+				    	<% end %>
+				    </div>
+				    <br>
+					<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+						<i class="material-icons small">tune</i><p5 class="query-header">Filtros</p5>
+					</div>
+					<%= render "shared/countysearch"%>
+					<%= render "shared/citysearch"%>
+					<%= render "shared/datesearch"%>
+				</div>
+				<div class="col l8 offset-l1 m12 short-row">
+					<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+						<i class="material-icons small">view_column</i><p5 class="query-header">Columnas</p5>
+					</div>
+					<div id="state-query-section" class="row border-section">
+						<p class="victim_query_label source_query_label killing_query_label all-query-label end-section center cyan-text text-lighten-3">ESTADO</p>
+						<% @state_checkboxes.each do |box| %>
+							<div class="col s3">
+								<label class="after-padding">
+				       				<input class="white victim_query_group source_query_group all-query-group killing_query_group" name="<%=box[:name]%>" type="checkbox" disabled>
+				       				<span class="victim_query_label source_query_label killing_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
+				       			</label>
+							</div>
+						<% end %>
+					</div>
+					<div id="county-query-section" class="row border-section">
+						<p class="victim_query_label source_query_label killing_query_label all-query-label end-section center cyan-text text-lighten-3">MUNICIPIO</p>
+						<% @county_checkboxes.each do |box| %>
+							<div class="col s3">
+								<label class="after-padding">
+				       				<input class="white victim_query_group source_query_group all-query-group killing_query_group" name="<%=box[:name]%>" type="checkbox" disabled>
+				       				<span class="victim_query_label source_query_label killing_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
+				       			</label>
+							</div>
+						<% end %>
+					</div>
+					<div id="killing-query-section" class="row border-section">
+						<p class="victim_query_label killing_query_label all-query-label end-section center cyan-text text-lighten-3">INCIDENTE</p>
+						<% @event_checkboxes.each do |box| %>
+							<div class="col s3">
+								<label class="after-padding">
+				       				<input class="white victim_query_group all-query-group killing_query_group" name="<%=box[:name]%>" type="checkbox" disabled>
+				       				<span class="victim_query_label killing_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
+				       			</label>
+							</div>
+						<% end %>
+					</div>
+			    	<div id="victim-query-section" class="row border-section">
+			    		<p class="victim_query_label all-query-label end-section center cyan-text text-lighten-3 short-row">VÍCTIMA</p>
+						<% @victim_checkboxes.each do |box| %>
+							<div class="col s3">
+								<label class="after-padding">
+				       				<input class="white all-query-group victim_query_group" name="<%=box[:name]%>" type="checkbox" disabled>
+				       				<span class="victim_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
+				       			</label>
+							</div>
+						<% end %>
+			    	</div>
+					<div id="source-query-section" class="row border-section">
+						<p class="source_query_label all-query-label end-section center cyan-text text-lighten-3">FUENTE</p>
+						<% @source_checkboxes.each do |box| %>
+							<div class="col s3">
+								<label class="after-padding">
+				       				<input class="white source_query_group all-query-group" name="<%=box[:name]%>" type="checkbox" disabled>
+				       				<span class="source_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
+				       			</label>
+							</div>
+						<% end %>
+					</div>
+				</div>
+			</div>
+			<div class="card-action">
+				<%= render "shared/sendbutton"%>
+			</div>
+		</form>
+	</div>
+</div>

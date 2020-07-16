@@ -1,0 +1,31 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  legacy_id: 1
+  killed_count: 1
+  wounded_count: 1
+  killers_count: 1
+  arrested_count: 1
+  type_of_place: MyString
+  mass_grave: false
+  fire_weapon: false
+  white_weapon: false
+  aggression: false
+  shooting_between_criminals_and_authorities: false
+  notes: MyString
+  event: one
+
+two:
+  legacy_id: 1
+  killed_count: 1
+  wounded_count: 1
+  killers_count: 1
+  arrested_count: 1
+  type_of_place: MyString
+  mass_grave: false
+  fire_weapon: false
+  white_weapon: false
+  aggression: false
+  shooting_between_criminals_and_authorities: false
+  notes: MyString
+  event: two

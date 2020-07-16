@@ -1,0 +1,242 @@
+<div class="card cyan darken-2">
+	<div class="card-content white-text">
+		<% if @mycount != 1%>
+			<div class="row short-row">
+				<div class="col l4 m6 s12 right">
+					<p class="flow-text">Perfil de las <%= @mycount %> víctimas</p>
+					<div class="switch">
+						<label id="victim_profile_switch" class="white-text">
+							DIFERENCIADO
+							<input type="checkbox">
+							<span class="lever"></span>
+							ÚNICO
+						</label>
+					</div>
+				</div>
+			</div>
+			<br>
+			<div class="divider"></div>
+		<% end %>
+		<div id="multi_victim_profile_container">
+			<form action="/events/create_victim" method="post">
+				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+				<% (1..@myCount).each do |x| %>
+					<br>
+					<div class="row valign-wrapper white-text short-row">
+						<div class="col s1">
+							<i class="material-icons prefix"><%= @killing_header[:icon]%></i>
+						</div>
+						<div class="col s11 left">
+							<span class="card-title"><%= @killing_header[:title]%> <%= x %></span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col l6 m8 s12">
+							<div class="row">
+								<% @victim_text_inputs.each do |input|%>
+					       			<div class="col s6 short-row">
+					       				<label class="right white-text" for=""><%= input[:caption]%></label>
+					       			</div>
+						       		<div class="field-input col s5 short-row">
+						       			<input id="<%=input[:selector]%>" class="white" name="victim<%=x%>[<%=input[:field_name]%>]" type="text">
+						       		</div>
+						       	<% end %>
+					       	</div>
+					       	<div class="row">
+						       	<% @victim_count_inputs.each do |input|%>
+						       		<div class="col s6 short-row">
+						       			<label class="right white-text" for=""><%= input[:caption]%></label>
+						       		</div>
+						       		<div class="field-input col s3 short-row">
+						       			<select id="<%=input[:selector]%>" class="browser-default" name="victim<%=x%>[<%=input[:field_name]%>]">
+						       				<option value="" selected></option>
+						       				<% (0..input[:max]).each do |z| %>
+						       					<option value="<%= z %>"><%= z %></option>
+						       				<% end %>
+						       			</select>
+						       		</div>
+						       	<% end %>
+						    </div>
+						    <div class="row">
+						       	<div class="col s6 short-row">
+						       		<label class="right white-text" for="victim-gender-selector">GÉNERO</label>
+						       	</div>
+						       	<div class="field-input col s5 short-row">
+						       		<select id="victim-gender-selector"  class="browser-default" name="victim<%=x%>[gender]">
+						       			<option value="" selected></option>
+						       			<option value="0">Mujer</option>
+						       			<option value="1">Hombre</option>
+						       			<option value="2">No identificado</option>
+						       		</select>
+						       	</div>
+						    </div>
+						    <div class="row">
+						       	<div class="col s6 short-row">
+						       		<label class="right white-text" for="victim-organization-selector">ORGANIZACIÓN</label>
+						       	</div>
+						       	<div class="field-input col s5 short-row">
+						       		<select id="victim-organization-selector"  class="browser-default" name="victim<%=x%>[organization_id]">
+							       		<option value="" selected></option>
+							       		<% @organizations.each do |organization| %>
+							       			<option value="<%= organization.id %>"><%= organization.name %></option>
+							       		<% end %>
+						       		</select>
+						       	</div>
+						       	<div class="col s6 short-row">
+						       		<label class="right white-text" for="victim-organization-selector">OCUPACIÓN</label>
+						       	</div>
+						       	<div class="field-input col s5 short-row">
+						       		<select select id="victim-gender-selector"  class="browser-default" name="victim<%=x%>[role_id]" disabled>
+						       			<option value="" selected></option>
+						       			<% @roles.each do |role| %>
+						       				<option value="<%= role %>"><%= role %></option>
+						       			<% end %>
+						       		</select>
+						       	</div>
+						    </div>
+						    <div class="row">
+							    <div class="col s10 offset-s2">
+							       	<% @victim_key_boolean_inputs.each do |input| %>
+							       		<div>
+							       			<label class="after-padding">
+							       				<input id="victim<%=input[:selector]%>" class="white" name="victim<%=x%>[<%=input[:field_name]%>]" type="checkbox">
+							       				<span class="pseudo-label white-text"><%=input[:caption]%></span>
+							       			</label>
+							       		</div>
+								    <% end %>
+								</div>
+						    </div>
+						</div>
+						<div class="col l6 m8 s12">
+							<div class="row">
+								<% @victim_boolean_inputs.each do |input| %>
+						       		<div class="col s6">
+						       			<label>
+						       				<input class="white" name="victim<%=x%>[<%=input[:field_name]%>]" type="checkbox">
+						       				<span class="mini-label white-text"><%=input[:caption]%></span>
+						       			</label>
+						       		</div>
+								<% end %>
+							</div>
+						</div>
+					</div>
+					<div class="divider"></div>
+				<% end %>
+				<br>
+				<div class="card-action">
+					<%= render "shared/sendbutton"%>
+				</div>
+			</form>
+		</div>
+		<div id="single_victim_profile_container">
+			<form action="/events/create_single_victim" method="post">
+				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+				<br>
+				<div class="row valign-wrapper white-text short-row">
+					<div class="col s1">
+						<i class="material-icons prefix"><%= @killing_header[:icon]%></i>
+					</div>
+					<div class="col s11 left">
+						<span class="card-title"><%= @killing_header[:title]%></span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col l6 m8 s12">
+						<div class="row">
+							<% @victim_text_inputs.each do |input|%>
+				       			<div class="col s6 short-row">
+				       				<label class="right white-text" for=""><%= input[:caption]%></label>
+				       			</div>
+					       		<div class="field-input col s5 short-row">
+					       			<input id="<%=input[:selector]%>" class="white disabled_select" name="victim[<%=input[:field_name]%>]" type="text" disabled>
+					       		</div>
+					       	<% end %>
+				       	</div>
+				       	<div class="row">
+					       	<% @victim_count_inputs.each do |input|%>
+					       		<div class="col s6 short-row">
+					       			<label class="right white-text" for=""><%= input[:caption]%></label>
+					       		</div>
+					       		<div class="field-input col s3 short-row">
+					       			<select id="<%=input[:selector]%>" class="browser-default" name="victim[<%=input[:field_name]%>]" disabled>
+					       				<option value="" selected></option>
+					       				<% (0..input[:max]).each do |z| %>
+					       					<option value="<%= z %>"><%= z %></option>
+					       				<% end %>
+					       			</select>
+					       		</div>
+					       	<% end %>
+					    </div>
+					    <div class="row">
+					       	<div class="col s6 short-row">
+					       		<label class="right white-text" for="victim-gender-selector">GÉNERO</label>
+					       	</div>
+					       	<div class="field-input col s5 short-row">
+					       		<select id="victim-gender-selector"  class="browser-default" name="victim[gender]">
+					       			<option value="" selected></option>
+					       			<option value="0">Mujer</option>
+					       			<option value="1">Hombre</option>
+					       			<option value="2">No identificado</option>
+					       		</select>
+					       	</div>
+					    </div>
+					    <div class="row">
+					       	<div class="col s6 short-row">
+					       		<label class="right white-text" for="victim-organization-selector">ORGANIZACIÓN</label>
+					       	</div>
+					       	<div class="field-input col s5 short-row">
+					       		<select id="victim-organization-selector"  class="browser-default" name="victim[organization_id]">
+						       		<option value="" selected></option>
+						       		<% @organizations.each do |organization| %>
+						       			<option value="<%= organization.id %>"><%= organization.name %></option>
+						       		<% end %>
+					       		</select>
+					       	</div>
+					       	<div class="col s6 short-row">
+					       		<label class="right white-text" for="victim-organization-selector">OCUPACIÓN</label>
+					       	</div>
+					       	<div class="field-input col s5 short-row">
+					       		<select select id="victim-gender-selector"  class="browser-default" name="victim[role_id]" disabled>
+					       			<option value="" selected></option>
+					       			<% @roles.each do |role| %>
+					       				<option value="<%= role %>"><%= role %></option>
+					       			<% end %>
+					       		</select>
+					       	</div>
+					    </div>
+					    <div class="row">
+						    <div class="col s10 offset-s2">
+						       	<% @victim_key_boolean_inputs.each do |input| %>
+						       		<div>
+						       			<label class="after-padding">
+						       				<input id="victim<%=input[:selector]%>" class="white" name="victim[<%=input[:field_name]%>]" type="checkbox">
+						       				<span class="pseudo-label white-text"><%=input[:caption]%></span>
+						       			</label>
+						       		</div>
+							    <% end %>
+							</div>
+					    </div>
+					</div>
+					<div class="col l6 m8 s12">
+						<div class="row">
+							<% @victim_boolean_inputs.each do |input| %>
+					       		<div class="col s6">
+					       			<label>
+					       				<input class="white" name="victim[<%=input[:field_name]%>]" type="checkbox">
+					       				<span class="mini-label white-text"><%=input[:caption]%></span>
+					       			</label>
+					       		</div>
+							<% end %>
+						</div>
+					</div>
+				</div>
+				<div class="divider"></div>
+				<br>
+				<div class="card-action">
+					<%= render "shared/sendbutton"%>
+				</div>
+			</form>
+		</div>	
+	</div>
+</div>
+

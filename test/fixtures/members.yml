@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  firstname: MyString
+  lastname1: MyString
+  lastname2: MyString
+  rfc: MyString
+  birthday: 2020-05-13
+  organization: one
+  role: one
+  gender: 1
+
+two:
+  firstname: MyString
+  lastname1: MyString
+  lastname2: MyString
+  rfc: MyString
+  birthday: 2020-05-13
+  organization: two
+  role: two
+  gender: 1

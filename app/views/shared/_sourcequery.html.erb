@@ -1,0 +1,82 @@
+<% @myQuery.each do |query| %>
+	<tr>
+
+	<!-- 	SOURCE CELLS -->
+		<% if @cells["source_publication"] %>
+			<td class="center-align"><%= query.publication.strftime("%d/%m/%Y") %></td>
+		<% end %>
+		<% if @cells["source_organization"] %>
+			<td class="center-align">
+				<a class="waves-effect waves-light btn-small p12 white cyan-text table-btn tooltipped" href="<%= query.url %>"target="_blank" data-tooltip="<%= query.url %>">
+					<% if query.member %>
+						<%= query.member.organization.name %>
+					<% else %>
+						Otro medio
+					<% end %>
+				</a>			
+			</td>
+		<% end %>
+		<% if @cells["source_member"] %>
+			<td class="center-align"> 
+				<% if query.member %>
+					<%if query.member.firstname %>
+						<%= query.member.firstname %>
+					<% end %>
+					<%if query.member.lastname1 %>
+						 <%= query.member.lastname1 %>
+					<% end %>
+					<%if query.member.lastname2 %>
+						 <%= query.member.lastname2 %>
+					<% end %>
+				<% end %>
+			</td>
+		<% end %>
+		<% if @cells["event_description"] %>
+			<td class="center-align"> 
+				<% unless query.events.length == 0 %>
+					<% query.events.each do |event| %>
+						<i class="tiny material-icons">check</i>
+						Ejecución de <%= event.killing.killed_count %> persona(s), 
+						<%= event.event_date.strftime("%d/%m/%Y") %>
+						<br>
+					<% end %>
+				<% end %>
+			</td>
+		<% end %>
+
+	<!-- 					STATE CELLS -->
+		<% if @cells["state_name"] %>
+			<td class="center-align"> <%= query.events.first.town.county.state.name %> </td>
+		<% end %>
+		<% if @cells["state_acronym"] %>
+			<td class="center-align"> <%= query.events.first.town.county.state.shortname %> </td>
+		<% end %>
+		<% if @cells["state_code"] %>
+			<td class="right-align"> <%= query.events.first.town.county.state.code %> </td>
+		<% end %>
+		<% if @cells["state_population"] %>
+			<td class="right-align"> <%= number_with_delimiter(query.events.first.town.county.state.population) %> </td>
+		<% end %>
+
+	<!-- 					COUNTY CELLS -->
+		<% if @cells["city_name"] %>
+			<td class="center-align">
+				<% if query.events.first.town.county.city %>
+					<%= query.events.first.town.county.city.name %>
+				<% else %>
+					--
+				<% end %>
+			</td>
+		<% end %>
+		<% if @cells["county_name"] %>
+			<td class="center-align"><%= query.events.first.town.county.name %></td>
+		<% end %>
+		<% if @cells["county_full_code"] %>
+			<td class="right-align"> <%= query.events.first.town.county.full_code %> </td>
+		<% end %>
+		<% if @cells["county_population"] %>
+			<td class="right-align"> <%= number_with_delimiter(query.events.first.town.county.population) %> </td>
+		<% end %>
+
+	</tr>
+<% end %>

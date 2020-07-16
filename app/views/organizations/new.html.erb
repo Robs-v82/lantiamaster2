@@ -1,0 +1,40 @@
+<div class="card cyan darken-2">
+	<div class="card-content white-text">
+		<form action="/organizations/create_organization" method="post">
+			<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+			<div class="row valign-wrapper white-text">
+				<div class="col s1">
+					<i class="material-icons prefix"><%= @organization_header[:icon]%></i>
+				</div>
+				<div class="col s11 left">
+					<span class="card-title"><%= @organization_header[:title]%></span>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col l3 m6">
+					<% @organization_text_inputs.each do |input| %>
+						<div>
+							<div class="col s11 offset-s1 short-row">
+								<div class="input-field short-row">
+									<input id="<%= input[:selector] %>" class="white" type="text" name="organization[<%=  input[:field_name]%>]">
+								</div>
+								<div class="label-row">
+									<label for="<%= input[:selector] %>" class="white-text"><%= input[:caption]%></label>
+								</div>
+							</div>
+						</div>
+					<% end %>
+				</div>
+				<div class="col l3 m6">
+					<%= render "shared/countysearch"%>
+				</div>
+				<div class="col l5 offset-l1 m12">
+					<%= render "shared/divisionsearch"%>
+				</div>
+			</div>
+			<div class="card-action">
+				<%= render "shared/sendbutton"%>
+			</div>
+		</form>
+	</div>
+</div>

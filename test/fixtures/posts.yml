@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  publication: 2020-06-04 16:21:55
+  content: MyString
+  hashtags: MyString
+  likes: 1
+  shares: 1
+  is_quote: false
+  is_retweet: false
+  url: MyString
+  account: one
+
+two:
+  publication: 2020-06-04 16:21:55
+  content: MyString
+  hashtags: MyString
+  likes: 1
+  shares: 1
+  is_quote: false
+  is_retweet: false
+  url: MyString
+  account: two

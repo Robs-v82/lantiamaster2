@@ -1,0 +1,4 @@
+Victim.delete_all
+Killing.delete_all
+Source.delete_all
+Event.delete_all

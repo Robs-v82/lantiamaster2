@@ -1,0 +1,33 @@
+<div class="row">
+	<div class="row">
+		<div class="col s10">
+	    	<h5>Twitter</h5>
+	    </div>
+	</div>
+	<div class="row">
+		<div class="col s12 center">
+			<table class="highlight">
+				<thead>
+					<tr>
+						<th>Cuenta</th>
+						<th>Fecha</th>
+						<th>Texto</th>
+						<th>Likes</th>
+						<th>Shares</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% @posts.each do |post|%>
+						<tr>
+							<td><%=post.account.name%></td>
+							<td><%=post.publication.strftime("%d/%m/%Y")%></td>
+							<td><%=post.content%></td>
+							<td><%=post.likes%></td>
+							<td><%=post.shares%></td>
+						</tr>
+                	<% end %>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

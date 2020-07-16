@@ -1,0 +1,32 @@
+Rails.application.routes.draw do
+  get 'sources/twitter'
+  # resources :users
+  resources :states
+  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  # get 'users' => 'users#index'
+  get 'password' => 'organizations#password'
+  get 'organizations/logout' => 'organizations#logout'
+  post 'organizations/login' => 'organizations#login'
+  get 'organizations/main' => 'organizations#main'
+  get 'organizations/banxico' => 'organizations#banxico'
+  get 'organizations/lantia' => 'organizations#lantia'
+  post 'counties/getCounties' => 'counties#getCounties'
+  post 'towns/getTowns' => 'towns#getTowns'
+  get 'sources/twitter'=>'sources#twitter'
+  get 'events/killings'=>'events#killings'
+  post 'events/create_killing'=>'events#create_killing'
+  get 'events/victims/:killed_count' => 'events#victims'
+  post 'events/create_victim' => 'events#create_victims'
+  post 'events/create_single_victim' => 'events#create_single_victim'
+  get 'organizations/new' => 'organizations#new'
+  post 'organizations/create_organization' => 'organizations#create_organization'
+  post 'organizations/getDivisions' => 'organizations#getDivisions'
+  post 'organizations/getMembers/:organization_id' => 'organizations#getMembers' 
+  get 'send_query' => 'events#send_query'
+  post 'send_query' => 'events#send_query'
+  get 'pageback' => 'events#pageback'
+  get 'pageforward' => 'events#pageforward'
+  post 'queries/get_months' => 'queries#get_months'
+  post 'states/getStates' => 'states#getStates'
+  post 'states/getCities' => 'states#getCities'
+end

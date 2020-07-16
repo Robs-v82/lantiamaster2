@@ -1,0 +1,58 @@
+<% (1..2).each do |x| %>
+	<div class="col m6 s12">
+		<div class="row valign-wrapper short-row white-text">
+	    	<div class="col s1">
+	        	<i class="material-icons prefix">link</i>
+	    	</div>
+		    <div class="col s11 left">
+		    	<span class="card-title">Fuente <%=x%></span>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s5">
+			  	<div class="input-field short-row">
+			    	<input id="source-publication-selector" type="text" class="datepicker white" name="source<%=x%>[publication]">
+			    </div>
+			    <div class="label-row">
+			      <label class="white-text" for="source-publication-selector">PUBLICACIÓN</label>
+			    </div>
+			</div>
+			<div class="col s5">
+				<div class="input-field short-row">
+					<input id="source-url-selector" type="text"  class="white" name="source<%=x%>[url]">
+				</div>
+				<div class="label-row">
+		      		<label class="white-text" for="source-url-selector">LINK</label>
+		    	</div>
+	    	</div>
+		</div>
+
+		<div class="row">
+		    <div class="col s5">
+		        <div class="input-field short-row">
+		            <select id="operation-organization<%=x%>-selector" class="browser-default" name="source<%=x%>[organization_id]">
+		                <option value="" selected>Todas</option>
+		                <% @media_sites.each do |organization|%>
+		                    <option value="<%= organization.id %>"><%= organization.name%></option>
+		                <% end %>
+		            </select>
+		        </div>
+		        <div class="label-row">
+		            <label class="white-text" for="operation-organization<%=x%>-selector">MEDIO</label>
+		        </div>
+		    </div>
+		    <div class="col s5">
+		        <div class="input-field short-row">
+		            <select id="operation-member<%=x%>-selector" disabled class="admins-select browser-default" name="source<%=x%>[member_id]">
+		            </select>
+		        </div>
+		        <div class="label-row">
+		            <label class="white-text" for="operation-member-selector<%=x%>">AUTOR</label>
+		        </div>
+		    </div>
+		</div>
+
+		<div class="row">
+		</div>
+	</div>
+<% end %>

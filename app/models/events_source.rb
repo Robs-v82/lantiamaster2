@@ -1,0 +1,2 @@
+class EventsSource < ApplicationRecord
+end
