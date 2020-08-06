@@ -50,6 +50,11 @@ gem "chartkick"
 
 gem 'daru-view', git: 'https://github.com/SciRuby/daru-view'
 
+gem 'capistrano'
+gem 'capistrano-rails'
+gem 'capistrano-bundler'
+gem 'capistrano-rbenv'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
