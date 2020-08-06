@@ -19,6 +19,10 @@ class UsersController < ApplicationController
   def intro
   end
 
+  def landing
+    
+  end
+
   # def login
   #   target_user = User.find_by_mail(user_params[:mail])
   #   if target_user && target_user.authenticate(user_params[:password])
