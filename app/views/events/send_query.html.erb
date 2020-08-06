@@ -1,28 +1,45 @@
 <div class="row white">
 	<div class="title-area white valign-wrapper">
-		<div class="col l6 m8 s12">
-			<h5><span class="slim">Resultados de la consulta:</span> <%= @type_of_query %></h5>
+		<% if @data_length <= 200 %>
+<!-- 			<div class=" animate__animated animate__pulse">
+ -->				<div class="col s1">
+					<a class="dropdown-trigger btn-medium download-icon" href='#' data-target='dropdown1'>
+						<i class="material-icons medium cyan-text">cloud_download</i>
+						<ul id='dropdown1' class='dropdown-content center-content'>
+							<li class="download-dropdown"><a class="download-icon" href="/queries/send_query_file/csv"><%= image_tag "csv_icon.png", :class => "small-icon-size" %></a></li>
+							<li class="download-dropdown"><a class="download-icon" href="/queries/send_query_file/xlxs"><%= image_tag "xlsx_icon.png", :class => "small-icon-size" %></a></li>
+							<li class="download-dropdown"><a class="download-icon" href="/queries/send_query_file/pdf"><%= image_tag "pdf_icon.png", :class => "small-icon-size" %></a></li>
+						</ul>
+					</a>
+				</div>
+<!-- 			</div>
+ -->		<% end %>
+		<div class="col l5 m8 s11">
+			<h5 class=" h5-no-margin"><span class="slim">Resultados de la consulta:</span> <%= @type_of_query %></h5>
 			<% if @county_query %>
-				<h5 class="cyan-text text-darken-2"><%= @my_county.name %>, <%= @my_county.state.shortname %>.</h5>
+				<h5 class="cyan-text text-darken-2 h5-no-margin"><%= @my_county.name %>, <%= @my_county.state.shortname %>.</h5>
 			<% end %>
 			<% if @state_query %>
-				<h5 class="cyan-text text-darken-2"><%= @my_state.name %></h5>
+				<h5 class="cyan-text text-darken-2 h5-no-margin"><%= @my_state.name %></h5>
 			<% end %>
 			<% if @city_query %>
-				<h5 class="cyan-text text-darken-2">Zona Metropolitana de <%= @my_city.name %></h5>
+				<h5 class="cyan-text text-darken-2 h5-no-margin">Zona Metropolitana de <%= @my_city.name %></h5>
 			<% end %>
 			<% if @month_query %>
-				<h5 class="cyan-text text-darken-2"><%= @my_month["month"] %>/<%= @my_month["year"] %></h5>
+				<h5 class="cyan-text text-darken-2 h5-no-margin"><%= @my_month["month"] %>/<%= @my_month["year"] %></h5>
+			<% end %>
+			<% if @year_query %>
+				<h5 class="cyan-text text-darken-2 h5-no-margin"><%= @my_year %></h5>
 			<% end %>
 		</div>
 		<div class="col l6 m8 s12">
-			<div class="right">
+			<div class="right valign-wrapper">
 				<% unless session[:page] == 1 %>
-					<a class="btn-floating btn-small waves-effect waves-light cyan" href="/pageback"><i class="material-icons">arrow_back</i></a><span>	</span>
+					<a class="btn-floating btn-small waves-effect waves-light cyan" href="/pageback"><i class="material-icons">chevron_left</i></a>
 				<%end%>
-				<span class="side-margin"><%= @beginning %> a <%= @end %> de <%= number_with_delimiter(@data_length) %> registros	</span>
+				<span class="side-margin slim p18"><%= @beginning %> a <%= @end %> de <%= number_with_delimiter(@data_length) %> registros	</span>
 				<% unless @finalPage %>
-					<a class="btn-floating btn-small waves-effect waves-light cyan" href="/pageforward"><i class="material-icons">arrow_forward</i></a>
+					<a class="btn-floating btn-small waves-effect waves-light cyan" href="/pageforward"><i class="material-icons">chevron_right</i></a>
 				<% end %>
 			</div>
 		</div>
@@ -54,3 +71,16 @@
 		</div>
 	</div>
 </div>
+
+<!-- EMAIL MODAL -->
+<% if @email_success %>
+	<div id="email-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">Enviamos los resultados de tu consuta a <span class="cyan-text bold text-darken-2"><%= @user.mail %></span>. El procesamiento del correo puede tardar algunos minutos.</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

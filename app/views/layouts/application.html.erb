@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Lantiamaster</title>
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
+    <head>
+        <title>Lantiamaster</title>
+        <%= csrf_meta_tags %>
+        <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
-    
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+        <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
 
-  </head>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css">
 
+        <%= wicked_pdf_stylesheet_link_tag "application" %>
+
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/series-label.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    </head>
   <body>
     <div class="container">
       <br>
@@ -31,10 +36,10 @@
           <% if session[:user_id] %>
             <div class="col s2 right">
                 <a href="/organizations/logout" class="right tooltipped" data-position="bottom" data-tooltip="Cerrar sesión">
-                  <i class="small material-icons cyan-text text-darken-2">exit_to_app</i>
+                  <i class="small material-icons cyan-text text-accent-4 right-extra-margin">exit_to_app</i>
                 </a>
                 <a href="/organizations/main" class="right tooltipped" data-position="bottom" data-tooltip="Consulta interactiva de datos">
-                  <i class="small material-icons cyan-text text-darken-2">search</i>
+                  <i class="small material-icons cyan-text text-accent-4 right-extra-margin">search</i>
                 </a>
             </div>
         <% end %>

@@ -1,0 +1,24 @@
+<div class="row top-row valign-wrapper">
+	<div class="col s1">
+		<i class="material-icons medium right">grid_on</i>
+	</div>
+	<div class="col s11">
+		<h5 class=" h5-no-margin">
+			<span class="slim"> Tabla de frecuencias</span>
+		</h5>
+		<h5>Víctimas letales del crimen organizado</h5>
+	</div>
+</div>
+<ul class="collapsible">
+	<% @states.each do |state| %>
+		<li>
+			<div class="collapsible-header"><%= state.name %></div>
+			<% state.counties.each do |county|%>
+				<div class="collapsible-body valign-wrapper">
+					<span class="left-large-margin"><%= county.full_code %> - </span>
+					<span><%= county.name %></span>
+				</div>
+			<% end %>
+		</li>
+	<% end %>
+</ul>

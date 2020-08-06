@@ -366,22 +366,24 @@ rawData='1,Zona metropolitana de Aguascalientes
 59,Zona metropolitana de Teziutlán
 59,Zona metropolitana de Teziutlán'
 
-# cityArr = []
-# rawData.each_line{|l| line = l.split(','); cityArr.push(line)}
-# cityArr.each{|x|x.each{|y|y.strip!}}
-# cityArr=cityArr.uniq
-# cityArr.each{|x|
-# 	myName=x[1][22..-1]
-# 	myCode=x[0]
-# 	# print " **** CODE: " + myCode + " NAME: " + myName 
-# 	City.create(:name=>myName, :code=>myCode)
-# }
-
-City.all.each{|x|
-	if x.counties.empty?
-		x.destroy
-	end
+cityArr = []
+rawData.each_line{|l| line = l.split(','); cityArr.push(line)}
+cityArr.each{|x|x.each{|y|y.strip!}}
+cityArr=cityArr.uniq
+cityArr.each{|x|
+	myName=x[1][22..-1]
+	myCode=x[0]
+	# print " **** CODE: " + myCode + " NAME: " + myName 
+	City.create(:name=>myName, :code=>myCode)
 }
+
+
+# RESET EMPTY CITIES
+# City.all.each{|x|
+# 	if x.counties.empty?
+# 		x.destroy
+# 	end
+# }
 
 
 # 21174

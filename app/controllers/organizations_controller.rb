@@ -19,7 +19,7 @@ class OrganizationsController < ApplicationController
   		@myQueries = [
   			{caption:"Ejecuciones", box_id:"killing_query_box", name:"for_killing"},
 			{caption:"Víctimas", box_id:"victim_query_box", name:"for_victim"},
-			{caption:"Fuentes", box_id:"source_query_box", name:"for_source"},
+			# {caption:"Fuentes", box_id:"source_query_box", name:"for_source"},
   		]
 
   		@victim_checkboxes = [
@@ -74,7 +74,7 @@ class OrganizationsController < ApplicationController
 	  	target_user = User.find_by_mail(password_params[:mail])
 	    if target_user && target_user.authenticate(password_params[:password])
 	      session[:user_id] = target_user[:id]
-	      redirect_to '/organizations/main'
+	      redirect_to '/intro'
 	    else
 	      redirect_to '/password'
 	    end   

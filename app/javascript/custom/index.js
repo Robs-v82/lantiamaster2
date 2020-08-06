@@ -21,6 +21,12 @@
 		// 	});
 		// });
 
+		// ADD COLLAPSIBLE
+
+		$(document).ready(function(){
+			$('.collapsible').collapsible();
+		});
+
 		// ADD SIDENAV
 		  $(document).ready(function(){
 		    $('.sidenav').sidenav();
@@ -46,6 +52,58 @@
 		    $('.timepicker').timepicker();
 		  });
 
+		// ADD DROPDOWN
+		$(document).ready(function(){
+			$('.dropdown-trigger').dropdown();
+		});
+
+		// TABS
+		$(document).ready(function(){
+			$('.tabs').tabs();
+		});
+
+		// MODAL
+		$(document).ready(function(){
+		    $('.modal').modal();
+		  })
+
+		// CAROUSEL
+		$(document).ready(function(){
+    		$('#violence-report-carousel').carousel({
+    			noWrap: true,
+    			indicators: true,
+    			onCycleTo: function(ele) {
+      				var month = $(ele).index();
+      				console.log(month)
+      				$.post(
+      					'/months/header_selector/'+month,
+      					$(this).serialize(),
+      					function(data) {
+      						console.log(data.month);
+      						$('#report-carousel-header').html('');
+      						var new_header = data.month;
+      						$('#report-carousel-header').append(new_header);
+      					}
+      				)
+      				return false
+   				}
+    		});
+		});
+
+		// EMAIL MODAL
+		$(document).ready(function(){
+			if($('#email-modal').length) {
+	    		$('#email-modal').modal('open')
+			}
+		})
+
+		// LOAD MODAL
+		$(document).ready(function(){
+			if($('#load-modal').length) {
+	    		$('#load-modal').modal('open')
+			}
+		})
+	    	
 		// CUSTOM JAVASCRIPT
 		// GET STATE COUNTIES
 		$('#operation-state-selector').change(function() {
@@ -116,6 +174,27 @@
 			return false
 		})
 
+		// GET REGULAR MONTHS
+		$('.g-operation-year-selector').change(function() {
+			$('.g-operation-month-selector').removeAttr('disabled')
+			$('.g-operation-month-selector').html('')
+			$.post(
+				'/queries/get_regular_months',
+				$(this).serialize(),
+				function(data) {
+					console.log("Hola")
+					console.log(data.months[0])
+					var monthOptions = "<option value='' selected>Todos</option>"
+					for (i=0; i<data.months.length; i++) {
+						monthOptions += "<option name='query[month]' value='"+data.months[i]+"'>"+data.months[i]+"</option>"
+					}
+				$('.g-operation-month-selector').append(monthOptions)
+				}
+			)
+			return false
+		})
+
+
 		// GET MONTHS
 		$('#operation-year-selector').change(function() {
 			$('#operation-month-selector').removeAttr('disabled')
@@ -131,6 +210,26 @@
 						monthOptions += "<option name='query[month]' value='"+data.months[i]+"'>"+data.months[i]+"</option>"
 					}
 				$('#operation-month-selector').append(monthOptions)
+				}
+			)
+			return false
+		})
+
+		// GET QUARTERS
+		$('#operation-quarter-year-selector').change(function() {
+			$('#operation-quarter-selector').removeAttr('disabled')
+			$('#operation-quarter-selector').html('')
+			$.post(
+				'/queries/get_quarters',
+				$(this).serialize(),
+				function(data) {
+					console.log("Hola")
+					console.log(data.quarters[0])
+					var quarterOptions = "<option value='' selected>Todos</option>"
+					for (i=0; i<data.quarters.length; i++) {
+						quarterOptions += "<option name='query[quarter]' value='"+data.quarters[i]+"'>"+data.quarters[i]+"</option>"
+					}
+				$('#operation-quarter-selector').append(quarterOptions)
 				}
 			)
 			return false

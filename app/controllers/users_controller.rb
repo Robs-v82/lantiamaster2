@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  
+  layout false, only: [:intro]
   # before_action :set_user, only: [:show, :edit, :update, :destroy]
 
   # GET /users
@@ -14,6 +16,9 @@ class UsersController < ApplicationController
   def password  
   end
 
+  def intro
+  end
+
   # def login
   #   target_user = User.find_by_mail(user_params[:mail])
   #   if target_user && target_user.authenticate(user_params[:password])
@@ -24,18 +29,6 @@ class UsersController < ApplicationController
   #     redirect_to '/users/password'
   #   end   
   # end
-
-  def login
-    target_user = User.find_by_mail(user_params[:mail])
-    print "XXXXX"*50+target_user.lastname1
-    if target_user && target_user.authenticate(user_params[:password])
-      print "***Succes***"*500
-      session[:user_id] = target_user[:id]
-      redirect_to '/'
-    else
-      redirect_to '/users/password'
-    end   
-  end
 
   # GET /users/1
   # GET /users/1.json

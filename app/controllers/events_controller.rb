@@ -1,5 +1,7 @@
 class EventsController < ApplicationController
 
+	after_action :remove_email_message, only: [:send_query]
+
 	def killings
 		@states = State.all
 		@source_counter = State.find(1,2)
@@ -161,7 +163,10 @@ class EventsController < ApplicationController
 	end
 
 	def send_query
-
+		if session[:email_success]
+			@email_success = true
+		end
+		@user = User.find(session[:user_id])
 		@page_scope = 20
 		if session[:page] == nil
 			session[:page] = 1			
@@ -173,6 +178,10 @@ class EventsController < ApplicationController
 			myParams = query_params
 			session[:params] = myParams
 		end 
+
+		# myHash = helpers.define_query(myParams)
+		# @myQuery = myHash[:myQuery]
+		# @type_of_query = myHash[:type_of_query]
 
 	 	# DEFINE GEOGRAPHIC SCOPE OF QUERY
 	 	if myParams["county_id"] != "" && myParams["county_id"] != nil
@@ -271,117 +280,11 @@ class EventsController < ApplicationController
 	 		@end = @page_scope * session[:page]
 	 	end
 	 	@beginning = 1+((session[:page]-1)*@page_scope)
- 		@myQuery = @myQuery[@beginning - 1, @page_scope]
- 		
- 		@header = []
- 		@cells = {}
+ 		# @myQuery = @myQuery[@beginning - 1, @page_scope]
+ 		@pageQuery = @myQuery[@beginning - 1, @page_scope]
 
- 		# VICTIM CELLS
- 		if myParams["victim_name"]
- 			@header.push("NOMBRE")
- 			@cells["victim_name"] = true
- 		end
- 		if myParams["victim_alias"]
- 			@header.push("ALIAS")
- 			@cells["victim_alias"] = true
- 		end
- 		if myParams["victim_gender"]
- 			@header.push("SEXO")
- 			@cells["victim_gender"] = true
- 		end
- 		if myParams["victim_age"]
- 			@header.push("EDAD")
- 			@cells["victim_age"] = true
- 		end
- 		if myParams["victim_boolean"]
- 			@header.push("CARACTERÍSTICAS VÍCTIMA")
- 			@cells["victim_boolean"] = true
- 		end
-
-
- 		# SOURCE CELLS
- 		if myParams["source_publication"]
- 			@header.push("FECHA PUBLICACIÓN")
- 			@cells["source_publication"] = true
- 		end
- 		if myParams["source_organization"]
- 			@header.push("MEDIO/LINK")
- 			@cells["source_organization"] = true
- 		end
- 		if myParams["source_member"]
- 			@header.push("AUTOR")
- 			@cells["source_member"] = true
- 		end
- 		if myParams["event_description"]
- 			@header.push("DESCRIPCIÓN")
- 			@cells["event_description"] = true
- 		end
-
- 		# STATE CELLS
- 		if myParams["state_name"]
- 			@header.push("NOMBRE ENTIDAD FEDERATIVA")
- 			@cells["state_name"] = true
- 		end
- 		if myParams["state_acronym"]
- 			@header.push("ABREVIATURA ENTIDAD FEDERATIVA")
- 			@cells["state_acronym"] = true
- 		end
- 		if myParams["state_code"]
- 			@header.push("CÓDIGO ENTIDAD FEDERATIVA")
- 			@cells["state_code"] = true
- 		end
- 		if myParams["state_population"]
- 			@header.push("POBLACIÓN ENTIDAD FEDERATIVA")
- 			@cells["state_population"] = true
- 		end
- 		
- 		# COUNTY CELLS
- 		if myParams["city_name"]
- 			@header.push("ZONA METROPOLITANA")
- 			@cells["city_name"] = true
- 		end
- 		if myParams["county_name"]
- 			@header.push("MUNICIPIO")
- 			@cells["county_name"] = true
- 		end
- 		if myParams["county_full_code"]
-			@header.push("CÓDIGO MUNICIPIO")
- 			@cells["county_full_code"] = true
- 		end
- 		if myParams["county_population"]
-			@header.push("CÓDIGO MUNICIPIO")
- 			@cells["county_population"] = true
- 		end
-
- 		# EVENT/KILLING CELLS
- 		if myParams["event_date"]
- 			@header.push("FECHA EJECUCIÓN")
- 			@cells["event_date"] = true
- 		end
- 		if myParams["killed_count"]
- 			@header.push("NÚM MUERTOS EJECUCIÓN")
- 			@cells["killed_count"] = true
- 		end
- 		if myParams["aggresor_count"]
- 			@header.push("NÚM AGRESORES")
- 			@cells["aggresor_count"] = true
- 		end
- 		if myParams["type_of_place"]
- 			@header.push("TIPO DE LUGAR")
- 			@cells["type_of_place"] = true
- 		end
- 		if myParams["killer_vehicle_count"]
- 			@header.push("NÚM VEHÍCULOS")
- 			@cells["killer_vehicle_count"] = true
- 		end
- 		if myParams["killing_boolean"]
- 			@header.push("CARACTERÍSTICAS EJECUCIÓN")
- 			@cells["killing_boolean"] = true
- 		end
- 		if myParams["event_sources"]
- 			@header.push("FUENTES")
- 			@cells["event_sources"] = true
- 		end
+ 		@header = helpers.header_and_cells[:header]
+ 		@cells = helpers.header_and_cells[:cells]
 	end	
 
 	def pageback

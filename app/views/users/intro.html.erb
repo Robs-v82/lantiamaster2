@@ -1,0 +1,56 @@
+<head>
+    <title>Lantiamaster</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css">
+	<style type="text/css">
+		#intro-background {
+			min-width: 960px;
+			min-height: 960px;
+		} 
+
+		.intro-color{
+			background-color: #ffffff
+		}
+
+		#intro-image {
+			width: 480px;
+			position: absolute;
+		    top:0;
+		    bottom: 0;
+		    left: 0;
+		    right: 0;
+			margin: auto;
+		}
+
+		#intro-logo {
+			width: 100%;
+		}
+
+	</style>
+	<script type="text/javascript">
+		var ready
+		
+		ready = function(){
+			$(document).ready(function() {
+					setTimeout(function() {
+						window.location.href = '/organizations/main';
+					},3000
+		  			)
+				}
+			)
+		}
+
+		$(document).ready(ready)
+		$(document).on('page:load', ready)
+	</script>
+</head>
+<body>
+	<div id="intro-background" class="intro-color">
+		<div id="intro-image" class="animate__animated animate__backInUp valign-wrapper">
+			<img id="intro-logo" src="/assets/optimized_logo.jpg">
+		</div>
+	</div>
+</body>

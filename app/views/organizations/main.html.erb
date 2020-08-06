@@ -1,22 +1,34 @@
+<div class="row top-row valign-wrapper">
+	<div class="col s1">
+		<i class="material-icons medium right">search</i>
+	</div>
+	<div class="col s11">
+		<h5 class=" h5-no-margin">
+			<span class="slim"> Consulta interactiva de registros</span>
+		</h5>
+	</div>
+</div>
 <div class="card cyan darken-1">
 	<div class="card-content white-text">
 		<form action="/send_query" method="post">
 			<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
 			<div class="row">
 				<div class="col l3 m6 s12 short-row">
-					<div class="query-header-box valign-wrapper cyan-text text-accent-2">
-						<i class="material-icons small">storage</i><p5 class="query-header">Filas</p5>
+					<div class="animate__animated animate__pulse">
+						<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+							<i class="material-icons small">storage</i><p5 class="query-header">Filas</p5>
+						</div>
+						<div id="general_query_selector">
+					    	<% @myQueries.each do |query| %>
+								<p>
+									<label>
+										<input  id="<%= query[:box_id] %>" name="query[killing_query_group]" value="<%= query[:name] %>" type="radio"/>
+										<span class="white-text p20 slim"><%= query[:caption] %></span>
+									</label>
+								</p>
+					    	<% end %>
+					    </div>
 					</div>
-					<div id="general_query_selector">
-				    	<% @myQueries.each do |query| %>
-							<p>
-								<label>
-									<input  id="<%= query[:box_id] %>" name="query[killing_query_group]" value="<%= query[:name] %>" type="radio"/>
-									<span class="white-text p18 slim"><%= query[:caption] %></span>
-								</label>
-							</p>
-				    	<% end %>
-				    </div>
 				    <br>
 					<div class="query-header-box valign-wrapper cyan-text text-accent-2">
 						<i class="material-icons small">tune</i><p5 class="query-header">Filtros</p5>

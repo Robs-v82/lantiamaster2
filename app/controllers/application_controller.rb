@@ -68,6 +68,22 @@ class ApplicationController < ActionController::Base
 		return myRoles
 	end
 
+	def remove_email_message
+		if session[:email_success]
+			session[:email_success] = nil
+			print "****"
+			print "REMOVING EMAIL SUCCESS"
+		end
+	end
+
+	def remove_load_message
+		if session[:load_success]
+			session[:load_success] = nil
+			print "****"
+			print "REMOVING LOAD SUCCESS"
+		end
+	end
+
 	protected
 
 		def myResouces

@@ -124,7 +124,7 @@ multimedios.com,1,Canal 6,09
 noticel.mx,1,Noticel,14
 mural.com,1,Mural,14"
 
-media_division = Division.find(173)
+media_division = Division.where(:scian3=>510).last
 mediaArr = []
 rawData.each_line{|l| line = l.split(","); mediaArr.push(line)}
 mediaArr.each{|x|x.each{|y|y.strip!}}

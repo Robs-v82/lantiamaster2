@@ -1,0 +1,24 @@
+<div class="row">
+  <div class="col s5 offset-s1">
+    <div class="input-field short-row">
+      <select id="operation-quarter-year-selector" class="admins-select browser-default" name="query[year]">
+        <option value="" selected>Todos</option>
+        <% @myYears.each do |year|%>
+          <option value="<%= year %>"><%= year %></option>
+        <% end %>
+      </select>
+    </div>
+    <div class="label-row">
+      <label class="white-text" for="operation-quarter-year-selector">AÑO</label>
+    </div>
+  </div>
+  <div class="col s5 offset-s1">
+    <div class="input-field short-row">
+      <select id="operation-quarter-selector" disabled class="admins-select browser-default" name="query[quarter]">
+      </select>
+    </div>
+    <div class="label-row">
+      <label class="white-text" for="operation-quarter-selector">TRIMESTRE</label>
+    </div>
+  </div>
+</div>

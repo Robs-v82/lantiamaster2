@@ -1,0 +1,168 @@
+<div class="row top-row valign-wrapper">
+	<div class="col s1">
+		<i class="material-icons medium right">show_chart</i>
+	</div>
+	<div class="col s11">
+		<h5 class=" h5-no-margin">
+			<span class="slim"> Índice de Seguridad Pública y Violencia (ISPyV)</span>
+		</h5>
+		<h5 class="h5-no-margin">
+			<span id="ispyv-header" class="cyan-text text-accent-4"><%= @current_quarter_strings[:quarterText] %> de <%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></span>
+		</h5>
+	</div>
+</div>
+<div class="row">
+	<% [0..15,16..31].each do |myGroup|%>
+		<div class="col l6 m10 s12">
+			<div class="card">
+				<div class="card-content grey lighten-3">
+					<table id="ispyv_table" class="highlight">
+						<thead>
+							<tr>
+								<% @tableHeader.each do |head| %>
+									<th class="center-align"><%= head %></th>
+								<% end %>
+							</tr>
+						</thead>
+						<tbody class="p16">
+							<% @ispyvTable[myGroup].each do |state| %>
+								<tr>
+									<td class="valign-wrapper">
+										<a class="modal-trigger" href="#<%= state[:object].id %>-ispyv-modal">
+											<i class="material-icons <%= state[:color] %>-text text-darken-2 right-extra-margin">add_circle</i>
+										</a>
+										<%= state[:name] %>
+									</td>
+									<td class="center-align"><%= state[:ispyv_score] %></td>
+									<td class="center-align"><%= state[:level] %></td>
+									<td class="center-align"><%= state[:trend] %></td>
+								</tr>
+							<% end %>
+						</tbody>
+					</table>
+				</div>
+			</div>	
+		</div>
+	<% end %>
+</div>
+<!-- MODAL SECTION -->
+<% @ispyvTable.each do |state| %>
+	<div id="<%= state[:object].id %>-ispyv-modal" class="modal large-modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<div class="row">
+				<div class="col m4 s10 offset-s2">
+					<h5 class="slim valign-wrapper">
+						<i class="material-icons small <%= state[:color] %>-text text-darken-2 right-extra-margin">brightness_1</i>
+						<%= state[:name] %>
+					</h5>
+					<p><span class="slim">ISPyV: </span><%= state[:ispyv_score] %></p>
+					<p><span class="slim">Nivel: </span><%= state[:level] %></p>
+					<p><span class="slim">Tendencia: </span><%= state[:trend] %></p>
+					<br>
+					<div class="divider"></div>
+					<div class="stress-line valign-wrapper center">
+						<p><%= state[:rank] %><sup>a</sup> entidad federativa con mayor riesgo</p>
+					</div>
+					<div class="divider"></div>
+					<br>
+					<p><span class="slim left-large-margin">Población: </span><%= number_with_delimiter(state[:population]) %></p>
+					<div id="governor-box" class="valign-wrapper">
+						<%= image_tag(state[:governor].avatar, :class=> "tiny-thumb right-extra-margin z-depth-1 circle") %>
+						<div>
+							<p class="slim">Gobernador:</p>
+							<p><span class="slim"></span><%= state[:governor].firstname+" "+state[:governor].lastname1+" "+state[:governor].lastname2 %></p>
+						</div>
+					</div>
+				</div>
+				<div class="col m7 offset-m1 s12">
+					<ul class="tabs cyan-text">
+						<li class="tab col s4 cyan-text"><a href="#<%= state[:object].id %>-ispyv-indicadores" class="active cyan-text">Indicadores</a>
+						<li class="tab col s4 cyan-text"><a href="#<%= state[:object].id %>-ispyv-evolucion" class="cyan-text">Evolución</a></li>
+						<li class="tab col s4 cyan-text"><a href="#<%= state[:object].id %>-ispyv-comparativo" class="cyan-text">Comparativo</a></li>
+					</ul>
+				</div>
+				<div class="col m7 offset-m1 s12" id="<%= state[:object].id %>-ispyv-indicadores">
+					<table>
+						<thead>
+							<tr class="p12">
+								<td class="center-align">INDICADOR</td>
+								<td class="center-align"><%= @current_quarter_strings[:quarterShort] %>/<%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></td>
+								<td class="center-align">CAMBIO RESPECTO A <%= @back_one_q_strings[:quarterShort] %>/<%= I18n.l(@back_one_q_strings[:quarterDate], format: '%Y') %></td>
+								<td class="center-align">CAMBIO RESPECTO A <%= @back_one_y_strings[:quarterShort] %>/<%= I18n.l(@back_one_y_strings[:quarterDate], format: '%Y') %></td>
+							</tr>
+						</thead>
+						<tbody>
+<!-- 							FEEL SAFE -->
+							<tr>
+								<td>Población que se siente insegura</td>
+								<td class="center-align p20">
+									<%= state[:feel_safe]%>%
+								</td>
+								<td class="">
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= state[:feel_safe_change_q1_color]%>-text right-extra-margin"><%= state[:feel_safe_change_q1_icon] %></i>
+										<%= state[:feel_safe_change_q1]%>%
+									</div>
+								</td>
+								<td class="center-align">
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= state[:feel_safe_change_y1_color]%>-text right-extra-margin"><%= state[:feel_safe_change_y1_icon] %></i>
+										<%= state[:feel_safe_change_y1]%>%
+									</div>
+								</td>
+							</tr>
+<!-- 							STOLEN CARS -->
+							<tr>
+								<td>Vehículos robados</td>
+								<td class="center-align p20">
+									<%= number_with_delimiter(state[:current_stolen_cars]) %>
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= state[:q1_stolen_cars_color]%>-text right-extra-margin"><%= state[:q1_stolen_cars_icon] %></i>
+										<%= state[:q1_stolen_cars_change]%>%
+									</div>			
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= state[:y1_stolen_cars_color]%>-text right-extra-margin"><%= state[:y1_stolen_cars_icon] %></i>
+										<%= state[:y1_stolen_cars_change]%>%				
+									</div>
+								</td>
+							</tr>
+<!-- 							VICTIMAS CRIMEN ORGANIZADO  -->
+							<tr>
+								<td>Víctimas letales del crimen organizado</td>
+								<td class="center-align p20">
+									<%= number_with_delimiter(state[:current_victims]) %>
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= state[:q1_victims_change_color]%>-text right-extra-margin"><%= state[:q1_victims_change_icon] %></i>
+										<%= state[:q1_victims_change]%>%
+									</div>
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= state[:y1_victims_change_color]%>-text right-extra-margin"><%= state[:y1_victims_change_icon] %></i>
+										<%= state[:y1_victims_change]%>%
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="col m7 offset-m1 s12" id="<%= state[:object].id %>-ispyv-evolucion">	
+					<%= line_chart state[:evolution_score], :title=>"ISPyV: #{state[:name]}",:colors=>["#00bcd4","#00bcd4"] %>
+				</div>
+				<div class="col m7 offset-m1 s12" id="<%= state[:object].id %>-ispyv-comparativo">
+					<%= column_chart @comparisonTable[state[:object].id-1], :title=>"ISPyV: #{@current_quarter_strings[:quarterText]} de #{I18n.l(@current_quarter_strings[:quarterDate], format: '%Y')}", :max=>8, :colors=> ["#00bcd4","#00bcd4"] %>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

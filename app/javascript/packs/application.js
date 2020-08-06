@@ -10,6 +10,8 @@ require("channels")
 require("jquery")
 require("materialize")
 require("custom")
+require("chartkick")
+require("chart.js")
 
 
 import './stylesheets/application'

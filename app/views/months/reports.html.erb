@@ -1,0 +1,23 @@
+<div class="row top-row valign-wrapper">
+	<div class="col s1">
+		<i class="material-icons medium right">assignment</i>
+	</div>
+	<div class="col s11">
+		<h5 class=" h5-no-margin">
+			<span class="slim"> Reporte mensual de violencia del crimen organizado: </span>
+		</h5>
+		<h5 class="h5-no-margin">
+			<span id="report-carousel-header" class="cyan-text text-accent-4"> <%= I18n.l(@months.first.first_day, format: '%B de %Y') %></span>
+		</h5>
+	</div>
+</div>
+<div class="row">
+	<div class="cyan lighten-4">
+		<div id="violence-report-carousel" class="carousel">
+			<% @months.each do |month| %>
+				<% report = month.violence_report %>
+				<a  class="carousel-item" href="<%= url_for(report) %>" target="blank"> <%= image_tag report.preview(resize: "450 x450") %></a>
+			<% end %>
+		</div>
+	</div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_30_005118) do
+ActiveRecord::Schema.define(version: 2020_08_03_225104) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -83,6 +83,8 @@ ActiveRecord::Schema.define(version: 2020_06_30_005118) do
     t.integer "town_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "month_id"
+    t.index ["month_id"], name: "index_events_on_month_id"
     t.index ["town_id"], name: "index_events_on_town_id"
   end
 
@@ -133,6 +135,15 @@ ActiveRecord::Schema.define(version: 2020_06_30_005118) do
     t.index ["role_id"], name: "index_members_on_role_id"
   end
 
+  create_table "months", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "quarter_id", null: false
+    t.datetime "first_day"
+    t.index ["quarter_id"], name: "index_months_on_quarter_id"
+  end
+
   create_table "organizations", force: :cascade do |t|
     t.string "name"
     t.string "acronym"
@@ -142,6 +153,9 @@ ActiveRecord::Schema.define(version: 2020_06_30_005118) do
     t.string "rfc"
     t.integer "county_id"
     t.string "domain"
+    t.boolean "active_links"
+    t.date "active_since"
+    t.string "league"
     t.index ["county_id"], name: "index_organizations_on_county_id"
   end
 
@@ -158,6 +172,15 @@ ActiveRecord::Schema.define(version: 2020_06_30_005118) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["account_id"], name: "index_posts_on_account_id"
+  end
+
+  create_table "quarters", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "year_id"
+    t.datetime "first_day"
+    t.index ["year_id"], name: "index_quarters_on_year_id"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -194,6 +217,8 @@ ActiveRecord::Schema.define(version: 2020_06_30_005118) do
     t.integer "population"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "ensu_cities"
+    t.text "comparison"
   end
 
   create_table "towns", force: :cascade do |t|
@@ -285,16 +310,26 @@ ActiveRecord::Schema.define(version: 2020_06_30_005118) do
     t.index ["role_id"], name: "index_victims_on_role_id"
   end
 
+  create_table "years", force: :cascade do |t|
+    t.string "name"
+    t.datetime "first_day"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "counties", "cities"
   add_foreign_key "counties", "states"
   add_foreign_key "divisions", "sectors"
+  add_foreign_key "events", "months"
   add_foreign_key "events", "towns"
   add_foreign_key "killings", "events"
   add_foreign_key "members", "organizations"
   add_foreign_key "members", "roles"
+  add_foreign_key "months", "quarters"
   add_foreign_key "organizations", "counties"
   add_foreign_key "posts", "accounts"
+  add_foreign_key "quarters", "years"
   add_foreign_key "sources", "members"
   add_foreign_key "towns", "counties"
   add_foreign_key "users", "members"

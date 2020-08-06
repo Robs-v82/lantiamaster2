@@ -1,0 +1,47 @@
+<div class="row">
+	<div class="col l4 m6 s12 short-row">
+		<div class="card cyan lighten-4">
+			<div class="card-content">
+				<div class="query-header-box valign-wrapper cyan-text text-darken-2">
+					<i class="material-icons small">cloud_download</i><p5 class="query-header">Descarga de catálogos</p5>
+				</div>
+				<table class="">
+					<tbody>
+						<% @fileArr.each do |x| %>
+							<tr>
+								<td class="p18"><%= x[:caption] %></td>
+								<td>
+									<% if x[:csv] %>
+										<a href="/queries/send_file/<%= x[:route] %>/csv"><%= image_tag "csv_icon.png", :class => "small-icon-size" %></a>
+									<% end %>
+									<% if x[:excel] %>
+<!-- 									<a href="/queries/send_file/<%= x[:route] %>/xlsx"><%= image_tag "xlsx_icon.png", :class => "small-icon-size" %></a>
+-->										<%= link_to test_path(format: :xlsx) do %> 
+												<%= image_tag "xlsx_icon.png", :class => "small-icon-size" %>
+										<% end %>
+									<% end %>
+									<% if x[:pdf] %>
+										 <a href="/queries/send_file/<%= x[:route] %>/pdf"><%= image_tag "pdf_icon.png", :class => "small-icon-size" %></a>
+									<% end %>
+								</td>
+							</tr>
+						<% end %>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- EMAIL MODAL -->
+<% if @email_success %>
+	<div id="email-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">Enviamos el catálogo a <span class="cyan-text bold text-darken-2"><%= @user.mail %></span>. El procesamiento del correo puede tardar algunos minutos.</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

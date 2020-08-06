@@ -1,0 +1,7 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Localidades") do |sheet|
+headers = %w{id county.full_code name full_code zip_code urban settlement_type}
+sheet.add_row headers
+@records.each do |record|
+	sheet.add_row [record.id, record.county.full_code, record.name, record.full_code, record.zip_code, record.urban, record.settlement_type]
+end

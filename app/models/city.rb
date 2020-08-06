@@ -6,4 +6,17 @@ class City < ApplicationRecord
 	has_many :killings, :through => :events
 	has_many :victims, :through => :killings
 	has_many :sources, :through => :events
+
+	def self.to_csv
+		attributes = %w{id name code}
+		CSV.generate(headers: true) do |csv|
+			csv << attributes
+
+			all.each do |city|
+				csv << city.attributes.values_at(*attributes)	
+			end
+			
+		end
+	end
+
 end

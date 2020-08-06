@@ -4,4 +4,6 @@ class Member < ApplicationRecord
 	has_many :accounts
 	has_many :sources
 	has_one :user
+
+	has_one_attached :avatar
 end

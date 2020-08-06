@@ -1,45 +1,45 @@
-rawData='1,Zona metropolitana de Aguascalientes,1001,Aguascalientes
-1,Zona metropolitana de Aguascalientes,1005,Jesús María
-1,Zona metropolitana de Aguascalientes,1011,San Francisco de los Romo
-2,Zona metropolitana de Tijuana,2003,Tecate
-2,Zona metropolitana de Tijuana,2004,Tijuana
-2,Zona metropolitana de Tijuana,2005,Playas de Rosarito
-3,Zona metropolitana de Mexicali,2002,Mexicali
-4,Zona metropolitana de La Laguna,5017,Matamoros
-4,Zona metropolitana de La Laguna,5035,Torreón
-4,Zona metropolitana de La Laguna,10007,Gómez Palacio
-4,Zona metropolitana de La Laguna,10012,Lerdo
-5,Zona metropolitana de Saltillo,5004,Arteaga
-5,Zona metropolitana de Saltillo,5027,Ramos Arizpe
-5,Zona metropolitana de Saltillo,5030,Saltillo
-6,Zona metropolitana de Monclova-Frontera,5006,Castaños
-6,Zona metropolitana de Monclova-Frontera,5010,Frontera
-6,Zona metropolitana de Monclova-Frontera,5018,Monclova
-7,Zona metropolitana de Piedras Negras,5022,Nava
-7,Zona metropolitana de Piedras Negras,5025,Piedras Negras
-8,Zona metropolitana de Colima-Villa de Álvarez,6002,Colima
-8,Zona metropolitana de Colima-Villa de Álvarez,6003,Comala
-8,Zona metropolitana de Colima-Villa de Álvarez,6004,Coquimatlán
-8,Zona metropolitana de Colima-Villa de Álvarez,6005,Cuauhtémoc
-8,Zona metropolitana de Colima-Villa de Álvarez,6010,Villa de Álvarez
-9,Zona metropolitana de Tecomán,6001,Armería
-9,Zona metropolitana de Tecomán,6009,Tecomán
-10,Zona metropolitana de Tuxtla Gutiérrez,7012,Berriozábal
-10,Zona metropolitana de Tuxtla Gutiérrez,7027,Chiapa de Corzo
-10,Zona metropolitana de Tuxtla Gutiérrez,7101,Tuxtla Gutiérrez
-11,Zona metropolitana de Juárez,8037,Juárez
-12,Zona metropolitana de Chihuahua,8002,Aldama
-12,Zona metropolitana de Chihuahua,8004,Aquiles Serdán
-12,Zona metropolitana de Chihuahua,8019,Chihuahua
-13,Zona metropolitana del Valle de México,9002,Azcapotzalco
-13,Zona metropolitana del Valle de México,9003,Coyoacán
-13,Zona metropolitana del Valle de México,9004,Cuajimalpa de Morelos
-13,Zona metropolitana del Valle de México,9005,Gustavo A. Madero
-13,Zona metropolitana del Valle de México,9006,Iztacalco
-13,Zona metropolitana del Valle de México,9007,Iztapalapa
-13,Zona metropolitana del Valle de México,9008,La Magdalena Contreras
-13,Zona metropolitana del Valle de México,9009,Milpa Alta
-13,Zona metropolitana del Valle de México,9010	Álvaro Obregón
+# 1,Zona metropolitana de Aguascalientes,1001,Aguascalientes
+# 1,Zona metropolitana de Aguascalientes,1005,Jesús María
+# 1,Zona metropolitana de Aguascalientes,1011,San Francisco de los Romo
+# 2,Zona metropolitana de Tijuana,2003,Tecate
+# 2,Zona metropolitana de Tijuana,2004,Tijuana
+# 2,Zona metropolitana de Tijuana,2005,Playas de Rosarito
+# 3,Zona metropolitana de Mexicali,2002,Mexicali
+# 4,Zona metropolitana de La Laguna,5017,Matamoros
+# 4,Zona metropolitana de La Laguna,5035,Torreón
+# 4,Zona metropolitana de La Laguna,10007,Gómez Palacio
+# 4,Zona metropolitana de La Laguna,10012,Lerdo
+# 5,Zona metropolitana de Saltillo,5004,Arteaga
+# 5,Zona metropolitana de Saltillo,5027,Ramos Arizpe
+# 5,Zona metropolitana de Saltillo,5030,Saltillo
+# 6,Zona metropolitana de Monclova-Frontera,5006,Castaños
+# 6,Zona metropolitana de Monclova-Frontera,5010,Frontera
+# 6,Zona metropolitana de Monclova-Frontera,5018,Monclova
+# 7,Zona metropolitana de Piedras Negras,5022,Nava
+# 7,Zona metropolitana de Piedras Negras,5025,Piedras Negras
+# 8,Zona metropolitana de Colima-Villa de Álvarez,6002,Colima
+# 8,Zona metropolitana de Colima-Villa de Álvarez,6003,Comala
+# 8,Zona metropolitana de Colima-Villa de Álvarez,6004,Coquimatlán
+# 8,Zona metropolitana de Colima-Villa de Álvarez,6005,Cuauhtémoc
+# 8,Zona metropolitana de Colima-Villa de Álvarez,6010,Villa de Álvarez
+# 9,Zona metropolitana de Tecomán,6001,Armería
+# 9,Zona metropolitana de Tecomán,6009,Tecomán
+# 10,Zona metropolitana de Tuxtla Gutiérrez,7012,Berriozábal
+# 10,Zona metropolitana de Tuxtla Gutiérrez,7027,Chiapa de Corzo
+# 10,Zona metropolitana de Tuxtla Gutiérrez,7101,Tuxtla Gutiérrez
+# 11,Zona metropolitana de Juárez,8037,Juárez
+# 12,Zona metropolitana de Chihuahua,8002,Aldama
+# 12,Zona metropolitana de Chihuahua,8004,Aquiles Serdán
+# 12,Zona metropolitana de Chihuahua,8019,Chihuahua
+# 13,Zona metropolitana del Valle de México,9002,Azcapotzalco
+# 13,Zona metropolitana del Valle de México,9003,Coyoacán
+# 13,Zona metropolitana del Valle de México,9004,Cuajimalpa de Morelos
+# 13,Zona metropolitana del Valle de México,9005,Gustavo A. Madero
+# 13,Zona metropolitana del Valle de México,9006,Iztacalco
+# 13,Zona metropolitana del Valle de México,9007,Iztapalapa
+# 13,Zona metropolitana del Valle de México,9008,La Magdalena Contreras
+# 13,Zona metropolitana del Valle de México,9009,Milpa Alta
+rawData='13,Zona metropolitana del Valle de México,9010,Álvaro Obregón
 13,Zona metropolitana del Valle de México,9011,Tláhuac
 13,Zona metropolitana del Valle de México,9012,Tlalpan
 13,Zona metropolitana del Valle de México,9013,Xochimilco
@@ -373,14 +373,16 @@ cityArr.each{|x|
 	myString=x[2];
 	myString=myString.to_i;
 	myString=100000+myString;
+	print '*****'
+	print myString
 	myString=myString.to_s;
 	myString=myString[1..-1];
 	myCity=City.where(:code=>x[0]).last.id;
-	print City.where(:code=>x[0]).last.name
-	print myCity
+	# print City.where(:code=>x[0]).last.name
+	# print myCity
 	target=County.where(:full_code=>myString).last;
-	print "***BEFORE UPDATE" + target.name
+	# print "***BEFORE UPDATE" + target.name
 	target.update(:city_id=>myCity)
-	print "***AFTER UPDATE " + target.city.name
+	# print "***AFTER UPDATE " + target.city.name
 }
 

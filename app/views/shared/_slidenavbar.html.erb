@@ -1,22 +1,36 @@
-
-  <div class="side-icon">
-   <ul id="slide-out" class="sidenav">
-      <li><div class="user-view">
-        <div class="background cyan darken-2">
+<div class="side-icon cyan-text text-accent-4">
+ <ul id="slide-out" class="sidenav cyan darken-2">
+  <li>
+    <div class="user-view background cyan darken-2">
+      <div class="row no-margin-bottom">
+        <div class="valign-wrapper">
+          <div class="col s8 valign-wrapper">
+            <a href="#name"><span class="white-text name p18 slim right-align">ROBERTO VALLADARES PIEDRAS</span></a>
+          </div>
+          <div class="col s4 valign-wrapper left">
+            <%= image_tag "kuro_saurio.jpeg", :class => "circle" %>
+          </div>
         </div>
-        <%= image_tag "kuro_saurio.jpeg", :class => "circle" %>
-        <a href="#name"><span class="white-text name">ROBERTO VALLADARES PIEDRAS</span></a>
-      </div></li>
-      <li><a href="/organizations/main"><i class="material-icons small">view_list</i><p class="flow-text grey-text text-darken-1">Consulta</p></a></li>
-      <li><div class="divider"></div></li>
-      <li><a><i class="material-icons small">view_list</i><p class="flow-text grey-text text-darken-1">Base de datos</p></a></li>
+      </div>
+    </div>
+  </li>
+    <div id="user-links" class="cyan lighten-4">
+      <li><a><i class="material-icons small">search</i><p class="p20 slim grey-text text-darken-1">Consulta</p></a></li>
+      <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/organizations/main">Crimen organizado</a></li>
+      <li><a class="grey-text tooltipped" data-position="right" data-tooltip="A partir de diciembre de 2020">Conflictividad social</a></li>
+      <li><a class="grey-text tooltipped" data-position="right" data-tooltip="Próximamente">Violencia electoral</a></li>
+      <li><a><i class="material-icons small">assignment</i><p class="p20 slim grey-text text-darken-1">Análisis</p></a></li>
+      <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/quarters/ispyv">Índice Estatal de Seguridad Pública y Violencia</a></li>
+      <li><a><i class="material-icons small">assignment</i><p class="p20 slim grey-text text-darken-1">Reportes</p></a></li>
+      <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/months/reports">Reporte mensual de violencia criminal</a></li>
+    </div>
+    <div id="staff-links" class="cyan lighten-5">
+      <li><a><i class="material-icons small">view_list</i><p class="p20 slim grey-text text-darken-1">Formularios</p></a></li>
       <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/organizations/new">Organizaciones</a></li>
       <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/events/killings">Ejecuciones</a></li>
-      <li><div class="divider"></div></li>
-<!--       <li><a><i class="material-icons small">input</i><p class="flow-text grey-text text-darken-1">Fuentes</p></a></li>
-      <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/sources/twitter">Twitter</a></li> -->
-<!--       <li><div class="divider"></div></li>
- -->      <li><a><i class="material-icons small">assignment</i><p class="flow-text grey-text text-darken-1">Reportes</p></a></li>
-    </ul>
-    <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons medium cyan-text text-darken-2 class">menu</i></a>
-  </div>
+      <li><a href="/queries/files"><i class="material-icons small">cloud_download</i><p class="p20 slim grey-text text-darken-1">Catálogos</p></a></li>
+      <li><a href="/datasets/load"><i class="material-icons small">cloud_upload</i><p class="p20 slim grey-text text-darken-1">Cargar datos</p></a></li>
+    </div>
+  </ul>
+  <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons medium cyan-text text-accent-4 class">menu</i></a>
+</div>

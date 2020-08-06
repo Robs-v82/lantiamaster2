@@ -1,0 +1,58 @@
+<div class="row">
+	<% @forms.each do |form| %>
+		<div class="col l6 m8 s12">
+			<div class="card cyan darken-1">
+				<div class="card-content white-text">
+					<form action="<%= form[:myAction]%>" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+						<div class="row">
+							<div class="col s11 left">
+								<span class="card-title"><%= form[:caption]%></span>
+							</div>
+						</div>
+						<div class="row">
+							<% form[:loaded].each do |period| %>
+								<div class="col s3">
+									<span class="new badge grey darken-3 period-badge" data-badge-caption=""><%= period %></span>
+								</div>
+							<% end %>
+						</div>
+						<div class="row">
+							<div class="file-field input-field short-row">
+								<div class="col s1">
+	 								<i class="material-icons white-text">attach_file</i>
+	 							</div>
+	 							<div class="col s11">
+	 									<input class="white-file-input" type="file" name="query[<%= form[:myObject] %>]">
+								</div>
+								<div class="col s11">
+									<div class="file-path-wrapper">
+										<input class="file-path validate" type="text">
+									</div>
+								</div>
+							</div>
+						</div>		
+						<%= render form[:timeSearch] %>
+						<div class="card-action">
+							<%= render "shared/sendbutton"%>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	<% end %>
+</div>
+
+
+<!-- LOAD MODAL -->
+<% if @load_success %>
+	<div id="load-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">El archivo <span class="cyan-text bold text-darken-2"><%= @filename %></span> se cargó con éxito.</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

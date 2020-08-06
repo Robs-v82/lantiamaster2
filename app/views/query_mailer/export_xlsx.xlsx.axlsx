@@ -1,0 +1,9 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Localidades") do |sheet|
+	headers = %w{id state.id state.name name domain active_links active_since}
+	sheet.add_row headers
+	@records.each do |record|
+		sheet.add_row [record.id, record.county.state.id, record.county.state.name, record.name, record.domain, record.active_links, record.active_since]
+	end
+end
+xlsx_package.serialize(medios)
