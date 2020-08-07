@@ -26,7 +26,8 @@ set :pty, true
 
 set :ssh_options, {
   forward_agent: true,
-  auth_methods: %w[publickey],
+  user: fetch(:user),
+  # auth_methods: %w[publickey],
   keys: %w[/server-keys/lantiamaster-key-pair.pem]
 }
 
