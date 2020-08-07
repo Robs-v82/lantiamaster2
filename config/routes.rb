@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root 'users#landing'
   get 'quarters/ispyv'
-  get 'months/reports'
+  get 'months/reports' => 'months#reports'
   get 'datasets/show'
   get 'datasets/load'
   get 'sources/twitter'
