@@ -1,5 +1,5 @@
 # config valid for current version and patch releases of Capistrano
-# lock "~> 3.14.1"
+lock "~> 3.14.1"
 
 set :puma_conf, "/var/www/lantiamaster/shared/config/puma.rb"
 set :application, "lantiamaster"
