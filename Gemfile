@@ -37,8 +37,8 @@ gem 'mini_racer'
 
 # for Excel downloads
 gem 'rubyzip', '>= 1.2.1'
-gem 'axlsx', git: 'https://github.com/randym/axlsx.git', ref: 'c8ac844'
-gem 'axlsx_rails'
+# gem 'axlsx', git: 'https://github.com/randym/axlsx.git', ref: 'c8ac844'
+# gem 'axlsx_rails'
 
 gem 'poppler'
 gem 'mini_magick'
@@ -48,7 +48,7 @@ gem 'wkhtmltopdf-binary'
 
 gem "chartkick"
 
-gem 'daru-view', git: 'https://github.com/SciRuby/daru-view'
+# gem 'daru-view', git: 'https://github.com/SciRuby/daru-view'
 
 gem 'capistrano'
 gem 'capistrano-rails'

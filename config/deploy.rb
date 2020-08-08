@@ -4,7 +4,7 @@
 set :puma_conf, "/var/www/lantiamaster/shared/config/puma.rb"
 set :application, "lantiamaster"
 set :repo_url, 'https://github.com/Robs-v82/lantiamaster.git'
-set :deploy_to, '/home/ubuntu/lantiamaster'
+set :deploy_to, '/var/www/lantiamaster'
 set :use_sudo, true
 set :branch, 'master'
 set :linked_dirs, fetch(:linked_dirs, []).push('log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
