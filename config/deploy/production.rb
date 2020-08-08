@@ -42,7 +42,7 @@ server "ec2-13-59-204-151.us-east-2.compute.amazonaws.com", user: "ubuntu", role
  set :ssh_options, {
    forward_agent: true,
    auth_methods: %w[publickey],
-   keys: %w[/server-keys/lantiamaster-key-pair.pem]
+   keys: %w[~/server-keys/lantiamaster-key-pair.pem]
  }
 #
 # The server-based syntax can be used to override options:
