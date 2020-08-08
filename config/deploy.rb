@@ -28,7 +28,7 @@ set :ssh_options, {
   forward_agent: true,
   user: fetch(:user),
   # auth_methods: %w[publickey],
-  keys: %w[/server-keys/lantiamaster-key-pair.pem]
+  keys: %w[~/server-keys/lantiamaster-key-pair.pem]
 }
 
 # Default value for :linked_files is []
