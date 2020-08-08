@@ -2,7 +2,7 @@
 lock "~> 3.14.1"
 
 set :application, "lantiamaster"
-set :repo_url, "git@github.com:Robs-v82/lantiamaster.git"
+set :repo_url, "https://github.com/Robs-v82/lantiamaster.git"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
@@ -26,9 +26,9 @@ set :pty, true
 
 set :ssh_options, {
   forward_agent: true,
-  user: fetch(:user),
-  # auth_methods: %w[publickey],
-  keys: %w[~/.ssh/id_rsa]
+  # user: fetch(:user),
+  auth_methods: %w[publickey],
+  keys: %w[~/server-keys/lantiamaster-key-pair.pem]
 }
 
 # Default value for :linked_files is []
