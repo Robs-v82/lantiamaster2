@@ -5,7 +5,7 @@ class QuartersController < ApplicationController
   	def ispyv
 
 	  	# DEFINE HEADER AND QUARTER
-	  	@myQuarter = Quarter.where(:name=>"2020_Q1").last
+	  	@myQuarter = Quarter.where(:name=>"2019_Q4").last
 	  	@current_quarter_strings = quarter_strings(@myQuarter)
 
 	  	key_one_q = @myQuarter.id-1
@@ -69,7 +69,7 @@ class QuartersController < ApplicationController
 			q1_stolen_cars = car_theft(back_one_q, state)
 			car_theft_index = q1_stolen_cars/state.population.to_f*100000
 			car_theft_index = Math.log(car_theft_index+1,200).round(2)
-			q1_stolen_cars_change = ((current_stolen_cars - q1_stolen_cars)/q1_stolen_cars.to_f).round(1)
+			q1_stolen_cars_change = (((current_stolen_cars - q1_stolen_cars)/q1_stolen_cars.to_f)*100).round(1)
 			if q1_stolen_cars_change < 0
 				q1_stolen_cars_icon = "arrow_downward"
 				q1_stolen_cars_color = "light-green"
@@ -116,7 +116,7 @@ class QuartersController < ApplicationController
 			y1_stolen_cars = car_theft(back_one_y, state)
 			car_theft_index = y1_stolen_cars/state.population.to_f*100000
 			car_theft_index = Math.log(car_theft_index+1,200).round(2)
-			y1_stolen_cars_change = ((current_stolen_cars - y1_stolen_cars)/y1_stolen_cars.to_f).round(1)
+			y1_stolen_cars_change = (((current_stolen_cars - y1_stolen_cars)/y1_stolen_cars.to_f)*100).round(1)
 
 			if y1_stolen_cars_change < 0
 				y1_stolen_cars_icon = "arrow_downward"
