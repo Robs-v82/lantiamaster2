@@ -12,6 +12,7 @@ set :repo_url, "https://github.com/Robs-v82/lantiamaster2"
 set :deploy_to, "/var/www/#{fetch :application}"
 
 append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', '.bundle', 'public/system', 'public/uploads'
+append :linked_files, 'config/credentials.yml.enc'
 
 set :keep_releases, 5
 
