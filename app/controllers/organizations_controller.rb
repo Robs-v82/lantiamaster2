@@ -67,7 +67,7 @@ class OrganizationsController < ApplicationController
   		@killings = Killing.all
   		@victims = Victim.all
   		@sources = Source.all
-  		@papers = Division.where(:scian3=>510).last.organizations
+  		# @papers = Division.where(:scian3=>510).last.organizations
   	end
 
   	def login
