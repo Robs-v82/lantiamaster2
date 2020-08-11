@@ -20,7 +20,8 @@ rawData="11çAgricultura, cría y explotación de animales, aprovechamiento fore
 71çServicios de esparcimiento culturales y deportivos, y otros servicios recreativos
 72çServicios de alojamiento temporal y de preparación de alimentos y bebidas
 81çOtros servicios excepto actividades gubernamentales
-93çActividades legislativas, gubernamentales, de impartición de justicia y de organismos internacionales y extraterritoriales"
+93çActividades legislativas, gubernamentales, de impartición de justicia y de organismos internacionales y extraterritoriales
+98çCrimen organizado"
 
 sectorArr = []
 rawData.each_line{|l| line = l.split("ç"); sectorArr.push(line)}
@@ -125,7 +126,19 @@ rawData="111çAgricultura
 813çAsociaciones y organizaciones
 814çHogares con empleados domésticos
 931çActividades legislativas, gubernamentales y de impartición de justicia
-932çOrganismos internacionales y extraterritoriales"
+932çOrganismos internacionales y extraterritoriales
+981çNarcotráfico
+982çNarcomenudeo
+983çExtorsión
+984çMercado Ilícito de Hidrocarburos
+985çTrata y tráfico de personas
+986çTráfico de armas
+987çRobo de ferrocarril
+988çRobo de transportistas
+989çTala clandestina
+991çContrabando de mercancías
+992çLavado de dinero
+993çActos de terrorismo"
 
 divisionArr = []
 rawData.each_line{|l| line = l.split("ç"); divisionArr.push(line)}
