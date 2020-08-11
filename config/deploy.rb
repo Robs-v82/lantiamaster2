@@ -15,6 +15,8 @@ append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bund
 
 set :keep_releases, 5
 
+set :linked_files, %w{config/master.key}
+
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
 
