@@ -17,8 +17,6 @@ set :keep_releases, 5
 
 set :linked_files, %w{config/master.key}
 
-set :deploy_via, :remote_cache
-
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
 
