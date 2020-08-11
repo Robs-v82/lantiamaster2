@@ -51,10 +51,10 @@ gem "chartkick"
 
 # gem 'daru-view', git: 'https://github.com/SciRuby/daru-view'
 
-gem 'capistrano'
-gem 'capistrano-rails'
-gem 'capistrano-bundler'
-gem 'capistrano-rbenv'
+gem 'capistrano', '~> 3.11'
+gem 'capistrano-rails', '~> 1.4'
+gem 'capistrano-passenger', '~> 0.2.0'
+gem 'capistrano-rbenv', '~> 2.1', '>= 2.1.4'
 
 gem 'capistrano3-puma'
 

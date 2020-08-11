@@ -5,7 +5,9 @@
 
 # server "example.com", user: "deploy", roles: %w{app db web}, my_property: :my_value
 # server "example.com", user: "deploy", roles: %w{app web}, other_property: :other_value
-server "ec2-13-59-204-151.us-east-2.compute.amazonaws.com", user: "ubuntu", roles: %w{web app db}
+# server "db.example.com", user: "deploy", roles: %w{db}
+
+server '3.134.94.157', user: 'ubuntu', roles: %w{app db web}
 
 # role-based syntax
 # ==================
@@ -39,11 +41,11 @@ server "ec2-13-59-204-151.us-east-2.compute.amazonaws.com", user: "ubuntu", role
 #
 # Global options
 # --------------
- set :ssh_options, {
-   forward_agent: true,
-   auth_methods: %w[publickey],
-   keys: %w[~/server-keys/lantiamaster-key-pair.pem]
- }
+#  set :ssh_options, {
+#    keys: %w(/home/user_name/.ssh/id_rsa),
+#    forward_agent: false,
+#    auth_methods: %w(password)
+#  }
 #
 # The server-based syntax can be used to override options:
 # ------------------------------------
