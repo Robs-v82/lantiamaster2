@@ -2,7 +2,7 @@
 lock "~> 3.14.1"
 
 set :application, "lantiamaster"
-set :repo_url, "git@example.com:Robs-v8/lantiamaster2.git"
+set :repo_url, "git@github.com:Robs-v8/lantiamaster2.git"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
