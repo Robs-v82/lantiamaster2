@@ -16,7 +16,7 @@ class QueryMailer < ApplicationMailer
 		end	
 	end
 
-	def query_email(user, header, records, myFile, myLength)
+	def query_email(user, header, records, fileroot, myFile, myLength)
 		@greeting = greeting
 		@number_of_records = records.length
 		# myUpdate = records.order("updated_at").last.updated_at
@@ -31,14 +31,13 @@ class QueryMailer < ApplicationMailer
 					writer << record
 				end
 			end
-		end
-		this_file = myFile[myLength+8..-1]		
-		attachments[this_file] = File.read(myFile)
+		end		
+		attachments[myFile] = File.read(fileroot)
 		@user = user
 		mail(to: @user.mail, subject: mySubject)	
 	end
 
-	def file_email(user, filename, records, myLength, caption)
+	def file_email(user, fileroot, filename, records, myLength, caption)
 		
 		@greeting = greeting
 		@caption = caption
@@ -46,14 +45,12 @@ class QueryMailer < ApplicationMailer
 		myUpdate = records.order("updated_at").last.updated_at
 		@last_update = I18n.l(myUpdate, :format=> "%d de %B de %Y")
 
-		myFile = filename
+		myFile = fileroot
 		mySubject = "Catálogo Lantia Intelligence: "+caption
-		this_file = filename[myLength+8..-1]
-
 		
 		# CREATE FILE ACCORDDING TO FILE EXTENSION AND CATALOGUE
 		# CSV
-		if myFile.include? ("csv")
+		if filename.include? ("csv")
 			if caption == "localidades"
 				headers = %w{id county.full_code name full_code zip_code urban settlement_type}
 				CSV.open(myFile, 'w', write_headers: true, headers: headers) do |writer|
@@ -90,13 +87,13 @@ class QueryMailer < ApplicationMailer
 					end
 				end
 			end
-			attachments[this_file] = File.read(myFile)
+			attachments[filename] = File.read(myFile)
 			@user = user
 			mail(to: @user.mail, subject: mySubject)	
 		end
 		
 		# XLSX
-		if myFile.include? ("xlsx")
+		if filename.include? ("xlsx")
 			print "******"
 			print "XLSX"
 			@records = records

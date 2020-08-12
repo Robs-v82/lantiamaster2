@@ -47,8 +47,9 @@ class QueriesController < ApplicationController
 		@type_of_query = myHash[:type_of_query]
 
 		content = helpers.cell_content(@type_of_query, cells, @myQuery)
-		file_name = helpers.root_path[:myPath]+"private/consulta_("+current_date+")."+params[:extension]
-		QueryMailer.query_email(recipient, header, content, file_name, myLength).deliver_now
+		file_name = "consulta_("+current_date+")."+params[:extension]
+		file_root = Rails.root.join("private",file_name)
+		QueryMailer.query_email(recipient, header, content, file_root, file_name, myLength).deliver_now
 		session[:email_success] = true
 		redirect_to "/send_query"
 	end
@@ -58,23 +59,24 @@ class QueriesController < ApplicationController
 		current_date = Date.today.strftime
 		if params[:catalogue] == "towns"
 		 	records = Town.all.order(:full_code)
-		 	file_name = helpers.root_path[:myPath]+"private/localidades("+current_date+")."+params[:extension]
+		 	file_name = "localidades("+current_date+")."+params[:extension]
 		 	caption = "localidades"
 		 elsif params[:catalogue] == "counties"
 		 	records = County.all
-		 	file_name = helpers.root_path[:myPath]+"private/municipios("+current_date+")."+params[:extension]
+		 	file_name = "municipios("+current_date+")."+params[:extension]
 		 	caption = "municipios"
 		 elsif params[:catalogue] == "cities"
 		 	records = City.all
-		 	file_name = helpers.root_path[:myPath]+"private/zonas_metropolitanas("+current_date+")."+params[:extension]
+		 	file_name = "zonas_metropolitanas("+current_date+")."+params[:extension]
 		 	caption = "zonas metropolitanas"
 		 elsif params[:catalogue] == "papers"
 		 	records = Division.where(:scian3=>510).last.organizations
-		 	file_name = helpers.root_path[:myPath]+"private/medios("+current_date+")."+params[:extension]
+		 	file_name = "medios("+current_date+")."+params[:extension]
 		 	caption = "medios"
 		end 
+		file_root = Rails.root.join("private",file_name)
 		myLength = helpers.root_path[:myLength]
-		QueryMailer.file_email(recipient, file_name, records, myLength, caption).deliver_now
+		QueryMailer.file_email(recipient, file_root, file_name, records, myLength, caption).deliver_now
 		session[:email_success] = true
 		redirect_to "/queries/files"
 	end
