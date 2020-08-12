@@ -74,7 +74,7 @@ class OrganizationsController < ApplicationController
 	  	target_user = User.find_by_mail(password_params[:mail])
 	    if target_user && target_user.authenticate(password_params[:password])
 	      session[:user_id] = target_user[:id]
-	      redirect_to '/intro'
+	      redirect_to '/organizations/main'
 	    else
 	      redirect_to '/password'
 	    end   
