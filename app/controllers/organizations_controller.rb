@@ -113,6 +113,7 @@ class OrganizationsController < ApplicationController
 		myCounty = create_organization_params[:county_id]
 		thisDivision = create_organization_params[:division_id]
 		Organization.create(:name=>myName,:rfc=>myrfc,:acronym=>myAcronym,:county_id=>myCounty)
+		Organization.last.avatar.attach(create_organization_params[:avatar])
 		myDivision = Division.find(thisDivision)
 		targetOrganization = Organization.last
 		targetOrganization.divisions << myDivision
@@ -141,7 +142,7 @@ class OrganizationsController < ApplicationController
 	end
 
 	def create_organization_params
-		params.require(:organization).permit(:name, :rfc, :acronym, :county_id, :division_id)
+		params.require(:organization).permit(:name, :rfc, :acronym, :county_id, :division_id, :avatar)
 		
 	end
 

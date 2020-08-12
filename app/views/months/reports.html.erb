@@ -1,4 +1,30 @@
-<div class="row top-row valign-wrapper">
+<div class="row">
+	<div class="col s12 short-row">
+		<div class="card cyan lighten-4">
+			<div class="card-content">
+				<div class="query-header-box valign-wrapper cyan-text text-darken-2">
+					<i class="material-icons small">cloud_download</i><p5 class="query-header">Descarga de reportes</p5>
+				</div>
+				<div class="row">
+					<% @months.each do |month| %>
+						<div class="col l3 m4 s6">
+							<div class="valign-wrapper right extra-padding">
+								<span class="p18 right-align right-extra-margin"><%= I18n.l(month.first_day, format: '%B de %Y') %></span>
+								<% report = month.violence_report %>
+								<a href="<%= url_for(report) %>" target="blank"><%= image_tag "pdf_icon.png", :class => "small-icon-size" %></a>
+							</div>
+						</div>
+					<% end %>							
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<!-- DISABLED CAROUSEL -->
+<!-- <div class="row top-row valign-wrapper">
 	<div class="col s1">
 		<i class="material-icons medium right">assignment</i>
 	</div>
@@ -20,4 +46,4 @@
 			<% end %>
 		</div>
 	</div>
-</div>
+</div> -->
