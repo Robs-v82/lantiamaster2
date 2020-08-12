@@ -37,9 +37,12 @@ class QueriesController < ApplicationController
 	def send_query_file
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
+		current_query_count = recipient.query_counter
+		current_query_count +=1
+		recipient.update(:query_counter=>current_query_count)
+		current_query_string = recipient.id.to_s+"-"+current_query_count.to_s
 		header = helpers.header_and_cells[:header]
  		cells = helpers.header_and_cells[:cells]
- 		myLength = helpers.root_path[:myLength]
 		
 		myParams = session[:params]
 		myHash = helpers.define_query(myParams)
@@ -47,9 +50,12 @@ class QueriesController < ApplicationController
 		@type_of_query = myHash[:type_of_query]
 
 		content = helpers.cell_content(@type_of_query, cells, @myQuery)
-		file_name = "consulta_("+current_date+")."+params[:extension]
+		file_name = "consulta-"+current_date+"-"+current_query_string+"."+params[:extension]
+		print "********** "
+		print file_name
+		print " **********"
 		file_root = Rails.root.join("private",file_name)
-		QueryMailer.query_email(recipient, header, content, file_root, file_name, myLength).deliver_now
+		QueryMailer.query_email(recipient, header, content, file_root, file_name).deliver_now
 		session[:email_success] = true
 		redirect_to "/send_query"
 	end

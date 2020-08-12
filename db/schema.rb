@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_03_225104) do
+ActiveRecord::Schema.define(version: 2020_08_12_160731) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -245,6 +245,7 @@ ActiveRecord::Schema.define(version: 2020_08_03_225104) do
     t.integer "member_id"
     t.string "password_digest"
     t.string "recovery_password_digest"
+    t.integer "query_counter"
     t.index ["member_id"], name: "index_users_on_member_id"
   end
 

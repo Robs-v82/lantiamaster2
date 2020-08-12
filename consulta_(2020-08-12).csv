@@ -1,101 +1,106 @@
-NOMBRE,ALIAS,SEXO,MUNICIPIO,FECHA EJECUCIÓN,FUENTES
-Alfonso Orlando Romero Ocaña,"",Masculino,Carmen,26/08/2019,http://tribunacampeche.com/policia/2019/08/27/matan-a-punaladas-a-anciano-en-su-casa/ 
-Candelario Centeno Chan,"",Masculino,Carmen,26/07/2017,""
-Celestino Chablé Jarónimo,"",Masculino,Candelaria,14/10/2019,http://tribunacampeche.com/policia/2019/10/15/hallan-sin-vida-y-atado-a-velador-dentro-de-jaguey/ 
-Cupertino N,"",Masculino,Carmen,02/12/2019,http://tribunacampeche.com/policia/2019/12/03/encuentran-a-mujer-sin-vida-en-paseo-del-mar/ http://tribunacampeche.com/policia/2019/12/30/sin-avance-indagacion-del-asesinato-de-mujer/ 
-Cándido García Méndez,El Águila,Masculino,Carmen,17/05/2017,http://tribunacampeche.com/policia/2017/05/19/asesinan-dos-sujetos-menos-15-minutos/ 
-Daniel Escobedo Escobar,"",Masculino,Calakmul,12/08/2019,http://tribunacampeche.com/policia/2019/08/14/lo-ultiman-de-un-escopetazo/ 
-Enoc Montiel Montalvo,"",Masculino,Calakmul,02/09/2017,http://tribunacampeche.com/policia/2017/09/02/matan-a-motociclista/ 
-Enrique Alberto Ordóñez,"",Masculino,Candelaria,05/09/2017,http://tribunacampeche.com/policia/2017/09/06/balacean-joven-campesino/ 
-Esteban Roldán Vichido,"",Masculino,Carmen,17/10/2017,http://tribunacampeche.com/policia/2017/10/18/ejecutado-2/ 
-Evaristo Morales Pineda,El Chimuelo,Masculino,Champotón,17/06/2017,http://tribunacampeche.com/policia/2017/06/18/ejecutan-a-el-chimuelo/ 
-Fernando Medina Mendoza,"",Masculino,Escárcega,02/01/2020,http://tribunacampeche.com/policia/2020/01/03/muere-campesino-tras-recibir-balazo/ 
-Flor de Maria Adriano Cabrera,"",Femenino,Escárcega,04/09/2019,http://tribunacampeche.com/policia/2019/09/04/localizan-sin-vida-a-mujer-desaparecida/ 
-Francisco Victoria Velasco,"",Masculino,Carmen,28/02/2017,http://tribunacampeche.com/policia/2017/03/01/fallece-tras-larga-agonia/ 
-Hilarino Gallardo Miranda,"",Masculino,Escárcega,06/10/2019,http://tribunacampeche.com/policia/2019/10/06/matan-a-campesino-en-ejido-san-isidro/ 
-Imara Cano Jiménez,"",Femenino,Candelaria,01/01/2020,http://tribunacampeche.com/policia/2020/01/03/primer-feminicidio-de-2020-en-candelaria/ http://tribunacampeche.com/policia/2020/01/07/saldo-rojo-en-el-primer-fin-de-semana-del-ano/ 
-J.L.C.L,"",Masculino,Escárcega,28/10/2019,http://tribunacampeche.com/policia/2019/10/29/fallece-el-baleado-y-macheteado-en-fertimex/ 
-J.R.C.C.,"",Masculino,Campeche,11/12/2019,http://tribunacampeche.com/policia/2019/12/12/asesinan-a-golpes-a-vigilante-privado/ 
-Jesús Alberto Salinas Cruz,El Jueche,Masculino,Escárcega,05/08/2019,http://tribunacampeche.com/policia/2019/08/07/asesinaron-al-jueche-por-ajuste-de-cuentas/ 
-Jesús N,"",Masculino,Campeche,11/12/2019,http://tribunacampeche.com/policia/2019/12/12/asesinan-a-golpes-a-vigilante-privado/ 
-Jorge Chi Cordoba,El Botija /Pelos de alambre,Masculino,Carmen,29/10/2019,http://tribunacampeche.com/policia/2019/10/29/ejecutan-a-pescador-en-coloniat-manigua/ 
-Jorge Elías Espinosa Raffil,"",Masculino,Carmen,13/09/2019,https://www.eldiariodecoahuila.com.mx/seguridad/2019/9/13/ubican-sin-vida-torturado-ex-funcionario-de-campeche-840186.html 
-José Guzmán Perez,"",Masculino,Escárcega,30/10/2019,http://tribunacampeche.com/policia/2019/10/30/matan-a-campesino-en-su-parcela-investigan/ 
-José Hilario Guzmán Cruz,"",Masculino,Carmen,19/08/2019,http://tribunacampeche.com/policia/2019/08/20/ejecutan-a-joven-en-la-colonia-morelos/ 
-Juan Alonso Aguilar Muñoz,"",Masculino,Candelaria,04/01/2020,http://tribunacampeche.com/policia/2020/01/05/candelaria-el-cuerpo-sin-vida-de-dos-personas-del-sexo-masculino-que-habrian-sido-ejecutadas-a-balazos-fueron-halladas-en-el-interior-de-la-cajuela-de-un-vehiculo-azul-abandonado-en-una-bre/ http://tribunacampeche.com/policia/2020/01/05/hallan-dos-cuerpos-en-cajuela-de-auto/ 
-Juan Antonio Mosqueda Montalvo,"",Masculino,Candelaria,04/01/2020,http://tribunacampeche.com/policia/2020/01/05/candelaria-el-cuerpo-sin-vida-de-dos-personas-del-sexo-masculino-que-habrian-sido-ejecutadas-a-balazos-fueron-halladas-en-el-interior-de-la-cajuela-de-un-vehiculo-azul-abandonado-en-una-bre/ http://tribunacampeche.com/policia/2020/01/05/hallan-dos-cuerpos-en-cajuela-de-auto/ 
-Leticia S.D.,"",Femenino,Champotón,07/08/2019,http://tribunacampeche.com/policia/2019/08/08/presunto-feminicidio-en-villamar/ 
-Lucrecia P.A.,"",Femenino,Carmen,23/07/2019,http://tribunacampeche.com/policia/2019/07/24/fallece-mujer-que-fue-baleada-el-pasado-lunes/ http://tribunacampeche.com/policia/2019/07/23/balean-a-mujer-en-la-belisario-dominguez/ 
-Lázaro Arturo Sánchez Pérez,"",Masculino,Candelaria,03/06/2018,http://tribunacampeche.com/policia/2018/06/04/lo-acribillan-se-resistio-a-asalto/ 
-María Feria Pérez,"",Masculino,Candelaria,06/04/2018,http://tribunacampeche.com/policia/2018/04/07/acribillan-a-mujer-en-nuevo-comalcalco/ 
-Miguel Izquierdo de la Cruz,"",Masculino,Candelaria,08/06/2017,http://tribunacampeche.com/policia/2017/06/08/asesinan-a-taxista-2/ 
-Nicolás García Gómez,"",Masculino,Carmen,18/06/2018,http://tribunacampeche.com/carmen/2018/06/19/ejecutan-en-sabancuy-a-encargado-de-rancho/ http://www.ejecentral.com.mx/matan-coordinador-priista-de-campeche/ 
-Rafael Zamora Sánchez,"",Masculino,Candelaria,31/10/2019,http://tribunacampeche.com/policia/2019/10/31/muere-tras-ser-golpeado-en-su-casa/ 
-Ramiro May Abreu,"",Masculino,Carmen,03/09/2017,http://tribunacampeche.com/policia/2017/09/04/matan-lenador-ejido-aguacatal/ 
-Ramón Zetina García,El Chatarra,Masculino,Carmen,21/11/2019,http://tribunacampeche.com/policia/2019/11/22/matan-a-tiros-a-el-chatarra/ 
-Ricardo Ascencio Velarde,"",Masculino,Carmen,24/06/2019,http://tribunacampeche.com/policia/2019/06/24/hallan-cadaver-con-disparo-en-la-cabeza/ 
-Roberto Rodríguez Lorenzo,"",Masculino,Campeche,06/02/2017,http://tribunacampeche.com/policia/2017/02/08/ultiman-vecino-la-ignacio-zaragoza/ 
-Roberto Valencia Sánchez,El Chorote,Masculino,Carmen,12/02/2017,http://tribunacampeche.com/policia/2017/02/13/sobrina-lo-encuentra-sin-vida/ 
-Roger Eduardo Ek Naal,"",Masculino,Calkiní,21/06/2019,http://tribunacampeche.com/policia/2019/06/21/lo-hallan-muerto-a-un-lado-de-carretera/ http://tribunacampeche.com/policia/2019/06/22/investigan-homicidio-en-calkini/ 
-Rusivel de Dios Rivera,"",Masculino,Carmen,03/09/2017,http://tribunacampeche.com/policia/2017/09/04/matan-lenador-ejido-aguacatal/ 
-Santiago Peña,"",Masculino,Palizada,04/07/2019,http://tribunacampeche.com/policia/2019/07/05/asesinan-a-taxista-y-lo-tiran-al-rio-palizada/ https://www.diariopresente.mx/tabasco/encuentran-en-aguas-del-rio-palizada-el-cuerpo-del-taxista-asesinado-en-jonuta/236743 
-Victor Hernandez,"",Masculino,Carmen,19/03/2017,http://tribunacampeche.com/policia/2017/03/19/asesinado-por-drogas/ 
-Ángel Jiménez Díaz,"",Masculino,Carmen,23/08/2019,http://tribunacampeche.com/policia/2019/08/24/hallan-cadaver-cerca-del-ejido-constitucion/ 
-Ángela Gutiérrez Moreno,"",Masculino,Carmen,02/12/2019,http://tribunacampeche.com/policia/2019/12/03/encuentran-a-mujer-sin-vida-en-paseo-del-mar/ http://tribunacampeche.com/policia/2019/12/30/sin-avance-indagacion-del-asesinato-de-mujer/ 
-"","","",Campeche,13/08/2017,http://diarioyuca.com/ejecutado-campeche-yucateco/ http://www.yucatanalamano.com/destacado/ejecutan-a-matrimonio-en-campeche/ 
-"","","",Campeche,13/08/2017,http://diarioyuca.com/ejecutado-campeche-yucateco/ http://www.yucatanalamano.com/destacado/ejecutan-a-matrimonio-en-campeche/ 
-"","","",Campeche,20/10/2017,http://tribunacampeche.com/policia/2017/10/22/son-restos-humanos/ http://tribunacampeche.com/policia/2017/10/21/hallan-supuestos-restos-humanos/ 
-"",El Gabacho,Masculino,Campeche,21/09/2017,http://tribunacampeche.com/policia/2017/09/23/ejecutan-a-el-gabacho/ 
-"","",Masculino,Campeche,25/05/2018,http://tribunacampeche.com/policia/2018/05/26/hallan-cadaver-en-un-predio-de-plan-chac/ 
-"",El Pluky,Masculino,Campeche,26/02/2018,http://tribunacampeche.com/policia/2018/02/27/asesinan-joven-la-colonia-pablo-garcia/ 
-"","",Femenino,Campeche,28/09/2018,http://tribunacampeche.com/policia/2018/09/29/asesinan-dos-sujetos-a-mujer-en-san-francisco/ 
-"",La Ardilla,Masculino,Campeche,24/07/2018,http://tribunacampeche.com/policia/2018/07/24/muere-acuchillado-por-el-mara/ http://tribunacampeche.com/policia/2018/07/25/fallece-tras-ser-acuchillado/ 
-"","",Femenino,Campeche,02/10/2018,http://tribunacampeche.com/policia/2018/10/02/balean-a-dos-mujeres-en-fracciorama-2000/ http://tribunacampeche.com/policia/2018/10/03/muere-en-el-hospital-una-de-las-2-baleadas/ 
-"","",Masculino,Campeche,29/10/2019,http://tribunacampeche.com/policia/2019/10/30/estudiantes-encuentran-un-cadaver/ 
-"","",Masculino,Campeche,18/05/2019,http://tribunacampeche.com/policia/2019/05/22/investiga-la-fgecam-dos-ejecuciones/ 
-"","",Masculino,Campeche,18/05/2019,http://tribunacampeche.com/policia/2019/05/22/investiga-la-fgecam-dos-ejecuciones/ 
-"","",Masculino,Campeche,12/11/2019,http://tribunacampeche.com/policia/2019/11/03/encuentran-cadaver-de-campesino-extraviado/ 
-"","",Masculino,Campeche,01/05/2019,http://tribunacampeche.com/policia/2019/05/02/encuentran-cuerpo-putrefacto-en-imi/ 
-"","",Masculino,Carmen,13/05/2017,http://tribunacampeche.com/policia/2017/05/13/ejecutan-motociclistas-hombre-carmen/ 
-"","",Masculino,Carmen,17/05/2017,http://tribunacampeche.com/policia/2017/05/19/asesinan-dos-sujetos-menos-15-minutos/ 
-"","",Femenino,Carmen,09/11/2017,http://tribunacampeche.com/policia/2017/11/10/347655/ 
-"","",Masculino,Carmen,16/08/2017,http://tribunacampeche.com/carmen/2017/08/17/ejecutan-a-dos/ http://www.proceso.com.mx/499302/sicarios-ejecutan-a-dos-hombres-en-la-playa-norte-ciudad-del-carmen 
-"","",Masculino,Carmen,16/08/2017,http://tribunacampeche.com/carmen/2017/08/17/ejecutan-a-dos/ http://www.proceso.com.mx/499302/sicarios-ejecutan-a-dos-hombres-en-la-playa-norte-ciudad-del-carmen 
-"","",Masculino,Carmen,05/04/2018,http://tribunacampeche.com/policia/2018/04/07/hallan-cadaver-a-la-entrada-de-sabancuy/ 
-"","",Masculino,Carmen,14/01/2018,http://tribunacampeche.com/policia/2018/01/15/muere-tras-recibir-balazo-cuello/ 
-"","",Masculino,Carmen,15/07/2018,http://tribunacampeche.com/policia/2018/07/16/lo-asesinan-por-deuda-pendiente/ 
-"","",Masculino,Carmen,12/12/2018,http://tribunacampeche.com/policia/2018/12/13/asesinan-a-balazos-a-empleado-municipal/ 
-"","",Masculino,Carmen,27/03/2019,http://tribunacampeche.com/policia/2019/03/27/hallan-cuerpo-putrefacto-de-travesti/ http://desastre.mx/mexico/mujer-trans-es-asesinada-en-campeche-y-su-cuerpo-abandonado-en-el-interior-de-un-edifico/ 
-"","",Masculino,Carmen,26/05/2019,http://tribunacampeche.com/policia/2019/05/27/asesinan-a-pescador/ 
-"","",Femenino,Carmen,25/01/2019,http://tribunacampeche.com/policia/2019/01/26/encuentran-cuerpo-de-mujer-entre-la-maleza/ 
-"","",Masculino,Carmen,24/09/2019,http://tribunacampeche.com/policia/2019/09/24/murieron-cuatro-ayer/ 
-"",El Coppel,Masculino,Carmen,16/04/2019,http://tribunacampeche.com/policia/2019/04/17/asesinan-a-el-coppel-seria-ajuste-de-cuentas/ 
-"","",Masculino,Carmen,13/05/2019,http://tribunacampeche.com/policia/2019/05/14/asesinan-a-joven-2/ 
-"","",Masculino,Carmen,06/08/2019,http://tribunacampeche.com/policia/2019/08/07/baleado-muere-en-el-hospital/ 
-"","",Masculino,Carmen,06/07/2019,http://tribunacampeche.com/policia/2019/07/07/balean-a-pareja-muere-el-hombre/ 
-"","",Masculino,Carmen,06/05/2019,http://tribunacampeche.com/policia/2019/05/07/fallece-joven-tras-rina/ 
-"","",Masculino,Champotón,28/10/2017,http://tribunacampeche.com/policia/2017/10/31/matan-machetazos-seybano-dos-detenidos/ 
-"",La Huisa,Masculino,Champotón,06/05/2018,http://tribunacampeche.com/policia/2018/05/07/380437/ http://tribunacampeche.com/policia/2018/05/08/380636/ 
-"","",Masculino,Champotón,13/02/2019,http://tribunacampeche.com/policia/2019/02/15/asesinan-a-abigeo-en-ejido-reforma-agraria/ 
-"","",Masculino,Hecelchakán,25/04/2019,http://tribunacampeche.com/policia/2019/04/26/salio-de-caceria-y-lo-encuentran-muerto/ 
-"","",Masculino,Palizada,17/08/2018,http://tribunacampeche.com/policia/2018/08/23/vinculan-a-proceso-a-presunto-homicida-de-joven-en-palizada/ http://tribunacampeche.com/policia/2018/08/18/muere-apunalado-2/ 
-"","",Masculino,Escárcega,08/02/2017,http://tribunacampeche.com/policia/2017/02/09/asesinan-a-ganadero/ 
-"","",Masculino,Escárcega,23/08/2018,http://tribunacampeche.com/policia/2018/08/24/hallan-cadaver-de-desaparecido/ 
-"","",Masculino,Escárcega,03/04/2019,http://tribunacampeche.com/policia/2019/04/05/asesinan-a-campesino-por-conflicto-de-tierras/ 
-"","",Masculino,Calakmul,01/11/2017,http://tribunacampeche.com/policia/2017/11/03/ejecutan-xpujil-lider-campesino/ http://tribunacampeche.com/policia/2017/11/04/fieles-difuntos-deja-saldo-rojo/ 
-"","",Masculino,Calakmul,19/09/2018,http://tribunacampeche.com/policia/2018/09/20/matan-a-balazos-a-chofer-de-combi/ http://tribunacampeche.com/policia/2018/09/21/aseguran-a-cuatro-sujetos-por-homicidio-en-calakmul/ 
-"",El Melkin,Masculino,Calakmul,15/06/2018,http://tribunacampeche.com/policia/2018/06/16/ejecutan-a-el-melkin-por-crimen-organizado/ 
-"","",Masculino,Calakmul,10/04/2019,http://tribunacampeche.com/policia/2019/04/12/encuentran-cuerpo-de-joven-calcinado/ 
-"","",Masculino,Calakmul,03/02/2019,http://tribunacampeche.com/policia/2019/02/04/hallan-cuerpo-dentro-de-vehiculo-calcinado/ 
-"","",Masculino,Candelaria,23/03/2017,http://tribunacampeche.com/policia/2017/03/24/comando-armado-asesina-ranchero/ 
-"","",Masculino,Candelaria,28/05/2017,http://tribunacampeche.com/policia/2017/05/30/hallan-cadaver-baleado/ 
-"","",Masculino,Candelaria,24/02/2018,http://tribunacampeche.com/policia/2018/02/25/localizan-cuerpo-putrefacto-joven/ 
-"","",Masculino,Candelaria,31/05/2018,http://tribunacampeche.com/policia/2018/06/01/matan-a-tiros-a-labriego/ 
-"","",Masculino,Candelaria,18/06/2018,http://tribunacampeche.com/policia/2018/06/19/asesinan-a-cobratario/ http://tribunacampeche.com/policia/2018/06/20/asesinan-a-2-en-menos-de-12-horas/ 
-"","",Masculino,Candelaria,29/11/2019,http://tribunacampeche.com/policia/2019/11/30/tiran-cadaver-dentro-de-predio/ 
-"","",Masculino,Candelaria,26/05/2019,http://tribunacampeche.com/policia/2019/05/28/ultiman-a-chapin-frente-a-su-casa/ 
-"","",Masculino,Candelaria,19/11/2019,http://tribunacampeche.com/policia/2019/11/20/ejecutan-a-dos-por-ajuste-de-cuentas/ http://tribunacampeche.com/policia/2019/11/21/descarta-la-fiscalia-crimen-organizado-en-ejecucion-de-hermanos/ 
-"","",Masculino,Candelaria,19/11/2019,http://tribunacampeche.com/policia/2019/11/20/ejecutan-a-dos-por-ajuste-de-cuentas/ http://tribunacampeche.com/policia/2019/11/21/descarta-la-fiscalia-crimen-organizado-en-ejecucion-de-hermanos/ 
-"","",Masculino,Candelaria,17/05/2019,http://tribunacampeche.com/policia/2019/05/17/encuentran-cuerpo-de-chapin-con-6-balazos/ 
-"","",Masculino,Candelaria,13/04/2019,http://tribunacampeche.com/policia/2019/04/15/investigan-presunto-homicidio-de-sujeto/ 
-"","",Masculino,Candelaria,10/02/2019,http://tribunacampeche.com/policia/2019/02/12/lo-matan-a-balazos-dentro-de-su-vehiculo/ 
+NOMBRE,ALIAS,FECHA EJECUCIÓN,FUENTES
+Dulce María Sinecio Martínez,"",23/12/2018,http://adninformativo.mx/video-encuentran-sin-vida-mujer-dentro-una-noria-la-valla-sjr/ http://adninformativo.mx/luego-6-horas-labor-recuperan-cuerpo-dulce-maria-sjr/ 
+Eduardo N,"",09/01/2018,http://adninformativo.mx/asesinan-conductor-taxi-ejecutivo-hacienda-santa-rosa/ 
+Hector N,"",09/06/2018,http://adninformativo.mx/asesinan-hombre-dentro-camioneta-amealco/ 
+José Ramón N,"",25/01/2018,http://adninformativo.mx/video-ejecutan-hombre-toks-sjr/ 
+Marily Garduño Bustamante,"",21/12/2018,http://adninformativo.mx/video-encuentran-cuerpo-calcinado-la-comunidad-cerritos-san-miguel-sjr/ http://adninformativo.mx/identifican-cuerpo-calcinado-hallado-cerritos-san-miguel-sjr/ 
+Oscar Anastacio N,"",29/07/2018,https://queretaro.quadratin.com.mx/muere-a-balazos-tras-protagonizar-rina-en-pedro-escobedo/ 
+Ricardo N,"",26/04/2018,http://adninformativo.mx/pierde-la-vida-tras-sufrir-disparo-rina-sjr/ 
+"","",05/05/2018,http://adninformativo.mx/hallan-cuerpo-la-sjr-amealco-se-trataria-taxista/ https://queretaro.quadratin.com.mx/encuentran-cuerpo-de-un-hombre-en-carretera-300-sjr-amealco/ 
+"","",10/09/2018,http://adninformativo.mx/presunto-narcomenudista-hombre-baleado-amealco/ 
+"","",18/03/2018,http://adninformativo.mx/localiza-fiscalia-cuerpo-estado-descomposicion-colon/ 
+"","",30/03/2018,http://adninformativo.mx/video-hallan-cuerpo-descomposicion-baldio-corregidora/ 
+"","",04/12/2018,http://adninformativo.mx/matan-balazos-dos-los-limites-queretaro/ http://adninformativo.mx/ejecutados-corregidora-se-dedicaban-al-narcomenudeo-fiscalia/ 
+"","",04/12/2018,http://adninformativo.mx/matan-balazos-dos-los-limites-queretaro/ http://adninformativo.mx/ejecutados-corregidora-se-dedicaban-al-narcomenudeo-fiscalia/ 
+"","",04/07/2018,http://adninformativo.mx/encuentran-sin-vida-persona-dentro-domicilio-candiles/ 
+"","",03/06/2018,http://adninformativo.mx/encuentran-cadaver-vinateria-la-negreta-se-presume-homicidio/ 
+"","",27/05/2018,http://adninformativo.mx/matan-sujeto-comunidad-la-cupula-huimilpan/ 
+"","",01/02/2018,http://adninformativo.mx/video-hallan-osamenta-bolsas-basura-carretera-al-aeropuerto/ 
+"","",08/02/2018,https://queretaro.quadratin.com.mx/asesinado-a-balazos/ http://adninformativo.mx/video-hallan-muerto-hombre-santa-maria-begona/ 
+"","",25/06/2018,http://adninformativo.mx/localizan-sujeto-sin-vida-acotamiento-la-carretera-57/ http://adninformativo.mx/sin-identificar-sujeto-asesinado-frente-motel/ 
+"","",22/12/2018,http://adninformativo.mx/video-balean-matan-trabajador-refaccionaria-colorado/ 
+"","",15/12/2018,http://adninformativo.mx/video-hallan-cadaver-cauce-del-rio-queretaro-la-altura-la-canada/ 
+"","",11/03/2018,http://adninformativo.mx/hallan-cuerpo-calcinado-pedro-escobedo/ 
+"","",13/09/2018,http://adninformativo.mx/encuentran-hombre-muerto-pedro-escobedo/ 
+"","",10/06/2018,http://adninformativo.mx/irrumpen-fiesta-balazos-pedro-escobedo-una-persona-perdio-la-vida/ 
+"","",04/02/2018,http://adninformativo.mx/hallan-calcinado-hombre-dentro-vehiculo-carretera-slp/ http://adninformativo.mx/identifica-fiscalia-hombre-calcinado-dentro-auto-carretera-slp/ 
+"","",05/04/2018,https://queretaro.quadratin.com.mx/asesinan-a-hombre-en-lomas-de-san-pedrito-penuelas/ 
+"","",06/01/2018,http://adninformativo.mx/video-ultiman-balazos-sujetos-surponiente/ http://adninformativo.mx/tio-sobrino-ejecutados-surponiente-confirma-fiscalia/ 
+"","",06/01/2018,http://adninformativo.mx/video-ultiman-balazos-sujetos-surponiente/ http://adninformativo.mx/tio-sobrino-ejecutados-surponiente-confirma-fiscalia/ 
+"","",06/05/2018,http://adninformativo.mx/encuentran-cuerpo-flotando-rio-queretaro/ 
+"","",09/05/2018,http://adninformativo.mx/video-hallan-sin-vida-sujeto-prolongacion-bernardo-quintana/ 
+"","",10/01/2018,http://adninformativo.mx/video-mueren-2-tintero-tras-ataque-armado-una-persona-lesionada/ http://adninformativo.mx/suman-3-personas-fallecidas-ataque-armado-tintero/ 
+"","",10/01/2018,http://adninformativo.mx/video-mueren-2-tintero-tras-ataque-armado-una-persona-lesionada/ http://adninformativo.mx/suman-3-personas-fallecidas-ataque-armado-tintero/ 
+"","",10/01/2018,http://adninformativo.mx/video-mueren-2-tintero-tras-ataque-armado-una-persona-lesionada/ http://adninformativo.mx/suman-3-personas-fallecidas-ataque-armado-tintero/ 
+"","",12/01/2018,http://adninformativo.mx/video-matan-balazos-hombre-restaurante-mariscos-lomas-casa-blanca/ 
+"","",13/01/2018,http://adninformativo.mx/video-ejecutan-hombre-dentro-vehiculo-av-pasteur-sur/ 
+"","",14/04/2018,https://queretaro.quadratin.com.mx/muerto-a-balazos-en-pie-de-gallo/ http://adninformativo.mx/lo-balean-pie-gallo-muere/ 
+"","",16/01/2018,http://adninformativo.mx/video-hallan-cadaver-heridas-bala-frente-presa-santa-catarina/ 
+"","",18/03/2018,http://adninformativo.mx/apunalan-matan-hombre-reforma-agraria/ 
+"","",20/03/2018,http://adninformativo.mx/video-ajuste-cuentas-delincuentes-deja-3-muertos-antea/ https://periodicocorreo.com.mx/balacera-en-centro-comercial-de-queretaro-deja-tres-guanajuatenses-muertos/ 
+"","",20/03/2018,http://adninformativo.mx/video-ajuste-cuentas-delincuentes-deja-3-muertos-antea/ https://periodicocorreo.com.mx/balacera-en-centro-comercial-de-queretaro-deja-tres-guanajuatenses-muertos/ 
+"","",20/03/2018,http://adninformativo.mx/video-ajuste-cuentas-delincuentes-deja-3-muertos-antea/ https://periodicocorreo.com.mx/balacera-en-centro-comercial-de-queretaro-deja-tres-guanajuatenses-muertos/ 
+"","",21/02/2018,http://www.noticiasdequeretaro.com.mx/2018/02/22/dejan-cuerpo-maniatado/ https://queretaro.quadratin.com.mx/hallan-cuerpo-terreno-baldio-fray-junipero-serra/ 
+"","",25/05/2018,http://www.valorportamaulipas.info/2018/05/decia-ser-paciente-y-ejecuta-al-doctor.html 
+"","",26/04/2018,http://adninformativo.mx/hallan-cuerpo-estado-descomposicion-cerca-del-penal/ http://adninformativo.mx/cuerpo-encontrado-san-jose-alto-taxista-2-detenidos/ 
+"","",27/05/2018,http://adninformativo.mx/video-hallan-hombre-estado-descomposicion-junto-la-autopista-celaya/ 
+"","",28/05/2018,http://adninformativo.mx/encuentran-cuerpo-zona-cerril-las-inmediaciones-mompani/ 
+"","",30/09/2018,http://adninformativo.mx/rina-balazos-deja-muerto-afuera-oxxo-real-del-marques/ 
+"","",30/12/2018,http://adninformativo.mx/hallan-persona-sin-vida-la-colonia-villas-santiago/ 
+"","",29/07/2018,https://queretaro.quadratin.com.mx/hallan-muerta-a-mujer-estaba-envuelta-en-una-cobija/ http://adninformativo.mx/abandonan-cuerpo-sin-vida-los-matorrales-bosques-las-lomas/ 
+"","",25/10/2018,http://adninformativo.mx/muere-mujer-rina-loma-bonita/ http://adninformativo.mx/identifican-presunto-responsable-asesinato-mujer-loma-bonita/ 
+"","",24/11/2018,http://adninformativo.mx/video-matan-balazos-dueno-miscelanea-colonia-lazaro-cardenas/ 
+"","",23/11/2018,http://adninformativo.mx/video-lo-ejecutan-libramiento-surponiente/ 
+"","",22/08/2018,http://adninformativo.mx/muere-baleado-una-camioneta-menchaca/ 
+"","",20/06/2018,http://adninformativo.mx/asesinan-sujeto-afuera-casa-rina-hacienda-santa-rosa/ 
+"","",19/08/2018,http://adninformativo.mx/video-rina-deja-muerto-arma-fuero-santa-rosa-jauregui/ 
+"","",19/08/2018,http://adninformativo.mx/video-descubren-pozo-cuerpo-sin-vida-hombre-santa-rosa-jauregui/ http://adninformativo.mx/asesinado-balazos-hombre-encontrado-santa-rosa-jauregui-confirma-fiscalia/ 
+"","",16/07/2018,http://adninformativo.mx/video-muere-hombre-balazos-rina-menchaca-iii/ https://www.diariodequeretaro.com.mx/policiaca/matan-a-balazos-a-un-hombre-en-colinas-de-menchaca-1845430.html 
+"","",16/11/2018,http://adninformativo.mx/video-ejecutan-hombre-bordo-camioneta-santa-rosa-jauregui/ 
+"","",15/06/2018,http://adninformativo.mx/matan-balazos-hombre-cumbres-del-lago/ 
+"","",14/11/2018,http://adninformativo.mx/video-balean-hombre-colonia-espana/ 
+"","",14/12/2018,http://adninformativo.mx/video-ejecutan-dos-vulcanizadora-lomas-casa-blanca/ 
+"","",14/12/2018,http://adninformativo.mx/video-ejecutan-dos-vulcanizadora-lomas-casa-blanca/ 
+"","",10/12/2018,http://adninformativo.mx/encuentran-cuerpo-sin-vida-san-jose-alto/ 
+"","",08/08/2018,http://adninformativo.mx/disparos-refugio-provocan-intensa-movilizacion-muerto/ http://www.valorportamaulipas.info/2018/08/1-muerto-tras-balacera-en-el-refugio-de.html 
+"","",08/12/2018,http://adninformativo.mx/video-hallan-sin-vida-sujeto-las-margaritas/ 
+"","",07/09/2018,http://adninformativo.mx/video-rina-deja-muerto-herido-lindavista/ 
+"","",07/12/2018,http://adninformativo.mx/hombre-muere-golpeado-vista-alegre/ 
+"","",04/09/2018,http://adninformativo.mx/video-matan-sujeto-balazos-nabo/ 
+"","",20/04/2018,https://queretaro.quadratin.com.mx/fue-ajuste-de-cuentas-familia-se-dedicaba-a-ser-polleros/ https://queretaro.quadratin.com.mx/asesinan-a-familia-en-san-joaquin/ 
+"","",20/04/2018,https://queretaro.quadratin.com.mx/fue-ajuste-de-cuentas-familia-se-dedicaba-a-ser-polleros/ https://queretaro.quadratin.com.mx/asesinan-a-familia-en-san-joaquin/ 
+"","",20/04/2018,https://queretaro.quadratin.com.mx/fue-ajuste-de-cuentas-familia-se-dedicaba-a-ser-polleros/ https://queretaro.quadratin.com.mx/asesinan-a-familia-en-san-joaquin/ 
+"","",20/04/2018,https://queretaro.quadratin.com.mx/fue-ajuste-de-cuentas-familia-se-dedicaba-a-ser-polleros/ https://queretaro.quadratin.com.mx/asesinan-a-familia-en-san-joaquin/ 
+"","",20/04/2018,https://queretaro.quadratin.com.mx/fue-ajuste-de-cuentas-familia-se-dedicaba-a-ser-polleros/ https://queretaro.quadratin.com.mx/asesinan-a-familia-en-san-joaquin/ 
+"","",04/03/2018,http://adninformativo.mx/video-encuentran-hombre-sin-vida-via-publica-sjr/ 
+"","",07/05/2018,http://adninformativo.mx/hallan-muerto-sujeto-al-interior-camion-tipo-torton-sjr/ 
+"","",08/05/2018,http://adninformativo.mx/hallan-cuerpo-flotando-rio-san-juan/ 
+"","",12/05/2018,http://adninformativo.mx/hallan-cuerpo-la-comunidad-loma-del-toro-sjr/ 
+"","",22/02/2018,https://queretaro.quadratin.com.mx/tiran-cuerpo-hombre-campo-beisbol/ http://adninformativo.mx/video-hallan-cadaver-hombre-jardines-banthi-sjr/ 
+"","",26/05/2018,http://adninformativo.mx/video-hallan-cuerpo-zona-despoblada-guadalupe-las-penas/ 
+"","",27/03/2018,http://adninformativo.mx/hallan-muerto-sujeto-al-interior-domicilio-granjas-banthi/ 
+"","",29/07/2018,http://adninformativo.mx/pierde-la-vida-tras-rina-rodeo-sjr/ 
+"","",29/12/2018,http://adninformativo.mx/ultiman-sujeto-al-interior-comercio-la-carretera-palmillas/ 
+"","",28/08/2018,http://adninformativo.mx/video-localizan-cuerpo-camioneta-calcinados-sjr/ http://www.valorportamaulipas.info/2018/08/camioneta-con-1-cuerpo-en-san-juan-del.html 
+"","",27/10/2018,http://adninformativo.mx/video-ejecutan-una-persona-dentro-automovil-sjr/ http://adninformativo.mx/confirma-fiscalia-hombre-fue-ejecutado-bordo-auto-sjr/ 
+"","",24/12/2018,http://adninformativo.mx/encuentran-sin-vida-tres-personas-la-colonia-mexico-sjr/ http://adninformativo.mx/detienen-tres-sujetos-homicidio-la-colonia-mexico-sjr/ 
+"","",24/12/2018,http://adninformativo.mx/encuentran-sin-vida-tres-personas-la-colonia-mexico-sjr/ http://adninformativo.mx/detienen-tres-sujetos-homicidio-la-colonia-mexico-sjr/ 
+"","",24/12/2018,http://adninformativo.mx/encuentran-sin-vida-tres-personas-la-colonia-mexico-sjr/ http://adninformativo.mx/detienen-tres-sujetos-homicidio-la-colonia-mexico-sjr/ 
+"","",21/11/2018,http://adninformativo.mx/hallan-muerta-joven-al-interior-vivienda-sjr/ 
+"","",20/11/2018,http://adninformativo.mx/lesionan-arma-fuego-mujer-rodeo-uno-mas-perdio-la-vida/ 
+"","",16/09/2018,http://adninformativo.mx/localizan-2-cuerpos-sin-vida-senegal-las-palomas-sjr/ 
+"","",16/09/2018,http://adninformativo.mx/localizan-2-cuerpos-sin-vida-senegal-las-palomas-sjr/ 
+"","",13/07/2018,http://adninformativo.mx/encuentran-dos-cuerpos-la-comunidad-san-sebastian-las-barrancas-norte/ https://queretaro.quadratin.com.mx/ejecutan-a-dos-hombres-en-san-juan-del-rio/ 
+"","",13/07/2018,http://adninformativo.mx/encuentran-dos-cuerpos-la-comunidad-san-sebastian-las-barrancas-norte/ https://queretaro.quadratin.com.mx/ejecutan-a-dos-hombres-en-san-juan-del-rio/ 
+"","",06/10/2018,http://adninformativo.mx/hallan-cuerpo-san-sebastian-las-barrancas-norte/ 
+"","",01/12/2018,http://adninformativo.mx/video-balean-pareja-frente-bar-la-gozadera-sjr/ http://adninformativo.mx/extranjero-sujeto-ultimado-bar-av-juarez/ 
+"","",01/08/2018,http://adninformativo.mx/video-encuentran-3-ejecutados-sjr/ http://adninformativo.mx/posible-actividad-ilicita-caso-ejecutados-sjr-fiscalia/ 
+"","",01/08/2018,http://adninformativo.mx/video-encuentran-3-ejecutados-sjr/ http://adninformativo.mx/posible-actividad-ilicita-caso-ejecutados-sjr-fiscalia/ 
+"","",01/08/2018,http://adninformativo.mx/video-encuentran-3-ejecutados-sjr/ http://adninformativo.mx/posible-actividad-ilicita-caso-ejecutados-sjr-fiscalia/ 
+"","",15/01/2018,http://www.noticiasdequeretaro.com.mx/2018/01/16/mortal-rina-en-tequis/ http://vozytestimonio.com.mx/2018/01/29/un-muerto-y-4-heridos-en-la-fuente-tequis-piden-justicia-si-no-habra-linchamiento/ 
+"","",17/05/2018,http://adninformativo.mx/hallan-dos-cuerpos-los-limites-tequisquiapan-colon/ 
+"","",17/05/2018,http://adninformativo.mx/hallan-dos-cuerpos-los-limites-tequisquiapan-colon/ 
+"","",18/09/2018,http://adninformativo.mx/balean-sujeto-tequisquiapan-recibio-al-menos-10-disparos/ 
+"","",01/10/2018,http://adninformativo.mx/video-detienen-tres-querian-cobrar-venganza-asesinato-tequisquiapan/ 
+"","",22/12/2018,http://adninformativo.mx/mueren-balazos-2-policias-toliman/ 
+"","",22/12/2018,http://adninformativo.mx/mueren-balazos-2-policias-toliman/ 

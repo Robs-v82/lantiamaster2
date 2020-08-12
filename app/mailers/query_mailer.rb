@@ -16,7 +16,7 @@ class QueryMailer < ApplicationMailer
 		end	
 	end
 
-	def query_email(user, header, records, fileroot, myFile, myLength)
+	def query_email(user, header, records, fileroot, myFile)
 		@greeting = greeting
 		@number_of_records = records.length
 		# myUpdate = records.order("updated_at").last.updated_at
@@ -25,8 +25,9 @@ class QueryMailer < ApplicationMailer
 
 		# CREATE FILE ACCORDDING TO FILE EXTENSION AND CATALOGUE
 		if myFile.include? ("csv")
+			print "****WORKING ON FILE"
 			headers = header
-			CSV.open(myFile, 'w', write_headers: true, headers: headers) do |writer|
+			CSV.open(fileroot, 'w', write_headers: true, headers: headers) do |writer|
 				records.each do |record|
 					writer << record
 				end
