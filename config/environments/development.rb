@@ -45,13 +45,13 @@ Rails.application.configure do
 
   # SMTP settings for gmail
   config.action_mailer.smtp_settings = {
-  :address              => "smtp.gmail.com",
-  :port                 => 587,
-  :user_name            => 'roberto.valladarespiedras',
-  :password             => 'fpudgpjvylalxfjn',
-  :authentication       => "plain",
-  :enable_starttls_auto => true
-}
+    :address              => "smtp.gmail.com",
+    :port                 => 587,
+    :user_name            => 'roberto.valladarespiedras',
+    :password             => 'fpudgpjvylalxfjn',
+    :authentication       => "plain",
+    :enable_starttls_auto => true
+  }
 
 
   # Print deprecation notices to the Rails logger.

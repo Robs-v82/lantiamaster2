@@ -98,6 +98,13 @@ class DatasetsController < ApplicationController
 		redirect_to "/datasets/load"
 	end
 
+	def basic
+		@forms = [
+			{caption:"countyScript", myAction:"/datasets/load_counties", myObject:"csv"},
+			{caption:"killingScript", myAction:"/datasets/load_killings", myObject:"csv"}
+		]
+	end 	
+
 	def victims
 		@states = State.all
 	end
@@ -107,6 +114,10 @@ class DatasetsController < ApplicationController
 
 	def load_ensu_params
 		params.require(:query).permit(:ensu,:year,:quarter)
+	end
+
+	def basic_county_params
+		params.require(:file).permit(:csv)
 	end
 
 end

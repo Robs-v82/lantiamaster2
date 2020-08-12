@@ -43,14 +43,14 @@
 			)
 		}
 
-		$(document).ready(ready)
+		// $(document).ready(ready)
 		$(document).on('page:load', ready)
 	</script>
 </head>
 <body>
 	<div id="intro-background" class="intro-color">
 		<div id="intro-image" class="animate__animated animate__backInUp valign-wrapper">
-			<img id="intro-logo" src="/assets/optimized_logo.jpg">
+			<%= image_tag "optimized_logo.jpg", :id => "intro-logo" %>
 		</div>
 	</div>
 </body>
