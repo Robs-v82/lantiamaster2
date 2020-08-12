@@ -18,7 +18,7 @@ class QuartersController < ApplicationController
 
 
 	  	# BUILD TABLE
-	  	@states = State.all
+	  	@states = State.all.sort
 	  	@ispyvTable = []
 	  	@states.each {|state|
 	  		stateHash = {}

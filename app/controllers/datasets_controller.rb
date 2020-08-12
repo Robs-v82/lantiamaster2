@@ -8,8 +8,8 @@ class DatasetsController < ApplicationController
 
 	def load
 
-		@quarters = Quarter.all
-		@months = Month.all
+		@quarters = Quarter.all.sort
+		@months = Month.all.sort
 		ensuLoaded = []
 		violenceReportLoaded = []
 		crimeVictimReportLoaded = []
