@@ -3,8 +3,14 @@ class ApplicationController < ActionController::Base
 # ERROR CON BCRYPT! Valladares/Users/Bobsled/.rvm/gems/ruby-2.7.1/gems/bcrypt-3.1.13/lib/bcrypt/password.rb:50: warning: deprecated Object#=~ is called on Integer; it always returns nil Completed 500 Internal Server Error in 76ms (ActiveRecord: 3.2ms | Allocations: 9495) BCrypt::Errors::InvalidHash (invalid hash):
 
 	before_action :require_login, except: [:password, :login, :landing]
-
+	before_action :set_variables
 	helper_method :myResouces
+
+	def set_variables
+ 		unless session[:user_id] == nil
+ 			@member = User.find(session[:user_id]).member
+ 		end
+	end
 
 	def require_login
 		redirect_to "/password" if session[:user_id] == nil

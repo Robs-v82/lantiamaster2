@@ -94,7 +94,7 @@ class OrganizationsController < ApplicationController
 	end
 
 	def new
-		@county_search_input = "organization"
+		@county_search_input = "query"
 		@organization_header = form_header("account_balance","Organización")
 		@states = State.all
 		@sectors = Sector.all.sort_by{|record| record.scian2}
@@ -129,9 +129,7 @@ class OrganizationsController < ApplicationController
 
 	def getMembers
 	    targetOrganization = params[:organization_id].to_i
-	    print ("***"*50)+targetOrganization.to_s+("***"*50)
 	    targetMembers = Organization.find(targetOrganization).members
-	   	print ("***"*50)+targetMembers.last.firstname+("***"*50)
 	    render json: {members: targetMembers}		
 	end
 

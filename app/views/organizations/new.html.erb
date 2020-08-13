@@ -16,7 +16,7 @@
 						<div>
 							<div class="col s11 offset-s1 short-row">
 								<div class="input-field short-row">
-									<input id="<%= input[:selector] %>" class="white" type="text" name="organization[<%=  input[:field_name]%>]">
+									<input id="<%= input[:selector] %>" class="white" type="text" name="query[<%=  input[:field_name]%>]">
 								</div>
 								<div class="label-row">
 									<label for="<%= input[:selector] %>" class="white-text"><%= input[:caption]%></label>
@@ -30,13 +30,13 @@
 					<div class="row">
 						<div class="col s11 offset-s1 short-row">
 							<div class="input-field short-row">
-								<input class="white-file-input" type="file" name="organization[avatar]">
+								<input id="image-slector" class="" type="file" name="query[avatar]">
+							</div>
+							<div class="label-row">
+								<label for="image-slector" class="white-text">IMAGEN</label>
 							</div>
 							<div class="file-path-wrapper">
 								<input class="file-path validate" type="text">
-							</div>
-							<div class="label-row">
-								<label for="organization[avatar]" class="white-text">IMAGEN</label>
 							</div>
 						</div>
 					</div>	
