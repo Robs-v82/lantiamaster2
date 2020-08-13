@@ -1,6 +1,7 @@
 # ADD ENSU
 mainFolder = "uploads/"
 quarters = Quarter.all
+
 quarters.each {|q|
 	q.ensu.purge
 	myFolder = "ensu/"
@@ -8,3 +9,10 @@ quarters.each {|q|
 	q.ensu.attach(myFile)
 }
 
+# ADD VIOLENCE REPORT
+months = Month.all
+months.each {|m|
+	m.violence_report.purge
+	myFolder = "Rpoertes Lantia/"
+	myFile
+}

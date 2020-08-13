@@ -246,7 +246,7 @@ class QuartersController < ApplicationController
 		@tableHeader = ["ENTIDAD FEDERATIVA", "PUNTAJE", "NIVEL", "TENDENCIA"]
 
 		@comparisonTable = []
-		State.all.each{|state|
+		State.all.sort.each{|state|
 			generalArr = []
 			stateArr = []
 			state_short = state.shortname.upcase
