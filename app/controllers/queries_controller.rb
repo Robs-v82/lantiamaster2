@@ -30,7 +30,7 @@ class QueriesController < ApplicationController
 			{:route=>"towns",:caption=>"Colonias/Localidades",:data=>@towns,:pdf=>false,:csv=>true,:excel=>false},
 			{:route=>"counties",:caption=>"Municipios",:data=>@counties,:pdf=>false,:csv=>true,:excel=>false},
 			# {:route=>"cities",:caption=>"Zonas metropolitanas",:data=>@cities,:pdf=>true,:csv=>true,:excel=>true},
-			{:route=>"papers",:caption=>"Medios",:data=>@papers,:pdf=>true,:csv=>true,:excel=>true}
+			{:route=>"papers",:caption=>"Medios",:data=>@papers,:pdf=>false,:csv=>true,:excel=>false}
 		]
 	end
 
