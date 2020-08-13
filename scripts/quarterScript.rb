@@ -1,19 +1,18 @@
 
-# ADD YEARS
+ADD YEARS
 (2000..2029).each{|year|
 	year = year.to_s
 	myDay = year+"-01-01"
 	Year.create(:name=>year, :first_day=>myDay)
-} 
-
-# ADD QUARTERS
-
-(2000..2029).each{|year|
-	 %w{Q1 Q2 Q3 Q4}.each{|q|
-	 	myName = year.to_s+"_"+q
-	 	Quarter.create(:name=>myName)
-	 }
 }
+
+myArr = ["Q1","Q2","Q3","Q4"]
+myArr.each{|q|
+	Year.all.each{|y|
+		myName = y.name+"_"+q
+	 	Quarter.create(:name=>myName, :year_id=>y.id)
+	}	
+} 
 
 # UPDATE QUARTERS
 

@@ -44,7 +44,7 @@
 					<div id="state-query-section" class="row border-section">
 						<p class="victim_query_label source_query_label killing_query_label all-query-label end-section center cyan-text text-lighten-3">ESTADO</p>
 						<% @state_checkboxes.each do |box| %>
-							<div class="col s3">
+							<div class="col l3 m4 s6">
 								<label class="after-padding">
 				       				<input class="white victim_query_group source_query_group all-query-group killing_query_group" name="<%=box[:name]%>" type="checkbox" disabled>
 				       				<span class="victim_query_label source_query_label killing_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
@@ -55,7 +55,7 @@
 					<div id="county-query-section" class="row border-section">
 						<p class="victim_query_label source_query_label killing_query_label all-query-label end-section center cyan-text text-lighten-3">MUNICIPIO</p>
 						<% @county_checkboxes.each do |box| %>
-							<div class="col s3">
+							<div class="col l3 m4 s6">
 								<label class="after-padding">
 				       				<input class="white victim_query_group source_query_group all-query-group killing_query_group" name="<%=box[:name]%>" type="checkbox" disabled>
 				       				<span class="victim_query_label source_query_label killing_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
@@ -66,7 +66,7 @@
 					<div id="killing-query-section" class="row border-section">
 						<p class="victim_query_label killing_query_label all-query-label end-section center cyan-text text-lighten-3">INCIDENTE</p>
 						<% @event_checkboxes.each do |box| %>
-							<div class="col s3">
+							<div class="col l3 m4 s6">
 								<label class="after-padding">
 				       				<input class="white victim_query_group all-query-group killing_query_group" name="<%=box[:name]%>" type="checkbox" disabled>
 				       				<span class="victim_query_label killing_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
@@ -77,7 +77,7 @@
 			    	<div id="victim-query-section" class="row border-section">
 			    		<p class="victim_query_label all-query-label end-section center cyan-text text-lighten-3 short-row">VÍCTIMA</p>
 						<% @victim_checkboxes.each do |box| %>
-							<div class="col s3">
+							<div class="col l3 m4 s6">
 								<label class="after-padding">
 				       				<input class="white all-query-group victim_query_group" name="<%=box[:name]%>" type="checkbox" disabled>
 				       				<span class="victim_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
@@ -88,7 +88,7 @@
 					<div id="source-query-section" class="row border-section">
 						<p class="source_query_label all-query-label end-section center cyan-text text-lighten-3">FUENTE</p>
 						<% @source_checkboxes.each do |box| %>
-							<div class="col s3">
+							<div class="col l3 m4 s6">
 								<label class="after-padding">
 				       				<input class="white source_query_group all-query-group" name="<%=box[:name]%>" type="checkbox" disabled>
 				       				<span class="source_query_label all-query-label small-pseudo-label cyan-text text-lighten-3"><%= box[:caption] %></span>
