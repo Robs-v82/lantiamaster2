@@ -27,7 +27,9 @@
 				<h5 class="cyan-text text-darken-2 h5-no-margin"><%= @my_month["month"] %>/<%= @my_month["year"] %></h5>
 			<% end %>
 		</div>
-		<div class="col l6 m8 s12">
+		<div class="col l7 m8 s12">
+			<% if @type_of_query == "Ejecuciones" %>
+			<% end %>
 			<div class="right valign-wrapper">
 				<% unless session[:page] == 1 %>
 					<a class="btn-floating btn-small waves-effect waves-light cyan" href="/pageback"><i class="material-icons">chevron_left</i></a>
