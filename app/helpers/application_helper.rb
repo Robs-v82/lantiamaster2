@@ -14,7 +14,8 @@ module ApplicationHelper
 
 	def get_months(year)
 		myArr = []
-		target = Event.where(("CAST(strftime('%Y', event_date) as INT) = ?"), year)
+		# target = Event.where(("CAST(strftime('%Y', event_date) as INT) = ?"), year)
+		target = Event.where("extract(year from event_date) + 0 = ?", year)
 		target = target.pluck(:event_date).uniq
 		target = target.sort
 		n = target.length - 1

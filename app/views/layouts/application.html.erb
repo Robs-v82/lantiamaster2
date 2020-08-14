@@ -49,30 +49,23 @@
       <div>
           <%= yield %>
       </div>
-      <footer class="page-footer cyan darken-3">
-        <div class="row">
-          <div class="col l4 offset-l1 s12">
-            <h6>Recursos</h6>
-            <ul>
-              <li><a class="grey-text text-lighten-3" href="#!">Aviso de privacidad</a></li>
-              <li><a class="grey-text text-lighten-3" href="#!">Facturación</a></li>
-            </ul>
-          </div>
-          <div class="col l6 s12">
-            <br>
-            <p class="grey-text text-lighten-4 small-text right-align">ESTRATEGIA, DECISIONES Y MEJORES PRÁCTICAS S.C.
-              <br>
-              PASEO DE LA REFORMA 389, PISO 12, CDMX, CP. 06500.</p>
-            <p class="grey-text text-lighten-4 small-text"></p>
+    </div>
+      <footer class="page-footer cyan lighten-3 black-text">
+        <div class="container">
+        <div class="row footer-row">
+          <div class="valign-wrapper">
+            <div class="col l4 m6">
+              <a href="https://www.linkedin.com/company/lantia-consultores/"><%= image_tag "twitter_icon", :class => "footer-icon" %></a> 
+              <a href="https://twitter.com/LantiaIntel"><%= image_tag "linkedin_icon", :class => "footer-icon" %></a> 
+            </div>
+            <div class="col l8 l6">
+              <p class="small-text right-align">ESTRATEGIA, DECISIONES Y MEJORES PRÁCTICAS S.C.
+                PASEO DE LA REFORMA 389, PISO 12, CDMX, CP. 06500.</p>
+              <p class="small-text"></p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="footer-copyright">
-        <div class="container">
-<!--         © 2014 Copyright Text
- -->        <a class="grey-text text-lighten-4 right" href="#!">More Links</a>
         </div>
       </footer>
-    </div>
   </body>
 </html>

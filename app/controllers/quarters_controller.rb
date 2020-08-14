@@ -8,10 +8,23 @@ class QuartersController < ApplicationController
 	  	@myQuarter = Quarter.where(:name=>"2019_Q4").last
 	  	@current_quarter_strings = quarter_strings(@myQuarter)
 
-	  	key_one_q = @myQuarter.id-1
-	  	back_one_q = Quarter.find(key_one_q)
-	  	key_one_y = @myQuarter.id-4
-	  	back_one_y = Quarter.find(key_one_y) 
+	  	key_one_q = @myQuarter.name[5,2]
+	  	if key_one_q == "Q4"
+	  		key_one_q = @myQuarter.name[0,4] + "_Q3"
+	  	elsif key_one_q == "Q3"
+	  		key_one_q = @myQuarter.name[0,4] + "_Q2"
+	  	elsif key_one_q == "Q2"
+	  		key_one_q = @myQuarter.name[0,4] + "_Q1"
+	  	elsif key_one_q == "Q1"
+	  		key_one_q = @myQuarter.name[0,4].to_i
+	  		key_one_q = key_one_q - 1
+	  		key_one_q = key_one_q.to_s + "_Q4"
+	  	end
+	  	back_one_q = Quarter.where(:name=>key_one_q).last
+
+	  	key_one_y = @myQuarter.name[0,4].to_i
+	  	key_one_y = (key_one_y-1).to_s+@myQuarter.name[4,3]
+	  	back_one_y = Quarter.where(:name=>key_one_y).last 
 
 	  	@back_one_q_strings = quarter_strings(back_one_q)
 	  	@back_one_y_strings = quarter_strings(back_one_y)
@@ -315,6 +328,8 @@ class QuartersController < ApplicationController
   	end
 
   	def car_theft(quarter, state)
+  		print "**************WORKING!!!!!"
+	  	print quarter.name
   		car_count = 0
   		floor = (state.code.to_i*98)-98
   		quarter.months.each{|month|

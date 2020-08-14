@@ -61,6 +61,7 @@ gem 'capistrano-rbenv', '~> 2.1', '>= 2.1.4'
 gem 'capistrano3-puma'
 
 gem 'listen', '~> 3.2' 
+gem 'database_cleaner'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
