@@ -1,6 +1,12 @@
 class OrganizationsController < ApplicationController
 
-	def password  
+	after_action :remove_password_error_message, only: [:password]
+
+	def password
+	    if session[:password_error]
+      	@password_error = true
+      	print "******PASSWORD ERROR!!!!!*******"
+    end 
   	end
 
   	def main
@@ -76,6 +82,8 @@ class OrganizationsController < ApplicationController
 	      session[:user_id] = target_user[:id]
 	      redirect_to '/organizations/main'
 	    else
+	    	print "***************WRONG PASSWORD!!! "
+	    	session[:password_error] = true
 	      redirect_to '/password'
 	    end   
   	end

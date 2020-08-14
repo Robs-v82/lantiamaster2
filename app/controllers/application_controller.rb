@@ -90,6 +90,14 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
+	def remove_password_error_message
+		if session[:password_error]
+			session[:password_error] = nil
+			print "****"
+			print "REMOVING PASSWORD ERROR "
+		end
+	end
+
 	protected
 
 		def myResouces

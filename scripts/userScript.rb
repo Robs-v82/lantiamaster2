@@ -21,22 +21,14 @@ people = [
 	# 	{:mail=>"eunisesrosillo@gmail.com",:password=>"Test2020ER",:password_confirmation=>"Test2020ER"},
 	# 	{:firstname=>"Eunises",:lastname1=>"Rosillo",:lastname2=>"Ortiz",:organization_id=>organizationKey}
 	# ]
-	[
-		{:mail=>"apulido@colmex.mx",:password=>"Txst2020ER",:password_confirmation=>"Txst2020ER",:query_counter=>0},
-		{:firstname=>"Amalia",:lastname1=>"Pulido",:lastname2=>"Gómez",:organization_id=>organizationKey}
-	,
-	[
-		{:mail=>"jorgezen@gmail.com",:password=>"Test2P20ER",:password_confirmation=>"Test2P20ER",:query_counter=>0},
-		{:firstname=>"Jorge",:lastname1=>"Zenejas",:lastname2=>"Reyes",:organization_id=>organizationKey}
-	,
-	[
-		{:mail=>"luis_osnaya@me.com",:password=>"QTest2020wR",:password_confirmation=>"QTest2020wR",:query_counter=>0},
-		{:firstname=>"Luis",:lastname1=>"Osnaya",:organization_id=>organizationKey}
-	,
-	[
-		{:mail=>"rodrigomoulinie@gmail.com",:password=>"Test7u2020PP",:password_confirmation=>"Test7u2020PP",:query_counter=>0},
-		{:firstname=>"Rodrigo",:lastname1=>"Salido",:organization_id=>organizationKey}
-	]
+	[{:mail=>"apulido@colmex.mx",:password=>"Txst2020ER",:password_confirmation=>"Txst2020ER",:query_counter=>0},
+		{:firstname=>"Amalia",:lastname1=>"Pulido",:lastname2=>"Gómez",:organization_id=>organizationKey}],
+	[{:mail=>"jorgezen@gmail.com",:password=>"Test2P20ER",:password_confirmation=>"Test2P20ER",:query_counter=>0},
+		{:firstname=>"Jorge",:lastname1=>"Zenejas",:lastname2=>"Reyes",:organization_id=>organizationKey}],
+	[{:mail=>"luis_osnaya@me.com",:password=>"QTest2020wR",:password_confirmation=>"QTest2020wR",:query_counter=>0},
+		{:firstname=>"Luis",:lastname1=>"Osnaya",:organization_id=>organizationKey}],
+	[{:mail=>"rodrigomoulinie@gmail.com",:password=>"Test7u2020PP",:password_confirmation=>"Test7u2020PP",:query_counter=>0},
+		{:firstname=>"Rodrigo",:lastname1=>"Salido",:organization_id=>organizationKey}]
 ]
 
 # users =[

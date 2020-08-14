@@ -103,6 +103,14 @@
 	    		$('#load-modal').modal('open')
 			}
 		})
+
+		// PASSWORD ERROR MODAL
+		$(document).ready(function(){
+			console.log('wrong_password')
+			if($('#password-error-modal').length) {
+	    		$('#password-error-modal').modal('open')
+			}
+		})
 	    	
 		// CUSTOM JAVASCRIPT
 		// GET STATE COUNTIES

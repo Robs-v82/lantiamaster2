@@ -13,7 +13,11 @@ class UsersController < ApplicationController
   #   end
   # end
 
-  def password  
+  def password
+    if session[:password_error]
+      @password_error = true
+      print "******PASSWORD ERROR!!!!!*******"
+    end
   end
 
   def intro
