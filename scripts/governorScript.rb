@@ -44,51 +44,51 @@ governorArr = []
 rawData.each_line{|l| line = l.split(","); governorArr.push(line)}
 governorArr.each{|x|x.each{|y|y.strip!}}
 
-# CREATE A GOVERNMENT ORGANIZATION AND GOVERNORS FOR EACH STATE
-# State.all.each{|state|
-# 	myName = "Gubernatura de "+state.name
-# 	myCode = state.code+"000"
-# 	myCounty = County.where(:full_code=>myCode).last.id
-# 	if Organization.where(:name => myName).empty?
-# 		Organization.create(:name => myName, :league => "CONAGO", :county_id => myCounty)
-# 	end
-# 	government = Division.where(:scian3=>931).last
-# 	Organization.last.divisions << government
-# 	organization_id = Organization.last.id
-# 	governorArr.each{|x|
-# 		if x[0] == state.code
-# 			Member.create(
-# 				:firstname => x[1],
-# 				:lastname1 =>  x[2],
-# 				:lastname2 => x[3],
-# 				:organization_id => organization_id,
-# 				:role_id => governorKey
-# 			)
-# 			filename = x[1]+"_"+x[2]+".jpg"
-# 			downloaded_image = open(x[4])
-# 			Member.last.avatar.attach(io: downloaded_image, filename: filename)
-# 		end
-# 	}
-# }
-
-# UPATE GOVERNOS' INFORMATION
+CREATE A GOVERNMENT ORGANIZATION AND A GOVERNOR FOR EACH STATE
 State.all.each{|state|
 	myName = "Gubernatura de "+state.name
-	stateMembers = Organization.where(:name => myName).last.members
-	governor = stateMembers.where(:role_id=>governorKey).last
+	myCode = state.code+"000"
+	myCounty = County.where(:full_code=>myCode).last.id
+	if Organization.where(:name => myName).empty?
+		Organization.create(:name => myName, :league => "CONAGO", :county_id => myCounty)
+	end
+	government = Division.where(:scian3=>931).last
+	Organization.last.divisions << government
+	organization_id = Organization.last.id
 	governorArr.each{|x|
 		if x[0] == state.code
-			governor.update(
+			Member.create(
 				:firstname => x[1],
 				:lastname1 =>  x[2],
 				:lastname2 => x[3],
+				:organization_id => organization_id,
+				:role_id => governorKey
 			)
 			filename = x[1]+"_"+x[2]+".jpg"
-			governor.avatar.purge
-			governor.avatar.attach(io: URI.open(x[4]), filename: filename, content_type:'image/jpg')
+			downloaded_image = open(x[4])
+			Member.last.avatar.attach(io: downloaded_image, filename: filename)
 		end
 	}
 }
+
+# UPATE GOVERNORS' INFORMATION
+# State.all.each{|state|
+# 	myName = "Gubernatura de "+state.name
+# 	stateMembers = Organization.where(:name => myName).last.members
+# 	governor = stateMembers.where(:role_id=>governorKey).last
+# 	governorArr.each{|x|
+# 		if x[0] == state.code
+# 			governor.update(
+# 				:firstname => x[1],
+# 				:lastname1 =>  x[2],
+# 				:lastname2 => x[3],
+# 			)
+# 			filename = x[1]+"_"+x[2]+".jpg"
+# 			governor.avatar.purge
+# 			governor.avatar.attach(io: URI.open(x[4]), filename: filename, content_type:'image/jpg')
+# 		end
+# 	}
+# }
 
 
 
