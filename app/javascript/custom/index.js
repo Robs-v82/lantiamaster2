@@ -106,9 +106,15 @@
 
 		// PASSWORD ERROR MODAL
 		$(document).ready(function(){
-			console.log('wrong_password')
 			if($('#password-error-modal').length) {
 	    		$('#password-error-modal').modal('open')
+			}
+		})
+
+		// BACK BUTTON
+		$(document).ready(function(){
+			if(performance.navigation.type == 2){
+			   location.reload(true);
 			}
 		})
 	    	
