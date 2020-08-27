@@ -2,7 +2,7 @@ class CountiesController < ApplicationController
 
 	def getCounties
 	    targetState = getCounties_params[:state_id].to_i
-	    targetCounties = State.find(targetState).counties
+	    targetCounties = State.find(targetState).counties.sort
 	    render json: {counties: targetCounties}		
 	end
 

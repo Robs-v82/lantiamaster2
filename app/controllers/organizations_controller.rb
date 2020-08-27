@@ -13,7 +13,7 @@ class OrganizationsController < ApplicationController
 
   		@myYears = helpers.get_years
   		
-  		@states = State.all
+  		@states = State.all.sort
 
   		@cities = City.all.sort_by{|city|city.name}
 
