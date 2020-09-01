@@ -1,6 +1,7 @@
 class DatasetsController < ApplicationController
 	
 	require 'csv'
+	require 'pp'
 	after_action :remove_load_message, only: [:load]
 
 	def show
@@ -29,7 +30,6 @@ class DatasetsController < ApplicationController
 
 		if session[:load_success]
 			@load_success = true
-			print "******LOAD SUCCESS WORKING!!!!!*******"
 		end
 
 		if session[:filename]
@@ -105,9 +105,68 @@ class DatasetsController < ApplicationController
 		]
 	end 	
 
-	def victims
-		@states = State.all
+	def victims_query
+		session[:victim_freq_params] = ["annual","stateWise","both"]
+		redirect_to "/datasets/victims"
 	end
+
+	def post_victim_query
+		if timeframe_params[:freq_timeframe]
+			session[:victim_freq_params][0] = timeframe_params[:freq_timeframe]
+			print "************"
+			print "SESSSION VICTIM FREQ PARAMS"
+			pp session[:victim_freq_params]			
+		end
+		redirect_to "/datasets/victims"
+	end
+
+	def victims
+		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2])
+		@timeFrames = [
+  			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
+			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
+			{caption:"Mensual", box_id:"monthly_query_box", name:"monthly"},
+  		]
+  		if session[:victim_freq_params][0] == "annual"
+  			@timeFrames[0][:checked] = true
+  		elsif session[:victim_freq_params][0] == "quarterly"
+  			@timeFrames[1][:checked] = true
+  		elsif session[:victim_freq_params][0] == "monthly"
+  			@timeFrames[2][:checked] = true
+  		end
+	end
+
+	def victim_freq_table(period, scope, gender)
+		myTable = []
+		headerHash = {}
+		if scope == "stateWise"
+			headerHash[:scope] = "ESTADO" 
+			myScope = State.all.sort
+		end
+		if period == "annual"
+			myPeriod = helpers.get_regular_years
+		elsif period == "quarterly"
+			myPeriod = helpers.get_regular_quarters
+		elsif period == "monthly"
+			myPeriod = helpers.get_regular_months
+		end
+		headerHash[:period] = myPeriod
+		myTable.push(headerHash)
+		myScope.each {|place|
+			placeHash = {}
+			placeHash[:name] = place.name
+			freq = []
+			myPeriod.each {|timeUnit|
+				number_of_victims = timeUnit.victims.merge(place.victims).length
+				freq.push(number_of_victims)
+			}
+			placeHash[:freq] = freq
+			myTable.push(placeHash)
+		}
+		pp myTable
+		return myTable
+	end
+
 
 
 	private
@@ -118,6 +177,10 @@ class DatasetsController < ApplicationController
 
 	def basic_county_params
 		params.require(:file).permit(:csv)
+	end
+
+	def timeframe_params
+		params.require(:query).permit(:freq_timeframe)
 	end
 
 end

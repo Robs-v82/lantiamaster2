@@ -12,6 +12,36 @@ module ApplicationHelper
 		return	myYears
 	end
 
+	def get_regular_years
+		myYears = []
+		Year.all.each{|year|
+			unless year.victims.empty?
+				myYears.push(year)
+			end
+		}
+		return myYears
+	end
+
+	def get_regular_quarters
+		myQuarters = []
+		Quarter.all.each{|quarter|
+			unless quarter.victims.empty?
+				myQuarters.push(quarter)
+			end
+		}
+		return myQuarters
+	end
+
+	def get_regular_months
+		myMonths = []
+		Month.all.each{|month|
+			unless month.victims.empty?
+				myMonths.push(month)
+			end
+		}
+		return myMonths
+	end
+
 	def get_months(year)
 		myArr = []
 		# target = Event.where(("CAST(strftime('%Y', event_date) as INT) = ?"), year)

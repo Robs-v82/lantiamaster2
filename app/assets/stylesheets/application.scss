@@ -1,7 +1,12 @@
 @import "materialize";
 @import url(https://fonts.googleapis.com/icon?family=Material+Icons);
 
-.page-footer{
+table {
+	max-width: 700px !important;
+	overflow: scroll;
+}
+
+.page-footer {
 	width: 100%;
 	padding: 18px;
 

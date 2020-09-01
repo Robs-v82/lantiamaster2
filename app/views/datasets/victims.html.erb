@@ -3,22 +3,68 @@
 		<i class="material-icons medium right">grid_on</i>
 	</div>
 	<div class="col s11">
-		<h5 class=" h5-no-margin">
+		<h5 class="h5-no-margin">
 			<span class="slim"> Tabla de frecuencias</span>
 		</h5>
-		<h5>Víctimas letales del crimen organizado</h5>
+		<h5 class="h5-no-margin">Víctimas letales del crimen organizado</h5>
 	</div>
 </div>
-<ul class="collapsible">
-	<% @states.each do |state| %>
-		<li>
-			<div class="collapsible-header"><%= state.name %></div>
-			<% state.counties.each do |county|%>
-				<div class="collapsible-body valign-wrapper">
-					<span class="left-large-margin"><%= county.full_code %> - </span>
-					<span><%= county.name %></span>
+<div class="row">
+	<div class="col l4 m6 s12 short-row">
+		<div class="card cyan darken-1">
+			<form id="victim_freq_table" action="/datasets/victims_query" method="post">
+				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+				<div class="card-content white-text">
+					<div class="row">
+						<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+							<i class="material-icons small">access_time</i><p5 class="query-header">Periodicidad</p5>
+						</div>
+						<div id="victim_freq_timeframe_selector">
+					    	<% @timeFrames.each do |query| %>
+								<p>
+									<label>
+										<input  id="<%= query[:box_id] %>" name="query[freq_timeframe]" value="<%= query[:name] %>" type="radio"
+											<% if query[:checked]%>
+												checked
+											<% end %>
+										/>
+										<span class="white-text p20 slim"><%= query[:caption] %></span>
+									</label>
+								</p>
+					    	<% end %>
+					    </div>
+				    </div>
 				</div>
-			<% end %>
-		</li>
-	<% end %>
-</ul>
+				<div class="card-action">
+					<div class="row">
+						<div class="input-field valign-wrapper right short-row">
+							<button class="send_button btn-floating disabled card-margin" type="submit"><i class="material-icons grey-text">send</i></button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="col l8 m6 s12 short-row">
+		<table class="responsive-table">
+			<thead>
+				<tr>
+					<th><%= @victim_freq_table[0][:scope]%></th>
+					<% @victim_freq_table[0][:period].each do |period| %>
+						<th><%= period.name %></th>
+					<% end %>
+				</tr>
+			</thead>
+			<tbody>
+				<% @victim_freq_table[1..-1].each do |place| %>
+					<tr>
+						<td><%= place[:name] %></td>
+						<% place[:freq].each do |x| %>
+							<td class="right-align"><%= number_with_delimiter(x) %></td>
+						<% end %>
+					</tr>
+				<% end %>
+			</tbody>	
+		</table>
+	</div>
+</div>

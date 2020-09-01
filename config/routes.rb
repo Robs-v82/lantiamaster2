@@ -44,6 +44,8 @@ Rails.application.routes.draw do
   post 'months/load_violence_report' 
   post 'months/load_crime_victim_report' 
   post 'months/header_selector/:month' => 'months#header_selector'
+  get 'datasets/victims_query'
+  post 'datasets/victims_query' => 'datasets#post_victim_query'
   get 'datasets/victims'
   get 'datasets/basic'
 end

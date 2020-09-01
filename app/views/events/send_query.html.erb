@@ -1,21 +1,23 @@
 <div class="row white">
 	<div class="title-area white valign-wrapper">
 		<% if @data_length <= 200 %>
-<!-- 			<div class=" animate__animated animate__pulse">
- -->				<div class="col s1">
-					<a class="dropdown-trigger btn-medium download-icon" href='#' data-target='dropdown1'>
-						<i class="material-icons medium cyan-text">cloud_download</i>
-						<ul id='dropdown1' class='dropdown-content center-content'>
-							<li class="download-dropdown"><a class="download-icon" href="/queries/send_query_file/csv"><%= image_tag "csv_icon.png", :class => "small-icon-size" %></a></li>
-<!-- 							<li  class="download-dropdown"><a class="download-icon" href="/queries/send_query_file/xlxs"><%= image_tag "xlsx_icon.png", :class => "small-icon-size" %></a></li>
-							<li class="download-dropdown"><a class="download-icon" href="/queries/send_query_file/pdf"><%= image_tag "pdf_icon.png", :class => "small-icon-size" %></a></li> -->
-						</ul>
-					</a>
-				</div>
-<!-- 			</div>
- -->		<% end %>
+			<div class="col s1">
+				<a class="dropdown-trigger btn-medium download-icon" href='#' data-target='dropdown1'>
+					<i class="material-icons medium cyan-text">cloud_download</i>
+					<ul id='dropdown1' class='dropdown-content center-content'>
+						<li class="download-dropdown"><a class="download-icon" href="/queries/send_query_file/csv"><%= image_tag "csv_icon.png", :class => "small-icon-size" %></a></li>
+					</ul>
+				</a>
+			</div>
+		<% else %>
+			<div class="col s1">
+				<a class="btn-medium download-icon">
+					<i class="material-icons medium grey-text text-lighten-1 tooltipped" data-position="right" data-tooltip="Descarga disponible sólo para consultas de hasta 200 registros">cloud_off</i>
+				</a>
+			</div>
+ 		<% end %>
 		<div class="col l5 m8 s11">
-			<h5 class=" h5-no-margin"><span class="slim">Resultados de la consulta:</span> <%= @type_of_query %></h5>
+			<h5 class="h5-no-margin"><span class="slim">Resultados de la consulta:</span> <%= @type_of_query %></h5>
 			<% if @county_query %>
 				<h5 class="cyan-text text-darken-2 h5-no-margin"><%= @my_county.name %>, <%= @my_county.state.shortname %>.</h5>
 			<% end %>

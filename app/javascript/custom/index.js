@@ -328,6 +328,15 @@
 			$('.tap-target').tapTarget('open')
 		})
 
+		// DEFINE FREQ TABLE TIMEFRAME
+		$('#victim_freq_table input').change(function() {
+			var mydata = $(this).serialize()
+			newArr = mydata.split("=")
+			console.log(newArr[1])
+			$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')
+			$('.send_button i').addClass('text-darken-3')
+		})
+
 		// ENABLE QUERY FIELDS
 		$('#general_query_selector input').click(function() {
 			$('.all-query-group').prop('disabled', true)
