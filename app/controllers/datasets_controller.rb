@@ -106,7 +106,7 @@ class DatasetsController < ApplicationController
 	end 	
 
 	def victims_query
-		session[:victim_freq_params] = ["annual","stateWise","both"]
+		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit"]
 		redirect_to "/datasets/victims"
 	end
 
@@ -116,6 +116,9 @@ class DatasetsController < ApplicationController
 		end
 		if victim_freq_params[:freq_placeframe]
 			session[:victim_freq_params][1] = victim_freq_params[:freq_placeframe]
+		end
+		if victim_freq_params[:freq_genderframe]
+			session[:victim_freq_params][2] = victim_freq_params[:freq_genderframe]
 		end
 		print "************"
 		print "SESSSION VICTIM FREQ PARAMS"
@@ -136,9 +139,8 @@ class DatasetsController < ApplicationController
 			{caption:"Municipio", box_id:"county_query_box", name:"countyWise"},
   		]
   		@genderFrames = [
-  			{caption:"Estado", box_id:"state_query_box", name:"stateWise"},
-			{caption:"Zona Metropolitana", box_id:"city_query_box", name:"cityWise"},
-			{caption:"Municipio", box_id:"county_query_box", name:"countyWise"},
+  			{caption:"No desagregar", box_id:"no_gender_split_query_box", name:"noGenderSplit"},
+			{caption:"Desagregar", box_id:"gender_split_query_box", name:"genderSplit"},
   		]
 
   		if session[:victim_freq_params][0] == "annual"
@@ -155,6 +157,12 @@ class DatasetsController < ApplicationController
   			@placeFrames[1][:checked] = true
   		elsif session[:victim_freq_params][1] == "countyWise"
   			@placeFrames[2][:checked] = true
+  		end
+
+  		if session[:victim_freq_params][2] == "noGenderSplit"
+  			@genderFrames[0][:checked] = true
+  		elsif session[:victim_freq_params][2] == "genderSplit"
+  			@genderFrames[1][:checked] = true
   		end
 	end
 
@@ -182,23 +190,53 @@ class DatasetsController < ApplicationController
 			myPeriod = helpers.get_regular_months
 		end
 		headerHash[:period] = myPeriod
-		myTable.push(headerHash)
-		myScope.each {|place|
-			placeHash = {}
-			placeHash[:name] = place.name
-			if scope == "countyWise"
-				placeHash[:parent_name] = place.state.shortname
-			end
-			freq = []
-			myPeriod.each {|timeUnit|
-				number_of_victims = timeUnit.victims.merge(place.victims).length
-				freq.push(number_of_victims)
+		if gender == "noGenderSplit"
+			myTable.push(headerHash)
+			myScope.each {|place|
+				placeHash = {}
+				placeHash[:name] = place.name
+				if scope == "countyWise"
+					placeHash[:parent_name] = place.state.shortname
+				end
+				freq = []
+				myPeriod.each {|timeUnit|
+					number_of_victims = timeUnit.victims.merge(place.victims).length
+					freq.push(number_of_victims)
+				}
+				placeHash[:freq] = freq
+				myTable.push(placeHash)
 			}
-			placeHash[:freq] = freq
-			myTable.push(placeHash)
-		}
+		else
+			headerHash[:gender] = "SEXO"
+			myTable.push(headerHash)
+			myScope.each {|place|
+				["Masculino","Femenino",nil].each{|gender|
+					placeHash = {}
+					placeHash[:name] = place.name
+					if scope == "countyWise"
+						placeHash[:parent_name] = place.state.shortname
+					end
+					if gender == nil
+						placeHash[:gender] = "No identificado"
+					else
+						placeHash[:gender] = gender
+					end
+					freq = []
+					myPeriod.each {|timeUnit|
+						number_of_victims = timeUnit.victims.where(:gender=>gender).merge(place.victims).length
+						freq.push(number_of_victims)
+					}
+					placeHash[:freq] = freq
+					myTable.push(placeHash)
+				}
+			}
+		end
 		pp myTable
 		return myTable
+	end
+
+	def get_victim_freq(timeUnit, place, gender)
+		
 	end
 
 
@@ -214,7 +252,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def victim_freq_params
-		params.require(:query).permit(:freq_timeframe, :freq_placeframe)
+		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe)
 	end
 
 end

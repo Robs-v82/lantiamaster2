@@ -1,8 +1,19 @@
 @import "materialize";
 @import url(https://fonts.googleapis.com/icon?family=Material+Icons);
 
-table {
-	max-width: 700px !important;
+
+.switch label input[type=checkbox]:checked + .lever:after {
+	background-color: white !important;
+}
+
+.switch label input[type=checkbox]:checked + .lever {
+    background-color: rgba(0, 0, 0, 0.38);
+}
+
+
+.freq-table {
+	display: block !important;
+	position: relative !important;
 	overflow: scroll;
 }
 
