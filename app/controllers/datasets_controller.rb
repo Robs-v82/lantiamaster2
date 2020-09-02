@@ -111,12 +111,15 @@ class DatasetsController < ApplicationController
 	end
 
 	def post_victim_query
-		if timeframe_params[:freq_timeframe]
-			session[:victim_freq_params][0] = timeframe_params[:freq_timeframe]
-			print "************"
-			print "SESSSION VICTIM FREQ PARAMS"
-			pp session[:victim_freq_params]			
+		if victim_freq_params[:freq_timeframe]
+			session[:victim_freq_params][0] = victim_freq_params[:freq_timeframe]
 		end
+		if victim_freq_params[:freq_placeframe]
+			session[:victim_freq_params][1] = victim_freq_params[:freq_placeframe]
+		end
+		print "************"
+		print "SESSSION VICTIM FREQ PARAMS"
+		pp session[:victim_freq_params]
 		redirect_to "/datasets/victims"
 	end
 
@@ -127,6 +130,17 @@ class DatasetsController < ApplicationController
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
 			{caption:"Mensual", box_id:"monthly_query_box", name:"monthly"},
   		]
+  		@placeFrames = [
+  			{caption:"Estado", box_id:"state_query_box", name:"stateWise"},
+			{caption:"Zona Metropolitana", box_id:"city_query_box", name:"cityWise"},
+			{caption:"Municipio", box_id:"county_query_box", name:"countyWise"},
+  		]
+  		@genderFrames = [
+  			{caption:"Estado", box_id:"state_query_box", name:"stateWise"},
+			{caption:"Zona Metropolitana", box_id:"city_query_box", name:"cityWise"},
+			{caption:"Municipio", box_id:"county_query_box", name:"countyWise"},
+  		]
+
   		if session[:victim_freq_params][0] == "annual"
   			@timeFrames[0][:checked] = true
   		elsif session[:victim_freq_params][0] == "quarterly"
@@ -134,15 +148,32 @@ class DatasetsController < ApplicationController
   		elsif session[:victim_freq_params][0] == "monthly"
   			@timeFrames[2][:checked] = true
   		end
+
+  		if session[:victim_freq_params][1] == "stateWise"
+  			@placeFrames[0][:checked] = true
+  		elsif session[:victim_freq_params][1] == "cityWise"
+  			@placeFrames[1][:checked] = true
+  		elsif session[:victim_freq_params][1] == "countyWise"
+  			@placeFrames[2][:checked] = true
+  		end
 	end
 
 	def victim_freq_table(period, scope, gender)
 		myTable = []
 		headerHash = {}
+		
 		if scope == "stateWise"
 			headerHash[:scope] = "ESTADO" 
 			myScope = State.all.sort
+		elsif scope == "cityWise"
+			headerHash[:scope] = "ZONA METROPOLITANA"
+			myScope = City.all.sort_by {|city| city.name}
+		elsif scope == "countyWise"
+			headerHash[:pre_scope] = "ESTADO"
+			headerHash[:scope] = "MUNICIPIO"
+			myScope = County.all.sort_by {|county| county.full_code}							
 		end
+
 		if period == "annual"
 			myPeriod = helpers.get_regular_years
 		elsif period == "quarterly"
@@ -155,6 +186,9 @@ class DatasetsController < ApplicationController
 		myScope.each {|place|
 			placeHash = {}
 			placeHash[:name] = place.name
+			if scope == "countyWise"
+				placeHash[:parent_name] = place.state.shortname
+			end
 			freq = []
 			myPeriod.each {|timeUnit|
 				number_of_victims = timeUnit.victims.merge(place.victims).length
@@ -179,8 +213,8 @@ class DatasetsController < ApplicationController
 		params.require(:file).permit(:csv)
 	end
 
-	def timeframe_params
-		params.require(:query).permit(:freq_timeframe)
+	def victim_freq_params
+		params.require(:query).permit(:freq_timeframe, :freq_placeframe)
 	end
 
 end

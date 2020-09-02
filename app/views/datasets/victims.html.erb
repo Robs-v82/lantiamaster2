@@ -33,6 +33,25 @@
 								</p>
 					    	<% end %>
 					    </div>
+					</div>
+					<div class="row">
+					    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+							<i class="material-icons small">map</i><p5 class="query-header">Desagregación geográfica</p5>
+						</div>
+						<div id="victim_freq_placeframe_selector">
+					    	<% @placeFrames.each do |query| %>
+								<p>
+									<label>
+										<input  id="<%= query[:box_id] %>" name="query[freq_placeframe]" value="<%= query[:name] %>" type="radio"
+											<% if query[:checked]%>
+												checked
+											<% end %>
+										/>
+										<span class="white-text p20 slim"><%= query[:caption] %></span>
+									</label>
+								</p>
+					    	<% end %>
+					    </div>
 				    </div>
 				</div>
 				<div class="card-action">
@@ -49,6 +68,9 @@
 		<table class="responsive-table">
 			<thead>
 				<tr>
+					<% if @victim_freq_table[0][:pre_scope] %>
+						<th><%= @victim_freq_table[0][:pre_scope]%></th>
+					<% end %>
 					<th><%= @victim_freq_table[0][:scope]%></th>
 					<% @victim_freq_table[0][:period].each do |period| %>
 						<th><%= period.name %></th>
@@ -58,6 +80,9 @@
 			<tbody>
 				<% @victim_freq_table[1..-1].each do |place| %>
 					<tr>
+						<% if place[:parent_name] %>
+							<td><%= place[:parent_name] %></td>
+						<% end %>
 						<td><%= place[:name] %></td>
 						<% place[:freq].each do |x| %>
 							<td class="right-align"><%= number_with_delimiter(x) %></td>
