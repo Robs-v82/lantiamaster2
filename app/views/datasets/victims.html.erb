@@ -82,24 +82,65 @@
 						    </div>
 					    </div>
 					</div>
-					<div id ="victim_freq_filters">
+					<div id="victim_freq_filters" class="filter-box">
 						<div class="row">
-							<div class="query-header-box valign-wrapper cyan-text text-accent-2">
-								<i class="material-icons small">access_time</i><p5 class="query-header">Temporal</p5>
-							</div>
 							<ul class="collapsible cyan">
 								<li>
-									<div class="collapsible-header cyan">Año</div>
-									<div class="collapsible-body">
-										<% @years.each do |year|%>	
-											<p>
-												<label>
-													<input type="checkbox" name="query[freq_years][]" value="<%= year["id"] %>" checked="checked"/>
-													<span class="white-text"><%= year["name"] %></span>
-												</label>
-											</p>
-										<% end %>
+									<div class="collapsible-header cyan">AÑOS</div>
+									<div id="year_filter_box" class="collapsible-body">
+										<div class="row">
+											<div class="col s3">
+												<a class="select-all filter-btn waves-effect waves-light btn p10 cyan darken-4">Todos</a>
+												<a class="clear-all filter-btn waves-effect waves-light btn p10 cyan darken-4">Limpiar</a>
+											</div>
+											<div class="col s9">
+												<% @years.each do |year|%>
+													<div class="col s6">	
+														<p>
+															<label>
+																<input type="checkbox" name="query[freq_years][]" value="<%= year["id"] %>" 
+																	<% if @checkedYears.include? year["id"] %>	
+																		checked
+																	<% end %>
+																/>
+																<span class="white-text"><%= year["name"] %></span>
+															</label>
+														</p>
+													</div>
+												<% end %>
+											</div>
+										</div>
 									</div>
+								</li>
+								<li>
+									<div class="collapsible-header cyan">ESTADOS</div>
+									<div id="state_filter_box" class="collapsible-body">
+										<div class="row">
+											<div class="col s3">
+												<a class="select-all filter-btn waves-effect waves-light btn p10 cyan darken-4">Todos</a>
+												<a class="clear-all filter-btn waves-effect waves-light btn p10 cyan darken-4">Limpiar</a>
+											</div>
+											<div class="col s9">
+												<% @states.each do |state|%>
+													<div class="col s6">	
+														<p>
+															<label>
+																<input type="checkbox" name="query[freq_states][]" value="<%= state["id"] %>" 
+																	<% if @checkedStates.include? state["id"] %>	
+																		checked
+																	<% end %>
+																/>
+																<span class="white-text"><%= state["shortname"] %></span>
+															</label>
+														</p>
+													</div>
+												<% end %>
+											</div>
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="collapsible-header cyan">ZONAS METROPOLITANAS</div>
 								</li>
 							</ul>
 						</div>

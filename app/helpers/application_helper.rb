@@ -43,6 +43,32 @@ module ApplicationHelper
 		return myQuarters
 	end
 
+	def get_specific_quarters(years)
+		myQuarters = []
+		years.each{|thisYear|
+			year = Year.find(thisYear["id"])
+			year.quarters.each {|quarter|
+			unless quarter.victims.empty?
+				myQuarters.push(quarter)
+			end
+			}
+		}
+		return myQuarters	
+	end
+
+	def get_specific_months(years)
+		myMonths = []
+		years.each{|thisYear|
+			year = Year.find(thisYear["id"])
+			year.months.each {|month|
+			unless month.victims.empty?
+				myMonths.push(month)
+			end
+			}
+		}
+		return myMonths	
+	end
+
 	def get_regular_months
 		myMonths = []
 		Month.all.each{|month|

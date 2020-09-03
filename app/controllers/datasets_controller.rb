@@ -106,14 +106,26 @@ class DatasetsController < ApplicationController
 	end 	
 
 	def victims_query
+		session[:checkedYearsArr] = []
 		years = helpers.get_regular_years
-		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years]
+		years.each {|year|
+			session[:checkedYearsArr].push(year.id)
+		}
+		session[:checkedStatesArr] = []
+		states = State.all.sort
+		stateArr = []
+		states.each{|state|
+			session[:checkedStatesArr].push(state.id)	
+			stateArr.push(state.id)
+		}
+		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, stateArr]
 		redirect_to "/datasets/victims"
+
 	end
 
 	def post_victim_query
 		print "OOoo"*1000
-		pp victim_freq_params
+		print victim_freq_params
 		if victim_freq_params[:freq_timeframe]
 			session[:victim_freq_params][0] = victim_freq_params[:freq_timeframe]
 		end
@@ -121,26 +133,29 @@ class DatasetsController < ApplicationController
 			session[:victim_freq_params][1] = victim_freq_params[:freq_placeframe]
 		end
 		if victim_freq_params[:freq_genderframe]
-			print "************"
-			print "WORKING ON: Gender"
 			session[:victim_freq_params][2] = victim_freq_params[:freq_genderframe]
 		end
 		if victim_freq_params[:freq_years]
+			session[:checkedYearsArr] = victim_freq_params[:freq_years].map(&:to_i)
 			myArr = []
 			victim_freq_params[:freq_years].each{|id|
-				print "************"
-				print "WORKING ON: "
-				print id 
 				myArr.push(Year.find(id))
 			}
 			session[:victim_freq_params][3] = myArr
 		end
-		pp session[:victim_freq_params][3]
+		if victim_freq_params[:freq_states]
+			session[:checkedStatesArr] = victim_freq_params[:freq_states].map(&:to_i) 
+			# myArr = []
+			# victim_freq_params[:freq_states].each{|id|
+			# 	myArr.push(id)
+			# }
+			session[:victim_freq_params][4] = session[:checkedStatesArr]
+		end
 		redirect_to "/datasets/victims"
 	end
 
 	def victims
-		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3])
+		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4])
 		@timeFrames = [
   			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
@@ -177,32 +192,54 @@ class DatasetsController < ApplicationController
   		elsif session[:victim_freq_params][2] == "genderSplit"
   			@genderFrames[1][:checked] = true
   		end
+  		
   		@years = helpers.get_regular_years
-  		@checkedYears = session[:victim_freq_params][3]
+  		@checkedYears = session[:checkedYearsArr]
+  		@states = State.all.sort
+  		@checkedStates = session[:checkedStatesArr]
+
+		print "************"
+		print "SESSSION VICTIM FREQ PARAMS"
+		pp session[:victim_freq_params]
+		print session[:checkedStatesArr]
 	end
 
-	def victim_freq_table(period, scope, gender, years)
+	def victim_freq_table(period, scope, gender, years, states)
 		myTable = []
 		headerHash = {}
 		
+		myStates = []
+		states.each {|x|
+			myState = State.find(x)
+			myStates.push(myState)
+		}
+
+
 		if scope == "stateWise"
 			headerHash[:scope] = "ESTADO" 
-			myScope = State.all.sort
+			myScope = myStates
 		elsif scope == "cityWise"
 			headerHash[:scope] = "ZONA METROPOLITANA"
 			myScope = City.all.sort_by {|city| city.name}
 		elsif scope == "countyWise"
 			headerHash[:pre_scope] = "ESTADO"
 			headerHash[:scope] = "MUNICIPIO"
-			myScope = County.all.sort_by {|county| county.full_code}							
+			myScope = []
+			myStates.each{|state|
+				myScope.push(state.counties)
+			}			
+			myScope = myScope.flatten
+			print "***********COUNTIES: "
+			pp myScope
+			myScope.sort_by {|county| county.full_code}
 		end
 
 		if period == "annual"
 			myPeriod = helpers.get_specific_years(years)
 		elsif period == "quarterly"
-			myPeriod = helpers.get_regular_quarters
+			myPeriod = helpers.get_specific_quarters(years)
 		elsif period == "monthly"
-			myPeriod = helpers.get_regular_months
+			myPeriod = helpers.get_specific_months(years)
 		end
 		headerHash[:period] = myPeriod
 		if gender == "noGenderSplit"
@@ -270,7 +307,7 @@ class DatasetsController < ApplicationController
 
 	def victim_freq_params
 		params[:query][:freq_years] ||= []
-		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe, freq_years: [])
+		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe, freq_years: [], freq_states: [])
 	end
 
 end

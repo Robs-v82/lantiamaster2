@@ -119,6 +119,20 @@
 		})
 	    	
 		// CUSTOM JAVASCRIPT
+
+		// SELECT ALL BUTTONS
+		
+			$('.select-all').click(function() {
+				$(this).parent().siblings().find('input').prop('checked', true)
+			})
+
+		// CLEAR ALL BUTTONS
+		
+			$('.clear-all').click(function() {
+				$(this).parent().siblings().find('input').prop('checked', false)
+			})
+
+
 		// GET STATE COUNTIES
 		$('#operation-state-selector').change(function() {
 			$('#operation-county-selector').removeAttr('disabled')

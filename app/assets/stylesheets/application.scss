@@ -217,6 +217,18 @@ min-width: 85px !important
 	font-size: 14px !important;
 }
 
+.filter-btn {
+	height: 26px !important;
+	width: 60px !important;
+	padding: 8px !important;
+	line-height: 10px !important;
+	margin: 12px 4px 12px 8px !important;
+}
+
+.filter-box .collapsible-body{
+	max-height: 200px !important;
+	overflow-y: scroll;  
+}
 
 #county-selector-box {
 	display: none;
