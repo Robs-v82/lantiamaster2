@@ -22,6 +22,17 @@ module ApplicationHelper
 		return myYears
 	end
 
+	def get_specific_years(years)
+		myYears = []
+		years.each{|thisYear|
+			year = Year.find(thisYear["id"])
+			unless year.victims.empty?
+				myYears.push(year)
+			end
+		}
+		return myYears	
+	end
+
 	def get_regular_quarters
 		myQuarters = []
 		Quarter.all.each{|quarter|
@@ -52,7 +63,6 @@ module ApplicationHelper
 		myRange = (1..n)
 		myRange.each{|x|
 			myMonth = target[x].strftime("%m")
-			# myMonth = I18n.l(target[x], :format=> "%B") 
 			myArr.push(myMonth)
 		}
 		myMonths = myArr.uniq

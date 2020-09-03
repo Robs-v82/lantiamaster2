@@ -106,11 +106,14 @@ class DatasetsController < ApplicationController
 	end 	
 
 	def victims_query
-		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit"]
+		years = helpers.get_regular_years
+		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years]
 		redirect_to "/datasets/victims"
 	end
 
 	def post_victim_query
+		print "OOoo"*1000
+		pp victim_freq_params
 		if victim_freq_params[:freq_timeframe]
 			session[:victim_freq_params][0] = victim_freq_params[:freq_timeframe]
 		end
@@ -118,16 +121,26 @@ class DatasetsController < ApplicationController
 			session[:victim_freq_params][1] = victim_freq_params[:freq_placeframe]
 		end
 		if victim_freq_params[:freq_genderframe]
+			print "************"
+			print "WORKING ON: Gender"
 			session[:victim_freq_params][2] = victim_freq_params[:freq_genderframe]
 		end
-		print "************"
-		print "SESSSION VICTIM FREQ PARAMS"
-		pp session[:victim_freq_params]
+		if victim_freq_params[:freq_years]
+			myArr = []
+			victim_freq_params[:freq_years].each{|id|
+				print "************"
+				print "WORKING ON: "
+				print id 
+				myArr.push(Year.find(id))
+			}
+			session[:victim_freq_params][3] = myArr
+		end
+		pp session[:victim_freq_params][3]
 		redirect_to "/datasets/victims"
 	end
 
 	def victims
-		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2])
+		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3])
 		@timeFrames = [
   			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
@@ -164,9 +177,11 @@ class DatasetsController < ApplicationController
   		elsif session[:victim_freq_params][2] == "genderSplit"
   			@genderFrames[1][:checked] = true
   		end
+  		@years = helpers.get_regular_years
+  		@checkedYears = session[:victim_freq_params][3]
 	end
 
-	def victim_freq_table(period, scope, gender)
+	def victim_freq_table(period, scope, gender, years)
 		myTable = []
 		headerHash = {}
 		
@@ -183,7 +198,7 @@ class DatasetsController < ApplicationController
 		end
 
 		if period == "annual"
-			myPeriod = helpers.get_regular_years
+			myPeriod = helpers.get_specific_years(years)
 		elsif period == "quarterly"
 			myPeriod = helpers.get_regular_quarters
 		elsif period == "monthly"
@@ -231,7 +246,9 @@ class DatasetsController < ApplicationController
 				}
 			}
 		end
-		pp myTable
+		print "************"
+		print "SESSSION VICTIM FREQ PARAMS"
+		pp session[:victim_freq_params]
 		return myTable
 	end
 
@@ -252,7 +269,8 @@ class DatasetsController < ApplicationController
 	end
 
 	def victim_freq_params
-		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe)
+		params[:query][:freq_years] ||= []
+		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe, freq_years: [])
 	end
 
 end

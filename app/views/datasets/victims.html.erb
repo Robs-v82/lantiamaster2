@@ -16,74 +16,94 @@
 				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
 				<div class="card-content white-text">
 					<div class="row">
-						<div class="switch">
-							<div class="center">
-								<label id="victim_freq_switch" class="white-text">
-									DESAGREGACIÓN
-									<input type="checkbox">
-									<span class="lever"></span>
-									FILTROS
-								</label>
+						<div cass="col s12">
+							<ul class="tabs cyan-tabs">
+								<li class="tab col s6"><a class="white-text" href="#victim_freq_params">DESAGREGACIÓN</a></li>
+								<li class="tab col s6"><a class="white-text" href="#victim_freq_filters">FILTROS</a></li>
+							</ul>
+						</div>
+					</div>
+					<div id="victim_freq_params">
+						<div class="row">
+							<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+								<i class="material-icons small">access_time</i><p5 class="query-header">Temporal</p5>
 							</div>
+							<div id="victim_freq_timeframe_selector">
+						    	<% @timeFrames.each do |query| %>
+									<p class="input-padding">
+										<label>
+											<input  id="<%= query[:box_id] %>" name="query[freq_timeframe]" value="<%= query[:name] %>" type="radio"
+												<% if query[:checked]%>
+													checked
+												<% end %>
+											/>
+											<span class="white-text p20 slim"><%= query[:caption] %></span>
+										</label>
+									</p>
+						    	<% end %>
+						    </div>
 						</div>
-					</div>
-					<div class="row">
-						<div class="query-header-box valign-wrapper cyan-text text-accent-2">
-							<i class="material-icons small">access_time</i><p5 class="query-header">Temporal</p5>
-						</div>
-						<div id="victim_freq_timeframe_selector">
-					    	<% @timeFrames.each do |query| %>
-								<p class="input-padding">
-									<label>
-										<input  id="<%= query[:box_id] %>" name="query[freq_timeframe]" value="<%= query[:name] %>" type="radio"
-											<% if query[:checked]%>
-												checked
-											<% end %>
-										/>
-										<span class="white-text p20 slim"><%= query[:caption] %></span>
-									</label>
-								</p>
-					    	<% end %>
+						<div class="row">
+						    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+								<i class="material-icons small">map</i><p5 class="query-header">Geográfica</p5>
+							</div>
+							<div id="victim_freq_placeframe_selector">
+						    	<% @placeFrames.each do |query| %>
+									<p class="input-padding">
+										<label>
+											<input  id="<%= query[:box_id] %>" name="query[freq_placeframe]" value="<%= query[:name] %>" type="radio"
+												<% if query[:checked]%>
+													checked
+												<% end %>
+											/>
+											<span class="white-text p20 slim"><%= query[:caption] %></span>
+										</label>
+									</p>
+						    	<% end %>
+						    </div>
+					    </div>
+						<div class="row">
+						    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+								<i class="material-icons small">wc</i><p5 class="query-header">Género</p5>
+							</div>
+							<div id="victim_freq_genderframe_selector">
+						    	<% @genderFrames.each do |query| %>
+									<p class="input-padding">
+										<label>
+											<input  id="<%= query[:box_id] %>" name="query[freq_genderframe]" value="<%= query[:name] %>" type="radio"
+												<% if query[:checked]%>
+													checked
+												<% end %>
+											/>
+											<span class="white-text p20 slim"><%= query[:caption] %></span>
+										</label>
+									</p>
+						    	<% end %>
+						    </div>
 					    </div>
 					</div>
-					<div class="row">
-					    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
-							<i class="material-icons small">map</i><p5 class="query-header">Geográfica</p5>
+					<div id ="victim_freq_filters">
+						<div class="row">
+							<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+								<i class="material-icons small">access_time</i><p5 class="query-header">Temporal</p5>
+							</div>
+							<ul class="collapsible cyan">
+								<li>
+									<div class="collapsible-header cyan">Año</div>
+									<div class="collapsible-body">
+										<% @years.each do |year|%>	
+											<p>
+												<label>
+													<input type="checkbox" name="query[freq_years][]" value="<%= year["id"] %>" checked="checked"/>
+													<span class="white-text"><%= year["name"] %></span>
+												</label>
+											</p>
+										<% end %>
+									</div>
+								</li>
+							</ul>
 						</div>
-						<div id="victim_freq_placeframe_selector">
-					    	<% @placeFrames.each do |query| %>
-								<p class="input-padding">
-									<label>
-										<input  id="<%= query[:box_id] %>" name="query[freq_placeframe]" value="<%= query[:name] %>" type="radio"
-											<% if query[:checked]%>
-												checked
-											<% end %>
-										/>
-										<span class="white-text p20 slim"><%= query[:caption] %></span>
-									</label>
-								</p>
-					    	<% end %>
-					    </div>
-				    </div>
-					<div class="row">
-					    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
-							<i class="material-icons small">wc</i><p5 class="query-header">Género</p5>
-						</div>
-						<div id="victim_freq_genderframe_selector">
-					    	<% @genderFrames.each do |query| %>
-								<p class="input-padding">
-									<label>
-										<input  id="<%= query[:box_id] %>" name="query[freq_genderframe]" value="<%= query[:name] %>" type="radio"
-											<% if query[:checked]%>
-												checked
-											<% end %>
-										/>
-										<span class="white-text p20 slim"><%= query[:caption] %></span>
-									</label>
-								</p>
-					    	<% end %>
-					    </div>
-				    </div>
+					</div>
 				</div>
 				<div class="card-action">
 					<div class="row">

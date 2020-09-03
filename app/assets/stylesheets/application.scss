@@ -364,8 +364,13 @@ ul.tabs {
 	background-color: rgba(0, 188, 212, 0.12) !important;
 }
 
+
 li.indicator {
 	background-color: #00bcd4 !important;
+}
+
+.cyan-tabs li.indicator {
+	background-color: white !important;
 }
 
 .chartjs-render-monitor {
