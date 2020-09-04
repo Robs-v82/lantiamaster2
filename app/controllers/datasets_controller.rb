@@ -211,19 +211,16 @@ class DatasetsController < ApplicationController
   		@checkedCities = session[:checkedCitiesArr]
 
 		print "************"
-		print "SESSSION VICTIM FREQ PARAMS"
-		pp session[:victim_freq_params]
-		print "************"
-		print "CHECKED STATES: "
-		print @checkedStates
-		print "************"
-		print "CHECKED CITIES: "
-		print @checkedCities
+		print "FREQ TABLE"
+		pp @victim_freq_table
+
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities)
 		myTable = []
 		headerHash = {}
+		totalHash = {}
+		totalHash[:name] = "Total"
 		
 		myStates = []
 		states.each {|x|
@@ -246,6 +243,7 @@ class DatasetsController < ApplicationController
 			myScope = myCities
 		elsif scope == "countyWise"
 			headerHash[:pre_scope] = "ESTADO"
+			totalHash[:county_placer] = "--"
 			headerHash[:scope] = "MUNICIPIO"
 			myScope = []
 			myStates.each{|state|
@@ -264,6 +262,12 @@ class DatasetsController < ApplicationController
 		elsif period == "monthly"
 			myPeriod = helpers.get_specific_months(years)
 		end
+
+		totalFreq = []
+		(1..myPeriod.length).each {
+			totalFreq.push(0)
+		}
+
 		headerHash[:period] = myPeriod
 		if gender == "noGenderSplit"
 			myTable.push(headerHash)
@@ -274,15 +278,19 @@ class DatasetsController < ApplicationController
 					placeHash[:parent_name] = place.state.shortname
 				end
 				freq = []
+				counter = 0
 				myPeriod.each {|timeUnit|
 					number_of_victims = timeUnit.victims.merge(place.victims).length
 					freq.push(number_of_victims)
+					totalFreq[counter] += number_of_victims
+					counter += 1
 				}
 				placeHash[:freq] = freq
 				myTable.push(placeHash)
 			}
 		else
-			headerHash[:gender] = "SEXO"
+			headerHash[:gender] = "GÉNERO"
+			totalHash[:gender_placer] = "--"
 			myTable.push(headerHash)
 			myScope.each {|place|
 				["Masculino","Femenino",nil].each{|gender|
@@ -297,15 +305,24 @@ class DatasetsController < ApplicationController
 						placeHash[:gender] = gender
 					end
 					freq = []
+					counter = 0
 					myPeriod.each {|timeUnit|
 						number_of_victims = timeUnit.victims.where(:gender=>gender).merge(place.victims).length
 						freq.push(number_of_victims)
+						totalFreq[counter] += number_of_victims
+						counter += 1
 					}
 					placeHash[:freq] = freq
 					myTable.push(placeHash)
 				}
 			}
+
 		end
+
+		totalHash[:freq] = totalFreq
+		myTable.push(totalHash)
+
+
 		print "************"
 		print "SESSSION VICTIM FREQ PARAMS"
 		pp session[:victim_freq_params]

@@ -221,6 +221,7 @@
 					<div class="row">
 						<div class="right">
 							<a href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">info</i></a>
+							<a href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">grid_on</i></a>
 							<a href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">insert_chart</i></a>
 							<a href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">map</i></a>
 							<a href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>
@@ -228,7 +229,7 @@
 					</div>
 					<table class="freq-table striped">	
 						<thead>
-							<tr>
+							<tr class="">
 								<% if @victim_freq_table[0][:pre_scope] %>
 									<th><%= @victim_freq_table[0][:pre_scope]%></th>
 								<% end %>
@@ -247,9 +248,22 @@
 									</th>
 								<% end %>
 							</tr>
+							<tr class="total-tr cyan lighten-4">
+								<td> <%= @victim_freq_table[-1][:name] %></td>
+								<% if @victim_freq_table[-1][:county_placer] %>
+									<td><%= @victim_freq_table[-1][:county_placer] %></td>
+								<% end %>
+								<% if @victim_freq_table[-1][:gender_placer] %>
+									<td><%= @victim_freq_table[-1][:gender_placer] %></td>
+								<% end %>
+								<% @victim_freq_table[-1][:freq].each do |x| %>
+									<td class="right-align"><%= number_with_delimiter(x) %></td>
+								<% end %>
+
+							</tr>
 						</thead>
-						<tbody>
-							<% @victim_freq_table[1..-1].each do |place| %>
+						<tbody> 
+							<% @victim_freq_table[1..-2].each do |place| %>
 								<tr>
 									<% if place[:parent_name] %>
 										<td><%= place[:parent_name] %></td>
