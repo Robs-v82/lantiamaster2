@@ -252,9 +252,9 @@ class DatasetsController < ApplicationController
 				myScope.push(state.counties)
 			}			
 			myScope = myScope.flatten
+			myScope = myScope.sort_by {|county| county.full_code}
 			print "***********COUNTIES: "
 			pp myScope
-			myScope.sort_by {|county| county.full_code}
 		end
 
 		if period == "annual"
