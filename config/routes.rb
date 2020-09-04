@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root 'datasets#victims'
+  root 'datasets#victims_query'
   get 'quarters/ispyv'
   get 'months/reports' => 'months#reports'
   get 'datasets/show'
