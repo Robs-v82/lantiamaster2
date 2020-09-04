@@ -2,6 +2,8 @@ class EventsController < ApplicationController
 
 	after_action :remove_email_message, only: [:send_query]
 
+	# after_action :clear_query_params, only: [:send_query]
+
 	def killings
 		@states = State.all
 		@source_counter = State.find(1,2)

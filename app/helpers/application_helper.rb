@@ -60,7 +60,7 @@ module ApplicationHelper
 		myMonths = []
 		years.each{|thisYear|
 			year = Year.find(thisYear["id"])
-			year.months.each {|month|
+			year.months.sort.each {|month|
 			unless month.victims.empty?
 				myMonths.push(month)
 			end

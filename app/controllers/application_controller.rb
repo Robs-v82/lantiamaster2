@@ -98,6 +98,11 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
+	def clear_query_params
+  		session[:page] = nil
+  		session[:params] = nil
+	end
+
 	protected
 
 		def myResouces
