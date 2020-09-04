@@ -118,7 +118,14 @@ class DatasetsController < ApplicationController
 			session[:checkedStatesArr].push(state.id)	
 			stateArr.push(state.id)
 		}
-		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, stateArr]
+		session[:checkedCitiesArr] = []
+		cities = City.all.sort
+		citiesArr = []
+		cities.each{|city|
+			session[:checkedCitiesArr].push(city.id)	
+			citiesArr.push(city.id)
+		}
+		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, stateArr, citiesArr]
 		redirect_to "/datasets/victims"
 
 	end
@@ -151,11 +158,14 @@ class DatasetsController < ApplicationController
 			# }
 			session[:victim_freq_params][4] = session[:checkedStatesArr]
 		end
+		session[:checkedCitiesArr] = victim_freq_params[:freq_cities]
+		session[:checkedCitiesArr] = session[:checkedCitiesArr].map(&:to_i)
+		session[:victim_freq_params][5] = session[:checkedCitiesArr]
 		redirect_to "/datasets/victims"
 	end
 
 	def victims
-		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4])
+		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5])
 		@timeFrames = [
   			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
@@ -196,15 +206,22 @@ class DatasetsController < ApplicationController
   		@years = helpers.get_regular_years
   		@checkedYears = session[:checkedYearsArr]
   		@states = State.all.sort
+  		@cities = City.all.sort
   		@checkedStates = session[:checkedStatesArr]
+  		@checkedCities = session[:checkedCitiesArr]
 
 		print "************"
 		print "SESSSION VICTIM FREQ PARAMS"
 		pp session[:victim_freq_params]
-		print session[:checkedStatesArr]
+		print "************"
+		print "CHECKED STATES: "
+		print @checkedStates
+		print "************"
+		print "CHECKED CITIES: "
+		print @checkedCities
 	end
 
-	def victim_freq_table(period, scope, gender, years, states)
+	def victim_freq_table(period, scope, gender, years, states, cities)
 		myTable = []
 		headerHash = {}
 		
@@ -214,13 +231,19 @@ class DatasetsController < ApplicationController
 			myStates.push(myState)
 		}
 
+		myCities = []
+		cities.each {|x|
+			myCity = City.find(x)
+			myCities.push(myCity)
+		}
+
 
 		if scope == "stateWise"
 			headerHash[:scope] = "ESTADO" 
 			myScope = myStates
 		elsif scope == "cityWise"
 			headerHash[:scope] = "ZONA METROPOLITANA"
-			myScope = City.all.sort_by {|city| city.name}
+			myScope = myCities
 		elsif scope == "countyWise"
 			headerHash[:pre_scope] = "ESTADO"
 			headerHash[:scope] = "MUNICIPIO"
@@ -307,7 +330,7 @@ class DatasetsController < ApplicationController
 
 	def victim_freq_params
 		params[:query][:freq_years] ||= []
-		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe, freq_years: [], freq_states: [])
+		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe, freq_years: [], freq_states: [], freq_cities: [])
 	end
 
 end

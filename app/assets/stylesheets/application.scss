@@ -2,6 +2,18 @@
 @import url(https://fonts.googleapis.com/icon?family=Material+Icons);
 
 
+.send-to-bottom {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	margin: 16px;
+	display: none;
+}
+
+.check-counter {
+	float: right;
+}
+
 .switch label input[type=checkbox]:checked + .lever:after {
 	background-color: white !important;
 }
@@ -10,11 +22,15 @@
     background-color: rgba(0, 0, 0, 0.38);
 }
 
-
 .freq-table {
 	display: block !important;
 	position: relative !important;
-	overflow: scroll;
+	overflow-x: auto;
+	overflow-y: auto !important;
+}
+
+.freq-table th, .freq-table td {
+	padding: 10px 18px !important;
 }
 
 .page-footer {
@@ -113,8 +129,20 @@ select {
 	margin: 0 !important;
 }
 
+.full-height {
+	height: 680px;
+}
+
 .card-margin {
 	margin-right: 10px !important;
+}
+
+.collapsible-disabled .collapsible-body {
+    display: none !important; 
+}
+
+.collapsible-disabled .collapsible-header {
+	color: #00acc1 !important;
 }
 
 .input-padding {

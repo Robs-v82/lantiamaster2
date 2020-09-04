@@ -133,6 +133,29 @@
 			})
 
 
+		// SWITCH FROM STATE TO CITY IN VICTM FREQUENCY TABLE
+		
+		$("#geo_query_box input").click(function() {  
+			if($("#city_query_box").is(':checked')) {  
+				console.log("working")
+				$('#city-collapsible-tab').removeClass('collapsible-disabled');  
+				$('#state-collapsible-tab').addClass('collapsible-disabled');
+				$('#state-collapsible-tab input').prop('checked', true);  
+			} else {  
+				$('#city-collapsible-tab').addClass('collapsible-disabled');  
+				$('#state-collapsible-tab').removeClass('collapsible-disabled');
+				$('#city-collapsible-tab input').prop('checked', true);   
+			}  
+		});
+
+		$(function () {
+			$("input:checkbox").on("change", function () {
+			var lenghtOfUnchecked = $(this).parent().parent().parent().parent().find('input:checkbox:not(:checked)').length;
+
+			});
+		});
+
+
 		// GET STATE COUNTIES
 		$('#operation-state-selector').change(function() {
 			$('#operation-county-selector').removeAttr('disabled')
@@ -349,6 +372,7 @@
 			console.log(newArr[1])
 			$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')
 			$('.send_button i').addClass('text-darken-3')
+			$('.send-to-bottom').show()
 		})
 
 		// ENABLE QUERY FIELDS
