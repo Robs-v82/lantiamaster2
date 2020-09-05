@@ -165,6 +165,7 @@ class EventsController < ApplicationController
 	end
 
 	def send_query
+		# Rails.cache.clear
 		if session[:email_success]
 			@email_success = true
 		end

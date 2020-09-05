@@ -2,6 +2,14 @@
 @import url(https://fonts.googleapis.com/icon?family=Material+Icons);
 
 
+ul.z-depth-0 {
+	border-style: none;
+}
+
+.sort-down-btn, .sort-up-btn {
+	line-height: 1 !important;
+}
+
 .send-to-bottom {
 	position: absolute;
 	bottom: 0;
@@ -145,7 +153,7 @@ select {
 }
 
 .collapsible-disabled .collapsible-header {
-	color: #00acc1 !important;
+	color: #0097a7 !important;
 }
 
 .input-padding {

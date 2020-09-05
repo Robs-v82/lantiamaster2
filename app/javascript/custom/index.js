@@ -28,19 +28,6 @@
 
 		// MATERIALIZE
 
-		// ADD AUTOCOMPLETE
-		// $(document).ready(function(){
-		// 	$('input.autocomplete').autocomplete({
-		// 	  data: {
-		// 	    "Apple": null,
-		// 	    "Microsoft": null,
-		// 	    "Google": 'https://placehold.it/250x250'
-		// 	  },
-		// 	});
-		// });
-
-		// ADD COLLAPSIBLE
-
 		$(document).ready(function(){
 			$('.collapsible').collapsible();
 		});
@@ -133,6 +120,25 @@
 
 
 		// CUSTOM JAVASCRIPT
+
+		// SORT BUTTONS
+			$('.sort-btn').click(function() {
+				if($(this).hasClass('sort-down-btn')) {
+					$(this).removeClass('sort-down-btn').addClass('sort-up-btn').html('<i class="material-icons small black-text">keyboard_arrow_up</i>')
+				} else {$(this).removeClass('sort-up-btn').addClass('sort-down-btn').html('<i class="material-icons small black-text">keyboard_arrow_down</i>')
+					
+				}
+			})
+
+
+
+			// $('.sort-down-btn').click(function() {
+			// 	$(this).removeClass('sort-down-btn').addClass('sort-up-btn').html('<i class="material-icons small black-text">keyboard_arrow_up</i>')
+			// })
+
+			// $('.sort-up-btn').click(function() {
+			// 	$(this).removeClass('sort-up-btn').addClass('sort-down-btn').html('<i class="material-icons small black-text">keyboard_arrow_down</i>')	
+			// })
 
 		// SELECT ALL BUTTONS
 		

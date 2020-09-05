@@ -23,7 +23,7 @@ class OrganizationsController < ApplicationController
   		session[:params] = nil
 
   		@myQueries = [
-  			{caption:"Ejecuciones", box_id:"killing_query_box", name:"for_killing"},
+  			{caption:"Eventos", box_id:"killing_query_box", name:"for_killing"},
 			{caption:"Víctimas", box_id:"victim_query_box", name:"for_victim"},
 			# {caption:"Fuentes", box_id:"source_query_box", name:"for_source"},
   		]
