@@ -121,59 +121,193 @@
 
 		// CUSTOM JAVASCRIPT
 
+
+
+
 		// SORT BUTTONS
 			$('.sort-btn').click(function() {
-				if($(this).hasClass('sort-down-btn')) {
-					$(this).removeClass('sort-down-btn').addClass('sort-up-btn').html('<i class="material-icons small black-text">keyboard_arrow_up</i>')
-				} else {$(this).removeClass('sort-up-btn').addClass('sort-down-btn').html('<i class="material-icons small black-text">keyboard_arrow_down</i>')
-					
+				function sortTableDown(myCell) {
+					var table, rows, switching, i, x, y, shouldSwitch;
+					table = document.getElementById("sort-table");
+					switching = true;
+					/*Make a loop that will continue until
+					no switching has been done:*/
+					while (switching) {
+							//start by saying: no switching is done:
+							switching = false;
+							rows = table.rows;
+							/*Loop through all table rows (except the
+							first, which contains table headers):*/
+							for (i = 0; i < (rows.length - 1); i++) {
+								//start by saying there should be no switching:
+								shouldSwitch = false;
+								/*Get the two elements you want to compare,
+								one from current row and one from the next:*/
+								x = rows[i].getElementsByTagName("TD")[myCell];
+								y = rows[i + 1].getElementsByTagName("TD")[myCell];
+								//check if the two rows should switch place:
+								if (x.innerHTML.match(/^\d/)) {
+									m = parseFloat(x.innerHTML.replace(/,/g, ''))
+									n = parseFloat(y.innerHTML.replace(/,/g, ''))
+									if (m < n) {
+										//if so, mark as a switch and break the loop:
+										shouldSwitch = true;
+										break;
+									}
+								} else {
+									if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+										//if so, mark as a switch and break the loop:
+										shouldSwitch = true;
+										break;
+									}
+								}
+						}
+						if (shouldSwitch) {
+							/*If a switch has been marked, make the switch
+							and mark that a switch has been done:*/
+							rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+							switching = true;
+						}
+					}
 				}
+
+				function sortTableUp(myCell) {
+					var table, rows, switching, i, x, y, shouldSwitch;
+					table = document.getElementById("sort-table");
+					switching = true;
+					/*Make a loop that will continue until
+					no switching has been done:*/
+					while (switching) {
+							//start by saying: no switching is done:
+							switching = false;
+							rows = table.rows;
+							/*Loop through all table rows (except the
+							first, which contains table headers):*/
+							for (i = 0; i < (rows.length - 1); i++) {
+								//start by saying there should be no switching:
+								shouldSwitch = false;
+								/*Get the two elements you want to compare,
+								one from current row and one from the next:*/
+								x = rows[i].getElementsByTagName("TD")[myCell];
+								y = rows[i + 1].getElementsByTagName("TD")[myCell];
+								//check if the two rows should switch place:
+								if (x.innerHTML.match(/^\d/)) {
+									m = parseFloat(x.innerHTML.replace(/,/g, ''))
+									n = parseFloat(y.innerHTML.replace(/,/g, ''))
+									if (m > n) {
+										//if so, mark as a switch and break the loop:
+										shouldSwitch = true;
+										break;
+									}
+								} else {
+									if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+										//if so, mark as a switch and break the loop:
+										shouldSwitch = true;
+										break;
+									}
+								}
+							}
+							if (shouldSwitch) {
+								/*If a switch has been marked, make the switch
+								and mark that a switch has been done:*/
+								rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+								switching = true;
+							}
+						}
+					}
+
+				var myVal = $(this).attr('value') -1;
+				console.log(myVal)
+				if($(this).hasClass('sort-down-btn')) {
+					sortTableDown(myVal);
+					$(this).removeClass('sort-down-btn').addClass('sort-up-btn').html('<i class="material-icons small black-text">keyboard_arrow_up</i>');
+				} else {
+					sortTableUp(myVal);
+					$(this).removeClass('sort-up-btn').addClass('sort-down-btn').html('<i class="material-icons small black-text">keyboard_arrow_down</i>');	
+				};
+				return false;
 			})
 
-
-
-			// $('.sort-down-btn').click(function() {
-			// 	$(this).removeClass('sort-down-btn').addClass('sort-up-btn').html('<i class="material-icons small black-text">keyboard_arrow_up</i>')
-			// })
-
-			// $('.sort-up-btn').click(function() {
-			// 	$(this).removeClass('sort-up-btn').addClass('sort-down-btn').html('<i class="material-icons small black-text">keyboard_arrow_down</i>')	
-			// })
 
 		// SELECT ALL BUTTONS
 		
 			$('.select-all').click(function() {
 				$(this).parent().siblings().find('input').prop('checked', true)
+				$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')
+				$('.send_button i').addClass('text-darken-3')
+				$('.send-to-bottom').show();
 			})
 
 		// CLEAR ALL BUTTONS
 		
 			$('.clear-all').click(function() {
 				$(this).parent().siblings().find('input').prop('checked', false)
+				$('.send-to-bottom').hide();
 			})
 
 
 		// SWITCH FROM STATE TO CITY IN VICTM FREQUENCY TABLE
 		
 		$("#geo_query_box input").click(function() {  
-			if($("#city_query_box").is(':checked')) {  
-				console.log("working")
+			if  ($("#nation_query_box").is(':checked')){
+				$('#state-collapsible-tab').addClass('collapsible-disabled');
+				$('#city-collapsible-tab').addClass('collapsible-disabled');
+				$('#county-collapsible-tab').addClass('collapsible-disabled');
+			} else if ($("#state_query_box").is(':checked')) {
+				$('#state-collapsible-tab').removeClass('collapsible-disabled');
+				$('#city-collapsible-tab').addClass('collapsible-disabled');
+				$('#county-collapsible-tab').addClass('collapsible-disabled');
+			} else if ($("#city_query_box").is(':checked')) {  
 				$('#city-collapsible-tab').removeClass('collapsible-disabled');  
 				$('#state-collapsible-tab').addClass('collapsible-disabled');
-				$('#state-collapsible-tab input').prop('checked', true);  
+				$('#county-collapsible-tab').addClass('collapsible-disabled');
 			} else {  
 				$('#city-collapsible-tab').addClass('collapsible-disabled');  
 				$('#state-collapsible-tab').removeClass('collapsible-disabled');
-				$('#city-collapsible-tab input').prop('checked', true);   
-			}  
+			}
+			$('#state-collapsible-tab input').prop('checked', true);
+			$('#city-collapsible-tab input').prop('checked', true);
+			$('#county-collapsible-tab input').prop('checked', true);  
 		});
 
-		$(function () {
-			$("input:checkbox").on("change", function () {
-			var lenghtOfUnchecked = $(this).parent().parent().parent().parent().find('input:checkbox:not(:checked)').length;
+		// ACTIVATE GENDER IN FREQUENCY TABLE
+		$('#gender_query_box').click(function() {
+			if ($("#gender_split_query_box").is(':checked')) {
+				$("#gender-collapsible-tab").removeClass('collapsible-disabled');
+			} else {
+				$("#gender-collapsible-tab").addClass('collapsible-disabled');
+				$("#gender-collapsible-tab input").prop('checked', true)
+			}
+		})
 
-			});
+		// ACTIVATE COUNTIES FILTER
+		$('input[name="query[freq_states][]"]').click(function () {
+		var states = 0
+		$('input[name="query[freq_states][]"]:checked').each(function() {
+		   states = this.value;
 		});
+		var lenghtOfUnchecked = $(this).parent().parent().parent().parent().find('input:checkbox:not(:checked)').length;
+			if (lenghtOfUnchecked == 31) {
+				if  ($("#county_query_box").is(':checked')) {
+					$('#county-collapsible-tab').removeClass('collapsible-disabled').addClass('county-switcher')
+					$('#county_checkboxes_box').html('')
+					$.post(
+						'/counties/getCheckboxCounties/'+states,
+						$(this).serialize(),
+						function(data) {
+							var countyCheckboxes = ""
+							for(i=0; i<data.counties.length; i++) {
+								countyCheckboxes += "<div class='col s12'><label><input type='checkbox' name='query[freq_counties][]' value='"+data.counties[i].id+"' checked/><span class='white-text'>"+data.counties[i].name+"</span></label></p></div>"
+							}
+						$('#county_checkboxes_box').append(countyCheckboxes);
+						} 
+					)
+				}
+			} else {
+				$('#county-collapsible-tab').addClass('collapsible-disabled')
+				$('#county-collapsible-tab').removeClass('county-switcher')
+			}
+		})
 
 
 		// GET STATE COUNTIES
@@ -184,13 +318,11 @@
 				'/counties/getCounties',
 				$(this).serialize(),
 				function(data) {
-					console.log("Hola")
-					console.log(data.counties[0].name)
 					var countyOptions = "<option value='' selected>Todos</option>"
 					for(i=0; i<data.counties.length; i++) {
 						countyOptions += "<option value='"+data.counties[i].id+"'>"+data.counties[i].name+"</option>"
 					}
-				$('#operation-county-selector').append(countyOptions)				
+				$('#operation-county-selector').append(countyOptions);				
 				}
 			)
 			$('#operation-city-selector').html('')
@@ -216,7 +348,6 @@
 				'/towns/getTowns',
 				$(this).serialize(),
 				function(data) {
-					console.log(data.towns[0].name)
 					var townOptions = "<option value='' selected>Todos</option>"
 					for(i=0; i<data.towns.length; i++) {
 						townOptions += "<option name='<%= @town_focus_model %>[town_id]' value='"+data.towns[i].id+"'>"+data.towns[i].zip_code+" "+"-"+" "+data.towns[i].name+"</option>"
@@ -253,8 +384,6 @@
 				'/queries/get_regular_months',
 				$(this).serialize(),
 				function(data) {
-					console.log("Hola")
-					console.log(data.months[0])
 					var monthOptions = "<option value='' selected>Todos</option>"
 					for (i=0; i<data.months.length; i++) {
 						monthOptions += "<option name='query[month]' value='"+data.months[i]+"'>"+data.months[i]+"</option>"
@@ -274,8 +403,6 @@
 				'/queries/get_months',
 				$(this).serialize(),
 				function(data) {
-					console.log("Hola")
-					console.log(data.months[0])
 					var monthOptions = "<option value='' selected>Todos</option>"
 					for (i=0; i<data.months.length; i++) {
 						monthOptions += "<option name='query[month]' value='"+data.months[i]+"'>"+data.months[i]+"</option>"
@@ -294,8 +421,6 @@
 				'/queries/get_quarters',
 				$(this).serialize(),
 				function(data) {
-					console.log("Hola")
-					console.log(data.quarters[0])
 					var quarterOptions = "<option value='' selected>Todos</option>"
 					for (i=0; i<data.quarters.length; i++) {
 						quarterOptions += "<option name='query[quarter]' value='"+data.quarters[i]+"'>"+data.quarters[i]+"</option>"
@@ -311,16 +436,12 @@
 
 			var mydata = $("#operation-organization1-selector").serialize();
 	    	newArr = mydata.split("=")
-	    	console.log(newArr);
-
 			$('#operation-member1-selector').removeAttr('disabled')
 			$('#operation-member1-selector').html('')
 			$.post(
 				'/organizations/getMembers/'+newArr[1],
 				$(this).serialize(),
 				function(data) {
-					console.log("Hola")
-					console.log(data.members[0].name)
 					var memberOptions = "<option value='' selected></option>"
 					for(i=0; i<data.members.length; i++) {
 						memberOptions += "<option value='"+data.members[i].id+"'>"+data.members[i].firstname+" "+data.members[i].lastname1+"</option>"
@@ -336,8 +457,6 @@
 
 			var mydata = $("#operation-organization2-selector").serialize();
 	    	newArr = mydata.split("=")
-	    	console.log(newArr);
-
 			$('#operation-member2-selector').removeAttr('disabled')
 			$('#operation-member2-selector').html('')
 			$.post(
@@ -389,10 +508,13 @@
 		$('#victim_freq_table input').change(function() {
 			var mydata = $(this).serialize()
 			newArr = mydata.split("=")
-			console.log(newArr[1])
 			$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')
 			$('.send_button i').addClass('text-darken-3')
 			$('.send-to-bottom').show()
+		})
+
+		$('#county_checkboxes_box').on('click', 'input', function() {
+			$('.send-to-bottom').show()			
 		})
 
 		// ENABLE QUERY FIELDS

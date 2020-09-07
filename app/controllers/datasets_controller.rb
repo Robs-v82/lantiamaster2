@@ -125,7 +125,10 @@ class DatasetsController < ApplicationController
 			session[:checkedCitiesArr].push(city.id)	
 			citiesArr.push(city.id)
 		}
-		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, stateArr, citiesArr]
+		genderOptions = ["Masculino","Femenino","No identificado"]
+		countiesArr = []
+		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, stateArr, citiesArr, genderOptions, countiesArr]
+		session[:counties_activated] = false
 		redirect_to "/datasets/victims"
 
 	end
@@ -158,6 +161,15 @@ class DatasetsController < ApplicationController
 			# }
 			session[:victim_freq_params][4] = session[:checkedStatesArr]
 		end
+		if victim_freq_params[:freq_gender_options]
+			session[:checkedGenderOptions] = victim_freq_params[:freq_gender_options]
+			session[:victim_freq_params][6] = session[:checkedGenderOptions]
+		end
+		if victim_freq_params[:freq_counties]
+			session[:checkedCounties] = victim_freq_params[:freq_counties].map(&:to_i)
+			session[:victim_freq_params][7] = session[:checkedCounties]
+			session[:counties_activated] = true
+		end
 		session[:checkedCitiesArr] = victim_freq_params[:freq_cities]
 		session[:checkedCitiesArr] = session[:checkedCitiesArr].map(&:to_i)
 		session[:victim_freq_params][5] = session[:checkedCitiesArr]
@@ -165,13 +177,14 @@ class DatasetsController < ApplicationController
 	end
 
 	def victims
-		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5])
+		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5],session[:victim_freq_params][6],session[:victim_freq_params][7])
 		@timeFrames = [
   			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
 			{caption:"Mensual", box_id:"monthly_query_box", name:"monthly"},
   		]
   		@placeFrames = [
+  			{caption:"Nacional", box_id:"nation_query_box", name:"nationWise"},
   			{caption:"Estado", box_id:"state_query_box", name:"stateWise"},
 			{caption:"Zona Metropolitana", box_id:"city_query_box", name:"cityWise"},
 			{caption:"Municipio", box_id:"county_query_box", name:"countyWise"},
@@ -189,12 +202,14 @@ class DatasetsController < ApplicationController
   			@timeFrames[2][:checked] = true
   		end
 
-  		if session[:victim_freq_params][1] == "stateWise"
+  		if session[:victim_freq_params][1] == "nationWise"
   			@placeFrames[0][:checked] = true
-  		elsif session[:victim_freq_params][1] == "cityWise"
+  		elsif session[:victim_freq_params][1] == "stateWise"
   			@placeFrames[1][:checked] = true
-  		elsif session[:victim_freq_params][1] == "countyWise"
+  		elsif session[:victim_freq_params][1] == "cityWise"
   			@placeFrames[2][:checked] = true
+  		elsif session[:victim_freq_params][1] == "countyWise"
+  			@placeFrames[3][:checked] = true
   		end
 
   		if session[:victim_freq_params][2] == "noGenderSplit"
@@ -203,20 +218,40 @@ class DatasetsController < ApplicationController
   			@genderFrames[1][:checked] = true
   		end
   		
+  		@sortCounter = 0
+  		@sortType = "victims"
   		@years = helpers.get_regular_years
   		@checkedYears = session[:checkedYearsArr]
   		@states = State.all.sort
   		@cities = City.all.sort
+  		
+  		@genderOptions = [
+  			{"caption"=>"Masculino","value"=>"Masculino"},
+  			{"caption"=>"Femenino","value"=>"Femenino"},
+  			{"caption"=>"No identificado","value"=>"No identificado"},
+  		]
   		@checkedStates = session[:checkedStatesArr]
   		@checkedCities = session[:checkedCitiesArr]
+  		@checkedGenderOptions = session[:checkedGenderOptions]
+  		
+  		if @checkedStates.length == 1
+  			targetState = State.find(@checkedStates[0])
+  			@counties = targetState.counties.sort_by {|county| county.full_code}
+  		else
+  			@counties = []
+  		end
+
+  		@checkedCounties = session[:checkedCounties]
+
+  		@county_tootip_message = "Para activar el filtro de municipios:\n1) Elija análisis geográfico 'municipal'.\n2) Filtre un solo estado."
 
 		print "************"
-		print "FREQ TABLE"
-		pp @victim_freq_table
+		print "COUNTIES: "
+		pp @checkedCounties
 
 	end
 
-	def victim_freq_table(period, scope, gender, years, states, cities)
+	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
 		myTable = []
 		headerHash = {}
 		totalHash = {}
@@ -234,8 +269,15 @@ class DatasetsController < ApplicationController
 			myCities.push(myCity)
 		}
 
+		myCounties = []
+		counties.each {|x|
+			myCounty = County.find(x)
+			myCounties.push(myCounty)
+		}
 
-		if scope == "stateWise"
+		if	scope == "nationWise"
+			myScope = nil
+		elsif scope == "stateWise"
 			headerHash[:scope] = "ESTADO" 
 			myScope = myStates
 		elsif scope == "cityWise"
@@ -246,9 +288,13 @@ class DatasetsController < ApplicationController
 			totalHash[:county_placer] = "--"
 			headerHash[:scope] = "MUNICIPIO"
 			myScope = []
+			unless myCounties == []
+				myScope = myCounties
+			else
 			myStates.each{|state|
 				myScope.push(state.counties)
-			}			
+			}	
+			end		
 			myScope = myScope.flatten
 			myScope = myScope.sort_by {|county| county.full_code}
 			print "***********COUNTIES: "
@@ -269,57 +315,108 @@ class DatasetsController < ApplicationController
 		}
 
 		headerHash[:period] = myPeriod
-		if gender == "noGenderSplit"
-			myTable.push(headerHash)
-			myScope.each {|place|
+
+		if myScope == nil
+			if gender == "noGenderSplit"
+				myTable.push(headerHash)
 				placeHash = {}
-				placeHash[:name] = place.name
-				if scope == "countyWise"
-					placeHash[:parent_name] = place.state.shortname
-				end
+				placeHash[:name] = "Nacional"
 				freq = []
 				counter = 0
+				place_total = 0
 				myPeriod.each {|timeUnit|
-					number_of_victims = timeUnit.victims.merge(place.victims).length
+					number_of_victims = timeUnit.victims.length
 					freq.push(number_of_victims)
 					totalFreq[counter] += number_of_victims
 					counter += 1
+					place_total += number_of_victims
 				}
 				placeHash[:freq] = freq
+				placeHash[:place_total] = place_total
 				myTable.push(placeHash)
-			}
+			else
+				headerHash[:gender] = "GÉNERO"
+				totalHash[:gender_placer] = "--"
+				myTable.push(headerHash)
+				genderOptions.each{|gender|
+					placeHash = {}
+					placeHash[:name] = "Nacional"
+					placeHash[:gender] = gender
+					freq = []
+					counter = 0
+					place_total = 0
+					myPeriod.each {|timeUnit|
+						number_of_victims = timeUnit.victims.where(:gender=>gender).length
+						freq.push(number_of_victims)
+						totalFreq[counter] += number_of_victims
+						counter += 1
+						place_total += number_of_victims
+					}
+					placeHash[:freq] = freq
+					placeHash[:place_total] = place_total 
+					myTable.push(placeHash)
+				}	
+			end
 		else
-			headerHash[:gender] = "GÉNERO"
-			totalHash[:gender_placer] = "--"
-			myTable.push(headerHash)
-			myScope.each {|place|
-				["Masculino","Femenino",nil].each{|gender|
+			if gender == "noGenderSplit"
+				myTable.push(headerHash)
+				myScope.each {|place|
 					placeHash = {}
 					placeHash[:name] = place.name
 					if scope == "countyWise"
 						placeHash[:parent_name] = place.state.shortname
 					end
-					if gender == nil
-						placeHash[:gender] = "No identificado"
-					else
-						placeHash[:gender] = gender
-					end
 					freq = []
 					counter = 0
+					place_total = 0
 					myPeriod.each {|timeUnit|
-						number_of_victims = timeUnit.victims.where(:gender=>gender).merge(place.victims).length
+						number_of_victims = timeUnit.victims.merge(place.victims).length
 						freq.push(number_of_victims)
 						totalFreq[counter] += number_of_victims
 						counter += 1
+						place_total += number_of_victims
 					}
 					placeHash[:freq] = freq
+					placeHash[:place_total] = place_total
 					myTable.push(placeHash)
 				}
-			}
+			else
+				headerHash[:gender] = "GÉNERO"
+				totalHash[:gender_placer] = "--"
+				myTable.push(headerHash)
+				myScope.each {|place|
+					genderOptions.each{|gender|
+						placeHash = {}
+						placeHash[:name] = place.name
+						if scope == "countyWise"
+							placeHash[:parent_name] = place.state.shortname
+						end
+						placeHash[:gender] = gender
+						freq = []
+						counter = 0
+						place_total = 0
+						myPeriod.each {|timeUnit|
+							number_of_victims = timeUnit.victims.where(:gender=>gender).merge(place.victims).length
+							freq.push(number_of_victims)
+							totalFreq[counter] += number_of_victims
+							counter += 1
+							place_total += number_of_victims
+						}
+						placeHash[:freq] = freq
+						placeHash[:place_total] = place_total 
+						myTable.push(placeHash)
+					}
+				}
 
+			end
 		end
 
 		totalHash[:freq] = totalFreq
+		total_total = 0
+		totalFreq.each{|q|
+			total_total += q
+		}
+		totalHash[:total_total] = total_total
 		myTable.push(totalHash)
 
 
@@ -329,9 +426,13 @@ class DatasetsController < ApplicationController
 		return myTable
 	end
 
-	def get_victim_freq(timeUnit, place, gender)
+	def sort
 		
+		if params[:type] == "victims"
+			redirect_to "/datasets/victims"
+		end
 	end
+
 
 
 
@@ -347,7 +448,7 @@ class DatasetsController < ApplicationController
 
 	def victim_freq_params
 		params[:query][:freq_years] ||= []
-		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe, freq_years: [], freq_states: [], freq_cities: [])
+		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe, freq_years: [], freq_states: [], freq_cities: [], freq_counties: [], freq_gender_options: [])
 	end
 
 end

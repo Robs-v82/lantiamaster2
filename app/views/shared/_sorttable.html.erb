@@ -1,0 +1,88 @@
+<thead>
+	<tr class="">
+		<% if @victim_freq_table[0][:pre_scope] %>
+			<th>
+				<div class="valign-wrapper">
+					<span><%= @victim_freq_table[0][:pre_scope] %></span>
+					<%= render "shared/sortbutton"%>
+				</div>	
+			</th>
+		<% end %>
+		<th>
+			<div class="valign-wrapper">
+				<span><%= @victim_freq_table[0][:scope]%></span>
+				<%= render "shared/sortbutton"%>
+			</div>	
+		</th>
+		<% if @victim_freq_table[0][:gender] %>
+			<th>
+				<div class="valign-wrapper">
+					<span><%= @victim_freq_table[0][:gender]%></span>
+					<%= render "shared/sortbutton"%>		
+				</div>	
+			</th>
+		<% end %>
+		<% @victim_freq_table[0][:period].each do |period| %>
+			<th>
+				<div class="valign-wrapper">
+					<span>
+						<% if session[:victim_freq_params][0] == "annual" %>
+							<%= period.name %>
+						<% elsif session[:victim_freq_params][0] == "quarterly"%>
+							T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y') %>
+						<% else %>
+							<%= I18n.l(period.first_day, format: '%b/%Y') %>
+						<% end %>
+					</span>
+					<%= render "shared/sortbutton"%>
+				</div>
+			</th>
+		<% end %>
+		<% unless @victim_freq_table[-1][:freq].length == 1%>
+			<th>
+				<div class="valign-wrapper">
+					<span>TOTAL</span>
+					<%= render "shared/sortbutton"%>
+				</div>	
+			</th>
+		<% end %>
+	</tr>
+	<% unless @victim_freq_table.length == 3 %>
+		<tr class="total-tr cyan lighten-4">
+			<td> <%= @victim_freq_table[-1][:name] %></td>
+			<% if @victim_freq_table[-1][:county_placer] %>
+				<td><%= @victim_freq_table[-1][:county_placer] %></td>
+			<% end %>
+			<% if @victim_freq_table[-1][:gender_placer] %>
+				<td><%= @victim_freq_table[-1][:gender_placer] %></td>
+			<% end %>
+			<% @victim_freq_table[-1][:freq].each do |x| %>
+				<td class="right-align"><%= number_with_delimiter(x) %></td>
+			<% end %>
+			<% unless @victim_freq_table[-1][:freq].length == 1%>
+				<td class="right-align"><%= number_with_delimiter(@victim_freq_table[-1][:total_total]) %></td>
+			<% end %>
+		</tr>
+	<% end %>
+</thead>
+
+
+<tbody id="sort-table"> 
+	<% @victim_freq_table[1..-2].each do |place| %>
+		<tr>
+			<% if place[:parent_name] %>
+				<td><%= place[:parent_name] %></td>
+			<% end %>
+			<td><%= place[:name] %></td>
+			<% if place[:gender] %>
+				<td><%= place[:gender] %></td>
+			<% end %>
+			<% place[:freq].each do |x| %>
+				<td class="right-align"><%= number_with_delimiter(x) %></td>
+			<% end %>
+			<% unless @victim_freq_table[-1][:freq].length == 1%>
+				<td class="right-align"><%= number_with_delimiter(place[:place_total]) %></td> 
+			<% end %>
+		</tr>
+	<% end %>
+</tbody>

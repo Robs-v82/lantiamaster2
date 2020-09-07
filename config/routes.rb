@@ -48,4 +48,6 @@ Rails.application.routes.draw do
   post 'datasets/victims_query' => 'datasets#post_victim_query'
   get 'datasets/victims'
   get 'datasets/basic'
+  get 'datasets/:type/:cell' => 'datasets#sort'
+  post 'counties/getCheckboxCounties/:id' => 'counties#getCheckboxCounties'
 end
