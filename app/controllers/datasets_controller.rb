@@ -119,7 +119,7 @@ class DatasetsController < ApplicationController
 			stateArr.push(state.id)
 		}
 		session[:checkedCitiesArr] = []
-		cities = City.all.sort
+		cities = City.all.sort_by {|city| city.name}
 		citiesArr = []
 		cities.each{|city|
 			session[:checkedCitiesArr].push(city.id)	
@@ -135,8 +135,6 @@ class DatasetsController < ApplicationController
 	end
 
 	def post_victim_query
-		print "OOoo"*1000
-		print victim_freq_params
 		if victim_freq_params[:freq_timeframe]
 			session[:victim_freq_params][0] = victim_freq_params[:freq_timeframe]
 		end
@@ -224,7 +222,7 @@ class DatasetsController < ApplicationController
   		@years = helpers.get_regular_years
   		@checkedYears = session[:checkedYearsArr]
   		@states = State.all.sort
-  		@cities = City.all.sort
+  		@cities = City.all.sort_by {|city| city.name}
   		
   		@genderOptions = [
   			{"caption"=>"Masculino","value"=>"Masculino"},
@@ -247,8 +245,8 @@ class DatasetsController < ApplicationController
   		@county_tootip_message = "Para activar el filtro de municipios:\n1) Elija análisis geográfico 'municipal'.\n2) Filtre un solo estado."
 
 		print "************"
-		print "COUNTIES: "
-		pp @checkedCounties
+		print "SESSION COUNTIES: "
+		pp session[:victim_freq_params][7]
 
 	end
 
@@ -292,9 +290,9 @@ class DatasetsController < ApplicationController
 			unless myCounties == []
 				myScope = myCounties
 			else
-			myStates.each{|state|
-				myScope.push(state.counties)
-			}	
+				myStates.each{|state|
+					myScope.push(state.counties)
+				}	
 			end		
 			myScope = myScope.flatten
 			myScope = myScope.sort_by {|county| county.full_code}

@@ -304,8 +304,9 @@
 					)
 				}
 			} else {
-				$('#county-collapsible-tab').addClass('collapsible-disabled')
-				$('#county-collapsible-tab').removeClass('county-switcher')
+				$('#county-collapsible-tab').addClass('collapsible-disabled');
+				$('#county-collapsible-tab').removeClass('county-switcher');
+				$('#county_checkboxes_box').html('')
 			}
 		})
 
