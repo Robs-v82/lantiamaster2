@@ -126,6 +126,7 @@ class DatasetsController < ApplicationController
 			citiesArr.push(city.id)
 		}
 		genderOptions = ["Masculino","Femenino","No identificado"]
+		session[:checkedGenderOptions] = genderOptions
 		countiesArr = []
 		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, stateArr, citiesArr, genderOptions, countiesArr]
 		session[:counties_activated] = false
