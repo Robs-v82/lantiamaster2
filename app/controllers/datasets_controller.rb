@@ -129,7 +129,6 @@ class DatasetsController < ApplicationController
 		session[:checkedGenderOptions] = genderOptions
 		countiesArr = []
 		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, stateArr, citiesArr, genderOptions, countiesArr]
-		session[:counties_activated] = false
 		redirect_to "/datasets/victims"
 
 	end
@@ -166,8 +165,8 @@ class DatasetsController < ApplicationController
 		end
 		if victim_freq_params[:freq_counties]
 			session[:checkedCounties] = victim_freq_params[:freq_counties].map(&:to_i)
-			session[:victim_freq_params][7] = session[:checkedCounties]
-			session[:counties_activated] = true
+		else
+			session[:checkedCounties] = "states"
 		end
 		session[:checkedCitiesArr] = victim_freq_params[:freq_cities]
 		session[:checkedCitiesArr] = session[:checkedCitiesArr].map(&:to_i)
@@ -176,7 +175,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def victims
-		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5],session[:victim_freq_params][6],session[:victim_freq_params][7])
+		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5],session[:victim_freq_params][6],session[:checkedCounties])
 		@timeFrames = [
   			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
@@ -246,7 +245,7 @@ class DatasetsController < ApplicationController
 
 		print "************"
 		print "SESSION COUNTIES: "
-		pp session[:victim_freq_params][7]
+		pp session[:checkedCounties]
 
 	end
 
@@ -268,12 +267,6 @@ class DatasetsController < ApplicationController
 			myCities.push(myCity)
 		}
 
-		myCounties = []
-		counties.each {|x|
-			myCounty = County.find(x)
-			myCounties.push(myCounty)
-		}
-
 		if	scope == "nationWise"
 			myScope = nil
 		elsif scope == "stateWise"
@@ -287,7 +280,18 @@ class DatasetsController < ApplicationController
 			totalHash[:county_placer] = "--"
 			headerHash[:scope] = "MUNICIPIO"
 			myScope = []
-			unless myCounties == []
+			unless counties == "states"
+				if session[:countyParse] == false
+					thisCounties = counties
+				else
+					thisCounties = session[:key0]
+				end
+				myCounties = []
+				thisCounties.each {|x|
+					myCounty = County.find(x)
+					myCounties.push(myCounty)
+				}
+
 				myScope = myCounties
 			else
 				myStates.each{|state|
