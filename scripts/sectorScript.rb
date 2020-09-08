@@ -1,4 +1,4 @@
-rawData="11çAgricultura, cría y explotación de animales, aprovechamiento forestal, pesca y caza
+rawData = "11çAgricultura, cría y explotación de animales, aprovechamiento forestal, pesca y caza
 21çMinería
 22çGeneración, transmisión, distribución y comercialización de energía eléctrica, suministro de agua y de gas natural por ductos al consumidor final
 23çConstrucción
@@ -26,14 +26,22 @@ rawData="11çAgricultura, cría y explotación de animales, aprovechamiento fore
 sectorArr = []
 rawData.each_line{|l| line = l.split("ç"); sectorArr.push(line)}
 sectorArr.each{|x|x.each{|y|y.strip!}}
-sectorArr.each{|x| Sector.create(scian2:x[0], name:x[1], description:x[2])}
+sectorArr.each{|x|
+	if Sector.where(:scian2=>x[0]).empty?
+		Sector.create(scian2:x[0], name:x[1], description:x[2])
+	end
+}
 
 
-rawData=Sector.pluck(:id,:scian2)
-rawData.each{|x| Division.create(sector_id:x[0],name:"General",scian3:x[1]*10)}
+rawData = Sector.pluck(:id,:scian2)
+rawData.each{|x|
+	if Division.where(:scian3=>x[1]*10).empty?
+		Division.create(sector_id:x[0],name:"General",scian3:x[1]*10)
+	end
+}
 
 
-rawData="111çAgricultura
+rawData = "111çAgricultura
 112çCría y explotación de animales
 113çAprovechamiento forestal
 114çPesca, caza y captura
@@ -135,10 +143,7 @@ rawData="111çAgricultura
 986çTráfico de armas
 987çRobo de ferrocarril
 988çRobo de transportistas
-989çTala clandestina
-991çContrabando de mercancías
-992çLavado de dinero
-993çActos de terrorismo"
+989çTala clandestina"
 
 divisionArr = []
 rawData.each_line{|l| line = l.split("ç"); divisionArr.push(line)}
@@ -147,8 +152,26 @@ divisionArr.each{|x|
 	print x
 	y=x[0][0,2]
 	myid=Sector.where(:scian2=>y).last.id
-	Division.create(:scian3=>x[0],:name=>x[1],:sector_id=>myid)}
+	if Division.where(:scian3=>x[0]).empty?
+		Division.create(:scian3=>x[0],:name=>x[1],:sector_id=>myid)
+	end
+}
 
+rawData2 = "991çContrabando de mercancías
+992çLavado de dinero
+993çActos de terrorismo"
+
+divisionArr2 = []
+
+rawData2.each_line{|l| line = l.split("ç"); divisionArr2.push(line)}
+divisionArr2.each{|x|x.each{|y|y.strip!}}
+divisionArr2.each{|x|
+	print x
+	myid=Sector.where(:scian2=>98).last.id
+	if Division.where(:scian3=>x[0]).empty?
+		Division.create(:scian3=>x[0],:name=>x[1],:sector_id=>myid)
+	end
+}
 
 # targetArr = []
 # divisionArr.each{|x| y=x[0][0,2]; myid=Sector.where(:scian2=>y).last.id; targetArr.push(myid)}

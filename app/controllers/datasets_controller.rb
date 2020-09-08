@@ -244,6 +244,8 @@ class DatasetsController < ApplicationController
 
   		unless session[:checkedCounties] == "states"
   			@checkedCounties = Cookie.find(session[:checkedCounties]).data
+  		else
+  			@checkedCounties = []
   		end
 
   		@county_tootip_message = "Para activar el filtro de municipios:\n1) Elija análisis geográfico 'municipal'.\n2) Filtre un solo estado."
