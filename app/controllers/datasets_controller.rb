@@ -187,7 +187,7 @@ class DatasetsController < ApplicationController
   		@placeFrames = [
   			{caption:"Nacional", box_id:"nation_query_box", name:"nationWise"},
   			{caption:"Estado", box_id:"state_query_box", name:"stateWise"},
-			{caption:"Zona Metropolitana", box_id:"city_query_box", name:"cityWise"},
+			{caption:"Z Metropolitana", box_id:"city_query_box", name:"cityWise"},
 			{caption:"Municipio", box_id:"county_query_box", name:"countyWise"},
   		]
   		@genderFrames = [
@@ -278,7 +278,7 @@ class DatasetsController < ApplicationController
 			headerHash[:scope] = "ESTADO" 
 			myScope = myStates
 		elsif scope == "cityWise"
-			headerHash[:scope] = "ZONA METROPOLITANA"
+			headerHash[:scope] = "Z METRO"
 			myScope = myCities
 		elsif scope == "countyWise"
 			headerHash[:pre_scope] = "ESTADO"

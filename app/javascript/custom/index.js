@@ -123,7 +123,13 @@
 
 
 		$('#show-filter-dashboard').click(function() {
+			console.log('working!')
 			$('#filter-dashboard').removeClass('hide-on-small-only');
+		})
+
+		$('#hide-filter-dashboard').click(function() {
+			console.log('working!')
+			$('#filter-dashboard').addClass('hide-on-small-only');
 		})
 
 
