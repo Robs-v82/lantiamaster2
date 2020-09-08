@@ -130,7 +130,7 @@ class DatasetsController < ApplicationController
 		countiesArr = []
 		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, stateArr, citiesArr, genderOptions, countiesArr]
 		redirect_to "/datasets/victims"
-
+		session[:checkedCounties] = "states"
 	end
 
 	def post_victim_query
@@ -164,7 +164,9 @@ class DatasetsController < ApplicationController
 			session[:victim_freq_params][6] = session[:checkedGenderOptions]
 		end
 		if victim_freq_params[:freq_counties]
-			session[:checkedCounties] = victim_freq_params[:freq_counties].map(&:to_i)
+			myArr = victim_freq_params[:freq_counties].map(&:to_i)
+			Cookie.create(:data=>myArr)
+			session[:checkedCounties] = Cookie.last.id
 		else
 			session[:checkedCounties] = "states"
 		end
@@ -175,6 +177,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def victims
+
 		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5],session[:victim_freq_params][6],session[:checkedCounties])
 		@timeFrames = [
   			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
@@ -239,7 +242,9 @@ class DatasetsController < ApplicationController
   			@counties = []
   		end
 
-  		@checkedCounties = session[:checkedCounties]
+  		unless session[:checkedCounties] == "states"
+  			@checkedCounties = Cookie.find(session[:checkedCounties]).data
+  		end
 
   		@county_tootip_message = "Para activar el filtro de municipios:\n1) Elija análisis geográfico 'municipal'.\n2) Filtre un solo estado."
 
@@ -280,18 +285,18 @@ class DatasetsController < ApplicationController
 			totalHash[:county_placer] = "--"
 			headerHash[:scope] = "MUNICIPIO"
 			myScope = []
-			unless counties == "states"
+			if counties == "states"
+				myStates.each{|state|
+					myScope.push(state.counties)
+				}
+			else
 				myCounties = []
-				counties.each {|x|
+				myKeys = Cookie.find(counties).data
+				myKeys.each {|x|
 					myCounty = County.find(x)
 					myCounties.push(myCounty)
 				}
-
 				myScope = myCounties
-			else
-				myStates.each{|state|
-					myScope.push(state.counties)
-				}	
 			end		
 			myScope = myScope.flatten
 			myScope = myScope.sort_by {|county| county.full_code}
