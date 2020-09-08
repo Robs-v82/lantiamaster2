@@ -281,13 +281,8 @@ class DatasetsController < ApplicationController
 			headerHash[:scope] = "MUNICIPIO"
 			myScope = []
 			unless counties == "states"
-				if session[:countyParse] == false
-					thisCounties = counties
-				else
-					thisCounties = session[:key0]
-				end
 				myCounties = []
-				thisCounties.each {|x|
+				counties.each {|x|
 					myCounty = County.find(x)
 					myCounties.push(myCounty)
 				}
