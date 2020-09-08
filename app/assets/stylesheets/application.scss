@@ -2,6 +2,16 @@
 @import url(https://fonts.googleapis.com/icon?family=Material+Icons);
 
 
+.collapsible .row, {
+	max-height: 200px !important;
+}
+
+.collapsible .checkbox-scroll, {
+	max-height: 200px !important;
+	overflow-x: auto !important;
+}
+
+
 .card-narrow {
 	padding: 10px;
 }

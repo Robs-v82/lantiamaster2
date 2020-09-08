@@ -122,6 +122,9 @@
 		// CUSTOM JAVASCRIPT
 
 
+		$('#show-filter-dashboard').click(function() {
+			$('#filter-dashboard').removeClass('hide-on-small-only');
+		})
 
 
 		// SORT BUTTONS
