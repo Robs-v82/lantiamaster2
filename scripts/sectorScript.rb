@@ -159,7 +159,14 @@ divisionArr.each{|x|
 
 rawData2 = "991çContrabando de mercancías
 992çLavado de dinero
-993çActos de terrorismo"
+993çActos de terrorismo
+994çFraude
+995çVandalismo
+996çRobo a comercio
+997çRobo a casa habitación
+998çRobo de vehículo
+999çPiratería
+1000çAutogobierno penitenciario"
 
 divisionArr2 = []
 
@@ -172,6 +179,8 @@ divisionArr2.each{|x|
 		Division.create(:scian3=>x[0],:name=>x[1],:sector_id=>myid)
 	end
 }
+
+Division.where(:scian3=>989).last.update(:name=>"Delitos contra fauna-flora silvestre")
 
 # targetArr = []
 # divisionArr.each{|x| y=x[0][0,2]; myid=Sector.where(:scian2=>y).last.id; targetArr.push(myid)}
