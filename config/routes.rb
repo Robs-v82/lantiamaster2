@@ -53,4 +53,5 @@ Rails.application.routes.draw do
   get 'datasets/basic'
   get 'datasets/:type/:cell' => 'datasets#sort'
   post 'counties/getCheckboxCounties/:id' => 'counties#getCheckboxCounties'
+  get 'organizations/show/:id' => 'organizations#show'
 end

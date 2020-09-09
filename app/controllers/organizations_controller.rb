@@ -9,6 +9,11 @@ class OrganizationsController < ApplicationController
     end 
   	end
 
+  	def show
+  		@place = {:latitude=>19.097119,:longitude=>99.913613}
+  		
+  	end
+
   	def main
 
   		@myYears = helpers.get_years
