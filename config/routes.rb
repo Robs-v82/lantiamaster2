@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   get 'datasets/show'
   get 'datasets/load'
   get 'sources/twitter'
+  get 'organizations/dictionary'
+  post 'organizations/load_organizations'
+  post 'organizations/load_organization_events'
   resources :states
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   # get 'users' => 'users#index'

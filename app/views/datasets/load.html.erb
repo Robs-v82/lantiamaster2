@@ -11,10 +11,12 @@
 							</div>
 						</div>
 						<div class="row">
-							<% form[:loaded].each do |period| %>
-								<div class="col s3">
-									<span class="new badge grey darken-3 period-badge" data-badge-caption=""><%= period %></span>
-								</div>
+							<% unless form[:loaded] == nil %>
+								<% form[:loaded].each do |period| %>
+									<div class="col s3">
+										<span class="new badge grey darken-3 period-badge" data-badge-caption=""><%= period %></span>
+									</div>
+								<% end %>
 							<% end %>
 						</div>
 						<div class="row">
@@ -31,8 +33,10 @@
 									</div>
 								</div>
 							</div>
-						</div>		
-						<%= render form[:timeSearch] %>
+						</div>
+						<% unless form[:timeSearch] == nil %>		
+							<%= render form[:timeSearch] %>
+						<% end %>
 						<div class="card-action">
 							<%= render "shared/sendbutton"%>
 						</div>

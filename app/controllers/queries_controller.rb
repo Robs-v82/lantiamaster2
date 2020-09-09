@@ -26,11 +26,13 @@ class QueriesController < ApplicationController
 		@user = User.find(session[:user_id])
 		@counties = County.all
 		@papers = Division.where(:scian3=>510).last.organizations
+		@cartels = Sector.where(:scian2=>"98").last.organizations.uniq
 		@fileArr = [
 			{:route=>"towns",:caption=>"Colonias/Localidades",:data=>@towns,:pdf=>false,:csv=>true,:excel=>false},
 			{:route=>"counties",:caption=>"Municipios",:data=>@counties,:pdf=>false,:csv=>true,:excel=>false},
 			# {:route=>"cities",:caption=>"Zonas metropolitanas",:data=>@cities,:pdf=>true,:csv=>true,:excel=>true},
-			{:route=>"papers",:caption=>"Medios",:data=>@papers,:pdf=>false,:csv=>true,:excel=>false}
+			{:route=>"papers",:caption=>"Medios",:data=>@papers,:pdf=>false,:csv=>true,:excel=>false},
+			{:route=>"cartels",:caption=>"Organizaciones criminales",:data=>@cartels,:pdf=>false,:csv=>true,:excel=>false}
 		]
 	end
 
@@ -79,6 +81,10 @@ class QueriesController < ApplicationController
 		 	records = Division.where(:scian3=>510).last.organizations
 		 	file_name = "medios("+current_date+")."+params[:extension]
 		 	caption = "medios"
+		 elsif params[:catalogue] == "cartels"
+		 	records = Sector.where(:scian2=>"98").last.organizations.uniq
+		 	file_name = "org-criminales("+current_date+")."+params[:extension]
+		 	caption = "organizaciones criminales"
 		end 
 		file_root = Rails.root.join("private",file_name)
 		myLength = helpers.root_path[:myLength]

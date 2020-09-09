@@ -25,7 +25,6 @@ class QueryMailer < ApplicationMailer
 
 		# CREATE FILE ACCORDDING TO FILE EXTENSION AND CATALOGUE
 		if myFile.include? ("csv")
-			print "****WORKING ON FILE"
 			headers = header
 			CSV.open(fileroot, 'w', write_headers: true, headers: headers) do |writer|
 				records.each do |record|
@@ -43,7 +42,13 @@ class QueryMailer < ApplicationMailer
 		@greeting = greeting
 		@caption = caption
 		@number_of_records = records.length
-		myUpdate = records.order("updated_at").last.updated_at
+		if records.kind_of?(Array)
+			updatedRecords = records.sort_by {|record| record.updated_at}
+			myUpdate = updatedRecords.last.updated_at
+			records = records.sort_by {|record| record.id}
+		else
+			myUpdate = records.order("updated_at").last.updated_at
+		end
 		@last_update = I18n.l(myUpdate, :format=> "%d de %B de %Y")
 
 		myFile = fileroot
@@ -85,6 +90,19 @@ class QueryMailer < ApplicationMailer
 				CSV.open(myFile, 'w', write_headers: true, headers: headers) do |writer|
 					records.each do |record|
 						writer << [record.id, record.county.state.id, record.county.state.name, record.name, record.domain, record.active_links, record.active_since]
+					end
+				end
+			end
+			if caption == "organizaciones criminales"
+				headers = %w{id nombre siglas tipo subtipo pertenencia}
+				CSV.open(myFile, 'w', write_headers: true, headers: headers) do |writer|
+					records.each do |record|
+						unless record.parent.nil?
+							myOrigin = record.parent.name
+						else
+							myOrigin = nil
+						end
+						writer << [record.id, record.name, record.acronym, record.league, record.subleague, myOrigin]
 					end
 				end
 			end

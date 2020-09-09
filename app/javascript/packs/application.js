@@ -8,11 +8,11 @@ require("@rails/ujs").start()
 require("@rails/activestorage").start()
 require("channels")
 require("jquery")
+//= require jquery-ui
 require("materialize")
 require("custom")
 require("chartkick")
 require("chart.js")
-
 
 import './stylesheets/application'
 import 'materialize-css/dist/js/materialize'

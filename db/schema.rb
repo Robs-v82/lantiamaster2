@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_08_170122) do
+ActiveRecord::Schema.define(version: 2020_09_09_180929) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -91,7 +91,9 @@ ActiveRecord::Schema.define(version: 2020_09_08_170122) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "month_id"
+    t.integer "organization_id"
     t.index ["month_id"], name: "index_events_on_month_id"
+    t.index ["organization_id"], name: "index_events_on_organization_id"
     t.index ["town_id"], name: "index_events_on_town_id"
   end
 
@@ -126,6 +128,15 @@ ActiveRecord::Schema.define(version: 2020_09_08_170122) do
     t.index ["event_id"], name: "index_killings_on_event_id"
   end
 
+  create_table "leads", force: :cascade do |t|
+    t.string "category"
+    t.integer "event_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "legacy_id"
+    t.index ["event_id"], name: "index_leads_on_event_id"
+  end
+
   create_table "members", force: :cascade do |t|
     t.string "firstname"
     t.string "lastname1"
@@ -138,6 +149,7 @@ ActiveRecord::Schema.define(version: 2020_09_08_170122) do
     t.integer "organization_id"
     t.integer "role_id"
     t.string "mail"
+    t.text "alias"
     t.index ["organization_id"], name: "index_members_on_organization_id"
     t.index ["role_id"], name: "index_members_on_role_id"
   end
@@ -165,6 +177,11 @@ ActiveRecord::Schema.define(version: 2020_09_08_170122) do
     t.string "league"
     t.string "subleague"
     t.integer "legacy_id"
+    t.integer "parent_id"
+    t.text "allies"
+    t.text "rivals"
+    t.text "origin"
+    t.text "alias"
     t.index ["county_id"], name: "index_organizations_on_county_id"
   end
 
@@ -332,12 +349,15 @@ ActiveRecord::Schema.define(version: 2020_09_08_170122) do
   add_foreign_key "counties", "states"
   add_foreign_key "divisions", "sectors"
   add_foreign_key "events", "months"
+  add_foreign_key "events", "organizations"
   add_foreign_key "events", "towns"
   add_foreign_key "killings", "events"
+  add_foreign_key "leads", "events"
   add_foreign_key "members", "organizations"
   add_foreign_key "members", "roles"
   add_foreign_key "months", "quarters"
   add_foreign_key "organizations", "counties"
+  add_foreign_key "organizations", "organizations", column: "parent_id"
   add_foreign_key "posts", "accounts"
   add_foreign_key "quarters", "years"
   add_foreign_key "sources", "members"

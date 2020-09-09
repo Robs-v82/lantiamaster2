@@ -141,7 +141,196 @@ class OrganizationsController < ApplicationController
 	    render json: {members: targetMembers}		
 	end
 
+	def dictionary
+		organizationsHash = {}
+		Organization.all.each{|x|
+			myKey = x.name + "; " + x.subleague
+			organizationsHash[myKey] = nil
+		}
+ 		render json: organizationsHash
+	end
+
+	def load_organizations
+
+		divisions = [
+			{:slot=>9,:scian3=>981,:name=>"Narcotráfico"},
+			{:slot=>10,:scian3=>982,:name=>"Narcomenudeo"},
+			{:slot=>11,:scian3=>983,:name=>"Extorsión"},
+			{:slot=>12,:scian3=>984,:name=>"Mercado Ilícito de Hidrocarburos"},
+			{:slot=>13,:scian3=>985,:name=>"Trata y tráfico de personas"},
+			{:slot=>14,:scian3=>986,:name=>"Tráfico de armas"},
+			{:slot=>15,:scian3=>987,:name=>"Robo de ferrocarril"},
+			{:slot=>16,:scian3=>988,:name=>"Robo de transportistas"},
+			{:slot=>17,:scian3=>989,:name=>"Tala clandestina"},
+			{:slot=>18,:scian3=>991,:name=>"Contrabando de mercancías"},
+			{:slot=>19,:scian3=>992,:name=>"Lavado de dinero"},
+			{:slot=>21,:scian3=>993,:name=>"Actos de terrorismo"}
+		]
+
+		myFile = load_organizations_params[:file]
+		table = CSV.parse(File.read(myFile))
+
+		table.each{|x|
+
+		# CREATE ORGANIZATION IF IT DOES NOT EXIST
+			if Organization.where(:name=>x[0].strip).empty?
+				print "NEW ORGANIZATION :" + x[0]
+				Organization.create(:name=>x[0].strip,:acronym=>x[2],:league=>x[3],:subleague=>x[4])
+			end
+		}
+
+		 
+		table.each{|x|
+
+		# UPDATE DIVIDIONS
+			targetOrganization = Organization.where(:name=>x[0].strip).last
+			divisions.each{|y|
+				myDivision = Division.where(:scian3=>y[:scian3]).last
+				if x[y[:slot]] == "1"
+					print "ACITVITY HIT!!!"
+					targetOrganization.divisions << myDivision
+				end
+			}
+
+		# UPDATE PARENT ORIGIN ALLIES AND RIVALS
+			targetOrganization = Organization.where(:name=>x[0].strip).last
+			unless x[1].nil?
+				myNames = x[1].split(";")
+				cleanNames = []
+				myNames.each {|myName|
+					myName = myName.strip
+					cleanNames.push(myName)
+				}
+				targetOrganization.update(:alias=>cleanNames)
+			end	
+			unless x[5].nil?
+				unless Organization.where(:name=>x[5]).empty?
+					parentOrganization = Organization.where(:name=>x[5]).last
+					targetOrganization.update(:parent_id=>parentOrganization.id)
+				end
+			end
+			unless x[6].nil?
+				x[6].split(";").each{|org|
+					myOrigins = []
+					unless Organization.where(:name=>org).empty?
+						originOrganization = Organization.where(:name=>org).last
+						myOrigins.push(originOrganization.id)
+					end	
+					targetOrganization.update(:origin=>myOrigins)	
+				}
+			end	
+			unless x[7].nil?
+				x[7].split(";").each{|org|
+					myAllies = []
+					unless Organization.where(:name=>org).empty?
+						alliedOrganization = Organization.where(:name=>org).last
+						myAllies.push(alliedOrganization.id)
+					end	
+					targetOrganization.update(:allies=>myAllies)	
+				}
+			end	
+			unless x[8].nil?
+				x[8].split(";").each{|org|
+					myRivals = []
+					unless Organization.where(:name=>org).empty?
+						rivalOrganization = Organization.where(:name=>org).last
+						myRivals.push(rivalOrganization.id)
+					end
+					targetOrganization.update(:rivals=>myRivals)	
+				}
+			end	
+		}
+		session[:filename] = load_organizations_params[:file].original_filename
+		session[:load_success] = true
+
+		redirect_to "/datasets/load"
+	end
+
+	def load_organization_events
+
+		myCategories = [
+			"Decomiso",
+			"Desmantelamiento de narcolaboratorio",
+			"Desplazamiento",
+			"Narcomensaje",
+			"Entrega de despensas",
+			"Informe de inteligencia",
+			"Investigación periodística",
+			"Solicitud de información"
+		]
+
+
+		myFile = load_organization_events_params[:file]
+		table = CSV.parse(File.read(myFile))
+
+		table.each{|x|
+			if Lead.where(:legacy_id=>x[0]).empty?
+				if myCategories.include? x[9]
+					unless Organization.where(:name=>x[3]).empty?
+						myOrganization = Organization.where(:name=>x[3]).last.id
+						myString = x[10][6..-1]+"_"+x[10][3,2]
+						print "*************MONTH NAME: "
+						print myString
+						myMonth =  Month.where(:name=>myString).last.id
+						unless x[2].nil? 
+							towns = []
+							townArr = x[2].split(";")
+							townArr.each{|townName|
+								unless County.where(:full_code=>x[1]).last.towns.where(:name=>townName).empty?
+									thisTown = County.where(:full_code=>x[1]).last.towns.where(:name=>townName).last.full_code
+									towns.push(thisTown)
+								else
+									towns.push(x[1]+"0000")
+								end
+								towns = towns.uniq
+							}
+						else
+							towns = [x[1]+"0000"]
+						end
+						towns.each{|town|
+							myTown = Town.where(:full_code=>town).last.id
+							# ADD EVENT AND SOURCES
+							Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>x[10], :month_id=>myMonth)
+							(11..15).each{|y|
+								Source.create(:url=>x[y])
+								mySource = Source.last
+								Event.last.sources << mySource
+							}
+
+							# ADD LEAD
+							myEvent = Event.last.id
+							Lead.create(:legacy_id=>x[0], :category=>x[9], :event_id=>myEvent)	
+						}
+						
+						# ADD MEMBERS
+						 
+						if Organization.where(:name=>x[3]).last.members.where(:firstname=>x[5],:lastname1=>x[6],:lastname2=>x[7]).empty?
+							unless x[5].nil? && x[8].nil?
+								myAlias = x[8].split(";")
+								Member.create(:organization_id=>myOrganization,:firstname=>x[5],:lastname1=>x[6],:lastname2=>x[7], :alias=>myAlias)
+							end
+						end
+					end
+				end		
+			end
+		}
+
+		session[:filename] = load_organization_events_params[:file].original_filename
+		session[:load_success] = true
+
+		redirect_to "/datasets/load"
+		
+	end
+
 	private
+
+	def load_organizations_params
+		params.require(:query).permit(:file)
+	end
+
+	def load_organization_events_params
+		params.require(:query).permit(:file)
+	end
 
 	def password_params
 		params.require(:user).permit(:mail, :password)

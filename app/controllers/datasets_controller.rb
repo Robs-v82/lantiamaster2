@@ -38,6 +38,8 @@ class DatasetsController < ApplicationController
 
 		@myYears = (2010..2030)
 		@forms = [
+			{caption:"Organizaciones criminal (BASE OC)", myAction:"/organizations/load_organizations", timeSearch: nil, myObject:"file", loaded: nil},
+			{caption:"Indicios de presencia criminal", myAction:"/organizations/load_organization_events", timeSearch: nil, myObject:"file", loaded: nil},
 			{caption:"ENSU BP1_1", myAction:"/datasets/load_ensu", timeSearch:"shared/quartersearch", myObject:"ensu", loaded:ensuLoaded},
 			{caption:"Reporte Mensual de Violencia", myAction:"/months/load_violence_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:violenceReportLoaded},
 			{caption:"Cifras delictivas mensuales", myAction:"/months/load_crime_victim_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:crimeVictimReportLoaded}
@@ -248,11 +250,7 @@ class DatasetsController < ApplicationController
   			@checkedCounties = []
   		end
 
-  		@county_tootip_message = "Para activar el filtro de municipios:\n1) Elija análisis geográfico 'municipal'.\n2) Filtre un solo estado."
-
-		print "************"
-		print "SESSION COUNTIES: "
-		pp session[:checkedCounties]
+  		@county_tootip_message = "Para activar el filtro de municipios:\n1) Elija 'municipio' en análisis geográfico.\n2) Filtre un solo estado."
 
 	end
 

@@ -19,7 +19,25 @@
 	})
 
 
+
 	$(document).ready(function(){
+
+		myFunction();
+
+		function myFunction() {
+			$.ajax({
+				type: 'GET',
+				dataType: 'json',
+				url: '/organizations/dictionary',
+				data: $(this).serialize(),
+				success: function(response) {
+					console.log(response)
+					$('input.autocomplete').autocomplete({	
+		    			data: response,
+	      			});
+				}
+			});
+		}
 
 		// TEST JQUERY	
 		$("#jquery-test").click(function(){
@@ -115,8 +133,6 @@
 	    		$('#password-error-modal').modal('open')
 			}
 		})
-
-
 
 
 		// CUSTOM JAVASCRIPT
@@ -557,7 +573,6 @@
 		})
 
 	})
-// }
 
 // $(document).ready(ready)
 // $(document).on('turbolinks:load', ready)

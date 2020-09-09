@@ -35,6 +35,12 @@
             <%= image_tag "optimized_logo.jpg", :class => "col m4 s7" %>
           </div>
           <% if session[:user_id] %>
+<!--             <div>
+              <div class="input-field">
+                <input type="text" id="organization-autocomplete" class="autocomplete">
+                <label for="organization-autocomplete">Autocomplete</label>
+              </div>
+            </div> -->
             <div class="col s2 right">
                 <a href="/organizations/logout" class="right tooltipped" data-position="bottom" data-tooltip="Cerrar sesión">
                   <i class="small material-icons cyan-text text-accent-4 right-extra-margin">exit_to_app</i>
