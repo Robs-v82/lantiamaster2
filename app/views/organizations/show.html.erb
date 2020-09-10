@@ -1,3 +1,30 @@
-<p>
-	<img src="https://maps.googleapis.com/maps/api/staticmap?zoom=17&size=400x300&center=19.097033,99.913565&key=AIzaSyBnUT-WW7hq-iKXnoRyzhPH3dOlAnxoEyI">
-</p>
+<% provide :head_tags do %>
+    <script>
+
+    document.addEventListener("DOMContentLoaded", function(){        
+
+
+			$.get(
+				'https://maps.googleapis.com/maps/api/geocode/json?components=country:MX|postal_code:<%= @town.zip_code %>&key=',
+				$(this).serialize(),
+				function(data) {
+					var coords = data.results[0].geometry.location; 
+					console.log(coords);
+
+					function initMap() {
+						var zip_code = {lat: coords.lat, lng: coords.lng};
+						var map = new google.maps.Map(
+							document.getElementById('map'), {zoom: 12, center: zip_code});
+							var marker = new google.maps.Marker({position: zip_code, map: map});
+					}
+					initMap()
+
+				}
+			)
+			return false
+    });
+
+    </script>
+<% end %>
+
+<div id="map"></div>

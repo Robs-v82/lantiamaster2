@@ -10,20 +10,16 @@ class OrganizationsController < ApplicationController
   	end
 
   	def show
-  		@place = {:latitude=>19.097119,:longitude=>99.913613}
-  		
+  		@place = {:latitude=>19.097119,:longitude=>-99.913613}
+  		@town = Town.first
   	end
 
   	def main
-
-  		@myYears = helpers.get_years
   		
+  		@myYears = helpers.get_years	
   		@states = State.all.sort
-
   		@cities = City.all.sort_by{|city|city.name}
-
   		@county_search_input = "query[county_id]"
-
   		session[:page] = nil
   		session[:params] = nil
 
@@ -156,20 +152,26 @@ class OrganizationsController < ApplicationController
 	end
 
 	def load_organizations
-
 		divisions = [
-			{:slot=>9,:scian3=>981,:name=>"Narcotráfico"},
-			{:slot=>10,:scian3=>982,:name=>"Narcomenudeo"},
-			{:slot=>11,:scian3=>983,:name=>"Extorsión"},
-			{:slot=>12,:scian3=>984,:name=>"Mercado Ilícito de Hidrocarburos"},
-			{:slot=>13,:scian3=>985,:name=>"Trata y tráfico de personas"},
-			{:slot=>14,:scian3=>986,:name=>"Tráfico de armas"},
-			{:slot=>15,:scian3=>987,:name=>"Robo de ferrocarril"},
-			{:slot=>16,:scian3=>988,:name=>"Robo de transportistas"},
-			{:slot=>17,:scian3=>989,:name=>"Tala clandestina"},
-			{:slot=>18,:scian3=>991,:name=>"Contrabando de mercancías"},
-			{:slot=>19,:scian3=>992,:name=>"Lavado de dinero"},
-			{:slot=>21,:scian3=>993,:name=>"Actos de terrorismo"}
+			{:slot=>11,:scian3=>981,:name=>"Narcotráfico"},
+			{:slot=>12,:scian3=>982,:name=>"Narcomenudeo"},
+			{:slot=>13,:scian3=>983,:name=>"Extorsión"},
+			{:slot=>14,:scian3=>984,:name=>"Mercado Ilícito de Hidrocarburos"},
+			{:slot=>15,:scian3=>985,:name=>"Trata y tráfico de personas"},
+			{:slot=>16,:scian3=>986,:name=>"Tráfico de armas"},
+			{:slot=>17,:scian3=>987,:name=>"Robo de ferrocarril"},
+			{:slot=>18,:scian3=>988,:name=>"Robo de transportistas"},
+			{:slot=>19,:scian3=>989,:name=>"Tala clandestina"},
+			{:slot=>20,:scian3=>991,:name=>"Contrabando de mercancías"},
+			{:slot=>21,:scian3=>992,:name=>"Lavado de dinero"},
+			{:slot=>22,:scian3=>994,:name=>"Fraude"},
+			{:slot=>23,:scian3=>993,:name=>"Actos de terrorismo"},
+			{:slot=>24,:scian3=>995,:name=>"Vandalismo"},
+			{:slot=>25,:scian3=>996,:name=>"Robo a comercio"},
+			{:slot=>26,:scian3=>997,:name=>"Robo a casa habitación"},
+			{:slot=>27,:scian3=>998,:name=>"Robo de vehículo"},
+			{:slot=>28,:scian3=>993,:name=>"Piratería"},
+			{:slot=>29,:scian3=>1000,:name=>"Autogobierno penitenciario"}
 		]
 
 		myFile = load_organizations_params[:file]
@@ -180,15 +182,26 @@ class OrganizationsController < ApplicationController
 		# CREATE ORGANIZATION IF IT DOES NOT EXIST
 			if Organization.where(:name=>x[0].strip).empty?
 				print "NEW ORGANIZATION :" + x[0]
-				Organization.create(:name=>x[0].strip,:acronym=>x[2],:league=>x[3],:subleague=>x[4])
+				Organization.create(:name=>x[0].strip)
 			end
 		}
 
 		 
 		table.each{|x|
+			targetOrganization = Organization.where(:name=>x[0].strip).last
+		# UPDATE GENERAL INFO
+			targetActive = false
+			if x[1] == "Activa"
+				targetActive = true
+			end
+			myAcronym = x[4]
+			unless myAcronym.nil?
+				myAcronym = myAcronym.strip
+			end
+			targetOrganization.update(:acronym=>myAcronym, :league=>x[5], :subleague=>x[6], :active=>targetActive)
 
 		# UPDATE DIVIDIONS
-			targetOrganization = Organization.where(:name=>x[0].strip).last
+			
 			divisions.each{|y|
 				myDivision = Division.where(:scian3=>y[:scian3]).last
 				if x[y[:slot]] == "1"
@@ -199,8 +212,8 @@ class OrganizationsController < ApplicationController
 
 		# UPDATE PARENT ORIGIN ALLIES AND RIVALS
 			targetOrganization = Organization.where(:name=>x[0].strip).last
-			unless x[1].nil?
-				myNames = x[1].split(";")
+			unless x[3].nil?
+				myNames = x[3].split(";")
 				cleanNames = []
 				myNames.each {|myName|
 					myName = myName.strip
@@ -208,14 +221,15 @@ class OrganizationsController < ApplicationController
 				}
 				targetOrganization.update(:alias=>cleanNames)
 			end	
-			unless x[5].nil?
-				unless Organization.where(:name=>x[5]).empty?
-					parentOrganization = Organization.where(:name=>x[5]).last
+			unless x[7].nil?
+				unless Organization.where(:name=>x[7]).empty?
+					parentOrganization = Organization.where(:name=>x[7]).last
 					targetOrganization.update(:parent_id=>parentOrganization.id)
 				end
 			end
-			unless x[6].nil?
-				x[6].split(";").each{|org|
+			unless x[8].nil?
+				x[8].split(";").each{|org|
+					org = org.strip
 					myOrigins = []
 					unless Organization.where(:name=>org).empty?
 						originOrganization = Organization.where(:name=>org).last
@@ -224,8 +238,9 @@ class OrganizationsController < ApplicationController
 					targetOrganization.update(:origin=>myOrigins)	
 				}
 			end	
-			unless x[7].nil?
-				x[7].split(";").each{|org|
+			unless x[9].nil?
+				x[9].split(";").each{|org|
+					org = org.strip
 					myAllies = []
 					unless Organization.where(:name=>org).empty?
 						alliedOrganization = Organization.where(:name=>org).last
@@ -234,8 +249,9 @@ class OrganizationsController < ApplicationController
 					targetOrganization.update(:allies=>myAllies)	
 				}
 			end	
-			unless x[8].nil?
-				x[8].split(";").each{|org|
+			unless x[10].nil?
+				x[10].split(";").each{|org|
+					org = org.strip
 					myRivals = []
 					unless Organization.where(:name=>org).empty?
 						rivalOrganization = Organization.where(:name=>org).last
@@ -254,26 +270,30 @@ class OrganizationsController < ApplicationController
 	def load_organization_events
 
 		myCategories = [
-			"Decomiso",
-			"Desmantelamiento de narcolaboratorio",
-			"Desplazamiento",
-			"Narcomensaje",
-			"Entrega de despensas",
-			"Informe de inteligencia",
+			"Abatimiento",
+			"Ataque directo a civiles",
+			"Ataque directo a funcionarios",
+			"Base social criminal",
+			"Denuncia ciudadana",
+			"Detención de alto perfil",
+			"Ejecución",
+			"Enfrentamiento entre civiles",
+			"Fuga penitenciaria",
+			"Informe gubernamental",
 			"Investigación periodística",
-			"Solicitud de información"
-		]
-
+			"Narcomensaje",
+			"Operativo gubernamental"
+		] 
 
 		myFile = load_organization_events_params[:file]
 		table = CSV.parse(File.read(myFile))
 
 		table.each{|x|
 			if Lead.where(:legacy_id=>x[0]).empty?
-				if myCategories.include? x[9]
-					unless Organization.where(:name=>x[3]).empty?
-						myOrganization = Organization.where(:name=>x[3]).last.id
-						myString = x[10][6..-1]+"_"+x[10][3,2]
+				if myCategories.include? x[8]
+					unless Organization.where(:name=>x[3].strip).empty?
+						myOrganization = Organization.where(:name=>x[3].strip).last.id
+						myString = x[9][6..-1]+"_"+x[9][3,2]
 						print "*************MONTH NAME: "
 						print myString
 						myMonth =  Month.where(:name=>myString).last.id
@@ -296,7 +316,7 @@ class OrganizationsController < ApplicationController
 							myTown = Town.where(:full_code=>town).last.id
 							# ADD EVENT AND SOURCES
 							Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>x[10], :month_id=>myMonth)
-							(11..15).each{|y|
+							(10..14).each{|y|
 								Source.create(:url=>x[y])
 								mySource = Source.last
 								Event.last.sources << mySource
@@ -304,15 +324,19 @@ class OrganizationsController < ApplicationController
 
 							# ADD LEAD
 							myEvent = Event.last.id
-							Lead.create(:legacy_id=>x[0], :category=>x[9], :event_id=>myEvent)	
+							Lead.create(:legacy_id=>x[0], :category=>x[8], :event_id=>myEvent)	
 						}
 						
 						# ADD MEMBERS
-						 
-						if Organization.where(:name=>x[3]).last.members.where(:firstname=>x[5],:lastname1=>x[6],:lastname2=>x[7]).empty?
-							unless x[5].nil? && x[8].nil?
-								myAlias = x[8].split(";")
-								Member.create(:organization_id=>myOrganization,:firstname=>x[5],:lastname1=>x[6],:lastname2=>x[7], :alias=>myAlias)
+						 unless Organization.where(:name=>x[3].strip).empty?
+							if Organization.where(:name=>x[3].strip).last.members.where(:firstname=>x[4],:lastname1=>x[5],:lastname2=>x[7]).empty?
+								unless x[4].nil? && x[7].nil?
+									myAlias = nil
+									unless x[7].nil?
+										myAlias = x[7].split(";")
+									end
+									Member.create(:organization_id=>myOrganization,:firstname=>x[4],:lastname1=>x[5],:lastname2=>x[7], :alias=>myAlias)
+								end
 							end
 						end
 					end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_09_180929) do
+ActiveRecord::Schema.define(version: 2020_09_10_160330) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -182,6 +182,7 @@ ActiveRecord::Schema.define(version: 2020_09_09_180929) do
     t.text "rivals"
     t.text "origin"
     t.text "alias"
+    t.boolean "active"
     t.index ["county_id"], name: "index_organizations_on_county_id"
   end
 
@@ -259,6 +260,8 @@ ActiveRecord::Schema.define(version: 2020_09_09_180929) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "zip_code"
     t.string "settlement_type"
+    t.float "latitude"
+    t.float "longitude"
     t.index ["county_id"], name: "index_towns_on_county_id"
   end
 

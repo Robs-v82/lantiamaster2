@@ -4,6 +4,21 @@
  *= require jquery-ui
  */
 
+a[href^="http://maps.google.com/maps"]{display:none !important}
+a[href^="https://maps.google.com/maps"]{display:none !important}
+
+.gmnoprint a, .gmnoprint span, .gm-style-cc {
+    display:none;
+}
+.gmnoprint div {
+    background:none !important;
+}
+
+#map {
+    width: 600px;
+    height: 400px;
+}
+
 
 .collapsible .row, {
 	max-height: 200px !important;
@@ -102,9 +117,9 @@ p {
 }
 
 body {
-display: flex;
-min-height: 100vh;
-flex-direction: column;
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
 }
 
 .stress-line {
