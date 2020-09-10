@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_10_160330) do
+ActiveRecord::Schema.define(version: 2020_09_10_194624) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -163,6 +163,13 @@ ActiveRecord::Schema.define(version: 2020_09_10_160330) do
     t.index ["quarter_id"], name: "index_months_on_quarter_id"
   end
 
+  create_table "organization_towns", force: :cascade do |t|
+    t.integer "town_id"
+    t.integer "organization_id"
+    t.index ["organization_id"], name: "index_organization_towns_on_organization_id"
+    t.index ["town_id"], name: "index_organization_towns_on_town_id"
+  end
+
   create_table "organizations", force: :cascade do |t|
     t.string "name"
     t.string "acronym"
@@ -184,6 +191,13 @@ ActiveRecord::Schema.define(version: 2020_09_10_160330) do
     t.text "alias"
     t.boolean "active"
     t.index ["county_id"], name: "index_organizations_on_county_id"
+  end
+
+  create_table "organizations_towns", force: :cascade do |t|
+    t.integer "town_id"
+    t.integer "organization_id"
+    t.index ["organization_id"], name: "index_organizations_towns_on_organization_id"
+    t.index ["town_id"], name: "index_organizations_towns_on_town_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -263,6 +277,13 @@ ActiveRecord::Schema.define(version: 2020_09_10_160330) do
     t.float "latitude"
     t.float "longitude"
     t.index ["county_id"], name: "index_towns_on_county_id"
+  end
+
+  create_table "towns_and_organizations", force: :cascade do |t|
+    t.integer "town_id"
+    t.integer "organization_id"
+    t.index ["organization_id"], name: "index_towns_and_organizations_on_organization_id"
+    t.index ["town_id"], name: "index_towns_and_organizations_on_town_id"
   end
 
   create_table "users", force: :cascade do |t|

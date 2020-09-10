@@ -44,7 +44,7 @@ governorArr = []
 rawData.each_line{|l| line = l.split(","); governorArr.push(line)}
 governorArr.each{|x|x.each{|y|y.strip!}}
 
-CREATE A GOVERNMENT ORGANIZATION AND A GOVERNOR FOR EACH STATE
+# CREATE A GOVERNMENT ORGANIZATION AND A GOVERNOR FOR EACH STATE
 State.all.each{|state|
 	myName = "Gubernatura de "+state.name
 	myCode = state.code+"000"

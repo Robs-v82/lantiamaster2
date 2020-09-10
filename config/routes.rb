@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   get 'organizations/dictionary'
   post 'organizations/load_organizations'
   post 'organizations/load_organization_events'
+  post 'organizations/load_organization_territory'
   resources :states
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   # get 'users' => 'users#index'

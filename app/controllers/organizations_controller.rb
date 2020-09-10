@@ -348,7 +348,48 @@ class OrganizationsController < ApplicationController
 		session[:load_success] = true
 
 		redirect_to "/datasets/load"
-		
+	end
+
+	def load_organization_territory
+
+		myFile = load_organization_events_params[:file]
+		table = CSV.parse(File.read(myFile))
+
+		table.each{|x|
+			unless x[2].nil?
+				unless Organization.where(:name=>x[2].strip).empty?
+					targetOrganization = Organization.where(:name=>x[2].strip).last
+					towns = []
+					pseudoTown = Town.where(:full_code=>x[0]+"0000").last
+					print "**************TOWN: "
+					print pseudoTown.name
+					towns.push(pseudoTown)
+					unless x[1].nil?
+						x[1].split(";").each{|town|
+							unless County.where(:full_code=>x[0]).last.towns.where(:name=>town.strip)
+								myTown = County.where(:full_code=>x[0]).last.towns.where(:name=>town.strip).last
+								towns.push(myTown)
+							end
+						}
+					end
+
+					towns.each{|town|
+						if targetOrganization.towns.where(:full_code=>town.full_code).empty?
+							targetOrganization.towns << town
+						end
+					}
+				end	
+			end
+		}
+
+		myFile = load_organization_territory_params[:file]
+		table = CSV.parse(File.read(myFile))
+
+
+		session[:filename] = load_organization_territory_params[:file].original_filename
+		session[:load_success] = true
+
+		redirect_to "/datasets/load"		
 	end
 
 	private
@@ -361,6 +402,10 @@ class OrganizationsController < ApplicationController
 		params.require(:query).permit(:file)
 	end
 
+	def load_organization_territory_params
+		params.require(:query).permit(:file)
+	end
+		
 	def password_params
 		params.require(:user).permit(:mail, :password)
 	end
