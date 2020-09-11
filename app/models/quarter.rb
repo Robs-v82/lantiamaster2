@@ -6,6 +6,8 @@ class Quarter < ApplicationRecord
 	has_many :killings, :through => :events 
 	has_many :victims, :through => :killings
 
+	has_many :leads, :through => :events
+
 	has_one_attached :survey
 	has_one_attached :ensu
 end

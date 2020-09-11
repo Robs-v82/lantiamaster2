@@ -6,4 +6,5 @@ class Year < ApplicationRecord
 	has_many :killings, :through => :events 
 	has_many :victims, :through => :killings
 	has_many :months, :through => :quarters
+	has_many :leads, :through => :events
 end

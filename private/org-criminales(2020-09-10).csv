@@ -1,0 +1,74 @@
+id,nombre,siglas,tipo,subtipo,pertenencia
+1,Cártel de Sinaloa,CDS; CDP,Cártel,"",
+2,Cártel Jalisco Nueva Generación,CJNG,Cártel ,,
+3,Cárteles Unidos,CU,Mafia,Célula,Cártel de Sinaloa
+4,Los Ciclones,,Mafia ,Escisión,
+5,La Oficina,,Banda,,Organización criminal de la familia Meza Flores
+6,Los Gloria,,Banda,,
+7,La Línea,,Mafia,Escisión,
+8,El 30,,Banda,Brazo armado,Cártel de Sinaloa
+9,Los Cuinis,,Mafia,Célula,Cártel Jalisco Nueva Generación
+10,XXXV,,Banda,Pandilla,
+11,Los Monkikis,,Banda ,Pandilla,
+12,Cártel de Tijuana Nueva Generación,CTNG,Mafia,Célula,Cártel Jalisco Nueva Generación
+13,Los Arzate,,Mafia,Célula,Cártel de Sinaloa
+14,Cártel de Los Arellano Félix,CAF,Mafia,,
+15,Organización criminal de la familia Meza Flores,,Mafia,,
+16,Cártel de Santa Rosa de Lima,SRL,Mafia,"",
+17,Los Pilotos,,Banda,,Cártel de Los Arellano Félix
+18,Los Venados,,Banda,Brazo armado,Los Arzate
+19,Los Mudos,,Banda ,Pandilla,
+20,Banda del Bebé,,Banda,Pandilla,
+22,Los 28,,Banda,Brazo armado,Cártel Jalisco Nueva Generación
+23,Banda de la Zona Norte,,Banda,,Cártel de Sinaloa
+24,Los Villavicencio,,Mafia,Célula,Cártel de Sinaloa
+25,Los Zetas Vieja Escuela,,Mafia,Escisión,
+26,Piratas del Carmen,,Banda,,
+28,Cártel del Noreste,,Mafia,Escisión,
+29,Banda de Hopelchén,,Banda,,
+30,Piratas de la Plaza de la Madre,,Banda,Pandilla,
+31,Los TX8S,,Banda,Pandilla,
+32,Los Destroyers,,Banda,Pandilla,
+33,Los Distintos,,Banda,Pandilla,
+34,Los Morgan,,Banda,Pandilla,
+35,Las Piratas,,Banda,Pandilla,
+36,Las Fresas,,Banda,Pandilla,
+37,Los Nuevos Aztecas,,Banda,Pandilla,La Línea
+38,Los Ántrax,,Banda,Banda,
+39,La Nueva Familia Michoacana,,Mafia,Escisión,
+40,Los Blancos de Troya,,Banda,Brazo armado,La Nueva Familia Michoacana
+41,Barrio 18,M-18,Banda,Pandilla,
+42,Cartel de San Juan Chamula,,Banda,,
+43,Fuerzas Especiales Grupo Sombra,FEGS,Banda,Brazo armado,
+44,Mara Salvatrucha,M-13,Banda,Pandilla,
+45,Cártel de Nuevo Imperio,,Banda,,
+46,Cártel de Tláhuac,TLH,Banda,,
+47,La Ronda 88,LR88,Banda,Pandilla,
+48,La Unión Tepito,,Mafia,,
+49,La Unión Tepito Nueva Generación,UTNG,Mafia,Célula,Cártel Jalisco Nueva Generación
+50,Los Boludos,,Banda,Pandilla,
+51,Los Canchola,,Banda,,
+52,Los Changos,,Banda,Pandilla,
+53,Los Discos,,Banda,Pandilla,
+54,Los Güeros,,Banda,Pandilla,
+55,Los Guerrero,,Banda,Pandilla,
+56,Los Maestrín,,Banda,Pandilla,
+57,Los Marcopolos,,Banda,,La Unión Tepito
+58,Los Memos,,Banda,Pandilla,
+59,Los Oaxacos,,Banda,Pandilla,
+60,Los Rodolfos,,Banda,,
+61,Los Rudos,,Banda,Pandilla,
+62,Los Sinaloas,,Banda,,Cártel de Sinaloa
+63,Los Tanzanios,,Banda,Pandilla,
+64,Los Villafán,,Banda,Pandilla,
+65,Los Molina,,Banda,Pandilla,
+66,Los Chilas,,Banda,Pandilla,
+67,Sindicato Libertad,,Mafia,,
+68,Fuerzas Especiales Mexicles,FEM,Banda,Pandilla,
+69,Los Jaguares,,Banda,Brazo armado,
+70,Los Salazar,,Mafia,Célula,Cártel de Sinaloa
+71,Cártel de la ciudad,CDS; CDP,Cártel ,,
+72,Cartel X,CJNG,Cártel ,,
+73,Los Borregos,CU,Mafia,Célula,
+74,Oso Panda,,Mafia ,Escisión,
+2465,﻿Cártel de Sinaloa,CDS,Cártel ,,

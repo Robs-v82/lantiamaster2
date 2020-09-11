@@ -3,9 +3,8 @@
 
     document.addEventListener("DOMContentLoaded", function(){        
 
-
 			$.get(
-				'https://maps.googleapis.com/maps/api/geocode/json?components=country:MX|postal_code:<%= @town.zip_code %>&key=',
+				'https://maps.googleapis.com/maps/api/geocode/json?components=country:MX|postal_code:<%= @town.zip_code %>&key=<%= @key %>',
 				$(this).serialize(),
 				function(data) {
 					var coords = data.results[0].geometry.location; 
@@ -13,9 +12,15 @@
 
 					function initMap() {
 						var zip_code = {lat: coords.lat, lng: coords.lng};
+						var zip_code2 = {lat: 19.427207, lng: -99.190063}; 
 						var map = new google.maps.Map(
-							document.getElementById('map'), {zoom: 12, center: zip_code});
-							var marker = new google.maps.Marker({position: zip_code, map: map});
+							document.getElementById('map'), {zoom: 4.8, center: zip_code});
+							var marker = new google.maps.Marker({position: zip_code,
+							 map: map,
+							 animation: google.maps.Animation.DROP});
+							var marker2 = new google.maps.Marker({position: zip_code2,
+							 map: map,
+							 animation: google.maps.Animation.DROP});
 					}
 					initMap()
 

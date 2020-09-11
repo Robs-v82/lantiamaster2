@@ -4,6 +4,7 @@ class Month < ApplicationRecord
 	has_many :sources, :through => :events 
 	has_many :killings, :through => :events 
 	has_many :victims, :through => :killings 
+	has_many :leads, :through => :events 
 
 	has_one_attached :violence_report
 	has_one_attached :crime_victim_report

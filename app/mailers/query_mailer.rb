@@ -94,7 +94,7 @@ class QueryMailer < ApplicationMailer
 				end
 			end
 			if caption == "organizaciones criminales"
-				headers = %w{id nombre siglas tipo subtipo pertenencia}
+				headers = %w{nombre siglas tipo subtipo pertenencia}
 				CSV.open(myFile, 'w', write_headers: true, headers: headers) do |writer|
 					records.each do |record|
 						unless record.parent.nil?
@@ -102,7 +102,7 @@ class QueryMailer < ApplicationMailer
 						else
 							myOrigin = nil
 						end
-						writer << [record.id, record.name, record.acronym, record.league, record.subleague, myOrigin]
+						writer << [record.name, record.acronym, record.league, record.subleague, myOrigin]
 					end
 				end
 			end

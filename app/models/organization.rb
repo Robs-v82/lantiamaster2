@@ -4,6 +4,8 @@ class Organization < ApplicationRecord
 	has_and_belongs_to_many :towns
 	has_many :members
 	has_many :events
+	has_many :leads, :through => :events
+	has_many :sources, :through => :events
 	belongs_to :county, optional: true
 
 	belongs_to :member, optional: true

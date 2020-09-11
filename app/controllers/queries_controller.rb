@@ -27,6 +27,7 @@ class QueriesController < ApplicationController
 		@counties = County.all
 		@papers = Division.where(:scian3=>510).last.organizations
 		@cartels = Sector.where(:scian2=>"98").last.organizations.uniq
+		@cartels = @cartels.sort_by{|c| c.name}
 		@fileArr = [
 			{:route=>"towns",:caption=>"Colonias/Localidades",:data=>@towns,:pdf=>false,:csv=>true,:excel=>false},
 			{:route=>"counties",:caption=>"Municipios",:data=>@counties,:pdf=>false,:csv=>true,:excel=>false},
@@ -83,6 +84,7 @@ class QueriesController < ApplicationController
 		 	caption = "medios"
 		 elsif params[:catalogue] == "cartels"
 		 	records = Sector.where(:scian2=>"98").last.organizations.uniq
+		 	records = records.sort_by{|c| c.name}
 		 	file_name = "org-criminales("+current_date+")."+params[:extension]
 		 	caption = "organizaciones criminales"
 		end 

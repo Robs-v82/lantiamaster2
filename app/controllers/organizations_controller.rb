@@ -11,11 +11,11 @@ class OrganizationsController < ApplicationController
 
   	def show
   		@place = {:latitude=>19.097119,:longitude=>-99.913613}
-  		@town = Town.first
+  		@town = Town.where(:full_code=>"010010001").last
+  		@key = Rails.application.credentials.google_maps_api_key
   	end
 
   	def main
-  		
   		@myYears = helpers.get_years	
   		@states = State.all.sort
   		@cities = City.all.sort_by{|city|city.name}
@@ -203,6 +203,8 @@ class OrganizationsController < ApplicationController
 		# UPDATE DIVIDIONS
 			
 			divisions.each{|y|
+				generalDivision = Division.where(:scian3=>980).last
+				targetOrganization.divisions << generalDivision
 				myDivision = Division.where(:scian3=>y[:scian3]).last
 				if x[y[:slot]] == "1"
 					print "ACITVITY HIT!!!"
@@ -301,8 +303,8 @@ class OrganizationsController < ApplicationController
 							towns = []
 							townArr = x[2].split(";")
 							townArr.each{|townName|
-								unless County.where(:full_code=>x[1]).last.towns.where(:name=>townName).empty?
-									thisTown = County.where(:full_code=>x[1]).last.towns.where(:name=>townName).last.full_code
+								unless County.where(:full_code=>x[1]).last.towns.where(:name=>townName.strip).empty?
+									thisTown = County.where(:full_code=>x[1]).last.towns.where(:name=>townName.strip).last.full_code
 									towns.push(thisTown)
 								else
 									towns.push(x[1]+"0000")
@@ -315,7 +317,7 @@ class OrganizationsController < ApplicationController
 						towns.each{|town|
 							myTown = Town.where(:full_code=>town).last.id
 							# ADD EVENT AND SOURCES
-							Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>myString, :month_id=>myMonth)
+							Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>x[9].strip, :month_id=>myMonth)
 							(10..14).each{|y|
 								Source.create(:url=>x[y])
 								mySource = Source.last
