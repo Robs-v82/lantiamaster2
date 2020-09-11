@@ -139,6 +139,7 @@
 		$('#show-filter-dashboard').click(function() {
 			console.log('working!')
 			$('#filter-dashboard').removeClass('hide-on-small-only');
+			$("html, body").animate({ scrollTop: 0 }, "slow");
 		})
 
 		$('#hide-filter-dashboard').click(function() {
@@ -331,6 +332,12 @@
 				$('#county-collapsible-tab').removeClass('county-switcher');
 				$('#county_checkboxes_box').html('')
 			}
+		})
+
+		// AVOID PAGE TO THE BOTTOM
+		$('input:checkbox').click(function() {
+			console.log('hI')
+			$("html, body").animate({ scrollTop: 0 }, "fast");
 		})
 
 

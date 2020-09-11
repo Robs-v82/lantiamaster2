@@ -315,7 +315,7 @@ class OrganizationsController < ApplicationController
 						towns.each{|town|
 							myTown = Town.where(:full_code=>town).last.id
 							# ADD EVENT AND SOURCES
-							Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>x[10], :month_id=>myMonth)
+							Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>myString, :month_id=>myMonth)
 							(10..14).each{|y|
 								Source.create(:url=>x[y])
 								mySource = Source.last
