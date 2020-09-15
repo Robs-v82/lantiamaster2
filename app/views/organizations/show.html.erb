@@ -131,6 +131,19 @@
 			</div>
 			<div id="tree-entry-content" class="entry-content col l5 m8 s12">			
 				<ul class="collapsible z-depth-0">
+					<% if @originOrganization %>
+						<li>
+							<div class="collapsible-header">
+								<h6><a href="/organizations/show/<%= @originOrganization.id %>">Origen: <%= @originOrganization.name %></a></h6>
+							</div>
+						</li>
+					<% elsif @thisString %>
+						<li>
+							<div class="collapsible-header">
+								<h6>Origen: <%= @thisString %></h6>
+							</div>
+						</li>
+					<% end %>
 					<% unless @aliasSections[0].nil? %>
 						<li>
 							<div class="collapsible-header">
@@ -193,37 +206,6 @@
 									<p><i class="material-icons right-extra-margin">check</i><%= activity.name %></p>
 								<% end %>
 							<% end %>
-			
-	<!-- 						<% @myArr.each do |x| %>
-								<div class="col s6 collection-column">
-									<ul id="activity-collection" class="collection">
-										<% x.each do |y| %>
-											<% activity = @allActivities[y] %>
-											<li class=" valign-wrapper collection-item
-												<% unless @myActivities.include? activity %>
-													grey-text
-												<% end %>
-											">
-												<div class="valign-wrapper">
-													<% if @myActivities.include? activity %>
-														<i class="material-icons right-extra-margin">check</i>
-													<% else %>
-														<i class="material-icons right-extra-margin">close</i>
-													<% end %>
-													
-													<span class="p14">
-													<% unless activity.shortname.nil? %>
-														<%= activity.shortname %>
-													<% else %>
-														<%= activity.name %>
-													<% end %>	
-													</span>
-												</div>
-											</li>				
-										<% end %>
-									</ul>
-								</div>
-							<% end %>	 -->			
 						</div>
 					</li>
 				</ul>
@@ -234,7 +216,7 @@
 				<div class="card-content">
 					<div class="right col s9">
 						<div class="right">
-							<a id="entry-grid-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">grid_on</i></a>
+							<a id="entry-grid-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">list</i></a>
 							<a id="entry-chart-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">insert_chart</i></a>
 							<a id="entry-map-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">map</i></a>	
 							<a id="entry-download-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>		

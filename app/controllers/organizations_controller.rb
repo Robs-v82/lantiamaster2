@@ -29,11 +29,13 @@ class OrganizationsController < ApplicationController
   			@aliasSections.push(aliasSection)
   		end
 
-  		@a=* (0..9)
-  		@b=* (10..19)
-  		@myArr = [@a,@b]
-  		@allActivities = Sector.where(:scian2=>98).last.divisions.uniq
-  		@myActivities = @myOrganization.divisions.uniq
+  		unless @myOrganization.origin == []
+  			@thisString = @myOrganization.origin.last
+  			unless Organization.where(:name=>@thisString).empty?
+  				@originOrganization = Organization.where(:name=>@thisString).last
+  			end
+  		end
+  		@myActivities = @myOrganization.divisions.where.not(:name=>"General").uniq
   			
   		@treeSections = []
    		unless @myOrganization.subordinates.empty? 
@@ -318,15 +320,16 @@ class OrganizationsController < ApplicationController
 				end
 			end
 			unless x[8].nil?
+				myOrigins = []
 				x[8].split(";").each{|org|
 					org = org.strip
-					myOrigins = []
-					unless Organization.where(:name=>org).empty?
-						originOrganization = Organization.where(:name=>org).last
-						myOrigins.push(originOrganization.id)
-					end	
-					targetOrganization.update(:origin=>myOrigins)	
+					# unless Organization.where(:name=>org).empty?
+					# 	originOrganization = Organization.where(:name=>org).last
+					# 	myOrigins.push(originOrganization.id)
+					# end	
+					myOrigins.push(org)	
 				}
+				targetOrganization.update(:origin=>myOrigins)
 			end	
 			unless x[9].nil?
 				myAllies = []
