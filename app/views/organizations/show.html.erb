@@ -32,14 +32,34 @@
 				function(data) {
 					var coords = data.results[0].geometry.location; 
 
-					// function initMap() {
-						console.log("LOADING!!!")
+					function initMap() {
 						var zip_code = {lat: coords.lat, lng: coords.lng};
 						// var zip_code2 = {lat: 19.427207, lng: -99.190063}; 
 						var map = new google.maps.Map(
 							document.getElementById('map'), {zoom: 4.2, center: zip_code});
 							<% @leadArr.each do |lead| %>
 								<% if lead[:geo] == true %>
+									
+									var contentString = '<div id="content">'+
+									  	'<p>'+
+											'<%= lead[:myObject].event.event_date.strftime("%d/%m/%Y") %>'+
+										'</p>'+
+										'<p>'+
+											<% unless lead[:myObject].event.town.name == "Sin definir" %>
+												'<%= lead[:myObject].event.town.name %>'+', '+
+											<%end%>
+											<% unless lead[:myObject].event.town.county.name == "Sin definir" %>
+												'<%= lead[:myObject].event.town.county.name %>'+', '+
+											<%end%>	 
+											'<%= lead[:myObject].event.town.county.state.shortname %>'+
+										'</p>'+
+										'<p>'+
+											'<%= lead[:myObject].category %>'+		  
+									  '</p>'+
+									  '</div>';
+
+									console.log(contentString)
+
 									var marker<%= lead[:counter] %> = new google.maps.Marker({
 										position: {
 											lat: <%= lead[:lat]%>,
@@ -49,11 +69,20 @@
 										// animation: google.maps.Animation.DROP
 										optimized: false
 									});
+
+									var infowindow<%= lead[:counter] %> = new google.maps.InfoWindow({
+									    content: contentString
+									  });
+
+									marker<%= lead[:counter] %>.addListener('click', function() {
+									    infowindow<%= lead[:counter] %>.open(map, marker<%= lead[:counter] %>);
+									  });
+
 								<% end %>
 							<% end %>
 						}
-						// initMap();
-				// 	}
+						initMap();
+					}
 				)
 		<% end %>
 
