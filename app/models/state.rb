@@ -1,4 +1,5 @@
 class State < ApplicationRecord
+	belongs_to :capital, class_name: "County", optional: true
 	has_many :counties
 	has_many :organizations, :through => :counties
 	has_many :towns, :through => :counties

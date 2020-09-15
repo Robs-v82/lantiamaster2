@@ -2,6 +2,18 @@ class QueriesController < ApplicationController
 	
 	after_action :remove_email_message, only: [:files]
 
+	def mapOff
+		session[:map] = false
+		print "**********MAP: "
+		print session[:map]
+	end
+
+	def mapOn
+		session[:map] = true
+		print "**********MAP: "
+		print session[:map]
+	end
+
 	def get_months
 	    targetYear = get_months_params[:year]
 	    targetMonths = helpers.get_months(targetYear)

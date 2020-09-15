@@ -36,6 +36,8 @@
 		// 		}
 		// 	});
 		// }
+		
+			
 
 		// TEST JQUERY	
 		$("#jquery-test").click(function(){
@@ -340,6 +342,14 @@
 			$("html, body").animate({ scrollTop: 0 }, "fast");
 		})
 
+
+		// GET ORGANIZATIONS
+		$('#operation-organization-selector').change(function() {
+			var mydata = $("#operation-organization-selector").serialize();
+	    	newArr = mydata.split("=");
+	    	console.log(newArr);
+	    	window.location = '/organizations/show/'+newArr[1];	
+		})
 
 		// GET STATE COUNTIES
 		$('#operation-state-selector').change(function() {

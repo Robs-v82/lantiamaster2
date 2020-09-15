@@ -1,5 +1,5 @@
 class OrganizationsController < ApplicationController
-
+	require 'pp'
 	after_action :remove_password_error_message, only: [:password]
 
 	def password
@@ -10,6 +10,100 @@ class OrganizationsController < ApplicationController
   	end
 
   	def show
+  		session[:map] = true
+  		@myOrganization = Organization.find(params[:id])
+  		# HEADER
+  		@headerType = "Lantipedia"
+  		@headerTitle = @myOrganization.name
+
+  		@cartels = Sector.where(:scian2=>98).last.organizations.uniq
+  		@cartels = @cartels.sort_by{|cartel| cartel.name}
+
+  		@aliasSections = []
+  		if @myOrganization.alias?
+  			aliasSection = {
+  				:title=>"Otras denominaciones",
+  				:records=>@myOrganization.alias,
+  				:links=>false,
+  			}
+  			@aliasSections.push(aliasSection)
+  		end
+
+  		@a=* (0..9)
+  		@b=* (10..19)
+  		@myArr = [@a,@b]
+  		@allActivities = Sector.where(:scian2=>98).last.divisions.uniq
+  		@myActivities = @myOrganization.divisions.uniq
+  			
+  		@treeSections = []
+   		unless @myOrganization.subordinates.empty? 
+  			subordinatesSection = {
+  				:title=>"Grupos subordinados",
+  				:records=>@myOrganization.subordinates,
+  				:links=>true,
+  			}
+  			@treeSections.push(subordinatesSection)
+  		end
+  		unless @myOrganization.rivals.empty?
+  			rivalSection = {
+  				:title=>"Conflictos en curso",
+  				:records=>@myOrganization.rivals,
+  				:links=>true,
+  			}
+  			@treeSections.push(rivalSection)
+  		end
+  		if @myOrganization.allies?
+  			alliesSection = {
+  				:title=>"Aliados",
+  				:records=>@myOrganization.allies,
+  				:links=>true,
+  			}
+  			@treeSections.push(alliesSection)
+  		end
+
+  		@singleSections = []
+  		if @myOrganization.parent
+  			  	parentSection = {
+  				:title=>"Subordinada a ",
+  				:record=>@myOrganization.parent
+  			}
+  			@singleSections.push(parentSection)
+  		end
+  		
+  		@leads = @myOrganization.leads
+
+  		@leadArr = []
+  		labels = %w[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40]
+  		myCounter = 0
+  		@leads.each{|lead|
+  			leadHash = {}
+  			leadHash[:label] = labels[myCounter]
+  			myCounter +=1
+  			leadHash[:counter] = myCounter
+  			leadHash[:category] = lead.category
+  			leadHash[:geo] = false
+  			if lead.event.town.name == "Sin definir"
+  				leadHash[:geo] = true
+  				leadHash[:lat] = lead.event.town.latitude
+  				leadHash[:lng] = lead.event.town.longitude 
+
+ 			# DEFINED TOWNS: EDIT LATER TO GEOLOCETE NEIGHBORHOODS
+  			else
+  				myCounty = lead.event.town.county
+  				leadHash[:geo] = true
+  				pseudoTown = myCounty.towns.where(:name=>"Sin definir").last
+   				leadHash[:lat] = pseudoTown.latitude
+  				leadHash[:lng] = pseudoTown.longitude 
+  			end
+  			unless leadHash[:lat].nil?
+  				@leadArr.push(leadHash)
+  			end 
+  		} 
+  		@leadArr = @leadArr
+
+  		print "***********ARR: "
+  		pp @leadArr
+
   		@place = {:latitude=>19.097119,:longitude=>-99.913613}
   		@town = Town.where(:full_code=>"010010001").last
   		@key = Rails.application.credentials.google_maps_api_key
@@ -94,14 +188,6 @@ class OrganizationsController < ApplicationController
 		redirect_to '/password'
 	end
 
-	def banxico	
-		@states = State.all
-	end
-
-	def lantia
-		@states = State.all
-	end
-
 	def new
 		@county_search_input = "query"
 		@organization_header = form_header("account_balance","Organización")
@@ -152,6 +238,7 @@ class OrganizationsController < ApplicationController
 	end
 
 	def load_organizations
+
 		divisions = [
 			{:slot=>11,:scian3=>981,:name=>"Narcotráfico"},
 			{:slot=>12,:scian3=>982,:name=>"Narcomenudeo"},
@@ -189,7 +276,8 @@ class OrganizationsController < ApplicationController
 		 
 		table.each{|x|
 			targetOrganization = Organization.where(:name=>x[0].strip).last
-		# UPDATE GENERAL INFO
+		
+			# UPDATE GENERAL INFO
 			targetActive = false
 			if x[1] == "Activa"
 				targetActive = true
@@ -200,8 +288,8 @@ class OrganizationsController < ApplicationController
 			end
 			targetOrganization.update(:acronym=>myAcronym, :league=>x[5], :subleague=>x[6], :active=>targetActive)
 
-		# UPDATE DIVIDIONS
-			
+			# UPDATE DIVIDIONS
+
 			divisions.each{|y|
 				generalDivision = Division.where(:scian3=>980).last
 				targetOrganization.divisions << generalDivision
@@ -212,7 +300,7 @@ class OrganizationsController < ApplicationController
 				end
 			}
 
-		# UPDATE PARENT ORIGIN ALLIES AND RIVALS
+			# UPDATE PARENT ORIGIN ALLIES AND RIVALS
 			targetOrganization = Organization.where(:name=>x[0].strip).last
 			unless x[3].nil?
 				myNames = x[3].split(";")
@@ -241,28 +329,47 @@ class OrganizationsController < ApplicationController
 				}
 			end	
 			unless x[9].nil?
+				myAllies = []
 				x[9].split(";").each{|org|
 					org = org.strip
-					myAllies = []
 					unless Organization.where(:name=>org).empty?
 						alliedOrganization = Organization.where(:name=>org).last
 						myAllies.push(alliedOrganization.id)
 					end	
-					targetOrganization.update(:allies=>myAllies)	
 				}
+				targetOrganization.update(:allies=>myAllies)
 			end	
 			unless x[10].nil?
+				myRivals = []
 				x[10].split(";").each{|org|
 					org = org.strip
-					myRivals = []
+					print " ***********TARGET: "
+					print targetOrganization.name
+					print " ***********RIVAL: "
 					unless Organization.where(:name=>org).empty?
+						print org
 						rivalOrganization = Organization.where(:name=>org).last
 						myRivals.push(rivalOrganization.id)
 					end
-					targetOrganization.update(:rivals=>myRivals)	
 				}
+				targetOrganization.update(:rivals=>myRivals)	
 			end	
 		}
+
+		cartels = Sector.where(:scian2=>98).last.organizations.uniq
+
+		cartels.each{|cartel|
+			unless cartel.league.nil?
+				clearLeague = cartel.league.strip
+			end
+			unless cartel.subleague.nil?
+				clearSubleague = cartel.subleague.strip
+			end
+			cartel.update(:league=>clearLeague,:subleague=>clearSubleague)
+		}
+		helpers.recyprocal_organizations
+		# helpers.update_league 
+
 		session[:filename] = load_organizations_params[:file].original_filename
 		session[:load_success] = true
 

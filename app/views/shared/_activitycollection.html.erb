@@ -1,0 +1,23 @@
+<% activity = @allActivities[x] %>
+<li class="collection-item
+	<% unless @myActivities.include? activity %>
+		grey-text
+	<% end %>
+">
+	<div class="valign-wrapper">
+		<i class="material-icons right-extra-margin">
+			<% if @myActivities.include? activity %>
+				check
+			<% else %>
+				close
+			<% end %>
+		</i>
+		<span class="p14">
+		<% unless activity.shortname.nil? %>
+			<%= activity.shortname %>
+		<% else %>
+			<%= activity.name %>
+		<% end %>	
+		</span>
+	</div>
+</li>

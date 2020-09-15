@@ -7,6 +7,60 @@
 a[href^="http://maps.google.com/maps"]{display:none !important}
 a[href^="https://maps.google.com/maps"]{display:none !important}
 
+
+#entry-grid {
+	display: none;
+}
+
+#tree-entry-content .collapsible-header {
+}
+#tree-entry-content h6 {
+	margin: 0; 
+}
+
+#activity-collection .collection-item {
+	padding: 2px 8px;
+	line-height: 1.2rem;
+}
+
+#grid-collection {
+		height: 580px !important;
+		width: 100%;
+		overflow-y: scroll !important;
+}
+
+p.collection-item {
+	height: 56px;
+	padding: 8px;
+	border: 1px solid #e0e0e0;
+	line-height: 1.2rem !important;
+}
+
+.collection-column {
+	padding: 0 !important
+}
+
+.collection-column li {
+	height: 56px !important;
+}
+
+.entry-content a .material-icons {
+	color: #00BCD4 !important;
+}
+
+
+#entry-grid .collection {
+	overflow-x: scroll !important;
+}
+
+.entry a {
+	color: #00BCD4 !important;
+}
+
+.entry p {
+	font-size: 14px;
+}
+
 .gmnoprint a, .gmnoprint span, .gm-style-cc {
     display:none;
 }
@@ -15,8 +69,8 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 }
 
 #map {
-    width: 600px;
-    height: 400px;
+    width: 100%;
+    height: 580px;
 }
 
 
@@ -45,6 +99,17 @@ ul.z-depth-0 {
 
 .sort-down-btn, .sort-up-btn {
 	line-height: 1 !important;
+}
+
+.bottom {
+	position: absolute;
+	bottom: 0;	
+	right: 0;
+}
+
+.bottom-parent {
+	height: 100%;
+	position: relative;
 }
 
 .send-to-bottom {
@@ -208,10 +273,18 @@ select {
 	color: #0097a7 !important;
 }
 
+#operation-organization-shell {
+	padding: 2px 26px;
+}
+
 .input-padding {
 	padding: 0 8px !important;
 	width: 80% !important;
 	margin-left: 10px !important;
+}
+
+.filter-header {
+	padding: 30px 20px 10px;
 }
 
 .datepicker-calendar-container {
@@ -220,6 +293,10 @@ select {
 
 .right-extra-margin {
 	margin-right: 10px;
+}
+
+.left-extra-margin {
+	margin-left: 30px;
 }
 
 ul#dropdown1.dropdown-content {
@@ -268,6 +345,10 @@ min-width: 85px !important
 
 .modal-content {
 	padding: 24px 24px 0 24px !important;
+}
+
+.entry-modal {
+	padding: 48px !important;
 }
 
 .extra-padding {

@@ -7,6 +7,8 @@ class Organization < ApplicationRecord
 	has_many :leads, :through => :events
 	has_many :sources, :through => :events
 	belongs_to :county, optional: true
+	belongs_to :thissubleague, class_name: "League", optional: true, foreign_key: "subleague_id"
+	belongs_to :mainleague, class_name: "League", optional: true, foreign_key: "mainleague_id"
 
 	belongs_to :member, optional: true
 

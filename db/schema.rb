@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_10_194624) do
+ActiveRecord::Schema.define(version: 2020_09_14_153526) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -39,6 +39,20 @@ ActiveRecord::Schema.define(version: 2020_09_10_194624) do
     t.string "checksum", null: false
     t.datetime "created_at", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "arrests", force: :cascade do |t|
+    t.integer "event_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_id"], name: "index_arrests_on_event_id"
+  end
+
+  create_table "arrests_organizations", force: :cascade do |t|
+    t.integer "arrest_id"
+    t.integer "organization_id"
+    t.index ["arrest_id"], name: "index_arrests_organizations_on_arrest_id"
+    t.index ["organization_id"], name: "index_arrests_organizations_on_organization_id"
   end
 
   create_table "cities", force: :cascade do |t|
@@ -75,6 +89,7 @@ ActiveRecord::Schema.define(version: 2020_09_10_194624) do
     t.integer "sector_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "shortname"
     t.index ["sector_id"], name: "index_divisions_on_sector_id"
   end
 
@@ -137,6 +152,13 @@ ActiveRecord::Schema.define(version: 2020_09_10_194624) do
     t.index ["event_id"], name: "index_leads_on_event_id"
   end
 
+  create_table "leagues", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "members", force: :cascade do |t|
     t.string "firstname"
     t.string "lastname1"
@@ -150,6 +172,8 @@ ActiveRecord::Schema.define(version: 2020_09_10_194624) do
     t.integer "role_id"
     t.string "mail"
     t.text "alias"
+    t.integer "arrest_id"
+    t.index ["arrest_id"], name: "index_members_on_arrest_id"
     t.index ["organization_id"], name: "index_members_on_organization_id"
     t.index ["role_id"], name: "index_members_on_role_id"
   end
@@ -190,6 +214,8 @@ ActiveRecord::Schema.define(version: 2020_09_10_194624) do
     t.text "origin"
     t.text "alias"
     t.boolean "active"
+    t.integer "subleague_id"
+    t.integer "mainleague_id"
     t.index ["county_id"], name: "index_organizations_on_county_id"
   end
 
@@ -260,6 +286,7 @@ ActiveRecord::Schema.define(version: 2020_09_10_194624) do
     t.datetime "updated_at", precision: 6, null: false
     t.text "ensu_cities"
     t.text "comparison"
+    t.integer "capital_id"
   end
 
   create_table "towns", force: :cascade do |t|
@@ -369,6 +396,7 @@ ActiveRecord::Schema.define(version: 2020_09_10_194624) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "arrests", "events"
   add_foreign_key "counties", "cities"
   add_foreign_key "counties", "states"
   add_foreign_key "divisions", "sectors"
@@ -377,14 +405,18 @@ ActiveRecord::Schema.define(version: 2020_09_10_194624) do
   add_foreign_key "events", "towns"
   add_foreign_key "killings", "events"
   add_foreign_key "leads", "events"
+  add_foreign_key "members", "arrests"
   add_foreign_key "members", "organizations"
   add_foreign_key "members", "roles"
   add_foreign_key "months", "quarters"
   add_foreign_key "organizations", "counties"
+  add_foreign_key "organizations", "leagues", column: "mainleague_id"
+  add_foreign_key "organizations", "leagues", column: "subleague_id"
   add_foreign_key "organizations", "organizations", column: "parent_id"
   add_foreign_key "posts", "accounts"
   add_foreign_key "quarters", "years"
   add_foreign_key "sources", "members"
+  add_foreign_key "states", "counties", column: "capital_id"
   add_foreign_key "towns", "counties"
   add_foreign_key "users", "members"
   add_foreign_key "victims", "killings"

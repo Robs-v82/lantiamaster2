@@ -182,6 +182,18 @@ divisionArr2.each{|x|
 
 Division.where(:scian3=>989).last.update(:name=>"Delitos contra fauna-flora silvestre")
 
+changes = [
+	{:name=>"Mercado Ilícito de Hidrocarburos",:short=>"Robo de combustible"},
+	{:name=>"Contrabando de mercancías",:short=>"Contrabando"},
+	{:name=>"Delitos contra fauna-flora silvestre",:short=>"Tala clandestina"},
+	{:name=>"Trata y tráfico de personas",:short=>"Trata de personas"}
+]
+
+changes.each {|change|
+	Division.where(:name=>change[:name]).last.update(:shortname=>change[:short])
+}
+
+
 # targetArr = []
 # divisionArr.each{|x| y=x[0][0,2]; myid=Sector.where(:scian2=>y).last.id; targetArr.push(myid)}
 # divisionArr.each{|x| x.push(targetArr[x])}

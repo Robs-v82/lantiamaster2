@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   post 'organizations/load_organizations'
   post 'organizations/load_organization_events'
   post 'organizations/load_organization_territory'
+  get 'queries/mapOff'
+  get 'queries/mapOn'
   resources :states
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   # get 'users' => 'users#index'
@@ -17,8 +19,6 @@ Rails.application.routes.draw do
   post 'organizations/login' => 'organizations#login'
   get 'intro' => 'users#intro'
   get 'organizations/main' => 'organizations#main'
-  get 'organizations/banxico' => 'organizations#banxico'
-  get 'organizations/lantia' => 'organizations#lantia'
   post 'counties/getCounties' => 'counties#getCounties'
   post 'towns/getTowns' => 'towns#getTowns'
   get 'sources/twitter'=>'sources#twitter'
