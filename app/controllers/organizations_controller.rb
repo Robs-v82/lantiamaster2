@@ -368,7 +368,7 @@ class OrganizationsController < ApplicationController
 			cartel.update(:league=>clearLeague,:subleague=>clearSubleague)
 		}
 		helpers.recyprocal_organizations
-		# helpers.update_league 
+		helpers.update_league 
 
 		session[:filename] = load_organizations_params[:file].original_filename
 		session[:load_success] = true
