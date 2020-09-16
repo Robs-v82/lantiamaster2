@@ -213,7 +213,9 @@ class OrganizationsController < ApplicationController
 		Organization.last.avatar.attach(create_organization_params[:avatar])
 		myDivision = Division.find(thisDivision)
 		targetOrganization = Organization.last
-		targetOrganization.divisions << myDivision
+		unless targetOrganization.divisions.include? (myDivision) 
+			targetOrganization.divisions << myDivision
+		end
 		redirect_to "/organizations/new"
 	end
 
@@ -294,11 +296,15 @@ class OrganizationsController < ApplicationController
 
 			divisions.each{|y|
 				generalDivision = Division.where(:scian3=>980).last
-				targetOrganization.divisions << generalDivision
+				unless targetOrganization.divisions.include? (generalDivision)
+					targetOrganization.divisions << generalDivision
+				end
 				myDivision = Division.where(:scian3=>y[:scian3]).last
 				if x[y[:slot]] == "1"
 					print "ACITVITY HIT!!!"
+					unless targetOrganization.divisions.include? (myDivision)
 					targetOrganization.divisions << myDivision
+					end
 				end
 			}
 
@@ -431,7 +437,9 @@ class OrganizationsController < ApplicationController
 							(10..14).each{|y|
 								Source.create(:url=>x[y])
 								mySource = Source.last
-								Event.last.sources << mySource
+								unless Event.last.sources.include? (mySource)
+									Event.last.sources << mySource
+								end
 							}
 
 							# ADD LEAD
