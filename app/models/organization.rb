@@ -2,6 +2,7 @@ class Organization < ApplicationRecord
 	validates :name, uniqueness:  {case_sensitive: false }
 	has_and_belongs_to_many :divisions
 	has_and_belongs_to_many :towns
+	has_and_belongs_to_many :detentions
 	has_many :members
 	has_many :events
 	has_many :leads, :through => :events

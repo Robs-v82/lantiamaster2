@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_14_153526) do
+ActiveRecord::Schema.define(version: 2020_09_16_182134) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -80,6 +80,20 @@ ActiveRecord::Schema.define(version: 2020_09_14_153526) do
     t.integer "city_id"
     t.index ["city_id"], name: "index_counties_on_city_id"
     t.index ["state_id"], name: "index_counties_on_state_id"
+  end
+
+  create_table "detentions", force: :cascade do |t|
+    t.integer "event_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_id"], name: "index_detentions_on_event_id"
+  end
+
+  create_table "detentions_organizations", force: :cascade do |t|
+    t.integer "detention_id"
+    t.integer "organization_id"
+    t.index ["detention_id"], name: "index_detentions_organizations_on_detention_id"
+    t.index ["organization_id"], name: "index_detentions_organizations_on_organization_id"
   end
 
   create_table "divisions", force: :cascade do |t|
@@ -173,7 +187,9 @@ ActiveRecord::Schema.define(version: 2020_09_14_153526) do
     t.string "mail"
     t.text "alias"
     t.integer "arrest_id"
+    t.integer "detention_id"
     t.index ["arrest_id"], name: "index_members_on_arrest_id"
+    t.index ["detention_id"], name: "index_members_on_detention_id"
     t.index ["organization_id"], name: "index_members_on_organization_id"
     t.index ["role_id"], name: "index_members_on_role_id"
   end
@@ -399,6 +415,7 @@ ActiveRecord::Schema.define(version: 2020_09_14_153526) do
   add_foreign_key "arrests", "events"
   add_foreign_key "counties", "cities"
   add_foreign_key "counties", "states"
+  add_foreign_key "detentions", "events"
   add_foreign_key "divisions", "sectors"
   add_foreign_key "events", "months"
   add_foreign_key "events", "organizations"
@@ -406,6 +423,7 @@ ActiveRecord::Schema.define(version: 2020_09_14_153526) do
   add_foreign_key "killings", "events"
   add_foreign_key "leads", "events"
   add_foreign_key "members", "arrests"
+  add_foreign_key "members", "detentions"
   add_foreign_key "members", "organizations"
   add_foreign_key "members", "roles"
   add_foreign_key "months", "quarters"
