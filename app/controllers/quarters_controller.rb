@@ -37,6 +37,7 @@ class QuartersController < ApplicationController
 	  		stateHash = {}
 	  		stateHash[:name] = state.name
 	  		stateHash[:population] = state.population
+			localVictims = state.victims
 			
 			stateHash[:current_feel_safe] = feel_safe(@myQuarter, state)
 			stateHash[:back_one_q_feel_safe] = feel_safe(back_one_q, state)
@@ -46,16 +47,13 @@ class QuartersController < ApplicationController
 			stateHash[:back_one_q_car_theft] = car_theft(back_one_q, state)
 			stateHash[:back_one_y_car_theft] = car_theft(back_one_y, state)
 
-			stateHash[:current_number_of_victims] = get_quarter_victims(@myQuarter, state)
-			stateHash[:back_one_q_number_of_victims] = get_quarter_victims(back_one_q, state)
-			stateHash[:back_one_y_number_of_victims] = get_quarter_victims(back_one_y, state)
-
 			# CURRENT ISPYV SCORE
 			current_stolen_cars = car_theft(@myQuarter, state)
 			car_theft_index = current_stolen_cars/state.population.to_f*100000
 			car_theft_index = Math.log(car_theft_index+1,200).round(2)
 
-			total_victims = get_quarter_victims(@myQuarter, state)
+			total_victims = get_quarter_victims(@myQuarter, localVictims)
+			stateHash[:current_number_of_victims] = total_victims
 			victims_index = total_victims/state.population.to_f*100000
 			victims_index = Math.log(victims_index+1,100).round(2)
 			current_victims = total_victims
@@ -94,7 +92,8 @@ class QuartersController < ApplicationController
 				q1_stolen_cars_color = "red"	
 			end
 
-			total_victims = get_quarter_victims(back_one_q, state)
+			total_victims = get_quarter_victims(back_one_q, localVictims)
+			stateHash[:back_one_q_number_of_victims] = total_victims
 			victims_index = total_victims/state.population.to_f*100000
 			victims_index = Math.log(victims_index+1,100).round(2)
 			q1_victims_change = ((current_victims - total_victims)/total_victims.to_f).round(1)
@@ -142,7 +141,8 @@ class QuartersController < ApplicationController
 				y1_stolen_cars_color = "red"	
 			end
 
-			total_victims = get_quarter_victims(back_one_y, state)
+			total_victims = get_quarter_victims(back_one_y, localVictims)
+			stateHash[:back_one_y_number_of_victims] = total_victims
 			victims_index = total_victims/state.population.to_f*100000
 			victims_index = Math.log(victims_index+1,100).round(2)
 			y1_victims_change = ((current_victims - total_victims)/total_victims.to_f).round(1)
@@ -281,11 +281,13 @@ class QuartersController < ApplicationController
 
   	def this_quarter_ispyv(quarter, state)
   		
+  		localVictims = state.victims
+
   		current_stolen_cars = car_theft(quarter, state)
  		car_theft_index = current_stolen_cars/state.population.to_f*100000
 		car_theft_index = Math.log(car_theft_index+1,200).round(2)
 
-  		total_victims = get_quarter_victims(quarter, state)
+  		total_victims = get_quarter_victims(quarter, localVictims)
  		victims_index = total_victims/state.population.to_f*100000
 		victims_index = Math.log(victims_index+1,100).round(2)
 
@@ -365,8 +367,9 @@ class QuartersController < ApplicationController
 	  	return myHash
   	end
 
-  	def get_quarter_victims(quarter, state)
-  		number_of_victims = quarter.victims.merge(state.victims).length 
+  	def get_quarter_victims(quarter, localVictims)
+  		periodVictims = quarter.victims
+  		number_of_victims = localVictims.merge(periodVictims).length 
   		return number_of_victims
   	end
 

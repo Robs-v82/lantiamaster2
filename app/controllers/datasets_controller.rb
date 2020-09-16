@@ -373,8 +373,9 @@ class DatasetsController < ApplicationController
 					freq = []
 					counter = 0
 					place_total = 0
+					localVictims = place.victims
 					myPeriod.each {|timeUnit|
-						number_of_victims = timeUnit.victims.merge(place.victims).length
+						number_of_victims = localVictims.merge(timeUnit.victims).length
 						freq.push(number_of_victims)
 						totalFreq[counter] += number_of_victims
 						counter += 1

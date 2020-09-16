@@ -89,7 +89,7 @@ class OrganizationsController < ApplicationController
   				leadHash[:lat] = lead.event.town.latitude
   				leadHash[:lng] = lead.event.town.longitude 
 
- 			# DEFINED TOWNS: EDIT LATER TO GEOLOCETE NEIGHBORHOODS
+ 			# DEFINED TOWNS: EDIT LATER TO GEOLOCATE NEIGHBORHOODS
   			else
   				myCounty = lead.event.town.county
   				leadHash[:geo] = true
