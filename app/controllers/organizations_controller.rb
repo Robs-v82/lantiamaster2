@@ -269,7 +269,7 @@ class OrganizationsController < ApplicationController
 		table = CSV.parse(File.read(myFile))
 
 		table.each{|x|
-
+			x = x.collect{ |e| e ? e.strip : e }
 		# CREATE ORGANIZATION IF IT DOES NOT EXIST
 			if Organization.where(:name=>x[0].strip).empty?
 				print "NEW ORGANIZATION :" + x[0]
@@ -279,7 +279,8 @@ class OrganizationsController < ApplicationController
 
 		 
 		table.each{|x|
-			targetOrganization = Organization.where(:name=>x[0].strip).last
+			x = x.collect{ |e| e ? e.strip : e }
+			targetOrganization = Organization.where(:name=>x[0]).last
 		
 			# UPDATE GENERAL INFO
 			targetActive = false
@@ -288,7 +289,7 @@ class OrganizationsController < ApplicationController
 			end
 			myAcronym = x[4]
 			unless myAcronym.nil?
-				myAcronym = myAcronym.strip
+				myAcronym = myAcronym
 			end
 			targetOrganization.update(:acronym=>myAcronym, :league=>x[5], :subleague=>x[6], :active=>targetActive)
 
@@ -309,12 +310,12 @@ class OrganizationsController < ApplicationController
 			}
 
 			# UPDATE PARENT ORIGIN ALLIES AND RIVALS
-			targetOrganization = Organization.where(:name=>x[0].strip).last
+			targetOrganization = Organization.where(:name=>x[0]).last
 			unless x[3].nil?
 				myNames = x[3].split(";")
 				cleanNames = []
 				myNames.each {|myName|
-					myName = myName.strip
+					myName = myName
 					cleanNames.push(myName)
 				}
 				targetOrganization.update(:alias=>cleanNames)
@@ -328,7 +329,7 @@ class OrganizationsController < ApplicationController
 			unless x[8].nil?
 				myOrigins = []
 				x[8].split(";").each{|org|
-					org = org.strip
+					org = org
 					# unless Organization.where(:name=>org).empty?
 					# 	originOrganization = Organization.where(:name=>org).last
 					# 	myOrigins.push(originOrganization.id)
@@ -340,7 +341,7 @@ class OrganizationsController < ApplicationController
 			unless x[9].nil?
 				myAllies = []
 				x[9].split(";").each{|org|
-					org = org.strip
+					org = org
 					unless Organization.where(:name=>org).empty?
 						alliedOrganization = Organization.where(:name=>org).last
 						myAllies.push(alliedOrganization.id)
@@ -351,10 +352,7 @@ class OrganizationsController < ApplicationController
 			unless x[10].nil?
 				myRivals = []
 				x[10].split(";").each{|org|
-					org = org.strip
-					print " ***********TARGET: "
-					print targetOrganization.name
-					print " ***********RIVAL: "
+					org = org
 					unless Organization.where(:name=>org).empty?
 						print org
 						rivalOrganization = Organization.where(:name=>org).last
@@ -369,10 +367,10 @@ class OrganizationsController < ApplicationController
 
 		cartels.each{|cartel|
 			unless cartel.league.nil?
-				clearLeague = cartel.league.strip
+				clearLeague = cartel.league
 			end
 			unless cartel.subleague.nil?
-				clearSubleague = cartel.subleague.strip
+				clearSubleague = cartel.subleague
 			end
 			cartel.update(:league=>clearLeague,:subleague=>clearSubleague)
 		}
@@ -407,10 +405,11 @@ class OrganizationsController < ApplicationController
 		table = CSV.parse(File.read(myFile))
 
 		table.each{|x|
+			x = x.collect{ |e| e ? e.strip : e }
 			if Lead.where(:legacy_id=>x[0]).empty?
 				if myCategories.include? x[8]
-					unless Organization.where(:name=>x[3].strip).empty?
-						myOrganization = Organization.where(:name=>x[3].strip).last.id
+					unless Organization.where(:name=>x[3]).empty?
+						myOrganization = Organization.where(:name=>x[3]).last.id
 						myString = x[9][6..-1]+"_"+x[9][3,2]
 						print "*************MONTH NAME: "
 						print myString
@@ -419,8 +418,8 @@ class OrganizationsController < ApplicationController
 							towns = []
 							townArr = x[2].split(";")
 							townArr.each{|townName|
-								unless County.where(:full_code=>x[1]).last.towns.where(:name=>townName.strip).empty?
-									thisTown = County.where(:full_code=>x[1]).last.towns.where(:name=>townName.strip).last.full_code
+								unless County.where(:full_code=>x[1]).last.towns.where(:name=>townName).empty?
+									thisTown = County.where(:full_code=>x[1]).last.towns.where(:name=>townName).last.full_code
 									towns.push(thisTown)
 								else
 									towns.push(x[1]+"0000")
@@ -433,7 +432,7 @@ class OrganizationsController < ApplicationController
 						towns.each{|town|
 							myTown = Town.where(:full_code=>town).last.id
 							# ADD EVENT AND SOURCES
-							Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>x[9].strip, :month_id=>myMonth)
+							Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>x[9], :month_id=>myMonth)
 							(10..14).each{|y|
 								Source.create(:url=>x[y])
 								mySource = Source.last
@@ -448,9 +447,9 @@ class OrganizationsController < ApplicationController
 						}
 						
 						# ADD MEMBERS
-						 unless Organization.where(:name=>x[3].strip).empty?
-							if Organization.where(:name=>x[3].strip).last.members.where(:firstname=>x[4],:lastname1=>x[5],:lastname2=>x[7]).empty?
-								unless x[4].nil? && x[7].nil?
+						 unless Organization.where(:name=>x[3]).empty?
+							unless x[4].nil? && x[7].nil?
+								if Organization.where(:name=>x[3]).last.members.where(:firstname=>x[4],:lastname1=>x[5],:lastname2=>x[7]).empty?
 									myAlias = nil
 									unless x[7].nil?
 										myAlias = x[7].split(";")
@@ -476,9 +475,10 @@ class OrganizationsController < ApplicationController
 		table = CSV.parse(File.read(myFile))
 
 		table.each{|x|
+			x = x.collect{ |e| e ? e.strip : e }
 			unless x[2].nil?
-				unless Organization.where(:name=>x[2].strip).empty?
-					targetOrganization = Organization.where(:name=>x[2].strip).last
+				unless Organization.where(:name=>x[2]).empty?
+					targetOrganization = Organization.where(:name=>x[2]).last
 					towns = []
 					pseudoTown = Town.where(:full_code=>x[0]+"0000").last
 					print "**************TOWN: "
@@ -486,8 +486,8 @@ class OrganizationsController < ApplicationController
 					towns.push(pseudoTown)
 					unless x[1].nil?
 						x[1].split(";").each{|town|
-							unless County.where(:full_code=>x[0]).last.towns.where(:name=>town.strip)
-								myTown = County.where(:full_code=>x[0]).last.towns.where(:name=>town.strip).last
+							unless County.where(:full_code=>x[0]).last.towns.where(:name=>town)
+								myTown = County.where(:full_code=>x[0]).last.towns.where(:name=>town).last
 								towns.push(myTown)
 							end
 						}

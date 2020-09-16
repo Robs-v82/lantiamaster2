@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  post 'members/detentions'
   root 'datasets#victims_query'
   get 'quarters/ispyv'
   get 'months/reports' => 'months#reports'
