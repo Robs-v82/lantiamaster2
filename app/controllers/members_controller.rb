@@ -211,7 +211,7 @@ class MembersController < ApplicationController
 
 		headerHash[:period] = myPeriod
 
-		roleOptions = Role.all
+		roleOptions = Role.where(:criminal=>true)
 
 		if myScope == nil
 			if role == "noRoleSplit"
@@ -345,8 +345,6 @@ class MembersController < ApplicationController
 						place_total = 0
 						localDetainees = place.detainees
 						myPeriod.each {|timeUnit|
-							print "*********TARGET ORGANIZATION: "
-							print targetOrganization
 							number_of_detainees = localDetainees.where(:organization_id=>targetOrganization.id).merge(timeUnit.detainees).length
 							freq.push(number_of_detainees)
 							totalFreq[counter] += number_of_detainees

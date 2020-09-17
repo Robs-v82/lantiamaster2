@@ -16,4 +16,5 @@ criminalRoles.each{|role|
 	if Role.where(role).empty?
 		Role.create(role)
 	end
+	Role.where(role).last.update(:criminal=>true)
 }
