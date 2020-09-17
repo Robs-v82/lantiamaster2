@@ -22,12 +22,14 @@ module ApplicationHelper
 		return myYears
 	end
 
-	def get_specific_years(years)
+	def get_specific_years(years, unit)
 		myYears = []
 		years.each{|thisYear|
 			year = Year.find(thisYear["id"])
-			unless year.victims.empty?
-				myYears.push(year)
+			if unit == "victims"
+				unless year.victims.empty?
+					myYears.push(year)
+				end
 			end
 		}
 		return myYears	
@@ -43,26 +45,38 @@ module ApplicationHelper
 		return myQuarters
 	end
 
-	def get_specific_quarters(years)
+	def get_specific_quarters(years, unit)
 		myQuarters = []
 		years.each{|thisYear|
 			year = Year.find(thisYear["id"])
 			year.quarters.each {|quarter|
-			unless quarter.victims.empty?
-				myQuarters.push(quarter)
+			if  unit == "victims"
+				unless quarter.victims.empty?
+					myQuarters.push(quarter)
+				end
+			elsif unit == "detainees"
+				unless quarter.detainees.empty?
+					myQuarters.push(quarter)
+				end
 			end
 			}
 		}
 		return myQuarters	
 	end
 
-	def get_specific_months(years)
+	def get_specific_months(years, unit)
 		myMonths = []
 		years.each{|thisYear|
 			year = Year.find(thisYear["id"])
 			year.months.sort.each {|month|
-			unless month.victims.empty?
-				myMonths.push(month)
+			if  unit == "victims"
+				unless month.victims.empty?
+					myMonths.push(month)
+				end
+			elsif unit == "detainees"
+				unless month.detainees.empty?
+					myMonths.push(month)
+				end
 			end
 			}
 		}

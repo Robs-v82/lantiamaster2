@@ -1,34 +1,50 @@
 <thead>
 	<tr class="">
-		<% if @victim_freq_table[0][:pre_scope] %>
+		<% if @my_freq_table[0][:pre_scope] %>
 			<th>
 				<div class="valign-wrapper">
-					<span><%= @victim_freq_table[0][:pre_scope] %></span>
+					<span><%= @my_freq_table[0][:pre_scope] %></span>
 					<%= render "shared/sortbutton"%>
 				</div>	
 			</th>
 		<% end %>
 		<th>
 			<div class="valign-wrapper">
-				<span><%= @victim_freq_table[0][:scope]%></span>
+				<span><%= @my_freq_table[0][:scope]%></span>
 				<%= render "shared/sortbutton"%>
 			</div>	
 		</th>
-		<% if @victim_freq_table[0][:gender] %>
+		<% if @my_freq_table[0][:organization] %>
 			<th>
 				<div class="valign-wrapper">
-					<span><%= @victim_freq_table[0][:gender]%></span>
+					<span><%= @my_freq_table[0][:organization]%></span>
 					<%= render "shared/sortbutton"%>		
 				</div>	
 			</th>
 		<% end %>
-		<% @victim_freq_table[0][:period].each do |period| %>
+		<% if @my_freq_table[0][:role] %>
+			<th>
+				<div class="valign-wrapper">
+					<span><%= @my_freq_table[0][:role]%></span>
+					<%= render "shared/sortbutton"%>		
+				</div>	
+			</th>
+		<% end %>
+		<% if @my_freq_table[0][:gender] %>
+			<th>
+				<div class="valign-wrapper">
+					<span><%= @my_freq_table[0][:gender]%></span>
+					<%= render "shared/sortbutton"%>		
+				</div>	
+			</th>
+		<% end %>
+		<% @my_freq_table[0][:period].each do |period| %>
 			<th>
 				<div class="valign-wrapper">
 					<span>
-						<% if session[:victim_freq_params][0] == "annual" %>
+						<% if @annual %>
 							<%= period.name %>
-						<% elsif session[:victim_freq_params][0] == "quarterly"%>
+						<% elsif @quarterly %>
 							T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y') %>
 						<% else %>
 							<%= I18n.l(period.first_day, format: '%b/%Y') %>
@@ -38,7 +54,7 @@
 				</div>
 			</th>
 		<% end %>
-		<% unless @victim_freq_table[-1][:freq].length == 1%>
+		<% unless @my_freq_table[-1][:freq].length == 1%>
 			<th>
 				<div class="valign-wrapper">
 					<span>TOTAL</span>
@@ -47,20 +63,26 @@
 			</th>
 		<% end %>
 	</tr>
-	<% unless @victim_freq_table.length == 3 %>
+	<% unless @my_freq_table.length == 3 %>
 		<tr class="total-tr cyan lighten-4">
-			<td> <%= @victim_freq_table[-1][:name] %></td>
-			<% if @victim_freq_table[-1][:county_placer] %>
-				<td><%= @victim_freq_table[-1][:county_placer] %></td>
+			<td> <%= @my_freq_table[-1][:name] %></td>
+			<% if @my_freq_table[-1][:county_placer] %>
+				<td><%= @my_freq_table[-1][:county_placer] %></td>
 			<% end %>
-			<% if @victim_freq_table[-1][:gender_placer] %>
-				<td><%= @victim_freq_table[-1][:gender_placer] %></td>
+			<% if @my_freq_table[-1][:organization_placer] %>
+				<td><%= @my_freq_table[-1][:organization_placer] %></td>
 			<% end %>
-			<% @victim_freq_table[-1][:freq].each do |x| %>
+			<% if @my_freq_table[-1][:role_placer] %>
+				<td><%= @my_freq_table[-1][:role_placer] %></td>
+			<% end %>
+			<% if @my_freq_table[-1][:gender_placer] %>
+				<td><%= @my_freq_table[-1][:gender_placer] %></td>
+			<% end %>
+			<% @my_freq_table[-1][:freq].each do |x| %>
 				<td class="right-align"><%= number_with_delimiter(x) %></td>
 			<% end %>
-			<% unless @victim_freq_table[-1][:freq].length == 1%>
-				<td class="right-align"><%= number_with_delimiter(@victim_freq_table[-1][:total_total]) %></td>
+			<% unless @my_freq_table[-1][:freq].length == 1%>
+				<td class="right-align"><%= number_with_delimiter(@my_freq_table[-1][:total_total]) %></td>
 			<% end %>
 		</tr>
 	<% end %>
@@ -68,19 +90,25 @@
 
 
 <tbody id="sort-table"> 
-	<% @victim_freq_table[1..-2].each do |place| %>
+	<% @my_freq_table[1..-2].each do |place| %>
 		<tr>
 			<% if place[:parent_name] %>
 				<td><%= place[:parent_name] %></td>
 			<% end %>
 			<td><%= place[:name] %></td>
+			<% if place[:organization] %>
+				<td><%= place[:organization] %></td>
+			<% end %>
+			<% if place[:role] %>
+				<td><%= place[:role] %></td>
+			<% end %>
 			<% if place[:gender] %>
 				<td><%= place[:gender] %></td>
 			<% end %>
 			<% place[:freq].each do |x| %>
 				<td class="right-align"><%= number_with_delimiter(x) %></td>
 			<% end %>
-			<% unless @victim_freq_table[-1][:freq].length == 1%>
+			<% unless @my_freq_table[-1][:freq].length == 1%>
 				<td class="right-align"><%= number_with_delimiter(place[:place_total]) %></td> 
 			<% end %>
 		</tr>

@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   post 'members/detentions'
+  get 'members/detainees'
   root 'datasets#victims_query'
+  get 'members/detainees_query'
   get 'quarters/ispyv'
   get 'months/reports' => 'months#reports'
   get 'datasets/show'
@@ -51,6 +53,7 @@ Rails.application.routes.draw do
   post 'months/header_selector/:month' => 'months#header_selector'
   get 'datasets/victims_query'
   post 'datasets/victims_query' => 'datasets#post_victim_query'
+  post 'members/detainees_query' => 'members#post_detainees_query'
   get 'datasets/victims'
   get 'datasets/basic'
   get 'datasets/:type/:cell' => 'datasets#sort'

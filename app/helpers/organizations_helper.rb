@@ -1,7 +1,6 @@
 module OrganizationsHelper
 
 	def recyprocal_organizations
-
 		Organization.all.each{|cartel|
 			x = cartel.id
 
@@ -27,8 +26,7 @@ module OrganizationsHelper
 				end
 			}
 
-		}
-		
+		}		
 	end
 
 	def update_league
@@ -61,4 +59,17 @@ module OrganizationsHelper
 			end
 		}
 	end
+
+	def get_detainees_cartels
+		cartels = Sector.where(:scian2=>"98").last.organizations.uniq
+		cartelArr = []
+		cartels.each{|cartel|
+			unless cartel.members.where.not(:detention_id=>nil).empty?
+				myString = cartel.name
+				cartelArr.push(myString)
+			end
+		}
+		return cartelArr
+	end
+
 end

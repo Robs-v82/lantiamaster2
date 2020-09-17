@@ -57,8 +57,6 @@ class DatasetsController < ApplicationController
 		if myQuarter.ensu.attached?
 			session[:filename] = load_ensu_params[:ensu].original_filename
 			session[:load_success] = true
-			print "*******ATTACHEMENT WORKED: "
-			print "TRUE"
 		end
 
 
@@ -91,12 +89,10 @@ class DatasetsController < ApplicationController
 				}
 			}
 			stateArr.each{|y|
-				print y
 				myShare = ((y[1].to_f/statePopulation.to_f))
 				myPoints = myShare*y[2]
 				feel_safe += myPoints
 			}
-			print state.name+','+feel_safe.to_s+'************'+"\n"
 		}
 		redirect_to "/datasets/load"
 	end
@@ -180,8 +176,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def victims
-
-		@victim_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5],session[:victim_freq_params][6],session[:checkedCounties])
+		@my_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5],session[:victim_freq_params][6],session[:checkedCounties])
 		@timeFrames = [
   			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
@@ -200,8 +195,10 @@ class DatasetsController < ApplicationController
 
   		if session[:victim_freq_params][0] == "annual"
   			@timeFrames[0][:checked] = true
+  			@annual = true
   		elsif session[:victim_freq_params][0] == "quarterly"
   			@timeFrames[1][:checked] = true
+  			@quarterly = true
   		elsif session[:victim_freq_params][0] == "monthly"
   			@timeFrames[2][:checked] = true
   		end
@@ -301,16 +298,15 @@ class DatasetsController < ApplicationController
 			end		
 			myScope = myScope.flatten
 			myScope = myScope.sort_by {|county| county.full_code}
-			print "***********COUNTIES: "
 			pp myScope
 		end
 
 		if period == "annual"
-			myPeriod = helpers.get_specific_years(years)
+			myPeriod = helpers.get_specific_years(years, "victims")
 		elsif period == "quarterly"
-			myPeriod = helpers.get_specific_quarters(years)
+			myPeriod = helpers.get_specific_quarters(years, "victims")
 		elsif period == "monthly"
-			myPeriod = helpers.get_specific_months(years)
+			myPeriod = helpers.get_specific_months(years, "victims")
 		end
 
 		totalFreq = []
@@ -400,8 +396,9 @@ class DatasetsController < ApplicationController
 						freq = []
 						counter = 0
 						place_total = 0
+						localVictims = place.victims
 						myPeriod.each {|timeUnit|
-							number_of_victims = timeUnit.victims.where(:gender=>gender).merge(place.victims).length
+							number_of_victims = timeUnit.victims.where(:gender=>gender).merge(localVictims).length
 							freq.push(number_of_victims)
 							totalFreq[counter] += number_of_victims
 							counter += 1
@@ -415,7 +412,6 @@ class DatasetsController < ApplicationController
 
 			end
 		end
-
 		totalHash[:freq] = totalFreq
 		total_total = 0
 		totalFreq.each{|q|
@@ -423,11 +419,6 @@ class DatasetsController < ApplicationController
 		}
 		totalHash[:total_total] = total_total
 		myTable.push(totalHash)
-
-
-		print "************"
-		print "SESSSION VICTIM FREQ PARAMS"
-		pp session[:victim_freq_params]
 		return myTable
 	end
 

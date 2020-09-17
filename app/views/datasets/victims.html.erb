@@ -1,8 +1,5 @@
 <div class="header-div">
 	<div class="row top-row valign-wrapper">
-	<!-- 	<div class="col s1">
-			<i class="material-icons medium right">grid_on</i>
-		</div> -->
 		<div class="col s12">
 			<h5 class="h5-no-margin">
 				<span class="slim"> Tabla de frecuencias</span>
@@ -15,17 +12,11 @@
 	<div id="filter-dashboard" class="col l4 m8 s12 short-row hide-on-small-only">
 		<div class="card cyan darken-1">
 			<div class="full-height">
-				<form id="victim_freq_table" action="/datasets/victims_query" method="post">
+				<form id="victim_freq_table" class="freq_filer_form" action="/datasets/victims_query" method="post">
 					<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
 					<div class="card-narrow">
 						<div class="card-content white-text">
-							<div class="hide-on-med-and-up">
-								<div class="row short-row">
-									<div class="col s2 right">
-										<i id="hide-filter-dashboard" class="small material-icons white-text">close</i>
-		 							</div>
-								</div>
-							</div>
+							<%= render "shared/hidefilter"%>
 							<div class="row">
 								<div cass="col s12">
 									<ul class="tabs cyan-tabs">
@@ -270,15 +261,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="send-to-bottom">
-							<div class="card-action">
-								<div class="row">
-									<div class="input-field valign-wrapper right short-row">
-										<button class="send_button btn-floating card-margin" type="submit"><i class="material-icons grey-text">send</i></button>
-									</div>
-								</div>
-							</div>
-						</div>
+						<%= render "shared/sendmagicbutton" %>
 					</div>
 				</form>
 			</div>
@@ -289,15 +272,9 @@
 			<div class="">
 				<div class="card-content">
 					<div class="row card-narrow">
-						<div class="hide-on-med-and-up">
-							<div class="col s2">
-								<button id="show-filter-dashboard" class="btn-floating btn-tiny cyan lighten-2 pulse"><i class="small material-icons white-text right-extra-margin">tune</i></button>
-<!-- 								<a href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">tune</i></a>
- -->							</div>
-						</div>
-						<%= render "shared/controlpanel"%>
+						<%= render "shared/showfilter" %>
+						<%= render "shared/controlpanel" %>
 					</div>
-
 					<table class="freq-table striped">	
 						<%= render "shared/sorttable"%>
 					</table>

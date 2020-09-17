@@ -271,7 +271,7 @@ rawData = "01001,Aguascalientes
 09007,Iztapalapa
 09008,La Magdalena Contreras
 09009,Milpa Alta
-09010	Álvaro Obregón
+09010,Álvaro Obregón
 09011,Tláhuac
 09012,Tlalpan
 09013,Xochimilco
@@ -781,7 +781,7 @@ rawData = "01001,Aguascalientes
 15125,Tonanitla
 16001,Acuitzio
 16002,Aguililla
-16003	Álvaro Obregón
+16003,Álvaro Obregón
 16004,Angamacutiro
 16005,Angangueo
 16006,Apatzingán
@@ -1169,7 +1169,7 @@ rawData = "01001,Aguascalientes
 20171,San José Tenango
 20172,San Juan Achiutla
 20173,San Juan Atepec
-20174	Ánimas Trujano
+20174,Ánimas Trujano
 20175,San Juan Bautista Atatlahuca
 20176,San Juan Bautista Coixtlahuaca
 20177,San Juan Bautista Cuicatlán

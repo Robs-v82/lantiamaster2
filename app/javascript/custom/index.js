@@ -336,9 +336,25 @@
 			}
 		})
 
+		// SWITCH BETWEEN ROLE AND STATE DESAGGREGATION
+		$('#role_split_query_box').click(function() {
+			if ($('#state_query_box').is(':checked')) {
+				$('#nation_query_box').prop('checked', true)
+				M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
+			}				
+		})
+	
+
+		// SWITCH BETWEEN ROLE AND STATE DESAGGREGATION
+		$('#state_query_box').click(function() {
+			if ($('#role_split_query_box').is(':checked')) {
+				$('#no_role_split_query_box').prop('checked', true)
+				M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
+			}
+		})
+
 		// AVOID PAGE TO THE BOTTOM
 		$('input:checkbox').click(function() {
-			console.log('hI')
 			$("html, body").animate({ scrollTop: 0 }, "fast");
 		})
 
@@ -546,7 +562,7 @@
 		})
 
 		// DEFINE FREQ TABLE TIMEFRAME
-		$('#victim_freq_table input').change(function() {
+		$('.freq_filer_form input').change(function() {
 			var mydata = $(this).serialize()
 			newArr = mydata.split("=")
 			$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')

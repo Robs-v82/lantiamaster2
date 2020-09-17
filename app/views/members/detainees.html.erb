@@ -1,0 +1,138 @@
+<div class="header-div">
+	<div class="row top-row valign-wrapper">
+		<div class="col s12">
+			<h5 class="h5-no-margin">
+				<span class="slim"> Tabla de frecuencias</span>
+			</h5>
+			<h5 class="h5-no-margin">Arrestos de alto perfil</h5>
+		</div>
+	</div>
+</div>
+<div class="row freq-row">
+	<div id="filter-dashboard" class="col l4 m8 s12 short-row hide-on-small-only">
+		<div class="card cyan darken-1">
+			<div class="full-height">
+				<form id="detainee_freq_table" class="freq_filer_form" action="/members/detainees_query" method="post">
+				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+					<div class="card-narrow">
+						<div class="card-content white-text">
+							<%= render "shared/hidefilter"%>
+							<div class="row">
+								<div cass="col s12">
+									<ul class="tabs cyan-tabs">
+										<li class="tab col s6"><a class="white-text" href="#detainee_freq_params">ANÁLISIS</a></li>
+										<li class="tab col s6"><a class="white-text" href="#detainee_freq_filters">FILTROS</a></li>
+									</ul>
+								</div>
+							</div>
+							<div id="detainee_freq_params">
+								<div class="row">
+									<div class="col s12">
+										<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+											<i class="material-icons small">today</i><p5 class="query-header">Temporal</p5>
+										</div>
+										<div id="detainee_freq_timeframe_selector">
+									    	<% @timeFrames.each do |query| %>
+												<p class="input-padding">
+													<label>
+														<input  id="<%= query[:box_id] %>" name="query[freq_timeframe]" value="<%= query[:name] %>" type="radio"
+															<% if query[:checked]%>
+																checked
+															<% end %>
+														/>
+														<span class="white-text p20 slim"><%= query[:caption] %></span>
+													</label>
+												</p>
+									    	<% end %>
+									    </div>
+									</div>
+								</div>
+								<div id="organization_query_box" class="row">
+									<div class="col s12">
+									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+											<i class="material-icons small">group</i><p5 class="query-header">Organización</p5>
+										</div>
+										<div id="detainee_freq_organizationframe_selector">
+									    	<% @organizationFrames.each do |query| %>
+												<p class="input-padding">
+													<label>
+														<input  id="<%= query[:box_id] %>" name="query[freq_organizationframe]" value="<%= query[:name] %>" type="radio"
+															<% if query[:checked]%>
+																checked
+															<% end %>
+														/>
+														<span class="white-text p20 slim"><%= query[:caption] %></span>
+													</label>
+												</p>
+									    	<% end %>
+									    </div>
+									</div>
+							    </div>
+								<div id="role_query_box" class="row">
+									<div class="col s12">
+									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+											<i class="material-icons small">contacts</i><p5 class="query-header">Posición</p5>
+										</div>
+										<div id="detainee_freq_roleframe_selector">
+									    	<% @roleFrames.each do |query| %>
+												<p class="input-padding">
+													<label>
+														<input  id="<%= query[:box_id] %>" name="query[freq_roleframe]" value="<%= query[:name] %>" type="radio"
+															<% if query[:checked]%>
+																checked
+															<% end %>
+														/>
+														<span class="white-text p20 slim"><%= query[:caption] %></span>
+													</label>
+												</p>
+									    	<% end %>
+									    </div>
+									</div>
+							    </div>
+								<div id="geo_query_box" class="row">
+									<div class="col s12">
+									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+											<i class="material-icons small">map</i><p5 class="query-header">Geográfico</p5>
+										</div>
+										<div id="detainee_freq_placeframe_selector">
+									    	<% @placeFrames.each do |query| %>
+												<p class="input-padding">
+													<label>
+														<input  id="<%= query[:box_id] %>" name="query[freq_placeframe]" value="<%= query[:name] %>" type="radio"
+															<% if query[:checked]%>
+																checked
+															<% end %>
+														/>
+														<span class="white-text p20 slim"><%= query[:caption] %></span>
+													</label>
+												</p>
+									    	<% end %>
+									    </div>
+									</div>
+							    </div>
+							</div>
+							<div id="detainee_freq_filters">
+							</div>
+						</div>
+						<%= render "shared/sendmagicbutton" %>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="col l8 m12 s12 short-row">
+		<div class="card flex-card">
+			<div class="">
+				<div class="card-content">
+					<div class="row card-narrow">
+						<%= render "shared/showfilter"%>
+						<%= render "shared/controlpanel"%>
+					</div>
+					<table class="freq-table striped">	
+						<%= render "shared/sorttable"%>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

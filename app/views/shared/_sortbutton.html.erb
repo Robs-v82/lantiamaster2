@@ -1,13 +1,9 @@
-<% unless @victim_freq_table.length == 3 %>
-	<% if @victim_freq_table.length < 180 %>
+<% unless @my_freq_table.length == 3 %>
+	<% if @my_freq_table.length < 180 %>
 		<% @sortCounter += 1 %>
 		<a class="sort-btn sort-down-btn" href="#" remote="true" value="<%= @sortCounter%>">
 			<i class="material-icons small black-text">keyboard_arrow_down</i>
 		</a>
 	<% else %>
-	<!-- 	<% @sortCounter += 1 %>
-		<a class="sort-btn sort-down-btn" href="/datasets/<%= @sortType%>/<%= @sortCounter%>">
-			<i class="material-icons small black-text">keyboard_arrow_down</i>
-		</a> -->
 	<% end %>
 <% end %>
