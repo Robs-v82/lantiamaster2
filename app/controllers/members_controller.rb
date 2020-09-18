@@ -115,7 +115,15 @@ class MembersController < ApplicationController
 
 	def detainees_query
 		organizationOptions = helpers.get_detainees_cartels
-		session[:detainee_freq_params] = ["quarterly","nationWise","organizationSplit", "noRoleSplit", organizationOptions]
+		roleOptions = []
+		myRoles = Role.where(:criminal=>true)
+		myRoles.each{|role|
+			roleOptions.push(role.id.to_s)
+		} 
+		session[:checkedStates] = false
+		session[:checkedOrganizations] = false
+		session[:checkedRoles] = false
+		session[:detainee_freq_params] = ["quarterly","nationWise","organizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
 		redirect_to "/members/detainees"
 	end
 
@@ -132,11 +140,27 @@ class MembersController < ApplicationController
 		if detainee_freq_params[:freq_roleframe]
 			session[:detainee_freq_params][3] = detainee_freq_params[:freq_roleframe]
 		end
+		if detainee_freq_params[:freq_organizations]
+			session[:detainee_freq_params][4] = detainee_freq_params[:freq_organizations]
+		end
+		if detainee_freq_params[:freq_states]
+			myArr = detainee_freq_params[:freq_states].map(&:to_i)
+			Cookie.create(:data=>myArr)
+			session[:checkedStates] = Cookie.last.id
+		end
+		if detainee_freq_params[:freq_organizations]
+			session[:detainee_freq_params][6] = detainee_freq_params[:freq_organizations]
+			session[:checkedOrganizations] = session[:detainee_freq_params][6]
+		end
+		if detainee_freq_params[:freq_roles]
+			session[:detainee_freq_params][7] = detainee_freq_params[:freq_roles]
+			session[:checkedRoles] = session[:detainee_freq_params][7]
+		end
 		redirect_to "/members/detainees"
 	end
 
 	def detainees
-		@my_freq_table = detainee_freq_table(session[:detainee_freq_params][0], session[:detainee_freq_params][1], session[:detainee_freq_params][2], session[:detainee_freq_params][3], session[:detainee_freq_params][4])
+		@my_freq_table = detainee_freq_table(session[:detainee_freq_params][0], session[:detainee_freq_params][1], session[:detainee_freq_params][2], session[:detainee_freq_params][3], session[:detainee_freq_params][4], session[:checkedStates], session[:detainee_freq_params][6], session[:detainee_freq_params][7])
 		@timeFrames = [
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
 			{caption:"Mensual", box_id:"monthly_query_box", name:"monthly"},
@@ -179,10 +203,36 @@ class MembersController < ApplicationController
   		end
 
 		@sortCounter = 0
+		@states = State.all.sort
+		if session[:checkedStates]
+			@checkedStates = Cookie.find(session[:checkedStates]).data
+		else
+			@checkedStates = State.pluck(:id)
+		end
+
+		@organizations = helpers.get_detainees_cartels
+		if session[:checkedOrganizations]
+			@checkedOrganizations = session[:detainee_freq_params][6]
+		else
+			@checkedOrganizations = helpers.get_detainees_cartels
+		end
+
+		@roles = Role.where(:criminal=>true)
+		if session[:checkedRoles]
+			@checkedRoles = session[:checkedRoles]
+			print "**************ROLES: "
+			print @checkedRoles
+		else
+			roleOptions = []
+			myRoles = Role.where(:criminal=>true)
+			myRoles.each{|role|
+				roleOptions.push(role.id.to_s)
+			} 
+			@checkedRoles = roleOptions
+		end
 	end
 
-	def detainee_freq_table(period, scope, organization, role, organizationOptions)
-		print "********WORKING ON TABLE!"
+	def detainee_freq_table(period, scope, organization, role, organizationOptions, states, organizations, roleOptions)
 
 		myTable = []
 		headerHash = {}
@@ -196,12 +246,23 @@ class MembersController < ApplicationController
 			myPeriod = helpers.get_specific_months(years, "detainees")
 		end
 
-		myStates = State.all.sort
+
+
 		if scope == "nationWise"
 			myScope = nil
 		elsif scope == "stateWise"
 			headerHash[:scope] = "ESTADO"
-			myScope = myStates
+			if states == false
+				myStates = State.all.sort			
+			else
+				myStates = []
+				myKeys = Cookie.find(states).data
+				myKeys.each {|x|
+					myState = State.find(x)
+					myStates.push(myState)
+				}
+				myScope = myStates	
+			end
 		end
 
 		totalFreq = []
@@ -211,7 +272,12 @@ class MembersController < ApplicationController
 
 		headerHash[:period] = myPeriod
 
-		roleOptions = Role.where(:criminal=>true)
+		myRoles = [] 
+		roleOptions.each{|option|
+			key = option.to_i
+			myRole = Role.find(key)
+			myRoles.push(myRole)
+		}
 
 		if myScope == nil
 			if role == "noRoleSplit"
@@ -261,7 +327,7 @@ class MembersController < ApplicationController
 				totalHash[:role_placer] = "--"
 				if organization == "noOrganizationSplit"
 					myTable.push(headerHash)
-					roleOptions.each{|r|
+					myRoles.each{|r|
 						placeHash = {}
 						placeHash[:name] = "Nacional"
 						placeHash[:role] = r.name
@@ -285,7 +351,7 @@ class MembersController < ApplicationController
 					totalHash[:organization_placer] = "--"
 					myTable.push(headerHash)
 					organizationOptions.each{|organization|
-						roleOptions.each{|r|
+						myRoles.each{|r|
 							placeHash = {}
 							targetOrganization = Organization.where(:name=>organization).last
 							placeHash[:organization] = organization
@@ -378,7 +444,7 @@ class MembersController < ApplicationController
 	end
 
 	def detainee_freq_params
-		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_organizationframe, :freq_roleframe)
+		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_organizationframe, :freq_roleframe, freq_states: [], freq_organizations: [], freq_roles: [])
 	end
 
 end

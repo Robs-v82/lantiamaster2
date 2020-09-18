@@ -306,6 +306,26 @@
 			}
 		})
 
+		// ACTIVATE ORGANIZATION IN FREQUENCY TABLE
+		$('#organization_query_box').click(function() {
+			if ($("#organization_split_query_box").is(':checked')) {
+				$("#organization-collapsible-tab").removeClass('collapsible-disabled');
+			} else {
+				$("#organization-collapsible-tab").addClass('collapsible-disabled');
+				$("#organization-collapsible-tab input").prop('checked', true)
+			}
+		})
+
+		// ACTIVATE ROLE IN FREQUENCY TABLE
+		$('#role_query_box').click(function() {
+			if ($("#role_split_query_box").is(':checked')) {
+				$("#role-collapsible-tab").removeClass('collapsible-disabled');
+			} else {
+				$("#role-collapsible-tab").addClass('collapsible-disabled');
+				$("#role-collapsible-tab input").prop('checked', true)
+			}
+		})
+
 		// ACTIVATE COUNTIES FILTER
 		$('input[name="query[freq_states][]"]').click(function () {
 		var states = 0
@@ -340,15 +360,18 @@
 		$('#role_split_query_box').click(function() {
 			if ($('#state_query_box').is(':checked')) {
 				$('#nation_query_box').prop('checked', true)
+				$('#state-collapsible-tab').addClass('collapsible-disabled');
+				$("#state-collapsible-tab input").prop('checked', true)
 				M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
 			}				
 		})
 	
 
-		// SWITCH BETWEEN ROLE AND STATE DESAGGREGATION
 		$('#state_query_box').click(function() {
 			if ($('#role_split_query_box').is(':checked')) {
 				$('#no_role_split_query_box').prop('checked', true)
+				$('#role-collapsible-tab').addClass('collapsible-disabled');
+				$("#role-collapsible-tab input").prop('checked', true)
 				M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
 			}
 		})

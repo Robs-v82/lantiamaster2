@@ -33,13 +33,8 @@ module OrganizationsHelper
 		cartels = Sector.where(:scian2=>98).last.organizations.uniq
 		cartels.each{|cartel|
 			unless cartel.league.nil?
-				print "**********LEAGUE********: "
-				print cartel.league
 				myName = cartel.league
-
 				myLeague = League.where(:name=>myName).last.id
-				print "**********LEAGUE: "
-				print myLeague
 				unless  myLeague.nil?
 					cartel.update(:mainleague_id=>myLeague) 	
 				end
@@ -47,11 +42,7 @@ module OrganizationsHelper
 			unless cartel.subleague.nil?
 				unless cartel.subleague.empty?
 					myName = cartel.subleague
-					print "**********SUBNAME: "
-					print myName
 					mySubLeague = League.where(:name=>myName).last.id
-					print "**********LEAGUE: "
-					print mySubLeague
 					unless  mySubLeague.nil?
 						cartel.update(:subleague_id=>mySubLeague) 	
 					end 

@@ -47,6 +47,27 @@
 									    </div>
 									</div>
 								</div>
+								<div id="geo_query_box" class="row">
+									<div class="col s12">
+									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+											<i class="material-icons small">map</i><p5 class="query-header">Geográfico</p5>
+										</div>
+										<div id="detainee_freq_placeframe_selector">
+									    	<% @placeFrames.each do |query| %>
+												<p class="input-padding">
+													<label>
+														<input  id="<%= query[:box_id] %>" name="query[freq_placeframe]" value="<%= query[:name] %>" type="radio"
+															<% if query[:checked]%>
+																checked
+															<% end %>
+														/>
+														<span class="white-text p20 slim"><%= query[:caption] %></span>
+													</label>
+												</p>
+									    	<% end %>
+									    </div>
+									</div>
+							    </div>
 								<div id="organization_query_box" class="row">
 									<div class="col s12">
 									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
@@ -89,29 +110,112 @@
 									    </div>
 									</div>
 							    </div>
-								<div id="geo_query_box" class="row">
-									<div class="col s12">
-									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
-											<i class="material-icons small">map</i><p5 class="query-header">Geográfico</p5>
-										</div>
-										<div id="detainee_freq_placeframe_selector">
-									    	<% @placeFrames.each do |query| %>
-												<p class="input-padding">
-													<label>
-														<input  id="<%= query[:box_id] %>" name="query[freq_placeframe]" value="<%= query[:name] %>" type="radio"
-															<% if query[:checked]%>
-																checked
-															<% end %>
-														/>
-														<span class="white-text p20 slim"><%= query[:caption] %></span>
-													</label>
-												</p>
-									    	<% end %>
-									    </div>
-									</div>
-							    </div>
 							</div>
-							<div id="detainee_freq_filters">
+							<div id="detainee_freq_filters" class="filter-box">
+								<div class="row">
+									<div class="col s12">
+										<ul class="collapsible z-depth-0">
+											<li id="state-collapsible-tab"
+												<% if session[:detainee_freq_params][1] == "nationWise" %>
+													class="collapsible-disabled"
+												<% end %>
+											>
+												<div class="collapsible-header cyan darken-1 cyan-text text-accent-2">
+													<i class="material-icons tiny">map</i>
+													ESTADOS
+												</div>
+												<div id="state_filter_box" class="collapsible-body cyan darken-1">
+													<div class="row">
+														<div class="col s3">
+															<%= render "shared/filterbuttons"%>
+														</div>
+														<div class="col s9 checkbox-scroll">
+															<% @states.each do |state|%>
+																<div class="col s6">	
+																	<p>
+																		<label>
+																			<input type="checkbox" name="query[freq_states][]" value="<%= state["id"] %>" 
+																				<% if @checkedStates.include? state["id"] %>	
+																					checked
+																				<% end %>
+																			/>
+																			<span class="white-text"><%= state["shortname"] %></span>
+																		</label>
+																	</p>
+																</div>
+															<% end %>
+														</div>
+													</div>
+												</div>
+											</li>
+											<li id="organization-collapsible-tab"
+												<% if session[:detainee_freq_params][2] == "noOrganizationSplit" %>
+													class="collapsible-disabled"
+												<% end %>
+											>
+												<div class="collapsible-header cyan darken-1 cyan-text text-accent-2">
+													<i class="material-icons tiny">group</i>
+													ORGANIZACIONES
+												</div>
+												<div id="organization_filter_box" class="collapsible-body cyan darken-1">
+													<div class="row">
+														<div class="col s3">
+															<%= render "shared/filterbuttons"%>
+														</div>
+														<div class="col s9 checkbox-scroll">
+															<% @organizations.each do |organization|%>
+																<div class="col s12">	
+																	<p>
+																		<label>
+																			<input type="checkbox" name="query[freq_organizations][]" value="<%= organization %>" 
+																				<% if @checkedOrganizations.include? organization %>	
+																					checked
+																				<% end %>
+																			/>
+																			<span class="white-text"><%= organization %></span>
+																		</label>
+																	</p>
+																</div>
+															<% end %>
+														</div>
+													</div>
+												</div>
+											</li>
+											<li id="role-collapsible-tab"
+												<% if session[:detainee_freq_params][3] == "noRoleSplit" %>
+													class="collapsible-disabled"
+												<% end %>
+											>
+												<div class="collapsible-header cyan darken-1 cyan-text text-accent-2">
+													<i class="material-icons tiny">contacts</i>
+													POSICIONES
+												</div>
+												<div id="role_filter_box" class="collapsible-body cyan darken-1">
+													<div class="row">
+														<div class="col s3">
+															<%= render "shared/filterbuttons"%>
+														</div>
+														<div class="col s9 checkbox-scroll">
+															<% @roles.each do |role|%>
+																<div class="col s12">	
+																	<p>
+																		<label>
+																			<input type="checkbox" name="query[freq_roles][]" value="<%= role.id %>" 	<% if @checkedRoles.include? role.id.to_s %>
+																					checked
+																				<% end %>
+																			/>
+																			<span class="white-text"><%= role.name %></span>
+																		</label>
+																	</p>
+																</div>
+															<% end %>
+														</div>
+													</div>
+												</div>
+											</li>	
+										</ul>
+									</div>
+								</div>
 							</div>
 						</div>
 						<%= render "shared/sendmagicbutton" %>
