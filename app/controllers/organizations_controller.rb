@@ -107,7 +107,7 @@ class OrganizationsController < ApplicationController
   		pp @leadArr
 
   		@place = {:latitude=>19.097119,:longitude=>-99.913613}
-  		@town = Town.where(:full_code=>"010010001").last
+  		@zip = "20303"
   		@key = Rails.application.credentials.google_maps_api_key
   	end
 

@@ -27,9 +27,10 @@
 
 		<% if session[:map] == true %>
 			$.get(
-				'https://maps.googleapis.com/maps/api/geocode/json?components=country:MX|postal_code:<%= @town.zip_code %>&key=<%= @key %>',
+				'https://maps.googleapis.com/maps/api/geocode/json?components=country:MX|postal_code:<%= @zip %>&key=<%= @key %>',
 				$(this).serialize(),
 				function(data) {
+					console.log(data)
 					var coords = data.results[0].geometry.location; 
 
 					function initMap() {
