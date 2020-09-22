@@ -1,0 +1,101 @@
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+	google.charts.load('current', {'packages':['corechart']})
+  	$("#freq-chart-trigger").click(function() {
+  		google.charts.setOnLoadCallback(drawColumnChart);
+ 	})
+  	function drawColumnChart() {
+  		<% if @my_freq_table.length > 3 && @my_freq_table.length < 8 %>
+	  		var data = google.visualization.arrayToDataTable([
+				['Periodo',
+					<% @my_freq_table[1..-2].each do |place| %>
+						<% if @stateWise || @cityWise || @countyWise %>
+							"<%= place[:name]%>"
+							<% if place[:organization] %>
+							+" - "+"<%= place[:organization] %>"
+							<% elsif place[:gender] %>
+							+" - "+"<%= place[:gender] %>"
+							<% end %>
+						<% elsif place[:organization] %>
+							"<%= place[:organization] %>"
+							<% if place[:role] %>
+							+" - "+"<%= place[:role] %>"
+							<% end %>
+						<% elsif place[:role] %>
+							"<%= place[:role] %>"
+						<% elsif place[:gender] %>
+							"<%= place[:gender] %>"
+						<% end %>
+						,
+					<% end %>
+				],
+				<% t = @my_freq_table[0][:period].length; (0..t-1).each do |tx| %>
+					[
+						<% if @annual%>
+							"<%= @my_freq_table[0][:period][tx].name %>"
+						<% elsif @quarterly %>
+							"T"+"<%= @my_freq_table[0][:period][tx].name[-1] %>"+"/"+"<%= I18n.l(@my_freq_table[0][:period][tx].first_day, format: '%Y') %>"
+						<% else %>
+							"<%= I18n.l(@my_freq_table[0][:period][tx].first_day, format: '%b/%Y') %>"
+						<% end %>
+						,
+						<% @my_freq_table[1..-2].each do |place| %>
+							<%= place[:freq][tx] %>,
+						<% end %>
+					],
+				<% end %>
+			]);
+
+			var options = {
+				height: 500,
+				bar: {groupWidth: "75%"},
+				legend: { position: "bottom" },
+				isStacked: true,
+				series: {
+					0: { color: '#00b8d4' },
+					1: { color: '#00e5ff' },
+					2: { color: '#18ffff' },
+					3: { color: '#84ffff' },
+				},
+				animation: {"startup": true},
+			};
+
+		<% else %>
+			var data = google.visualization.arrayToDataTable([
+				['Periodo','Total'],
+				<% t = @my_freq_table[0][:period].length; (0..t-1).each do |tx| %>
+					[
+						<% if @annual%>
+							"<%= @my_freq_table[0][:period][tx].name %>"
+						<% elsif @quarterly %>
+							"T"+"<%= @my_freq_table[0][:period][tx].name[-1] %>"+"/"+"<%= I18n.l(@my_freq_table[0][:period][tx].first_day, format: '%Y') %>"
+						<% else %>
+							"<%= I18n.l(@my_freq_table[0][:period][tx].first_day, format: '%b/%Y') %>"
+						<% end %>
+						,
+						<%= @my_freq_table[-1][:freq][tx] %>
+					],
+				<% end %>
+			]);
+
+			var options = {
+				height: 500,
+				bar: {groupWidth: "75%"},
+				legend: { position: "none" },
+				isStacked: true,
+				series: {
+					0: { color: '#00e5ff' },
+				},
+				animation: {"startup": true},
+			};
+		<% end %>
+		var chart = new google.visualization.ColumnChart(document.getElementById('freq-entry-chart'));
+		chart.draw(data, options);
+
+  	}
+  	
+})
+	
+</script>

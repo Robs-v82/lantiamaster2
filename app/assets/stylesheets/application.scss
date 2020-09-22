@@ -8,8 +8,12 @@ a[href^="http://maps.google.com/maps"]{display:none !important}
 a[href^="https://maps.google.com/maps"]{display:none !important}
 
 
-#entry-grid {
+#entry-grid, #freq-entry-chart {
 	display: none;
+}
+
+.freq-entry-display {
+	padding: 0 !important;
 }
 
 #tree-entry-content .collapsible-header {
@@ -153,6 +157,10 @@ ul.z-depth-0 {
 	.freq-table th, .freq-table td {
 		padding: 6px 12px;
 		font-size: 11px;
+	}
+
+	.card .card-content {
+		padding: 16px 10px !important;
 	}
 	
 }

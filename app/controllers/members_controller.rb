@@ -197,8 +197,10 @@ class MembersController < ApplicationController
   		end
 
   		if session[:detainee_freq_params][1] == "nationWise"
+  			@nationWise = true
   			@placeFrames[0][:checked] = true
   		else
+  			@stateWise = true
   			@placeFrames[1][:checked] = true
   		end
 

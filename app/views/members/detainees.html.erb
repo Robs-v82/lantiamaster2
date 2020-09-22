@@ -1,3 +1,6 @@
+<% provide :head_tags do %>
+	<%= render "shared/freqcharts"%>
+<% end %>
 <div class="header-div">
 	<div class="row top-row valign-wrapper">
 		<div class="col s12">
@@ -232,9 +235,13 @@
 						<%= render "shared/showfilter"%>
 						<%= render "shared/controlpanel"%>
 					</div>
-					<table class="freq-table striped">	
-						<%= render "shared/sorttable"%>
-					</table>
+					<div id="freq-entry-chart" class="freq-entry-display col s12">
+					</div>
+					<div id="freq-entry-list" class="freq-entry-display">
+						<table class="freq-table striped">	
+							<%= render "shared/sorttable"%>
+						</table>
+					</div>
 				</div>
 			</div>
 		</div>

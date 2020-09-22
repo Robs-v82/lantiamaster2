@@ -381,6 +381,19 @@
 			$("html, body").animate({ scrollTop: 0 }, "fast");
 		})
 
+		// SWITCH SECTIONS IN FREQ-CARD
+		$("#freq-chart-trigger").click(function() {
+			$("#freq-entry-list").hide();
+			$("#freq-entry-chart").show();
+			return false
+		})
+
+		$("#freq-list-trigger").click(function() {
+			$("#freq-entry-chart").hide();
+			$("#freq-entry-list").show();
+			return false
+		})
+
 
 		// GET ORGANIZATIONS
 		$('#operation-organization-selector').change(function() {

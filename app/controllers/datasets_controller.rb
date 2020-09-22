@@ -204,12 +204,16 @@ class DatasetsController < ApplicationController
   		end
 
   		if session[:victim_freq_params][1] == "nationWise"
+  			@nationWise = true
   			@placeFrames[0][:checked] = true
   		elsif session[:victim_freq_params][1] == "stateWise"
+  			@stateWise = true
   			@placeFrames[1][:checked] = true
   		elsif session[:victim_freq_params][1] == "cityWise"
+  			@cityWise = true
   			@placeFrames[2][:checked] = true
   		elsif session[:victim_freq_params][1] == "countyWise"
+  			@countyWise = true
   			@placeFrames[3][:checked] = true
   		end
 
