@@ -176,6 +176,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def victims
+		@key = Rails.application.credentials.google_maps_api_key
 		@my_freq_table = victim_freq_table(session[:victim_freq_params][0],session[:victim_freq_params][1],session[:victim_freq_params][2],session[:victim_freq_params][3],session[:victim_freq_params][4],session[:victim_freq_params][5],session[:victim_freq_params][6],session[:checkedCounties])
 		@timeFrames = [
   			{caption:"Anual", box_id:"annual_query_box", name:"annual"},
@@ -253,6 +254,14 @@ class DatasetsController < ApplicationController
   		end
 
   		@county_tootip_message = "Para activar el filtro de municipios:\n1) Elija 'municipio' en análisis geográfico.\n2) Filtre un solo estado."
+
+  		if @stateWise
+  			if @genderFrames[0][:checked]
+  				@maps = true
+  			elsif @checkedGenderOptions.length == 1
+  				@maps = true
+  			end
+  		end
 
 	end
 

@@ -160,6 +160,7 @@ class MembersController < ApplicationController
 	end
 
 	def detainees
+		@key = Rails.application.credentials.google_maps_api_key
 		@my_freq_table = detainee_freq_table(session[:detainee_freq_params][0], session[:detainee_freq_params][1], session[:detainee_freq_params][2], session[:detainee_freq_params][3], session[:detainee_freq_params][4], session[:checkedStates], session[:detainee_freq_params][6], session[:detainee_freq_params][7])
 		@timeFrames = [
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
@@ -222,8 +223,6 @@ class MembersController < ApplicationController
 		@roles = Role.where(:criminal=>true)
 		if session[:checkedRoles]
 			@checkedRoles = session[:checkedRoles]
-			print "**************ROLES: "
-			print @checkedRoles
 		else
 			roleOptions = []
 			myRoles = Role.where(:criminal=>true)
@@ -231,6 +230,19 @@ class MembersController < ApplicationController
 				roleOptions.push(role.id.to_s)
 			} 
 			@checkedRoles = roleOptions
+		end
+
+		if @stateWise
+			if @organizationFrames[0][:checked] && @roleFrames[0][:checked]
+				@maps = true
+			elsif @roleFrames[0][:checked] && @checkedOrganizations.length == 1
+				@maps = true
+			elsif @organizationFrames[0][:checked] && @checkedRoles.length == 1
+				@maps = true
+			elsif condition
+				@checkedOrganizations.length == 1 && @checkedRoles.length == 1
+				@maps = true
+			end
 		end
 	end
 

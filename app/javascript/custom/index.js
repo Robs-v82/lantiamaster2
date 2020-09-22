@@ -383,13 +383,13 @@
 
 		// SWITCH SECTIONS IN FREQ-CARD
 		$("#freq-chart-trigger").click(function() {
-			$("#freq-entry-list").hide();
+			$(".freq-entry-display").hide();
 			$("#freq-entry-chart").show();
 			return false
 		})
 
 		$("#freq-list-trigger").click(function() {
-			$("#freq-entry-chart").hide();
+			$(".freq-entry-display").hide();
 			$("#freq-entry-list").show();
 			return false
 		})

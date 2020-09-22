@@ -3,7 +3,11 @@
 		<a id="freq-info-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">info</i></a>
 		<a id="freq-table-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">list</i></a>
 		<a id="freq-chart-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">insert_chart</i></a>
-		<a id="freq-map-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">map</i></a>
+		<% if @maps %>
+			<a id="freq-map-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">map</i></a>
+		<% else %>
+			<a href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">map</i></a>
+		<% end %>
 		<a id="freq-download-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>
 	</div>
 </div>

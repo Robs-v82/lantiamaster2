@@ -1,0 +1,48 @@
+<script type="text/javascript">
+
+	$(document).ready(function() {
+
+		google.charts.load('current', {
+			'packages':['geochart'],
+			'mapsApiKey': '<%= @key %>'
+		});
+
+		
+		
+		$("#freq-map-trigger").click(function() {
+			$(".freq-entry-display").hide();
+			$("#freq-entry-map").show();
+			google.charts.setOnLoadCallback(drawRegionsMap);
+			return false
+	 	})
+
+		function drawRegionsMap() {
+			var data = google.visualization.arrayToDataTable([
+				['State', 'Frecuencia'],
+				<% @my_freq_table[1..-2].each do |place| %>
+					[
+						<% if place[:name] == "Ciudad de México" %>
+							"Distrito Federal"
+						<% else %>
+							'<%= place[:name] %>'
+						<% end %>
+						,
+						<%= place[:place_total] %>
+					],
+				<% end %>
+			]);
+
+			var options = {
+				height: 500,
+				region: 'MX',
+				resolution: 'provinces',
+				colorAxis: {colors: ['#02E0FF', '#006775']}
+			};
+
+			var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
+
+			chart.draw(data, options);
+		}
+
+	})
+</script>
