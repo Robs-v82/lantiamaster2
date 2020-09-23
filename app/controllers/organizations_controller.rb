@@ -8,8 +8,35 @@ class OrganizationsController < ApplicationController
     end 
   	end
 
+  	def query
+  		@cartels = Sector.where(:scian2=>98).last.organizations.uniq
+  		@cartels = @cartels.sort_by{|cartel| cartel.name}
+  		@typeKeys = @cartels.pluck(:mainleague_id).uniq
+  		session[:organization_selection] = @typeKeys
+  		redirect_to '/organizations/index'
+  	end
+
+  	def post_query
+  		print "*************TYPES: "
+  		print organization_selection_params[:types]
+  		session[:organization_selection] = organization_selection_params[:types]
+  		redirect_to '/organizations/index'
+  	end
+
   	def index
-  		@types = 
+ 		
+ 		allCartels = Sector.where(:scian2=>98).last.organizations.uniq
+  		
+  		@checkedTypes = []
+   		session[:organization_selection].each{|key|
+  			@checkedTypes.push(League.find(key.to_i))
+  		}
+
+  		@typeKeys = allCartels.pluck(:mainleague_id).uniq
+  		@allTypes = []
+   		@typeKeys.each{|key|
+  			@allTypes.push(League.find(key.to_i))
+  		}  		
 
   		@myActivities = []
   		activityArr = [
@@ -27,7 +54,12 @@ class OrganizationsController < ApplicationController
   				@myActivities.push(activity)
   			end
   		}
-  		@cartels = Sector.where(:scian2=>98).last.organizations.uniq
+
+  		@cartels = []
+  		@checkedTypes.each{|type|
+  			@cartels.push(type.organizations)
+  		}
+  		@cartels.flatten!
   		@cartels = @cartels.sort_by{|cartel| cartel.name}
   		@n = @cartels.length-1
   		cds = Organization.where(:name=>"Cártel de Sinaloa").last
@@ -41,11 +73,6 @@ class OrganizationsController < ApplicationController
   			else
   				@colorArr.push('#f5f5f5')
   			end	
-  		}
-  		@types = []
-  		@typeKeys = @cartels.pluck(:mainleague_id).uniq
-  		@typeKeys.each{|key|
-  			@types.push(League.find(key))
   		}
   	end
 
@@ -553,6 +580,10 @@ class OrganizationsController < ApplicationController
 	end
 
 	private
+
+	def organization_selection_params
+		params.require(:query).permit(types: [])
+	end
 
 	def load_organizations_params
 		params.require(:query).permit(:file)

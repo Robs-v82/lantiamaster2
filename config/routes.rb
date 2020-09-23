@@ -55,9 +55,11 @@ Rails.application.routes.draw do
   get 'datasets/victims_query'
   post 'datasets/victims_query' => 'datasets#post_victim_query'
   post 'members/detainees_query' => 'members#post_detainees_query'
+  post 'organizations/organizations_query' => 'organizations#post_query'
   get 'datasets/victims'
   get 'datasets/basic'
   get 'datasets/:type/:cell' => 'datasets#sort'
   post 'counties/getCheckboxCounties/:id' => 'counties#getCheckboxCounties'
   get 'organizations/show/:id' => 'organizations#show'
+  get 'organizations/query' => 'organizations#query'
 end
