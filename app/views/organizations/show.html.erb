@@ -98,33 +98,7 @@
     </script>
 <% end %>
 <div class="row">
-	<div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-small-only">
-		<div class="card cyan darken-1">
-			<div class="full-height">
-				<div class="card-content">
-					<%= render "shared/hidefilter"%>
-					<div class="filter-header white-text">
-						<p class="center-align">BÚSQUEDA</p>
-					</div>
-					<div class="row">
-						<div class="col s12">
-							<div id="operation-organization-shell" class="input-field">
-								<select id="operation-organization-selector" class="browser-default" name="query[organization_id]">
-									<option value="<%= @myOrganization.id %>"></option>
-									<% @cartels.each do |cartel|%>
-										<option value="<%= cartel.id %>"><%= cartel.name%></option>
-									<% end %>
-								</select>
-								<div class="right label-row">
-									<label for="operation-organization-selector" class="white-text">ORGANIZACIÓN</label>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	<%= render "shared/organizationsdashboard"%>
 	<div class="entry col l9 m7 s12">
 		<div class="row">
 			<div class="s12">

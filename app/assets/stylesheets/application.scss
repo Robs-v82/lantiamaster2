@@ -139,14 +139,14 @@ ul.z-depth-0 {
     background-color: rgba(0, 0, 0, 0.38);
 }
 
-.freq-table {
+.freq-table, #org-table {
 	display: block !important;
 	position: relative !important;
 	overflow-x: auto;
 	overflow-y: auto !important;
 }
 
-.freq-table th, .freq-table td {
+.freq-table th, .freq-table td, #org-table th, #org-table td {
 	padding: 8px 16px;
 	font-size: 13px;
 }
@@ -154,7 +154,7 @@ ul.z-depth-0 {
 
 @media only screen and (max-width: 600px) {
 
-	.freq-table th, .freq-table td {
+	.freq-table th, .freq-table td, #org-table th, #org-table td {
 		padding: 6px 12px;
 		font-size: 11px;
 	}

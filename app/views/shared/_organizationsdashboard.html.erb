@@ -1,0 +1,63 @@
+<div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-small-only">
+	<div class="card cyan darken-1">
+		<div class="full-height">
+			<div class="card-content">
+				<%= render "shared/hidefilter"%>
+				<div class="filter-header white-text">
+					<p class="center-align">FILTROS</p>
+				</div>
+				<ul class="collapsible z-depth-0">
+					<li>
+						<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
+							<i class="material-icons small">dns</i><p5 class="query-header">Tipo</p5>
+						</div>
+						<div id="type_filter_box" class="collapsible-body cyan darken-1">
+							<div class="row">
+								<div class="col s3">
+									<%= render "shared/filterbuttons"%>
+								</div>
+								<div class="col s9 checkbox-scroll">
+									<% @types.each do |type|%>
+										<div class="col s12">	
+											<p>
+												<label>
+													<input type="checkbox" name="query[freq_types][]" value="<%= type["id"] %>" checked/>
+													<span class="white-text"><%= type["name"] %></span>
+												</label>
+											</p>
+										</div>
+									<% end %>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+				<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+					<i class="material-icons small">extension</i><p5 class="query-header">Vinculación</p5>
+				</div>
+				<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+					<i class="material-icons small">report</i><p5 class="query-header">Giros delictivos</p5>
+				</div>
+<!-- 				<div class="filter-header white-text">
+					<p class="center-align">BÚSQUEDA</p>
+				</div>
+				<div class="row">
+					<div class="col s12">
+						<div id="operation-organization-shell" class="input-field">
+							<select id="operation-organization-selector" class="browser-default" name="query[organization_id]">
+								<option></option>
+								<% @cartels.each do |cartel|%>
+									<option value="<%= cartel.id %>"><%= cartel.name%></option>
+								<% end %>
+							</select>
+							<div class="right label-row">
+								<label for="operation-organization-selector" class="white-text">ORGANIZACIÓN</label>
+							</div>
+						</div>
+					</div>
+				</div> -->
+			</div>
+			<%= render "shared/sendmagicbutton" %>
+		</div>
+	</div>
+</div>

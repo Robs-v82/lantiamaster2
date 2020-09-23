@@ -1,0 +1,56 @@
+<div class="row">
+	<%= render "shared/organizationsdashboard"%>
+	<div class="entry col l9 m7 s12">
+		<div class="card flex-card">
+			<div class="card-content">
+				<table id="org-table">
+					<col>
+					<colgroup span="3"></colgroup>
+  					<colgroup span="<%= @myActivities.length %>"></colgroup>
+					<thead>
+						<tr>
+							<th class="center-align" colspan="3" scope="colgroup">CARACTERÍSTICAS GENERALES</th>
+							<th class="center-align" colspan="<%= @myActivities.length %>" scope="colgroup">GIROS DELICTIVOS</th>
+						</tr>
+						<tr class="center-align">
+							<th class="center-align" >Nombre</th>
+							<th class="center-align" >Tipo</th>
+							<th class="center-align" >Subtipo</th>
+							<% @myActivities.each do |activity| %>
+								<th class="center-align">
+									<% if activity.shortname %>
+										<%= activity.shortname %>
+									<% else %>
+										<%= activity.name %>
+									<% end %>
+								</th>
+							<% end %>
+						</tr>
+					</thead>
+					<tbody class="z-depth-1">
+						<% (0..@n).each do |n| %>
+							<tr style="background-color: <%= @colorArr[n]%>">
+								<td><%= @cartels[n].name %></td>
+								<td><%= @cartels[n].league %></td>
+								<td>
+									<% if @cartels[n].subleague %>
+										<%= @cartels[n].subleague %>
+									<% else %>
+										--
+									<% end %>
+								</td>
+								<% @myActivities.each do |activity| %>
+									<td class="center-align">
+										<% if @cartels[n].divisions.include? activity%>
+											<i class="material-icons">check</i>
+										<% end %>
+									</td>
+								<% end %>
+							</tr>
+						<% end %>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

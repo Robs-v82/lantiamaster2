@@ -5,8 +5,48 @@ class OrganizationsController < ApplicationController
 	def password
 	    if session[:password_error]
       	@password_error = true
-      	print "******PASSWORD ERROR!!!!!*******"
     end 
+  	end
+
+  	def index
+  		@types = 
+
+  		@myActivities = []
+  		activityArr = [
+  			"Narcotráfico",
+  			"Narcomenudeo",
+  			"Extorsión",
+  			"Mercado Ilícito de Hidrocarburos",
+  			"Trata y tráfico de personas",
+  			"Lavado de dinero"
+  		]
+
+  		@allActivities = Sector.where(:scian2=>"98").last.divisions
+  		@allActivities.each{|activity|
+  			if activityArr.include? activity.name
+  				@myActivities.push(activity)
+  			end
+  		}
+  		@cartels = Sector.where(:scian2=>98).last.organizations.uniq
+  		@cartels = @cartels.sort_by{|cartel| cartel.name}
+  		@n = @cartels.length-1
+  		cds = Organization.where(:name=>"Cártel de Sinaloa").last
+  		cjng = Organization.where(:name=>"Cártel Jalisco Nueva Generación").last
+  		@colorArr = []
+  		@cartels.each {|cartel|
+  			if cartel.name == "Cártel de Sinaloa" or cds.subordinates.include? cartel or cds.allies.include? cartel.id
+  				@colorArr.push('#b2dfdb')
+  			elsif cartel.name == "Cártel Jalisco Nueva Generación" or cjng.subordinates.include? cartel or cjng.allies.include? cartel.id
+  				@colorArr.push('#ffe0b2')
+  			else
+  				@colorArr.push('#f5f5f5')
+  			end	
+  		}
+  		@types = []
+  		@typeKeys = @cartels.pluck(:mainleague_id).uniq
+  		@typeKeys.each{|key|
+  			@types.push(League.find(key))
+  		}
   	end
 
   	def show
