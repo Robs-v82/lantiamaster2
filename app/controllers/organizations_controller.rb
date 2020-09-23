@@ -9,26 +9,47 @@ class OrganizationsController < ApplicationController
   	end
 
   	def query
-  		@cartels = Sector.where(:scian2=>98).last.organizations.uniq
-  		@cartels = @cartels.sort_by{|cartel| cartel.name}
-  		@typeKeys = @cartels.pluck(:mainleague_id).uniq
-  		session[:organization_selection] = @typeKeys
+  		cartels = Sector.where(:scian2=>98).last.organizations.uniq
+  		cartels = cartels.sort_by{|cartel| cartel.name}
+  		coalitionKeys = [
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5'}
+  		]
+  		typeKeys = cartels.pluck(:mainleague_id).uniq
+  		session[:organization_selection] = [typeKeys,coalitionKeys,true]
   		redirect_to '/organizations/index'
   	end
 
   	def post_query
-  		print "*************TYPES: "
-  		print organization_selection_params[:types]
-  		session[:organization_selection] = organization_selection_params[:types]
+  		session[:organization_selection][0] = organization_selection_params[:types]
+
+    	coalitionKeys = [
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5'}
+  		]
+  		checkedCoalitions = []
+
+  		coalitionKeys.each{|coalition| 
+  			if organization_selection_params[:coalitions].include? coalition["name"]
+  				checkedCoalitions.push(coalition)
+  			end
+  		}
+  		session[:organization_selection][1] = checkedCoalitions
+  		if organization_selection_params[:coalitions].include? coalitionKeys[-1]["name"]
+  			session[:organization_selection][2] = true
+  		else
+  			session[:organization_selection][2] = false
+  		end
   		redirect_to '/organizations/index'
   	end
 
   	def index
- 		
  		allCartels = Sector.where(:scian2=>98).last.organizations.uniq
   		
   		@checkedTypes = []
-   		session[:organization_selection].each{|key|
+   		session[:organization_selection][0].each{|key|
   			@checkedTypes.push(League.find(key.to_i))
   		}
 
@@ -36,7 +57,18 @@ class OrganizationsController < ApplicationController
   		@allTypes = []
    		@typeKeys.each{|key|
   			@allTypes.push(League.find(key.to_i))
-  		}  		
+  		}
+
+  		@allCoalitions = [
+   			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5'} 			
+  		]
+
+  		@checkedCoalitions = session[:organization_selection][1][0..-2]
+  		if session[:organization_selection][2] == true
+  			@checkedCoalitions.push({"name"=>"Sin vinculación","color"=>'#f5f5f5'})
+  		end
 
   		@myActivities = []
   		activityArr = [
@@ -61,22 +93,103 @@ class OrganizationsController < ApplicationController
   		}
   		@cartels.flatten!
   		@cartels = @cartels.sort_by{|cartel| cartel.name}
-  		@n = @cartels.length-1
-  		cds = Organization.where(:name=>"Cártel de Sinaloa").last
-  		cjng = Organization.where(:name=>"Cártel Jalisco Nueva Generación").last
   		@colorArr = []
+  		@alliedCartels = []
   		@cartels.each {|cartel|
-  			if cartel.name == "Cártel de Sinaloa" or cds.subordinates.include? cartel or cds.allies.include? cartel.id
-  				@colorArr.push('#b2dfdb')
-  			elsif cartel.name == "Cártel Jalisco Nueva Generación" or cjng.subordinates.include? cartel or cjng.allies.include? cartel.id
-  				@colorArr.push('#ffe0b2')
-  			else
-  				@colorArr.push('#f5f5f5')
-  			end	
+  			cartelIn = false
+  			session[:organization_selection][1].each{|coalition|
+  				leader = Organization.where(:name=>coalition["name"]).last
+  				if leader
+  					 if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
+	  					@colorArr.push(coalition["color"])
+	  					cartelIn = true	
+  					end
+  				else
+  					@colorArr.push(coalition["color"])
+  					cartelIn = true
+  				end
+  			}
+  			if cartelIn
+  				@alliedCartels.push(cartel)
+  			end
   		}
+  		@checkedCoalitions = session[:organization_selection][1]
+  		@n = @alliedCartels.length-1
   	end
 
   	def show
+  		# REPEATED STUFF FOR FILTER-BOX
+ 		allCartels = Sector.where(:scian2=>98).last.organizations.uniq
+  		
+  		@checkedTypes = []
+   		session[:organization_selection][0].each{|key|
+  			@checkedTypes.push(League.find(key.to_i))
+  		}
+
+  		@typeKeys = allCartels.pluck(:mainleague_id).uniq
+  		@allTypes = []
+   		@typeKeys.each{|key|
+  			@allTypes.push(League.find(key.to_i))
+  		}
+
+  		@allCoalitions = [
+   			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5'} 			
+  		]
+
+  		@checkedCoalitions = session[:organization_selection][1][0..-2]
+  		if session[:organization_selection][2] == true
+  			@checkedCoalitions.push({"name"=>"Sin vinculación","color"=>'#f5f5f5'})
+  		end
+
+  		@myActivities = []
+  		activityArr = [
+  			"Narcotráfico",
+  			"Narcomenudeo",
+  			"Extorsión",
+  			"Mercado Ilícito de Hidrocarburos",
+  			"Trata y tráfico de personas",
+  			"Lavado de dinero"
+  		]
+
+  		@allActivities = Sector.where(:scian2=>"98").last.divisions
+  		@allActivities.each{|activity|
+  			if activityArr.include? activity.name
+  				@myActivities.push(activity)
+  			end
+  		}
+
+  		@cartels = []
+  		@checkedTypes.each{|type|
+  			@cartels.push(type.organizations)
+  		}
+  		@cartels.flatten!
+  		@cartels = @cartels.sort_by{|cartel| cartel.name}
+  		@colorArr = []
+  		@alliedCartels = []
+  		@cartels.each {|cartel|
+  			cartelIn = false
+  			session[:organization_selection][1].each{|coalition|
+  				leader = Organization.where(:name=>coalition["name"]).last
+  				if leader
+  					 if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
+	  					@colorArr.push(coalition["color"])
+	  					cartelIn = true	
+  					end
+  				else
+  					@colorArr.push(coalition["color"])
+  					cartelIn = true
+  				end
+  			}
+  			if cartelIn
+  				@alliedCartels.push(cartel)
+  			end
+  		}
+  		@checkedCoalitions = session[:organization_selection][1]
+  		@n = @alliedCartels.length-1
+
+  		# PROPER SHOW STUFF
   		session[:map] = true
   		@myOrganization = Organization.find(params[:id])
   		# HEADER
@@ -582,7 +695,7 @@ class OrganizationsController < ApplicationController
 	private
 
 	def organization_selection_params
-		params.require(:query).permit(types: [])
+		params.require(:query).permit(types: [], coalitions: [])
 	end
 
 	def load_organizations_params

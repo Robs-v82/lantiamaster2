@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'states/api'
   get 'organizations/index'
   post 'members/detentions'
   get 'members/detainees'

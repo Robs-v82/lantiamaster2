@@ -1,0 +1,18 @@
+<script type="text/javascript">
+	$(document).ready(function(){
+		stateApi();
+
+		function stateApi() {
+			$.ajax({
+				type: 'GET',
+				dataType: 'json',
+				url: '/states/api',
+				data: $(this).serialize(),
+				success: function(response) {
+					console.log(response)
+
+				}
+			});
+		}
+	})
+</script>

@@ -7,6 +7,9 @@
 a[href^="http://maps.google.com/maps"]{display:none !important}
 a[href^="https://maps.google.com/maps"]{display:none !important}
 
+.small-cell {
+	padding: 8px 9px !important; 
+}
 
 #entry-grid, #freq-entry-chart, #freq-entry-map {
 	display: none;
@@ -485,6 +488,8 @@ input:disabled {
 [type="checkbox"] + span:not(.lever) {
 	height: 50px;
 	border: white;
+	padding-left: 28px;
+	line-height: 18px;
 }
 
 [type="checkbox"] + span:not(.lever):before, [type="checkbox"]:not(.filled-in) + span:not(.lever):after {

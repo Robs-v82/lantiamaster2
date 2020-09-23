@@ -3,6 +3,33 @@ class StatesController < ApplicationController
 
   # GET /states
   # GET /states.json
+  
+  def api
+    myHash = {}
+
+    myYear = Year.where(:name=>"2020")
+    myPeriod = helpers.get_specific_months(myYear, "victims").last
+    myHash[:update] = myPeriod.first_day
+    
+    topKillings = myPeriod.killings
+    topKillings = topKillings.sort_by{|k| -k.killed_count}
+    myHash[:killings] = topKillings[0,5]
+
+
+    
+    stateArr = []
+    State.all.each{|state|
+      stateHash = {}
+      stateHash[:code] = state.code
+      stateHash[:name] = state.name
+      stateHash[:shortname] = state.shortname
+      stateHash[:victims] = myPeriod.victims.merge(state.victims).length 
+      stateArr.push(stateHash)
+    }
+        myHash[:states] = stateArr
+    render json: myHash
+  end
+
   def getStates
     states = State.all
     render json: {states: states}

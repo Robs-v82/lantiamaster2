@@ -3,6 +3,9 @@
 	<div class="entry col l9 m7 s12">
 		<div class="card flex-card">
 			<div class="card-content">
+				<div class="row card-narrow">
+					<%= render "shared/showfilter"%>
+				</div>
 				<table id="org-table">
 					<col>
 					<colgroup span="3"></colgroup>
@@ -13,11 +16,11 @@
 							<th class="center-align" colspan="<%= @myActivities.length %>" scope="colgroup">GIROS DELICTIVOS</th>
 						</tr>
 						<tr class="center-align">
-							<th class="center-align" >Nombre</th>
+							<th class="center-align">Nombre</th>
 							<th class="center-align" >Tipo</th>
 							<th class="center-align" >Subtipo</th>
 							<% @myActivities.each do |activity| %>
-								<th class="center-align">
+								<th class="center-align small-cell">
 									<% if activity.shortname %>
 										<%= activity.shortname %>
 									<% else %>
@@ -30,18 +33,25 @@
 					<tbody class="z-depth-1">
 						<% (0..@n).each do |n| %>
 							<tr style="background-color: <%= @colorArr[n]%>">
-								<td><%= @cartels[n].name %></td>
-								<td><%= @cartels[n].league %></td>
 								<td>
-									<% if @cartels[n].subleague %>
-										<%= @cartels[n].subleague %>
+									<div class="valign-wrapper">
+										<a class="right-extra-margin" href="/organizations/show/<%= @alliedCartels[n].id %>">
+											<i class="material-icons tiny black-text">input</i>
+										</a>
+										<%= @alliedCartels[n].name %>
+									</div>		
+								</td>
+								<td><%= @alliedCartels[n].league %></td>
+								<td>
+									<% if @alliedCartels[n].subleague %>
+										<%= @alliedCartels[n].subleague %>
 									<% else %>
 										--
 									<% end %>
 								</td>
 								<% @myActivities.each do |activity| %>
 									<td class="center-align">
-										<% if @cartels[n].divisions.include? activity%>
+										<% if @alliedCartels[n].divisions.include? activity%>
 											<i class="material-icons">check</i>
 										<% end %>
 									</td>
