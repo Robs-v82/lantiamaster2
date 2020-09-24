@@ -12,12 +12,12 @@ class OrganizationsController < ApplicationController
   		cartels = Sector.where(:scian2=>98).last.organizations.uniq
   		cartels = cartels.sort_by{|cartel| cartel.name}
   		coalitionKeys = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5'}
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242'}
   		]
   		typeKeys = cartels.pluck(:mainleague_id).uniq
-  		session[:organization_selection] = [typeKeys,coalitionKeys,true]
+  		session[:organization_selection] = [typeKeys,coalitionKeys]
   		redirect_to '/organizations/index'
   	end
 
@@ -25,9 +25,9 @@ class OrganizationsController < ApplicationController
   		session[:organization_selection][0] = organization_selection_params[:types]
 
     	coalitionKeys = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5'}
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242'}
   		]
   		checkedCoalitions = []
 
@@ -37,15 +37,11 @@ class OrganizationsController < ApplicationController
   			end
   		}
   		session[:organization_selection][1] = checkedCoalitions
-  		if organization_selection_params[:coalitions].include? coalitionKeys[-1]["name"]
-  			session[:organization_selection][2] = true
-  		else
-  			session[:organization_selection][2] = false
-  		end
   		redirect_to '/organizations/index'
   	end
 
   	def index
+ 		@key = Rails.application.credentials.google_maps_api_key
  		allCartels = Sector.where(:scian2=>98).last.organizations.uniq
   		
   		@checkedTypes = []
@@ -60,15 +56,12 @@ class OrganizationsController < ApplicationController
   		}
 
   		@allCoalitions = [
-   			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5'} 			
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242'}		
   		]
 
-  		@checkedCoalitions = session[:organization_selection][1][0..-2]
-  		if session[:organization_selection][2] == true
-  			@checkedCoalitions.push({"name"=>"Sin vinculación","color"=>'#f5f5f5'})
-  		end
+  		@checkedCoalitions = session[:organization_selection][1]
 
   		@myActivities = []
   		activityArr = [
@@ -100,13 +93,15 @@ class OrganizationsController < ApplicationController
   			session[:organization_selection][1].each{|coalition|
   				leader = Organization.where(:name=>coalition["name"]).last
   				if leader
-  					 if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
+  					if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
 	  					@colorArr.push(coalition["color"])
 	  					cartelIn = true	
   					end
   				else
-  					@colorArr.push(coalition["color"])
-  					cartelIn = true
+  					unless cartelIn
+	  					@colorArr.push(coalition["color"])
+	  					cartelIn = true					
+  					end
   				end
   			}
   			if cartelIn
@@ -115,6 +110,29 @@ class OrganizationsController < ApplicationController
   		}
   		@checkedCoalitions = session[:organization_selection][1]
   		@n = @alliedCartels.length-1
+
+  		@stateArr = []
+  		State.all.each{|state|
+  			stateRackets = state.rackets.uniq
+  			myRackets = []
+  			stateRackets.each{|racket|
+  				if @alliedCartels.include? racket
+  					myRackets.push(racket)
+  				end
+  			}
+  			stateHash = {:name=>state.name, :shortname=>state.shortname, :freq=>myRackets.length}
+  			unless stateHash[:freq] == 0
+  				@stateArr.push(stateHash)
+  			end
+  		}
+
+  		if @checkedCoalitions.length == 1
+  			@lightMapColor = @checkedCoalitions[0]["color"]
+  			@darkMapColor = @checkedCoalitions[0]["dark_color"]
+  		else
+  			@lightMapColor = "#ffcdd2"
+  			@darkMapColor = "#c62828"
+  		end
   	end
 
   	def show
@@ -133,9 +151,9 @@ class OrganizationsController < ApplicationController
   		}
 
   		@allCoalitions = [
-   			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5'} 			
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242'}		
   		]
 
   		@checkedCoalitions = session[:organization_selection][1][0..-2]
@@ -282,9 +300,6 @@ class OrganizationsController < ApplicationController
   			end 
   		} 
   		@leadArr = @leadArr
-
-  		print "***********ARR: "
-  		pp @leadArr
 
   		@place = {:latitude=>19.097119,:longitude=>-99.913613}
   		@zip = "20303"

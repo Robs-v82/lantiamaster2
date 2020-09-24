@@ -1,65 +1,162 @@
+<% provide :head_tags do %>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			google.charts.load('current', {
+				'packages':['geochart'],
+				'mapsApiKey': '<%= @key %>'
+			});
+
+			$("#freq-map-trigger").click(function() {
+				$(".freq-entry-display").hide();
+				$("#freq-entry-map").show();
+				google.charts.setOnLoadCallback(drawOrganizationsMap);
+				return false
+		 	})
+
+			$("#freq-list-trigger").click(function() {
+				$(".freq-entry-display").hide();
+				$("#freq-entry-list").show();
+				return false
+		 	})
+
+			function drawOrganizationsMap() {
+				var data = google.visualization.arrayToDataTable([
+					['State', 'Organizaciones'],
+					<% @stateArr.each do |state| %>
+						[
+							<% if state[:name] == "Ciudad de México" %>
+								"Distrito Federal"
+							<% else %>
+								'<%= state[:name] %>'
+							<% end %>
+							,
+							<%= state[:freq] %>
+						],
+					<% end %>
+				]);
+
+				var options = {
+					height: 500,
+					region: 'MX',
+					resolution: 'provinces',
+					colorAxis: {colors: ['<%= @lightMapColor %>', '<%= @darkMapColor %>']}
+				};
+
+				var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
+
+				chart.draw(data, options);
+			}
+
+		})
+	</script>
+<% end %>
 <div class="row">
 	<%= render "shared/organizationsdashboard"%>
+	<div class="header-div">
+		<div class="top-row valign-wrapper">
+			<div class="col s12">
+				<div class="side-padding">
+					<h5 class="h5-no-margin">
+						<span class="slim">Lantipedia</span>
+					</h5>
+					<h5 class="h5-no-margin">Organizariones criminales</h5>
+					<br>
+					<% if @checkedCoalitions.pluck("name").include? "Cártel de Sinaloa" %>
+						<div class="valign-wrapper">
+							<i class="material-icons right-extra-margin teal-text text-lighten-3">brightness_1</i>
+							<span>Vinculadas al Cártel de Sinaloa</span>
+						</div>
+					<% end %>
+					<% if @checkedCoalitions.pluck("name").include? "Cártel Jalisco Nueva Generación" %>
+						<div class="valign-wrapper">
+							<i class="material-icons right-extra-margin orange-text text-lighten-3">brightness_1</i>
+							<span>Vinculadas al Cártel Jalisco Nueva Generación</span>
+						</div>
+					<% end %>
+					<% if @checkedCoalitions.pluck("name").include? "Sin vinculación" %>
+						<div class="valign-wrapper">
+							<i class="material-icons right-extra-margin grey-text text-lighten-3">brightness_1</i>
+							<span>Sin vinculación</span>
+						</div>
+					<% end %>
+				</div>
+			</div>
+		</div>	
+	</div>
 	<div class="entry col l9 m7 s12">
 		<div class="card flex-card">
 			<div class="card-content">
 				<div class="row card-narrow">
 					<%= render "shared/showfilter"%>
+					<div class="right col s9">
+						<div class="right">
+							<a id="freq-info-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">info</i></a>
+							<a id="freq-table-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">list</i></a>
+							<a id="freq-map-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">map</i></a>
+							<a id="freq-download-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>
+						</div>
+					</div>
 				</div>
-				<table id="org-table">
-					<col>
-					<colgroup span="3"></colgroup>
-  					<colgroup span="<%= @myActivities.length %>"></colgroup>
-					<thead>
-						<tr>
-							<th class="center-align" colspan="3" scope="colgroup">CARACTERÍSTICAS GENERALES</th>
-							<th class="center-align" colspan="<%= @myActivities.length %>" scope="colgroup">GIROS DELICTIVOS</th>
-						</tr>
-						<tr class="center-align">
-							<th class="center-align">Nombre</th>
-							<th class="center-align" >Tipo</th>
-							<th class="center-align" >Subtipo</th>
-							<% @myActivities.each do |activity| %>
-								<th class="center-align small-cell">
-									<% if activity.shortname %>
-										<%= activity.shortname %>
-									<% else %>
-										<%= activity.name %>
-									<% end %>
-								</th>
-							<% end %>
-						</tr>
-					</thead>
-					<tbody class="z-depth-1">
-						<% (0..@n).each do |n| %>
-							<tr style="background-color: <%= @colorArr[n]%>">
-								<td>
-									<div class="valign-wrapper">
-										<a class="right-extra-margin" href="/organizations/show/<%= @alliedCartels[n].id %>">
-											<i class="material-icons tiny black-text">input</i>
-										</a>
-										<%= @alliedCartels[n].name %>
-									</div>		
-								</td>
-								<td><%= @alliedCartels[n].league %></td>
-								<td>
-									<% if @alliedCartels[n].subleague %>
-										<%= @alliedCartels[n].subleague %>
-									<% else %>
-										--
-									<% end %>
-								</td>
+				<div id="freq-entry-list" class="freq-entry-display">
+					<table id="org-table">
+						<col>
+						<colgroup span="3"></colgroup>
+	  					<colgroup span="<%= @myActivities.length %>"></colgroup>
+						<thead>
+							<tr>
+								<th class="center-align" colspan="3" scope="colgroup">CARACTERÍSTICAS GENERALES</th>
+								<th class="center-align" colspan="<%= @myActivities.length %>" scope="colgroup">GIROS DELICTIVOS</th>
+							</tr>
+							<tr class="center-align">
+								<th class="center-align">Nombre</th>
+								<th class="center-align" >Tipo</th>
+								<th class="center-align" >Subtipo</th>
 								<% @myActivities.each do |activity| %>
-									<td class="center-align">
-										<% if @alliedCartels[n].divisions.include? activity%>
-											<i class="material-icons">check</i>
+									<th class="center-align small-cell">
+										<% if activity.shortname %>
+											<%= activity.shortname %>
+										<% else %>
+											<%= activity.name %>
 										<% end %>
-									</td>
+									</th>
 								<% end %>
 							</tr>
-						<% end %>
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							<% (0..@n).each do |n| %>
+								<tr style="background-color: <%= @colorArr[n]%>">
+									<td>
+										<div class="valign-wrapper">
+											<a class="right-extra-margin" href="/organizations/show/<%= @alliedCartels[n].id %>">
+												<i class="material-icons tiny black-text">input</i>
+											</a>
+											<%= @alliedCartels[n].name %>
+										</div>		
+									</td>
+									<td><%= @alliedCartels[n].league %></td>
+									<td>
+										<% if @alliedCartels[n].subleague %>
+											<%= @alliedCartels[n].subleague %>
+										<% else %>
+											--
+										<% end %>
+									</td>
+									<% @myActivities.each do |activity| %>
+										<td class="center-align">
+											<% if @alliedCartels[n].divisions.include? activity%>
+												<i class="material-icons">check</i>
+											<% end %>
+										</td>
+									<% end %>
+								</tr>
+							<% end %>
+						</tbody>
+					</table>
+				</div>
+				<div id="freq-entry-map" class="freq-entry-display">
+					<p>MAPA</p>
+				</div>
 			</div>
 		</div>
 	</div>
