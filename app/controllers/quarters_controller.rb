@@ -65,16 +65,16 @@ class QuartersController < ApplicationController
 
 			ispyv_score = ((victims_index*4)+(car_theft_index*3)+(feel_safe_index*3)).round(2)
 
-			evolution_score = []
-			[7,6,5,4,3,2,1,0].each{|x|
-				id = @myQuarter.id
-				this_quarter = Quarter.find(id-x)
-				periodString = quarter_strings(this_quarter)
-				periodString = periodString[:quarterShort]+"/"+this_quarter.name[0..3]
-				this_quarter_score = this_quarter_ispyv(this_quarter, state)
-				periodArr = [periodString,this_quarter_score]
-				evolution_score.push(periodArr)
-			}
+			# evolution_score = []
+			# [7,6,5,4,3,2,1,0].each{|x|
+			# 	id = @myQuarter.id
+			# 	this_quarter = Quarter.find(id-x)
+			# 	periodString = quarter_strings(this_quarter)
+			# 	periodString = periodString[:quarterShort]+"/"+this_quarter.name[0..3]
+			# 	this_quarter_score = this_quarter_ispyv(this_quarter, state)
+			# 	periodArr = [periodString,this_quarter_score]
+			# 	evolution_score.push(periodArr)
+			# }
 
 			# ONE Q ISPYV SCORE
 			q1_stolen_cars = car_theft(back_one_q, state)
@@ -240,7 +240,7 @@ class QuartersController < ApplicationController
 				:feel_safe_change_q1_color => feel_safe_change_q1_color,
 				:feel_safe_change_y1_icon => feel_safe_change_y1_icon,
 				:feel_safe_change_y1_color => feel_safe_change_y1_color,
-				:evolution_score => evolution_score
+				# :evolution_score => evolution_score
 			}
 			print "******GOBERNADOR: "
 			print finalHash[:governor].firstname

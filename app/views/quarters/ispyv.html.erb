@@ -78,8 +78,8 @@
 				<div class="col m7 offset-m1 s12">
 					<ul class="tabs cyan-text">
 						<li class="tab col s4 cyan-text"><a href="#<%= state[:object].id %>-ispyv-indicadores" class="active cyan-text">Indicadores</a>
-						<li class="tab col s4 cyan-text"><a href="#<%= state[:object].id %>-ispyv-evolucion" class="cyan-text">Evolución</a></li>
-						<li class="tab col s4 cyan-text"><a href="#<%= state[:object].id %>-ispyv-comparativo" class="cyan-text">Comparativo</a></li>
+<!-- 						<li class="tab col s4 cyan-text"><a href="#<%= state[:object].id %>-ispyv-evolucion" class="cyan-text">Evolución</a></li>
+ -->						<li class="tab col s4 cyan-text"><a href="#<%= state[:object].id %>-ispyv-comparativo" class="cyan-text">Comparativo</a></li>
 					</ul>
 				</div>
 				<div class="col m7 offset-m1 s12" id="<%= state[:object].id %>-ispyv-indicadores">
@@ -152,10 +152,10 @@
 							</tr>
 						</tbody>
 					</table>
-				</div>
+				</div><!-- 
 				<div class="col m7 offset-m1 s12" id="<%= state[:object].id %>-ispyv-evolucion">	
 					<%= line_chart state[:evolution_score], :title=>"ISPyV: #{state[:name]}",:colors=>["#00bcd4","#00bcd4"] %>
-				</div>
+				</div> -->
 				<div class="col m7 offset-m1 s12" id="<%= state[:object].id %>-ispyv-comparativo">
 					<%= column_chart @comparisonTable[state[:object].id-1], :title=>"ISPyV: #{@current_quarter_strings[:quarterText]} de #{I18n.l(@current_quarter_strings[:quarterDate], format: '%Y')}", :max=>8, :colors=> ["#00bcd4","#00bcd4"] %>
 				</div>
