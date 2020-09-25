@@ -2489,7 +2489,31 @@ County.all.each{|county|
 	end
 }
 
+destinations = [
+	["Ensenada","02001"],
+	["La Paz","03003"],
+	["Los Cabos","03008"],
+	["San Cristobal","07078"],
+	["Palenque","07065"],
+	["Oaxaca","20067"],
+	["Mérida","31050"],
+	["Manzanillo","06007"],
+	["Puerto Vallarta","14067"],
+	["Acapulco","12001"],
+	["Mazatlán","25012"],
+	["San Miguel de Allende","11003"],
+	["Cancún","23005"],
+	["Playa del Carmen","23008"],
+	["Zihuatanejo","12038"],
+]
 
+destinations.each{|x|
+	County.where(:full_code=>x[1]).last.update(:destination=>true)
+}
+
+County.where(:name=>"San Miguel de Allende").last.update(:shortname=>"San Miguel de Allende")
+County.where(:full_code=>"23005").last.update(:shortname=>"Cancún (Benito Juárez)")
+County.where(:full_code=>"23008").last.update(:shortname=>"Playa del Carmen (Solidaridad)")
 
 
 

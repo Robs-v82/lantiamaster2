@@ -7,6 +7,18 @@
 a[href^="http://maps.google.com/maps"]{display:none !important}
 a[href^="https://maps.google.com/maps"]{display:none !important}
 
+#index-dashboard span {
+	padding: 0 0 0 28px;
+}
+
+.category-tag {
+	display: inline-block;
+}
+
+.no-inner-padding .col {
+	padding: 0;
+}
+
 .county-tag p {
 	line-height: 1.2 !important;
 }
@@ -320,6 +332,10 @@ select {
 	margin-right: 10px;
 }
 
+.right-min-margin {
+	margin-right: 5px;
+}
+
 .left-extra-margin {
 	margin-left: 30px;
 }
@@ -534,7 +550,7 @@ input:disabled {
 }
 
 .slim {
-	font-weight: 200 !important;
+	font-weight: 230 !important;
 }
 
 .bold {

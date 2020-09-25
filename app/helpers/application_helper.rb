@@ -434,6 +434,16 @@ module ApplicationHelper
 		return contentArr
 	end
 
+	def ispyvLevels
+		levelArr =[
+			{:name=>"Crítico",:color=>"red",:score=>10},
+			{:name=>"Alto",:color=>"orange",:score=>6.5},
+			{:name=>"Medio",:color=>"yellow",:score=>5},
+			{:name=>"Bajo",:color=>"light-green",:score=>4}
+		]
+		return levelArr	
+	end
+
 	def victim_content(cells, myObject)
 		contentArr = []
 		myObject.each{|query|

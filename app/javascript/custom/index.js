@@ -137,6 +137,14 @@
 
 		// CUSTOM JAVASCRIPT
 
+		$('#index-order-selector').change(function() {
+			if($('#low_risk_query_box').is(':checked')){
+				console.log('MENOR RIESGO'); 
+				$(location).attr('href','/counties/low_risk')
+			}
+
+		})
+		
 
 		$('#show-filter-dashboard').click(function() {
 			console.log('working!')
