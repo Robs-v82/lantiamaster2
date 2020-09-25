@@ -6,7 +6,7 @@ class QuartersController < ApplicationController
 
 	  	# DEFINE HEADER AND QUARTER
 	  	@myQuarter = Quarter.where(:name=>"2019_Q4").last
-	  	@current_quarter_strings = quarter_strings(@myQuarter)
+	  	@current_quarter_strings = helpers.quarter_strings(@myQuarter)
 
 	  	key_one_q = @myQuarter.name[5,2]
 	  	if key_one_q == "Q4"
@@ -280,7 +280,6 @@ class QuartersController < ApplicationController
   	end
 
   	def this_quarter_ispyv(quarter, state)
-  		
   		localVictims = state.victims
 
   		current_stolen_cars = car_theft(quarter, state)
@@ -296,7 +295,6 @@ class QuartersController < ApplicationController
 
   		ispyv_score = ((victims_index*4)+(car_theft_index*3)+(feel_safe_index*3)).round(2)
   		return ispyv_score
-
   	end
 
   	def feel_safe(quarter, state)
@@ -345,26 +343,6 @@ class QuartersController < ApplicationController
 			}
   		}
   		return car_count
-  	end
-
-  	def quarter_strings(quarter)
-	  	quarterString = quarter.name[5..6]
-	  	if quarterString == "Q1"
-	  		quarterText = "Primer trimestre"
-	  		quarterShort = "T1"
-	  	elsif quarterString == "Q2"
-	  		quarterText = "Segundo trimestre"
-	  		quarterShort = "T2"
-	  	elsif quarterString == "Q3"
-	  		quarterText = "Tercer trimestre"
-	  		quarterShort = "T3"
-	  	elsif quarterString == "Q4"
-	  		quarterText = "Cuarto trimestre"
-	  		quarterShort = "T4"
-	  	end
-	  	myDate = quarter.first_day
-	  	myHash = {:quarterText=>quarterText, :quarterShort=>quarterShort, :quarterDate=>myDate}
-	  	return myHash
   	end
 
   	def get_quarter_victims(quarter, localVictims)

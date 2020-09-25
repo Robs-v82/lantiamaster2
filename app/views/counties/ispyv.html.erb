@@ -1,0 +1,59 @@
+<div class="row top-row valign-wrapper">
+	<div class="col s12">
+		<div class="side-padding">
+			<h5 class=" h5-no-margin">
+				<span class="slim"> Índice de Seguridad Pública y Violencia (ISPyV)</span>
+			</h5>
+			<h5 class="h5-no-margin">
+				<span id="ispyv-header" class="cyan-text text-accent-4"><%= @current_quarter_strings[:quarterText] %> de <%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></span>
+			</h5>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col l6 m10 s12">
+		<div class="card">
+			<div class="card-content grey lighten-3">
+				<table id="ispyv_table" class="highlight">
+					<thead>
+						<tr>
+							<% @tableHeader.each do |head| %>
+								<th class="center-align"><%= head %></th>
+							<% end %>
+						</tr>
+					</thead>
+					<tbody class="p16">
+						<% @sortedTable[0..19].each do |row| %>
+							<tr>
+								<td class="valign-wrapper">
+									<div>
+										<a class="modal-trigger" href="">
+											<i class="material-icons red-text text-darken-2 right-extra-margin">add_circle</i>
+										</a>
+									</div>
+									<div class="county-tag">
+										<p><%= row[:county][:shortname] %></p>
+										<p class="slim"><%= row[:county].state[:shortname] %></p> 
+									</div>
+								</td>
+								<td class="center-align"><%= row[:score] %></td>
+								<td class="center-align">--</td>
+								<td class="center-align">--</td>
+							</tr>
+						<% end %>
+					</tbody>
+				</table>
+			</div>
+		</div>	
+	</div>
+	<div class="col l6 m10 s12">
+		<div class="card">
+			<div class="card-content">
+				<div class="full-height">
+					
+				</div>
+				
+			</div>
+		</div>
+	</div>
+</div>

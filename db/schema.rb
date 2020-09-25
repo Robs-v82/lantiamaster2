@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_17_224514) do
+ActiveRecord::Schema.define(version: 2020_09_25_010655) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -78,6 +78,7 @@ ActiveRecord::Schema.define(version: 2020_09_17_224514) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "full_code"
     t.integer "city_id"
+    t.string "shortname"
     t.index ["city_id"], name: "index_counties_on_city_id"
     t.index ["state_id"], name: "index_counties_on_state_id"
   end

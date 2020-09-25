@@ -2475,6 +2475,17 @@ countyArr.each{|x|
 	
 }
 
+County.all.each{|county|
+	if county.name.include? " de "
+		myShortName = county.name.split(" de ")
+		county.update(:shortname=>myShortName[0])
+	else
+		county.update(:shortname=>county[:name])
+	end
+}
+
+
+
 
 
 

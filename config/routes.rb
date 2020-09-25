@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'counties/ispyv'
   get 'states/api'
   get 'organizations/index'
   post 'members/detentions'
