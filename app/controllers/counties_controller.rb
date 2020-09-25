@@ -22,12 +22,13 @@ class CountiesController < ApplicationController
 	end
 
 	def ispyv
+		@key = Rails.application.credentials.google_maps_api_key
 		myQuarter = Quarter.where(:name=>"2019_Q4").last
 		@current_quarter_strings = helpers.quarter_strings(myQuarter)
 		bigCounties = County.where("population > ?",100000)
 		
 		@tableHeader
-		@tableHeader = ["MUNICIPIO", "PUNTAJE", "NIVEL", "TENDENCIA"]
+		@tableHeader = ["MUNICIPIO", "PUNTAJE", "TENDENCIA"]
 
 		ispyvTable = []
 		bigCounties.each{|county|

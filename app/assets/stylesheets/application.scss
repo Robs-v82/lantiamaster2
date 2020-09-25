@@ -11,6 +11,11 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 	line-height: 1.2 !important;
 }
 
+.pseudo-button i {
+	padding: 0px;
+	border-radius: 50%;
+}
+
 .side-padding {
 	padding: 0px 12px 6px;
 }
@@ -150,7 +155,11 @@ ul.z-depth-0 {
     background-color: rgba(0, 0, 0, 0.38);
 }
 
-.freq-table, #org-table {
+.center-table {
+	margin: 0 auto;
+}
+
+.freq-table, #org-table, #ispyv_table {
 	display: block !important;
 	position: relative !important;
 	overflow-x: auto;

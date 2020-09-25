@@ -26,8 +26,8 @@ class QuartersController < ApplicationController
 	  	key_one_y = (key_one_y-1).to_s+@myQuarter.name[4,3]
 	  	back_one_y = Quarter.where(:name=>key_one_y).last 
 
-	  	@back_one_q_strings = quarter_strings(back_one_q)
-	  	@back_one_y_strings = quarter_strings(back_one_y)
+	  	@back_one_q_strings = helpers.quarter_strings(back_one_q)
+	  	@back_one_y_strings = helpers.quarter_strings(back_one_y)
 
 
 	  	# BUILD TABLE
@@ -242,8 +242,6 @@ class QuartersController < ApplicationController
 				:feel_safe_change_y1_color => feel_safe_change_y1_color,
 				# :evolution_score => evolution_score
 			}
-			print "******GOBERNADOR: "
-			print finalHash[:governor].firstname
 			@ispyvTable.push(finalHash)
 		}
 		rankArr = @ispyvTable.sort_by {|hz| -hz[:ispyv_score]}
@@ -328,8 +326,6 @@ class QuartersController < ApplicationController
   	end
 
   	def car_theft(quarter, state)
-  		print "**************WORKING!!!!!"
-	  	print quarter.name
   		car_count = 0
   		floor = (state.code.to_i*98)-98
   		quarter.months.each{|month|

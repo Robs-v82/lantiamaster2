@@ -2456,6 +2456,11 @@ rawData = "1001,877190
 32057,19413
 32058,2656"
 
+specialNames = [
+	{:name=>"San Juan Bautista Tuxtepec", :shortname=>"Tuxtepec"},
+]
+
+
 countyArr = []
 rawData.each_line{|l| line = l.split(','); countyArr.push(line)}
 countyArr.each{|x|x.each{|y|y.strip!}}

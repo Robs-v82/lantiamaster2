@@ -1,3 +1,43 @@
+<% provide :head_tags do %>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		
+		$(document).ready(function() {
+			
+			google.charts.load('current', {
+				'packages':['geochart'],
+				'mapsApiKey': '<%= @key %>'
+			});
+
+			google.charts.setOnLoadCallback(drawRegionsMap);
+
+				
+			function drawRegionsMap() {
+				var data = google.visualization.arrayToDataTable([
+					['County', 'ISPyV'],
+					<% @sortedTable[0..19].each do |row| %>
+						["<%= row[:county][:name] %>",<%= row[:score] %>],
+					<% end %>
+				]);
+
+				var options = {
+					height: 500,
+					region: 'MX',
+					displayMode: 'markers',
+					resolution: 'provinces',
+					colorAxis: {colors: ['#ff6f00']}
+				};
+
+				var chart = new google.visualization.GeoChart(document.getElementById('map-display'));
+
+				chart.draw(data, options);
+			}
+			
+
+		})
+	</script>
+<% end %>
+
 <div class="row top-row valign-wrapper">
 	<div class="col s12">
 		<div class="side-padding">
@@ -7,14 +47,20 @@
 			<h5 class="h5-no-margin">
 				<span id="ispyv-header" class="cyan-text text-accent-4"><%= @current_quarter_strings[:quarterText] %> de <%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></span>
 			</h5>
+			<% @levels.each do |level| %>
+				<div class="valign-wrapper">
+					<i class="material-icons right-extra-margin <%= level[:color] %> <%= level[:color] %>-text">brightness_1</i>
+					<span><%= level[:name] %></span>
+				</div>
+			<% end %>
 		</div>
 	</div>
 </div>
 <div class="row">
-	<div class="col l6 m10 s12">
-		<div class="card">
-			<div class="card-content grey lighten-3">
-				<table id="ispyv_table" class="highlight">
+	<div class="col l5 m10 s12">
+		<div class="card grey lighten-4">
+			<div class="card-content">
+				<table id="ispyv_table" class="highlight center-align">
 					<thead>
 						<tr>
 							<% @tableHeader.each do |head| %>
@@ -26,18 +72,15 @@
 						<% @sortedTable[0..19].each do |row| %>
 							<tr>
 								<td class="valign-wrapper">
-									<div>
-										<a class="modal-trigger" href="">
-											<i class="material-icons red-text text-darken-2 right-extra-margin">add_circle</i>
-										</a>
-									</div>
+									<a class="pseudo-button" href="">
+										<i class="material-icons red red-text right-extra-margin z-depth-1">brightness_1</i>
+									</a>
 									<div class="county-tag">
 										<p><%= row[:county][:shortname] %></p>
 										<p class="slim"><%= row[:county].state[:shortname] %></p> 
 									</div>
 								</td>
 								<td class="center-align"><%= row[:score] %></td>
-								<td class="center-align">--</td>
 								<td class="center-align">--</td>
 							</tr>
 						<% end %>
@@ -46,13 +89,13 @@
 			</div>
 		</div>	
 	</div>
-	<div class="col l6 m10 s12">
+	<div class="col l7 m10 s12">
 		<div class="card">
 			<div class="card-content">
 				<div class="full-height">
-					
-				</div>
-				
+					<div id="map-display">
+					</div>
+				</div>	
 			</div>
 		</div>
 	</div>
