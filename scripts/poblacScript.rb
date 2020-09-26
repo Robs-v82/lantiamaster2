@@ -2514,6 +2514,8 @@ destinations.each{|x|
 County.where(:name=>"San Miguel de Allende").last.update(:shortname=>"San Miguel de Allende")
 County.where(:full_code=>"23005").last.update(:shortname=>"Cancún (Benito Juárez)")
 County.where(:full_code=>"23008").last.update(:shortname=>"Playa del Carmen (Solidaridad)")
+County.where(:full_code=>"12038").last.update(:shortname=>"Ixtapa-Zihuatanejo")
+County.where(:full_code=>"07078").last.update(:shortname=>"San Cristóbal de las Casas")
 
 
 

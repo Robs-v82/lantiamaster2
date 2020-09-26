@@ -22,27 +22,40 @@ class CountiesController < ApplicationController
 	end
 
 	def low_risk
-		session[:descendingIndex] = true
-		redirect_to '/counties/ispyv'
+		unless session[:descendingIndex]
+			session[:descendingIndex] = true
+		end
+		session[:destinations] = nil
+		redirect_to '/counties/irco'
 	end
 
 	def high_risk
-		session[:descendingIndex] = false
-		redirect_to '/counties/ispyv'
+		if session[:destinations]
+			session[:destinations] = nil
+		end
+		session[:descendingIndex] = nil
+		redirect_to '/counties/irco'
 	end
 
-	def ispyv
+	def destinations
+		session[:destinations] = true
+		session[:descendingIndex] = nil
+		redirect_to '/counties/irco'
+	end
+
+	def irco
 		@key = Rails.application.credentials.google_maps_api_key
 		myQuarter = Quarter.where(:name=>"2019_Q4").last
 		@current_quarter_strings = helpers.quarter_strings(myQuarter)
-		
 		@selectionFrames = [
   			{caption: "Mayor riesgo", box_id: "high_risk_query_box", name: "high_risk"},
 			{caption: "Menor riesgo", box_id: "low_risk_query_box", name: "low_risk"},
 			{caption: "Destinos turísticos", box_id: "destinations_query_box", name: "destinations"},
   		]
 
-  		if session[:descendingIndex]
+  		if session[:destinations]
+  			@selectionFrames[2][:checked] = true
+  		elsif session[:descendingIndex]
   			@selectionFrames[1][:checked] = true
   		else
   			@selectionFrames[0][:checked] = true
@@ -52,6 +65,10 @@ class CountiesController < ApplicationController
 
 		bigCounties = County.where("population > ?",100000)
 		
+		if session[:destinations]
+			bigCounties = bigCounties.where(:destination=>true)
+		end
+
 		@tableHeader
 		@tableHeader = ["MUNICIPIO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
 
@@ -75,7 +92,7 @@ class CountiesController < ApplicationController
 			x[:rank] = rankCount
 		}
 		if session[:descendingIndex]
-			@sortedTable = @sortedTable.sort_by{|row| row[:score]}
+			@sortedTable = @sortedTable.sort_by{|row| -row[:rank]}
 		end
 	end
 

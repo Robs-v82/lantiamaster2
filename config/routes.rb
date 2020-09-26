@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   get 'counties/low_risk'
   get 'counties/high_risk'
-  get 'counties/ispyv'
+  get 'counties/destinations'
+  get 'counties/irco'
   get 'states/api'
   get 'organizations/index'
   post 'members/detentions'

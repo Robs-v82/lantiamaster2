@@ -139,10 +139,18 @@
 
 		$('#index-order-selector').change(function() {
 			if($('#low_risk_query_box').is(':checked')){
-				console.log('MENOR RIESGO'); 
+				console.log('LOW RISK!')
 				$(location).attr('href','/counties/low_risk')
+				debugger
+			} else if ($('#high_risk_query_box').is(':checked')){
+				console.log('HIGH RISK!')
+				$(location).attr('href','/counties/high_risk')
+				debugger
+			} else {
+				console.log('DESTINATIONS!')	
+				$(location).attr('href','/counties/destinations')
+				debugger
 			}
-
 		})
 		
 
