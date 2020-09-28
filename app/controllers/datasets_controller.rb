@@ -105,6 +105,7 @@ class DatasetsController < ApplicationController
 	end 	
 
 	def victims_query
+		helpers.clear_session
 		session[:checkedYearsArr] = []
 		years = helpers.get_regular_years
 		years.each {|year|

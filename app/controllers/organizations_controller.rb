@@ -9,12 +9,13 @@ class OrganizationsController < ApplicationController
   	end
 
   	def query
-  		cartels = Sector.where(:scian2=>98).last.organizations.uniq
+  		helpers.clear_session
+      cartels = Sector.where(:scian2=>98).last.organizations.uniq
   		cartels = cartels.sort_by{|cartel| cartel.name}
   		coalitionKeys = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242'}
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c',"material_color"=>'teal'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}
   		]
   		typeKeys = cartels.pluck(:mainleague_id).uniq
   		session[:organization_selection] = [typeKeys,coalitionKeys]
@@ -25,9 +26,9 @@ class OrganizationsController < ApplicationController
   		session[:organization_selection][0] = organization_selection_params[:types]
 
     	coalitionKeys = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242'}
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c',"material_color"=>'teal'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}
   		]
   		checkedCoalitions = []
 
@@ -56,9 +57,9 @@ class OrganizationsController < ApplicationController
   		}
 
   		@allCoalitions = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242'}		
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c',"material_color"=>'teal'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}		
   		]
 
   		@checkedCoalitions = session[:organization_selection][1]
@@ -94,12 +95,12 @@ class OrganizationsController < ApplicationController
   				leader = Organization.where(:name=>coalition["name"]).last
   				if leader
   					if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
-	  					@colorArr.push(coalition["color"])
+	  					@colorArr.push(coalition["material_color"])
 	  					cartelIn = true	
   					end
   				else
   					unless cartelIn
-	  					@colorArr.push(coalition["color"])
+	  					@colorArr.push(coalition["material_color"])
 	  					cartelIn = true					
   					end
   				end
@@ -151,9 +152,9 @@ class OrganizationsController < ApplicationController
   		}
 
   		@allCoalitions = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242'}		
+  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c',"material_color"=>'teal'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
+  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}		
   		]
 
   		@checkedCoalitions = session[:organization_selection][1][0..-2]
@@ -192,11 +193,11 @@ class OrganizationsController < ApplicationController
   				leader = Organization.where(:name=>coalition["name"]).last
   				if leader
   					 if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
-	  					@colorArr.push(coalition["color"])
+	  					@colorArr.push(coalition["material_color"])
 	  					cartelIn = true	
   					end
   				else
-  					@colorArr.push(coalition["color"])
+  					@colorArr.push(coalition["material_color"])
   					cartelIn = true
   				end
   			}
@@ -372,7 +373,8 @@ class OrganizationsController < ApplicationController
 	  	target_user = User.find_by_mail(password_params[:mail])
 	    if target_user && target_user.authenticate(password_params[:password])
 	      session[:user_id] = target_user[:id]
-	      redirect_to '/datasets/victims_query'
+	      helpers.clear_session
+        redirect_to '/datasets/victims_query'
 	    else
 	    	print "***************WRONG PASSWORD!!! "
 	    	session[:password_error] = true

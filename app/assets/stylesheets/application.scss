@@ -4,11 +4,27 @@
  *= require jquery-ui
  */
 
+.gridRowHover{
+    cursor: pointer;
+ }
+
+table.highlight>tbody>tr:hover {
+    background-color: rgba(77, 208, 225, 0.28);      
+}
+
 a[href^="http://maps.google.com/maps"]{display:none !important}
 a[href^="https://maps.google.com/maps"]{display:none !important}
 
+#index-dashboard .input-field {
+	margin: 0;
+}
+
 #index-dashboard span {
 	padding: 0 0 0 28px;
+}
+
+.bottom-margin-div {
+	margin-bottom: 6px !important;
 }
 
 .category-tag {
@@ -171,7 +187,7 @@ ul.z-depth-0 {
 	margin: 0 auto;
 }
 
-.freq-table, #org-table, #ispyv_table {
+.freq-table, #org-table, #ispyv_table, #irco_table {
 	display: block !important;
 	position: relative !important;
 	overflow-x: auto;
@@ -186,7 +202,7 @@ ul.z-depth-0 {
 
 @media only screen and (max-width: 600px) {
 
-	.freq-table th, .freq-table td, #org-table th, #org-table td, #ispyv_table th, #ispyv_table td {
+	.freq-table th, .freq-table td, #org-table th, #org-table td, #ispyv_table th, #ispyv_table td, #irco_table th, #irco_table td {
 		padding: 6px 12px;
 		font-size: 11px;
 	}
@@ -266,7 +282,7 @@ select {
 	margin-bottom: 0 !important;
 }
 
-#ispyv_table td {
+#ispyv_table td, #irco_table td {
 	padding: 8px 5px;
 }
 
@@ -432,10 +448,11 @@ min-width: 85px !important
 
 .filter-btn {
 	height: 26px !important;
-	width: 60px !important;
+	width: 54px !important;
 	padding: 8px !important;
 	line-height: 10px !important;
-	margin: 12px 4px 12px 8px !important;
+	margin: 12px 4px 12px 0px !important;
+	font-size: 9px !important;
 }
 
 .filter-box .collapsible-body{

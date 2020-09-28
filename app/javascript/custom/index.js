@@ -137,6 +137,23 @@
 
 		// CUSTOM JAVASCRIPT
 
+
+		// CLICKABLE ROW
+	    $(".clickable-row").click(function() {
+	        window.location = $(this).data("href");
+	    });	
+
+	    $('.clickable-row, .pseudo-clickable-row').hover(
+    		function () {
+        		if ($(this).find("th").length > 0) return;
+        		$(this).addClass("gridRowHover");
+    		},
+    		function () {
+    			$(this).removeClass("gridRowHover");
+    		}
+		);	
+
+
 		$('#index-order-selector').change(function() {
 			if($('#low_risk_query_box').is(':checked')){
 				console.log('LOW RISK!')
@@ -411,11 +428,18 @@
 		})
 
 
+		// GET INDEX COUNTIES
+		$('#index-state-selector').change(function() {
+			var mydata = $('#index-state-selector').serialize();
+			newArr = mydata.split('=');
+			console.log(newArr);
+			window.location = '/counties/set_index_county/'+newArr[1]
+		})
+
 		// GET ORGANIZATIONS
 		$('#operation-organization-selector').change(function() {
 			var mydata = $("#operation-organization-selector").serialize();
 	    	newArr = mydata.split("=");
-	    	console.log(newArr);
 	    	window.location = '/organizations/show/'+newArr[1];	
 		})
 
@@ -656,8 +680,5 @@
 		})
 
 	})
-
-// $(document).ready(ready)
-// $(document).on('turbolinks:load', ready)
 
 

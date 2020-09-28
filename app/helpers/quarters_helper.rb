@@ -19,5 +19,40 @@ module QuartersHelper
 	  	myHash = {:quarterText=>quarterText, :quarterShort=>quarterShort, :quarterDate=>myDate}
 	  	return myHash
   	end
-  	
+
+  	def back_one_q(quarter)
+ 	  	key_one_q = quarter.name[5,2]
+	  	if key_one_q == "Q4"
+	  		key_one_q = quarter.name[0,4] + "_Q3"
+	  	elsif key_one_q == "Q3"
+	  		key_one_q = quarter.name[0,4] + "_Q2"
+	  	elsif key_one_q == "Q2"
+	  		key_one_q = quarter.name[0,4] + "_Q1"
+	  	elsif key_one_q == "Q1"
+	  		key_one_q = quarter.name[0,4].to_i
+	  		key_one_q = key_one_q - 1
+	  		key_one_q = key_one_q.to_s + "_Q4"
+	  	end
+	  	back_one_q = Quarter.where(:name=>key_one_q).last
+	  	return back_one_q  		
+  	end
+
+  	def back_one_y(quarter)
+	  	key_one_y = quarter.name[0,4].to_i
+	  	key_one_y = (key_one_y-1).to_s+quarter.name[4,3]
+	  	back_one_y = Quarter.where(:name=>key_one_y).last 
+	  	return back_one_y
+  	end
+
+ 	def quarter_score_trend(current_quarter_score, back_one_quarter_score, back_one_year_score)
+ 		change = (current_quarter_score - back_one_quarter_score) + (current_quarter_score - back_one_year_score)
+		if change  < -0.5
+			trend = "Mejora"
+		elsif change < 0.5
+			trend = "Estable"
+		else
+			trend = "Deterioro"
+		end	
+		return trend
+ 	end	
 end

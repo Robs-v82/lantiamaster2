@@ -114,6 +114,7 @@ class MembersController < ApplicationController
 	end
 
 	def detainees_query
+		helpers.clear_session
 		organizationOptions = helpers.get_detainees_cartels
 		roleOptions = []
 		myRoles = Role.where(:criminal=>true)
@@ -161,7 +162,18 @@ class MembersController < ApplicationController
 
 	def detainees
 		@key = Rails.application.credentials.google_maps_api_key
-		@my_freq_table = detainee_freq_table(session[:detainee_freq_params][0], session[:detainee_freq_params][1], session[:detainee_freq_params][2], session[:detainee_freq_params][3], session[:detainee_freq_params][4], session[:checkedStates], session[:detainee_freq_params][6], session[:detainee_freq_params][7])
+				print "*********"*100
+				print session[:detainee_freq_params]
+		@my_freq_table = detainee_freq_table(
+			session[:detainee_freq_params][0],
+			session[:detainee_freq_params][1],
+			session[:detainee_freq_params][2],
+			session[:detainee_freq_params][3],
+			session[:detainee_freq_params][4],
+			session[:checkedStates],
+			session[:detainee_freq_params][6],
+			session[:detainee_freq_params][7]
+		)
 		@timeFrames = [
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
 			{caption:"Mensual", box_id:"monthly_query_box", name:"monthly"},
@@ -239,11 +251,13 @@ class MembersController < ApplicationController
 				@maps = true
 			elsif @organizationFrames[0][:checked] && @checkedRoles.length == 1
 				@maps = true
-			elsif condition
-				@checkedOrganizations.length == 1 && @checkedRoles.length == 1
+			elsif @checkedOrganizations.length == 1 && @checkedRoles.length == 1
 				@maps = true
 			end
 		end
+
+		print "*******"
+		print session
 	end
 
 	def detainee_freq_table(period, scope, organization, role, organizationOptions, states, organizations, roleOptions)

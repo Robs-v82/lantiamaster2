@@ -15,9 +15,8 @@
 			function drawRegionsMap() {
 				var data = google.visualization.arrayToDataTable([
 					['Municipio','IRCO'],
-					<% @sortedTable[0..19].each do |row| %>
-						// [<%= row[:county].towns.where(:name=>"Sin definir").last.latitude %>,<%= row[:county].towns.where(:name=>"Sin definir").last.longitude %>,<%= row[:score]%>],
-						['<%= row[:county][:shortname]%>',<%= row[:score]%>],
+					<% @pageQuery.each do |row| %>
+						['<%= row[:county][:shortname]%>, <%= row[:county].state[:shortname]%>',<%= row[:irco][:score]%>],
 					<% end %>
 				]);
 
@@ -51,23 +50,19 @@
 				<span class="slim"> Índice de Riesgo por Crimen Organizado (IRCO)</span>
 			</h5>
 			<h5 class="h5-no-margin">
-				<span id="ispyv-header" class="cyan-text text-accent-4"><%= @current_quarter_strings[:quarterText] %> de <%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></span>
+				<span id="irco-header" class="cyan-text text-accent-4"><%= @current_quarter_strings[:quarterText] %> de <%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></span>
 			</h5>
 			<br>
-			<div class="row">
-				<div class="col l5 m6 s12 no-inner-padding">
-					<% @levels.each do |level| %>
-						<div class="category-tag right-extra-margin">
-							<div class="valign-wrapper">
-								<div class="pseudo-button valign-wrapper">
-									<i class="material-icons right-min-margin <%= level[:color] %> <%= level[:color] %>-text z-depth-1">brightness_1</i>
-								</div>
-								<span><%= level[:name] %></span>
-							</div>
+			<% @levels.each do |level| %>
+				<div class="category-tag right-extra-margin">
+					<div class="valign-wrapper">
+						<div class="pseudo-button valign-wrapper">
+							<i class="material-icons right-min-margin <%= level[:color] %> <%= level[:color] %>-text z-depth-1">brightness_1</i>
 						</div>
-					<% end %>
+						<span><%= level[:name] %></span>
+					</div>
 				</div>
-			</div>
+			<% end %>
 		</div>
 	</div>
 </div>
@@ -78,27 +73,58 @@
 				<div class="card-content">
 					<form>
 						<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
-						<div id="index-order-selector">
-							<% @selectionFrames.each do |query| %>
-								<div class="category-tag right-extra-margin">
-									<label>
-										<input  id="<%= query[:box_id] %>" name="query[freq_timeframe]" value="<%= query[:name] %>" type="radio"
-											<% if query[:checked]%>
-												checked
-											<% end %>
-										/>
-										<span class="right-min-margin white-text p18 slim"><%= query[:caption] %></span>
-									</label>
+						<div class="row">
+							<div class="col s5">
+								<div id="index-state-shell" class="input-field">
+									<select id="index-state-selector" class="browser-default" name="query[state_id]">
+										<% if session[:indexCounty] %>
+											<option selected><%= State.find(session[:indexCounty]).name %></option>
+										<% else %>
+											<option></option>
+										<% end %>
+										<% @states.each do |state|%>
+											<option value="<%= state.id %>"><%= state.name%></option>
+										<% end %>
+									</select>
+									<div class="right label-row">
+										<label for="index-state-selector" class="white-text">ESTADO</label>
+									</div>
 								</div>
-							<% end %>
+							</div>
+							<div class="col s6 offset-s1">
+								<div id="index-order-selector">
+									<% @selectionFrames.each do |query| %>
+										<p>
+		 									<label>
+												<input  id="<%= query[:box_id] %>" name="query[freq_timeframe]" value="<%= query[:name] %>" type="radio"
+													<% if query[:checked]%>
+														checked
+													<% end %>
+												/>
+												<span class="right-min-margin white-text p18 slim"><%= query[:caption] %></span>
+											</label>
+										</p>
+									<% end %>
+								</div>
+							</div>
 						</div>
 					</form>
 				</div>
 			</div>
 		</div>
+
 		<div class="card grey lighten-4">
 			<div class="card-content">
-				<table id="ispyv_table" class="highlight center-align">
+				<div class="right valign-wrapper">
+					<% unless session[:indexPage] == 1 %>
+						<a class="btn-floating btn-medium waves-effect waves-light z-depth-0 grey lighten-4" href="/pageback/irco"><i class="material-icons black-text">chevron_left</i></a>
+					<%end%>
+					<span class="side-margin slim p18"><%= @beginning %> a <%= @end %> de <%= number_with_delimiter(@data_length) %> registros	</span>
+					<% unless @finalPage %>
+						<a class="btn-floating btn-medium waves-effect waves-light z-depth-0 grey lighten-4" href="/pageforward/irco"><i class="material-icons black-text">chevron_right</i></a>
+					<% end %>
+				</div>
+				<table id="irco_table" class="highlight center-align">
 					<thead>
 						<tr>
 							<% @tableHeader.each do |head| %>
@@ -107,20 +133,20 @@
 						</tr>
 					</thead>
 					<tbody class="p16">
-						<% @sortedTable[0..19].each do |row| %>
-							<tr>
+						<% @pageQuery.each do |row| %>
+							<tr class="pseudo-clickable-row modal-trigger" href="#<%= row[:county].id %>-irco-modal">
 								<td class="valign-wrapper">
-									<a class="pseudo-button" href="">
+									<div class="pseudo-button valign-wrapper">
 										<i class="material-icons <%= row[:color] %> <%= row[:color] %>-text right-extra-margin z-depth-1">brightness_1</i>
-									</a>
+									</div>
 									<div class="county-tag">
 										<p><%= row[:county][:shortname] %></p>
 										<p class="slim"><%= row[:county].state[:shortname] %></p> 
 									</div>
 								</td>
-								<td class="center-align">#<%= row[:rank]%> </td>
-								<td class="center-align"><%= number_with_precision(row[:score],precision:2) %></td>
-								<td class="center-align">--</td>
+								<td class="right-align">#<%= row[:rank]%> </td>
+								<td class="right-align"><%= number_with_precision(row[:irco][:score],precision:2) %></td>
+								<td class="center-align"><%= row[:trend] %></td>
 							</tr>
 						<% end %>
 					</tbody>
@@ -139,3 +165,93 @@
 		</div>
 	</div>
 </div>
+<!-- MODAL SECTION -->
+<% @pageQuery.each do |row| %>
+	<div id="<%= row[:county].id %>-irco-modal" class="modal large-modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<div class="row">
+				<div class="col m4 s10 offset-s2">
+					<div class="valign-wrapper">
+						<div class="pseudo-button valign-wrapper">
+							<i class="material-icons small <%= row[:color] %> <%= row[:color] %>-text right-extra-margin z-depth-1">brightness_1</i>
+						</div>
+						<h5> <%= row[:county].shortname %><span class="slim">, <%= row[:county].state[:shortname] %></span></h5>
+					</div>
+					<br>
+					<p><span class="slim">IRCO: </span><%= row[:irco][:score] %></p>
+					<p><span class="slim">Nivel: </span><%= row[:level] %></p>
+					<p><span class="slim">Tendencia: </span><%= row[:trend] %></p>
+					<br>
+					<div class="divider"></div>
+					<div class="stress-line valign-wrapper">
+						<p>Municipio <%= row[:rank] %> con mayor riesgo<br><span class="slim">(de <%= number_with_delimiter(@data_length) %> municipios evaluados)</span></p>
+					</div>
+					<div class="divider"></div>
+					<br>
+					<p><span class="slim">Población: </span><%= number_with_delimiter(row[:county].population) %></p>
+				</div>
+				<div class="col m7 offset-m1 s12">
+					<ul class="tabs cyan-text">
+						<li class="tab col s4 cyan-text"><a href="#<%= row[:county].id %>-irco-indicadores" class="active cyan-text">Indicadores</a>
+						<li class="tab col s4 cyan-text"><a href="#<%= row[:county].id %>-irco-comparativo" class="cyan-text">Comparativo</a></li>
+					</ul>
+				</div>
+
+
+				<div class="col m7 offset-m1 s12" id="<%= row[:county].id %>-irco-indicadores">
+					<table>
+						<thead>
+							<tr class="p12">
+								<td class="center-align">INDICADOR</td>
+								<td class="center-align"><%= @current_quarter_strings[:quarterShort] %>/<%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></td>
+								<td class="center-align">CAMBIO RESPECTO A <%= @back_one_q_strings[:quarterShort] %>/<%= I18n.l(@back_one_q_strings[:quarterDate], format: '%Y') %></td>
+								<td class="center-align">CAMBIO RESPECTO A <%= @back_one_y_strings[:quarterShort] %>/<%= I18n.l(@back_one_y_strings[:quarterDate], format: '%Y') %></td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Víctimas letales del crimen organizado</td>
+								<td class="center-align p20">
+									<%= number_with_delimiter(row[:irco][:victims]) %>
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:q1_victims_change][:color]%>-text right-extra-margin"><%= row[:q1_victims_change][:icon] %></i>
+										<%= row[:q1_victims_change][:variation] %>%
+									</div>			
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:y1_victims_change][:color]%>-text right-extra-margin"><%= row[:y1_victims_change][:icon] %></i>
+										<%= row[:y1_victims_change][:variation] %>%
+									</div>			
+								</td>
+							</tr>
+							<tr>
+								<td>Vehículos robados</td>
+								<td class="center-align p20">
+									<%= number_with_delimiter(row[:irco][:stolen_cars]) %>
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:q1_stolen_cars_change][:color]%>-text right-extra-margin"><%= row[:q1_stolen_cars_change][:icon] %></i>
+										<%= row[:q1_stolen_cars_change][:variation] %>%
+									</div>			
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:y1_stolen_cars_change][:color]%>-text right-extra-margin"><%= row[:y1_stolen_cars_change][:icon] %></i>
+										<%= row[:y1_stolen_cars_change][:variation] %>%
+									</div>			
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+<% end %>

@@ -663,4 +663,67 @@ module ApplicationHelper
 		}
 		return contentArr
 	end
+
+	def clear_session			
+		if session[:victim_freq_params]
+			session.delete(:victim_freq_params)
+		end
+		if session[:checkedYearsArr]
+			session.delete(:checkedYearsArr)
+		end
+		if session[:checkedStatesArr]
+			session.delete(:checkedStatesArr)
+		end
+		if session[:checkedCitiesArr]
+			session.delete(:checkedCitiesArr)
+		end
+		if session[:checkedGenderOptions]
+			session.delete(:checkedGenderOptions)
+		end
+		if session[:victim_freq_params]
+			session.delete(:victim_freq_params)
+		end
+		if session[:checkedCounties]
+			session.delete(:checkedCounties)
+		end
+		if session[:filename]
+			session.delete(:filename)
+		end
+		if session[:detainee_freq_params]
+			session.delete(:detainee_freq_params)
+		end
+		if session[:checkedOrganizations]
+			session.delete(:checkedOrganizations)
+		end
+		if session[:checkedRoles]
+			session.delete(:checkedRoles)
+		end
+		if session[:indexPage]
+			session.delete(:indexPage)
+		end
+		if session[:destinations]
+			session.delete(:destinations)
+		end
+	end
+
+	def variable_change_and_icon(current_count, previous_count)
+		changeHash = {}
+		changeHash[:variation] = (((current_count - previous_count)/previous_count.to_f)*100).round(1)
+		if changeHash[:variation] < 0
+			changeHash[:icon] = "arrow_downward"
+			changeHash[:color] = "light-green"
+		elsif changeHash[:variation] == 0
+			changeHash[:icon] = "drag_handle"
+			changeHash[:color] = "grey"
+		else
+			changeHash[:icon] = "arrow_upward"
+			changeHash[:color] = "red"	
+		end
+		changeHash[:variation] = changeHash[:variation].abs
+		if previous_count == 0 && current_count != 0
+			changeHash[:variation] = "N.A. "
+		end
+ 		return changeHash
+	end
+
 end

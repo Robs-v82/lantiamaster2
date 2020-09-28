@@ -129,6 +129,20 @@ class QueriesController < ApplicationController
 		# redirect_to "/queries/files"
 	end
 
+	def pageback
+		session[:indexPage] -= 1
+		if params[:index] == "irco"
+			redirect_to '/counties/irco'
+		end
+	end
+
+	def pageforward
+		session[:indexPage] += 1
+		if params[:index] == "irco"
+			redirect_to '/counties/irco'
+		end
+	end
+
 	private
 
 	def get_months_params

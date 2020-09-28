@@ -42,6 +42,8 @@ Rails.application.routes.draw do
   post 'organizations/getMembers/:organization_id' => 'organizations#getMembers' 
   get 'send_query' => 'events#send_query'
   post 'send_query' => 'events#send_query'
+  get 'pageback/:index' => 'queries#pageback'
+  get 'pageforward/:index' => 'queries#pageforward'
   get 'pageback' => 'events#pageback'
   get 'pageforward' => 'events#pageforward'
   post 'queries/get_months' => 'queries#get_months'
@@ -67,4 +69,5 @@ Rails.application.routes.draw do
   post 'counties/getCheckboxCounties/:id' => 'counties#getCheckboxCounties'
   get 'organizations/show/:id' => 'organizations#show'
   get 'organizations/query' => 'organizations#query'
+  get 'counties/set_index_county/:id' => 'counties#set_index_county'
 end

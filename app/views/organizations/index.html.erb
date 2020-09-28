@@ -63,21 +63,33 @@
 					<h5 class="h5-no-margin">Organizariones criminales</h5>
 					<br>
 					<% if @checkedCoalitions.pluck("name").include? "Cártel de Sinaloa" %>
-						<div class="valign-wrapper">
-							<i class="material-icons right-extra-margin teal-text text-lighten-3">brightness_1</i>
-							<span>Vinculadas al Cártel de Sinaloa</span>
+						<div class="bottom-margin-div">
+							<div class="valign-wrapper">
+								<div class="pseudo-button valign-wrapper">
+									<i class="material-icons right-min-margin teal lighten-3 teal-text text-lighten-3 z-depth-1">brightness_1</i>
+								</div>
+								<span>Coalición del Cártel de Sinaloa</span>
+							</div>
 						</div>
 					<% end %>
 					<% if @checkedCoalitions.pluck("name").include? "Cártel Jalisco Nueva Generación" %>
-						<div class="valign-wrapper">
-							<i class="material-icons right-extra-margin orange-text text-lighten-3">brightness_1</i>
-							<span>Vinculadas al Cártel Jalisco Nueva Generación</span>
+						<div class="bottom-margin-div">
+							<div class="valign-wrapper">
+								<div class="pseudo-button valign-wrapper">
+									<i class="material-icons right-min-margin orange lighten-3 orange-text text-lighten-3 z-depth-1">brightness_1</i>
+									<span>Coalición del Cártel Jalisco Nueva Generación</span>
+								</div>
+							</div>
 						</div>
 					<% end %>
 					<% if @checkedCoalitions.pluck("name").include? "Sin vinculación" %>
-						<div class="valign-wrapper">
-							<i class="material-icons right-extra-margin grey-text text-lighten-3">brightness_1</i>
-							<span>Sin vinculación</span>
+						<div class="bottom-margin-div">
+							<div class="valign-wrapper">
+								<div class="pseudo-button valign-wrapper">
+									<i class="material-icons right-extra-margin grey lighten-3 grey-text text-lighten-3 z-depth-1">brightness_1</i>
+									<span>Sin coalición</span>
+								</div>
+							</div>
 						</div>
 					<% end %>
 				</div>
@@ -99,7 +111,7 @@
 					</div>
 				</div>
 				<div id="freq-entry-list" class="freq-entry-display">
-					<table id="org-table">
+					<table id="org-table" class="highlight">
 						<col>
 						<colgroup span="3"></colgroup>
 	  					<colgroup span="<%= @myActivities.length %>"></colgroup>
@@ -125,13 +137,15 @@
 						</thead>
 						<tbody>
 							<% (0..@n).each do |n| %>
-								<tr style="background-color: <%= @colorArr[n]%>">
+								<tr class="clickable-row" data-href="/organizations/show/<%= @alliedCartels[n].id %>">
 									<td>
 										<div class="valign-wrapper">
-											<a class="right-extra-margin" href="/organizations/show/<%= @alliedCartels[n].id %>">
-												<i class="material-icons tiny black-text">input</i>
-											</a>
-											<%= @alliedCartels[n].name %>
+											<div class="pseudo-button valign-wrapper">
+												<i class="material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
+											</div>
+											<span class="valign-wrapper">
+												<%= @alliedCartels[n].name %>
+											</span>
 										</div>		
 									</td>
 									<td><%= @alliedCartels[n].league %></td>
