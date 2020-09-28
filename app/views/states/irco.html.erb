@@ -1,0 +1,122 @@
+<% provide :head_tags do %>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			
+			google.charts.load('current', {
+				'packages':['geochart'],
+				'mapsApiKey': '<%= @key %>'
+			});
+
+			function drawRegionsMap() {
+				var data = google.visualization.arrayToDataTable([
+					['State', 'IRCO'],
+					<% @sortedTable.each do |row| %>
+						[
+							<% if row[:state].name == "Ciudad de México" %>
+								"Distrito Federal"
+							<% else %>
+								'<%= row[:state].name %>'
+							<% end %>
+							,
+							<%= number_with_precision(row[:irco][:score],precision:2) %>
+						],
+					<% end %>
+				]);
+
+				var options = {
+					height: 500,
+					region: 'MX',
+					resolution: 'provinces',
+					colorAxis: {
+						values: [0,4,4.00001,5,5.00001,6.5,6.50001,10],
+						colors: ['#8bc34a','#8bc34a','#ffeb3b','#ffeb3b','#ff9800','#ff9800','#f44336','#f44336']
+					},
+					legend: false,
+				};
+
+				var chart = new google.visualization.GeoChart(document.getElementById('map-display'));
+
+				chart.draw(data, options);
+
+			}
+
+			google.charts.setOnLoadCallback(drawRegionsMap);
+		})
+	</script>
+<% end %>
+
+<div class="row top-row valign-wrapper">
+	<div class="col s12">
+		<div class="side-padding">
+			<h5 class=" h5-no-margin">
+				<span class="slim"> Índice de Riesgo por Crimen Organizado (IRCO)</span>
+			</h5>
+			<h5 class="h5-no-margin">
+				<span id="irco-header" class="cyan-text text-accent-4"><%= @current_quarter_strings[:quarterText] %> de <%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></span>
+			</h5>
+			<br>
+			<% @levels.each do |level| %>
+				<div class="category-tag right-extra-margin">
+					<div class="valign-wrapper">
+						<div class="pseudo-button valign-wrapper">
+							<i class="material-icons right-min-margin <%= level[:color] %> <%= level[:color] %>-text z-depth-1">brightness_1</i>
+						</div>
+						<span><%= level[:name] %></span>
+					</div>
+				</div>
+			<% end %>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col l5 m10 s12">
+		<div id="index-dashboard">
+			<div class="card cyan darken-1">
+				<div class="card-content">
+					<%= render "shared/indexswitch" %>
+				</div>
+			</div>
+		</div>
+		<div class="card grey lighten-4">
+			<div class="card-content">
+				<table id="irco_table" class="highlight center-align">
+					<thead>
+						<tr>
+							<% @tableHeader.each do |head| %>
+								<th class="center-align"><%= head %></th>
+							<% end %>
+						</tr>
+					</thead>
+					<tbody class="p16">
+						<% @sortedTable.each do |row| %>
+							<tr class="pseudo-clickable-row modal-trigger" href="#<%= row[:state].id %>-irco-modal">
+								<td class="valign-wrapper">
+									<div class="pseudo-button valign-wrapper">
+										<i class="material-icons <%= row[:color] %> <%= row[:color] %>-text right-extra-margin z-depth-1">brightness_1</i>
+									</div>
+									<div class="county-tag">
+										<p><%= row[:state][:name] %></p>
+									</div>
+								</td>
+								<td class="right-align">#<%= row[:rank]%> </td>
+								<td class="right-align"><%= number_with_precision(row[:irco][:score],precision:2) %></td>
+								<td class="center-align"><%= row[:trend] %></td>
+							</tr>
+						<% end %>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col l7 m10 s12">		
+		<div class="card">
+			<div class="card-content">
+				<div class="full-height">
+					<div id="map-display">
+					</div>
+				</div>	
+			</div>
+		</div>
+	</div>
+</div>

@@ -30,7 +30,7 @@
 						colors: ['#8bc34a','#8bc34a','#ffeb3b','#ffeb3b','#ff9800','#ff9800','#f44336','#f44336']
 					},
 					sizeAxis: {minSize: 7,  maxSize: 7},
-					legend: false
+					legend: false,
 				};
 
 				var chart = new google.visualization.GeoChart(document.getElementById('map-display'));
@@ -71,6 +71,8 @@
 		<div id="index-dashboard">
 			<div class="card cyan darken-1">
 				<div class="card-content">
+					<%= render "shared/indexswitch" %>
+					<br>
 					<form>
 						<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
 						<div class="row">
@@ -112,7 +114,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="card grey lighten-4">
 			<div class="card-content">
 				<div class="right valign-wrapper">
@@ -249,8 +250,6 @@
 						</tbody>
 					</table>
 				</div>
-
-
 			</div>
 		</div>
 	</div>

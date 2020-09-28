@@ -69,6 +69,7 @@ class CountiesController < ApplicationController
 
 	def irco
 		@key = Rails.application.credentials.google_maps_api_key
+		@countyWise = true
 		myQuarter = Quarter.where(:name=>"2019_Q4").last
 		@current_quarter_strings = helpers.quarter_strings(myQuarter)
 		back_one_quarter = helpers.back_one_q(myQuarter) 
@@ -90,9 +91,8 @@ class CountiesController < ApplicationController
   		elsif session[:indexCounty] == nil
   			@selectionFrames[0][:checked] = true
   		end
-		@levels = helpers.ispyvLevels
+		@levels = helpers.ircoLevels
 		bigCounties = County.where("population > ?",100000)
-		@tableHeader
 		@tableHeader = ["MUNICIPIO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
 
 		ircoTable = []
@@ -163,7 +163,7 @@ class CountiesController < ApplicationController
   	def ircoOutput(quarter, county)
   	
   		localVictims = county.victims
-  		total_victims = get_quarter_victims(quarter, localVictims)
+  		total_victims = helpers.get_quarter_victims(quarter, localVictims)
  		victims_index = total_victims/county.population.to_f*100000
 		victims_index = Math.log(victims_index+1,100).round(2)
 		if victims_index > 1
@@ -208,12 +208,6 @@ class CountiesController < ApplicationController
   			end
   		}
   		return car_count
-  	end
-
-  	def get_quarter_victims(quarter, localVictims)
-  		periodVictims = quarter.victims
-  		number_of_victims = localVictims.merge(periodVictims).length 
-  		return number_of_victims
   	end
 
 	private

@@ -434,7 +434,7 @@ module ApplicationHelper
 		return contentArr
 	end
 
-	def ispyvLevels
+	def ircoLevels
 		levelArr =[
 			{:name=>"Crítico",:color=>"red",:score=>10},
 			{:name=>"Alto",:color=>"orange",:score=>6.5},
@@ -725,5 +725,11 @@ module ApplicationHelper
 		end
  		return changeHash
 	end
+
+  	def get_quarter_victims(quarter, localVictims)
+  		periodVictims = quarter.victims
+  		number_of_victims = localVictims.merge(periodVictims).length 
+  		return number_of_victims
+  	end
 
 end

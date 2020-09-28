@@ -2521,9 +2521,11 @@ County.where(:full_code=>"30102").last.update(:shortname=>"Martínez de la Torre
 County.where(:full_code=>"15070").last.update(:shortname=>"Los Reyes La Paz")
 County.where(:full_code=>"20184").last.update(:shortname=>"Tuxtepec")
 County.where(:full_code=>"13051").last.update(:shortname=>"Mineral de la Reforma")
-County.where(:full_code=>"13051").last.update(:shortname=>"Dolores Hidalgo")
+County.where(:full_code=>"11014").last.update(:shortname=>"Dolores Hidalgo")
 County.where(:full_code=>"06010").last.update(:shortname=>"Villa de Álvarez")
 County.where(:full_code=>"15110").last.update(:shortname=>"Valle de Bravo")
+County.where(:full_code=>"14053").last.update(:shortname=>"Lagos de Moreno")
+County.where(:full_code=>"14073").last.update(:shortname=>"San Juan de los Lagos")
 
 
 

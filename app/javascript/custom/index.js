@@ -137,6 +137,15 @@
 
 		// CUSTOM JAVASCRIPT
 
+		// INDEX SWITCH
+		$('#index_switch').change(function() {
+			if ($('#index_switch input').is(':checked')){
+				$(location).attr('href','/counties/irco')
+			} else {
+				$(location).attr('href','/states/irco')
+			}
+		})
+		
 
 		// CLICKABLE ROW
 	    $(".clickable-row").click(function() {
@@ -156,29 +165,21 @@
 
 		$('#index-order-selector').change(function() {
 			if($('#low_risk_query_box').is(':checked')){
-				console.log('LOW RISK!')
 				$(location).attr('href','/counties/low_risk')
-				debugger
 			} else if ($('#high_risk_query_box').is(':checked')){
-				console.log('HIGH RISK!')
 				$(location).attr('href','/counties/high_risk')
-				debugger
 			} else {
-				console.log('DESTINATIONS!')	
 				$(location).attr('href','/counties/destinations')
-				debugger
 			}
 		})
 		
 
 		$('#show-filter-dashboard').click(function() {
-			console.log('working!')
 			$('#filter-dashboard').removeClass('hide-on-small-only');
 			$("html, body").animate({ scrollTop: 0 }, "slow");
 		})
 
 		$('#hide-filter-dashboard').click(function() {
-			console.log('working!')
 			$('#filter-dashboard').addClass('hide-on-small-only');
 		})
 
@@ -678,7 +679,6 @@
 			    $('.source_query_label').toggleClass('cyan-text white-text')
 			    $('#state-query-section, #county-query-section, #source-query-section').slideDown()
 		})
-
 	})
 
 

@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   get 'counties/high_risk'
   get 'counties/destinations'
   get 'counties/irco'
+  get 'states/irco'
   get 'states/api'
   get 'organizations/index'
   post 'members/detentions'
