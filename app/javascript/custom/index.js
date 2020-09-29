@@ -1,6 +1,3 @@
-// var ready
-// ready = function(){
-
 	window.addEventListener( "pageshow", function ( event ) {
 	  var historyTraversal = event.persisted || 
 	                         ( typeof window.performance != "undefined" && 
@@ -29,7 +26,6 @@
 		// 		url: '/organizations/dictionary',
 		// 		data: $(this).serialize(),
 		// 		success: function(response) {
-		// 			console.log(response)
 		// 			$('input.autocomplete').autocomplete({	
 		//     			data: response,
 	 //      			});
@@ -97,12 +93,10 @@
     			indicators: true,
     			onCycleTo: function(ele) {
       				var month = $(ele).index();
-      				console.log(month)
       				$.post(
       					'/months/header_selector/'+month,
       					$(this).serialize(),
       					function(data) {
-      						console.log(data.month);
       						$('#report-carousel-header').html('');
       						var new_header = data.month;
       						$('#report-carousel-header').append(new_header);
@@ -134,13 +128,12 @@
 			}
 		})
 
-
 		// CUSTOM JAVASCRIPT
 
 		// INDEX SWITCH
 		$('#index_switch').change(function() {
 			if ($('#index_switch input').is(':checked')){
-				$(location).attr('href','/counties/irco')
+				$(location).attr('href','/counties/high_risk')
 			} else {
 				$(location).attr('href','/states/irco')
 			}
@@ -277,7 +270,6 @@
 					}
 
 				var myVal = $(this).attr('value') -1;
-				console.log(myVal)
 				if($(this).hasClass('sort-down-btn')) {
 					sortTableDown(myVal);
 					$(this).removeClass('sort-down-btn').addClass('sort-up-btn').html('<i class="material-icons small black-text">keyboard_arrow_up</i>');
@@ -289,8 +281,7 @@
 			})
 
 
-		// SELECT ALL BUTTONS
-		
+		// SELECT ALL BUTTONS	
 			$('.select-all').click(function() {
 				$(this).parent().siblings().find('input').prop('checked', true)
 				$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')
@@ -299,15 +290,13 @@
 			})
 
 		// CLEAR ALL BUTTONS
-		
 			$('.clear-all').click(function() {
 				$(this).parent().siblings().find('input').prop('checked', false)
 				$('.send-to-bottom').hide();
 			})
 
 
-		// SWITCH FROM STATE TO CITY IN VICTM FREQUENCY TABLE
-		
+		// SWITCH FROM STATE TO CITY IN VICTM FREQUENCY TABLE	
 		$("#geo_query_box input").click(function() {  
 			if  ($("#nation_query_box").is(':checked')){
 				$('#state-collapsible-tab').addClass('collapsible-disabled');
@@ -400,7 +389,6 @@
 			}				
 		})
 	
-
 		$('#state_query_box').click(function() {
 			if ($('#role_split_query_box').is(':checked')) {
 				$('#no_role_split_query_box').prop('checked', true)
@@ -433,7 +421,6 @@
 		$('#index-state-selector').change(function() {
 			var mydata = $('#index-state-selector').serialize();
 			newArr = mydata.split('=');
-			console.log(newArr);
 			window.location = '/counties/set_index_county/'+newArr[1]
 		})
 
@@ -528,7 +515,6 @@
 			return false
 		})
 
-
 		// GET MONTHS
 		$('#operation-year-selector').change(function() {
 			$('#operation-month-selector').removeAttr('disabled')
@@ -597,8 +583,6 @@
 				'/organizations/getMembers/'+newArr[1],
 				$(this).serialize(),
 				function(data) {
-					console.log("Hola")
-					console.log(data.members[0].name)
 					var memberOptions = "<option value='' selected></option>"
 					for(i=0; i<data.members.length; i++) {
 						memberOptions += "<option value='"+data.members[i].id+"'>"+data.members[i].firstname+" "+data.members[i].lastname1+"</option>"
@@ -616,8 +600,6 @@
 				'/organizations/getDivisions',
 				$(this).serialize(),
 				function(data) {
-					console.log("Hola")
-					console.log(data.divisions[0].name)
 					var divisionOptions = ""
 					for(i=0; i<data.divisions.length; i++) {
 						divisionOptions += "<div class='col s12 label-row'><label><input class='white' name='organization[division_id]' value='"+data.divisions[i].id+"' type='checkbox'><span class='mini-label white-text'>"+data.divisions[i].name.toUpperCase()+"</span></label></div>"
@@ -658,7 +640,6 @@
 			$('.all-query-label').addClass('cyan-text')
 		})
 
-
 		$('#killing_query_box').click(function() {
 				$('.border-section').slideUp()
 			    $('.killing_query_group').removeAttr('disabled')
@@ -680,5 +661,3 @@
 			    $('#state-query-section, #county-query-section, #source-query-section').slideDown()
 		})
 	})
-
-

@@ -1,6 +1,7 @@
 class StatesController < ApplicationController
     before_action :set_state, only: [:show, :edit, :update, :destroy]
-  
+    require 'pp'
+
     def api
         myHash = {}
 
@@ -49,6 +50,9 @@ class StatesController < ApplicationController
         @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
         back_one_year = helpers.back_one_y(myQuarter)
         @back_one_y_strings = helpers.quarter_strings(back_one_year)
+        unless Role.where(:name=>"Gobernador").empty?
+           governorKey = Role.where(:name=>"Gobernador").last.id 
+        end
 
         @states = State.all.sort_by{|state| state.name }
 
@@ -75,9 +79,16 @@ class StatesController < ApplicationController
             stateHash[:q1_victims_change] = helpers.variable_change_and_icon(stateHash[:irco][:victims],stateHash[:back_one_quarter_irco][:victims])
             stateHash[:y1_victims_change] = helpers.variable_change_and_icon(stateHash[:irco][:victims],stateHash[:back_one_year_irco][:victims])
 
+            stateHash[:q1_feel_safe_change] = helpers.variable_change_and_icon(stateHash[:irco][:feel_safe],stateHash[:back_one_quarter_irco][:feel_safe])
+            stateHash[:y1_feel_safe_change] = helpers.variable_change_and_icon(stateHash[:irco][:feel_safe],stateHash[:back_one_year_irco][:feel_safe])
+
             stateHash[:q1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_quarter_irco][:stolen_cars])
             stateHash[:y1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_year_irco][:stolen_cars])
             
+            if governorKey
+                stateHash[:governor] = state.organizations.where(:league=>"CONAGO").last.members.where(:role_id=>governorKey).last
+            end
+
             ircoTable.push(stateHash)
         }
         @sortedTable = ircoTable.sort_by{|row| -row[:irco][:score]}
@@ -86,7 +97,9 @@ class StatesController < ApplicationController
             rankCount += 1
             x[:rank] = rankCount
         }
+        pp @sortedTable
     end
+
     def ircoOutput(quarter, state)
         localVictims = state.victims
         total_victims = helpers.get_quarter_victims(quarter, localVictims)
@@ -96,6 +109,9 @@ class StatesController < ApplicationController
             victims_index =  1
         end
 
+        current_feel_safe = feel_safe(quarter, state)
+        feel_safe_index = 1-(current_feel_safe.to_f/100)
+
         stolen_cars = car_theft(quarter,state)
         car_theft_index = stolen_cars/state.population.to_f*100000
         car_theft_index = Math.log(car_theft_index+1,200).round(2)
@@ -103,14 +119,46 @@ class StatesController < ApplicationController
             car_theft_index = 1
         end
 
-        score = ((victims_index*6)+(car_theft_index*4)).round(2)
+        score = ((victims_index*4)+(feel_safe_index*3)+(car_theft_index*3)).round(2)
         ircoHash = {
             :victims=>total_victims,
+            :feel_safe=>current_feel_safe,
             :stolen_cars=>stolen_cars,
             :score=>score
         }
         return ircoHash
     end
+
+    def feel_safe(quarter, state)
+        ensu = quarter.ensu.download
+        ensu = ensu.force_encoding("UTF-8")
+        ensuArr = []
+        ensu.each_line{|l| line = l.split(","); ensuArr.push(line)}
+        ensuArr.each{|x|x.each{|y|y.strip!}}
+        l = ensuArr.length-1
+        stateEnsuArr = []
+        ensuPopulation = 0
+        feel_safe = 0
+        state.ensu_cities.each{|city|
+            (0..l).each{|x|
+                if ensuArr[x][0]
+                    if ensuArr[x][0] == city and ensuArr[x][1] !=""
+                        cityArr = []
+                        ensuPopulation += ensuArr[x][1].delete(' ').to_i
+                        cityArr.push(ensuArr[x][0],ensuArr[x][1].delete(' ').to_i,ensuArr[x+1][4].to_f)
+                        stateEnsuArr.push(cityArr)
+                    end
+                end
+            }
+        }
+        stateEnsuArr.each{|y|
+            myShare = ((y[1].to_f/ensuPopulation.to_f))
+            myPoints = myShare*y[2]
+            feel_safe += myPoints
+        }
+        return feel_safe
+    end
+
 
     def car_theft(quarter, state)
         car_count = 0

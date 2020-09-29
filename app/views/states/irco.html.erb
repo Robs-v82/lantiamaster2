@@ -120,3 +120,114 @@
 		</div>
 	</div>
 </div>
+<!-- MODAL SECTION -->
+<% @sortedTable.each do |row| %>
+	<div id="<%= row[:state].id %>-irco-modal" class="modal large-modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<div class="row">
+				<div class="col m4 s10 offset-s2">
+					<div class="valign-wrapper">
+						<div class="pseudo-button valign-wrapper">
+							<i class="material-icons small <%= row[:color] %> <%= row[:color] %>-text right-extra-margin z-depth-1">brightness_1</i>
+						</div>
+						<h5> <%= row[:state].name %><span class="slim"></span></h5>
+					</div>
+					<br>
+					<p><span class="slim">IRCO: </span><%= row[:irco][:score] %></p>
+					<p><span class="slim">Nivel: </span><%= row[:level] %></p>
+					<p><span class="slim">Tendencia: </span><%= row[:trend] %></p>
+					<br>
+					<div class="divider"></div>
+					<div class="stress-line valign-wrapper">
+						<p><%= row[:rank] %><sup>a</sup> entidad federativa con mayor riesgo</p>
+					</div>
+					<div class="divider"></div>
+					<br>
+					<p><span class="slim left-large-margin">Población: </span><%= number_with_delimiter(row[:state].population) %></p>
+					<% if row[:governor] %>
+						<%= image_tag(row[:governor].avatar, :class=> "tiny-thumb right-extra-margin z-depth-1 circle") %>
+						<div>
+							<p class="slim">Gobernador:</p>
+							<p><span class="slim"></span><%= row[:governor].firstname+" "+row[:governor].lastname1+" "+row[:governor].lastname2 %></p>
+						</div>
+					<% end %>
+				</div>
+				<div class="col m7 offset-m1 s12">
+					<ul class="tabs cyan-text">
+						<li class="tab col s4 cyan-text"><a href="#<%= row[:state].id %>-irco-indicadores" class="active cyan-text">Indicadores</a>
+						<li class="tab col s4 cyan-text"><a href="#<%= row[:state].id %>-irco-comparativo" class="cyan-text">Comparativo</a></li>
+					</ul>
+				</div>
+				<div class="col m7 offset-m1 s12" id="<%= row[:state].id %>-irco-indicadores">
+					<table>
+						<thead>
+							<tr class="p12">
+								<td class="center-align">INDICADOR</td>
+								<td class="center-align"><%= @current_quarter_strings[:quarterShort] %>/<%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></td>
+								<td class="center-align">CAMBIO RESPECTO A <%= @back_one_q_strings[:quarterShort] %>/<%= I18n.l(@back_one_q_strings[:quarterDate], format: '%Y') %></td>
+								<td class="center-align">CAMBIO RESPECTO A <%= @back_one_y_strings[:quarterShort] %>/<%= I18n.l(@back_one_y_strings[:quarterDate], format: '%Y') %></td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Víctimas letales del crimen organizado</td>
+								<td class="center-align p20">
+									<%= number_with_delimiter(row[:irco][:victims]) %>
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:q1_victims_change][:color]%>-text right-extra-margin"><%= row[:q1_victims_change][:icon] %></i>
+										<%= row[:q1_victims_change][:variation] %>%
+									</div>			
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:y1_victims_change][:color]%>-text right-extra-margin"><%= row[:y1_victims_change][:icon] %></i>
+										<%= row[:y1_victims_change][:variation] %>%
+									</div>			
+								</td>
+							</tr>
+							<tr>
+								<td>Población que se siente insegura</td>
+								<td class="center-align p20">
+									<%= number_with_precision(row[:irco][:feel_safe], precision:1) %>%
+								</td>
+								<td class="">
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:q1_feel_safe_change][:color]%>-text right-extra-margin"><%= row[:q1_feel_safe_change][:icon] %></i>
+										<%= row[:q1_feel_safe_change][:variation]%>%
+									</div>
+								</td>
+								<td class="center-align">
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:y1_feel_safe_change][:color]%>-text right-extra-margin"><%= row[:y1_feel_safe_change][:icon] %></i>
+										<%= row[:y1_feel_safe_change][:variation]%>%
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>Vehículos robados</td>
+								<td class="center-align p20">
+									<%= number_with_delimiter(row[:irco][:stolen_cars]) %>
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:q1_stolen_cars_change][:color]%>-text right-extra-margin"><%= row[:q1_stolen_cars_change][:icon] %></i>
+										<%= row[:q1_stolen_cars_change][:variation] %>%
+									</div>			
+								</td>
+								<td>
+									<div class="valign-wrapper right">
+										<i class="material-icons small <%= row[:y1_stolen_cars_change][:color]%>-text right-extra-margin"><%= row[:y1_stolen_cars_change][:icon] %></i>
+										<%= row[:y1_stolen_cars_change][:variation] %>%
+									</div>			
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+<% end %>
