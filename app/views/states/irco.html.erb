@@ -146,10 +146,12 @@
 					<br>
 					<p><span class="slim left-large-margin">Población: </span><%= number_with_delimiter(row[:state].population) %></p>
 					<% if row[:governor] %>
-						<%= image_tag(row[:governor].avatar, :class=> "tiny-thumb right-extra-margin z-depth-1 circle") %>
-						<div>
-							<p class="slim">Gobernador:</p>
-							<p><span class="slim"></span><%= row[:governor].firstname+" "+row[:governor].lastname1+" "+row[:governor].lastname2 %></p>
+						<div id="governor-box" class="valign-wrapper">
+							<%= image_tag(row[:governor].avatar, :class=> "tiny-thumb right-extra-margin z-depth-1 circle") %>
+							<div>
+								<p class="slim">Gobernador:</p>
+								<p><span class="slim"></span><%= row[:governor].firstname+" "+row[:governor].lastname1+" "+row[:governor].lastname2 %></p>
+							</div>
 						</div>
 					<% end %>
 				</div>
