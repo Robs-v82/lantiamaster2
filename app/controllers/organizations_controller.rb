@@ -374,7 +374,7 @@ class OrganizationsController < ApplicationController
 	    if target_user && target_user.authenticate(password_params[:password])
 	      session[:user_id] = target_user[:id]
 	      helpers.clear_session
-        redirect_to '/datasets/victims_query'
+        redirect_to '/states/irco'
 	    else
 	    	print "***************WRONG PASSWORD!!! "
 	    	session[:password_error] = true

@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
-    root 'datasets#victims_query'
+    root 'states#irco'
     post 'states/load_irco'
+    post 'counties/load_irco'
     get 'counties/low_risk'
     get 'counties/high_risk'
     get 'counties/destinations'
