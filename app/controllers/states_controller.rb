@@ -42,23 +42,16 @@ class StatesController < ApplicationController
         @states = State.all
     end
 
-    def irco
-        @key = Rails.application.credentials.google_maps_api_key
-        myQuarter = Quarter.where(:name=>"2019_Q4").last
-        @current_quarter_strings = helpers.quarter_strings(myQuarter)
-        back_one_quarter = helpers.back_one_q(myQuarter) 
-        @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
-        back_one_year = helpers.back_one_y(myQuarter)
-        @back_one_y_strings = helpers.quarter_strings(back_one_year)
+    def load_irco
         unless Role.where(:name=>"Gobernador").empty?
            governorKey = Role.where(:name=>"Gobernador").last.id 
         end
-
+        myName = load_irco_params[:year]+"_"+load_irco_params[:quarter]
+        myQuarter = Quarter.where(:name=>myName).last
+        back_one_quarter = helpers.back_one_q(myQuarter)
+        back_one_year = helpers.back_one_y(myQuarter)
         @states = State.all.sort_by{|state| state.name }
-
         @levels = helpers.ircoLevels
-        @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
-
         ircoTable = []
         @states.each{|state|
             stateHash = {}
@@ -97,7 +90,24 @@ class StatesController < ApplicationController
             rankCount += 1
             x[:rank] = rankCount
         }
-        pp @sortedTable
+        Cookie.create(:data=>@sortedTable, :quarter_id=>myQuarter.id, :category=>"irco")
+        redirect_to "/datasets/load"
+    end
+
+    def irco
+        @key = Rails.application.credentials.google_maps_api_key
+        myCookie = Cookie.where(:category=>"irco").last
+        myQuarter = myCookie.quarter
+        @current_quarter_strings = helpers.quarter_strings(myQuarter)
+        back_one_quarter = helpers.back_one_q(myQuarter) 
+        @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
+        back_one_year = helpers.back_one_y(myQuarter)
+        @back_one_y_strings = helpers.quarter_strings(back_one_year)
+
+        @levels = helpers.ircoLevels
+        @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
+
+        @sortedTable = myCookie.data
     end
 
     def ircoOutput(quarter, state)
@@ -186,5 +196,10 @@ class StatesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def state_params
         params.require(:state).permit(:name, :shortname, :code, :population)
+    end
+
+    def load_irco_params
+        params.require(:query).permit(:year, :quarter)
+        
     end
 end

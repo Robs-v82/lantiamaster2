@@ -7,6 +7,7 @@ class Quarter < ApplicationRecord
 	has_many :detentions, :through => :events 
 	has_many :victims, :through => :killings
 	has_many :detainees, :through => :detentions
+	has_many :cookies
 
 	has_many :leads, :through => :events
 

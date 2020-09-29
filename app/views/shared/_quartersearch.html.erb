@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col s5 offset-s1">
     <div class="input-field short-row">
-      <select id="operation-quarter-year-selector" class="admins-select browser-default" name="query[year]">
+      <select class="g-operation-quarter-year-selector admins-select browser-default" name="query[year]">
         <option value="" selected>Todos</option>
         <% @myYears.each do |year|%>
           <option value="<%= year %>"><%= year %></option>
@@ -14,7 +14,7 @@
   </div>
   <div class="col s5 offset-s1">
     <div class="input-field short-row">
-      <select id="operation-quarter-selector" disabled class="admins-select browser-default" name="query[quarter]">
+      <select disabled class="g-operation-quarter-selector admins-select browser-default" name="query[quarter]">
       </select>
     </div>
     <div class="label-row">

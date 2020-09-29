@@ -19,21 +19,23 @@
 								<% end %>
 							<% end %>
 						</div>
-						<div class="row">
-							<div class="file-field input-field short-row">
-								<div class="col s1">
-	 								<i class="material-icons white-text">attach_file</i>
-	 							</div>
-	 							<div class="col s11">
-	 								<input class="white-file-input" type="file" name="query[<%= form[:myObject] %>]">
-								</div>
-								<div class="col s11">
-									<div class="file-path-wrapper">
-										<input class="file-path validate" type="text">
+						<% if form[:fileWindow] %>
+							<div class="row">
+								<div class="file-field input-field short-row">
+									<div class="col s1">
+		 								<i class="material-icons white-text">attach_file</i>
+		 							</div>
+		 							<div class="col s11">
+		 								<input class="white-file-input" type="file" name="query[<%= form[:myObject] %>]">
+									</div>
+									<div class="col s11">
+										<div class="file-path-wrapper">
+											<input class="file-path validate" type="text">
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
+						<% end %>
 						<% unless form[:timeSearch] == nil %>		
 							<%= render form[:timeSearch] %>
 						<% end %>

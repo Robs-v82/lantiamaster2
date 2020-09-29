@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_25_222121) do
+ActiveRecord::Schema.define(version: 2020_09_29_024204) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -63,10 +63,12 @@ ActiveRecord::Schema.define(version: 2020_09_25_222121) do
   end
 
   create_table "cookies", force: :cascade do |t|
-    t.string "type"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "data"
+    t.integer "quarter_id"
+    t.string "category"
+    t.index ["quarter_id"], name: "index_cookies_on_quarter_id"
   end
 
   create_table "counties", force: :cascade do |t|
@@ -417,6 +419,7 @@ ActiveRecord::Schema.define(version: 2020_09_25_222121) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "arrests", "events"
+  add_foreign_key "cookies", "quarters"
   add_foreign_key "counties", "cities"
   add_foreign_key "counties", "states"
   add_foreign_key "detentions", "events"

@@ -515,6 +515,23 @@
 			return false
 		})
 
+		$('.g-operation-quarter-year-selector').change(function(){
+			$('.g-operation-quarter-selector').removeAttr('disabled');
+			$('.g-operation-quarter-selector').html('');
+			$.post(
+				'/queries/get_quarters',
+				$(this).serialize(),
+				function(data) {
+					var quarterOptions = "<option value='' selected>Todos</option>"
+					for (i=0; i<data.quarters.length; i++) {
+						quarterOptions += "<option name='query[quarter]' value='"+data.quarters[i]+"'>"+data.quarters[i]+"</option>"
+					}
+				$('.g-operation-quarter-selector').append(quarterOptions)
+				}
+			)
+			return false
+		})
+
 		// GET MONTHS
 		$('#operation-year-selector').change(function() {
 			$('#operation-month-selector').removeAttr('disabled')
@@ -534,22 +551,22 @@
 		})
 
 		// GET QUARTERS
-		$('#operation-quarter-year-selector').change(function() {
-			$('#operation-quarter-selector').removeAttr('disabled')
-			$('#operation-quarter-selector').html('')
-			$.post(
-				'/queries/get_quarters',
-				$(this).serialize(),
-				function(data) {
-					var quarterOptions = "<option value='' selected>Todos</option>"
-					for (i=0; i<data.quarters.length; i++) {
-						quarterOptions += "<option name='query[quarter]' value='"+data.quarters[i]+"'>"+data.quarters[i]+"</option>"
-					}
-				$('#operation-quarter-selector').append(quarterOptions)
-				}
-			)
-			return false
-		})
+		// $('#operation-quarter-year-selector').change(function() {
+		// 	$('#operation-quarter-selector').removeAttr('disabled')
+		// 	$('#operation-quarter-selector').html('')
+		// 	$.post(
+		// 		'/queries/get_quarters',
+		// 		$(this).serialize(),
+		// 		function(data) {
+		// 			var quarterOptions = "<option value='' selected>Todos</option>"
+		// 			for (i=0; i<data.quarters.length; i++) {
+		// 				quarterOptions += "<option name='query[quarter]' value='"+data.quarters[i]+"'>"+data.quarters[i]+"</option>"
+		// 			}
+		// 		$('#operation-quarter-selector').append(quarterOptions)
+		// 		}
+		// 	)
+		// 	return false
+		// })
 
 		// GET ORGANIZATION1 MEMBERS
 		$('#operation-organization1-selector').change(function() {
