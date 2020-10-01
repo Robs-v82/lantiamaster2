@@ -579,7 +579,7 @@ class DatasetsController < ApplicationController
 
     def states_and_counties_api
         myData = Cookie.where(:category=>"api").last.data[0]
-        myHash = {:data=>myData[:years]}
+        myHash = {:data=>myData[:states_and_counties]}
         render json: myHash 
     end
 
