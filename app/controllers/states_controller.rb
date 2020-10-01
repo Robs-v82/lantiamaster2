@@ -12,7 +12,7 @@ class StatesController < ApplicationController
                 validKillings.push(k)
             end
         }
-        lastKilling = validKillings.all.sort_by{|k| k.event.event_date}.last
+        lastKilling = validKillings.sort_by{|k| k.event.event_date}.last
         thisMonth = Event.find(lastKilling.event_id).month
         lastDay = Event.find(lastKilling.event_id).event_date
 
