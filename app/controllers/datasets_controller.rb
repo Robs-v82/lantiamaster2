@@ -565,6 +565,7 @@ class DatasetsController < ApplicationController
 		            end
 		            allCountiesArr.push(positiveCountyHash)
 	            end
+	            topCountiesArr.push(countyHash)
 	        end
         }
 
@@ -574,6 +575,12 @@ class DatasetsController < ApplicationController
 
         Cookie.create(:data=>[myHash], :category=>"api")
         redirect_to "/datasets/load"
+    end
+
+    def states_and_counties_api
+        myData = Cookie.where(:category=>"api").last.data[0]
+        myHash = {:data=>myData[:years]}
+        render json: myHash 
     end
 
     def year_victims_api
