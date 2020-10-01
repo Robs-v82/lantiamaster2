@@ -462,6 +462,7 @@ class DatasetsController < ApplicationController
         		countyHash[:population] = county.population
         		countyArr.push(countyHash)
         	}
+        	stateHash[:conties] = countyArr
         	stateArr.push(stateHash)
         }
         myHash[:states_and_counties] = stateArr
