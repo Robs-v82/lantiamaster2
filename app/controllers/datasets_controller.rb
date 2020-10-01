@@ -425,7 +425,6 @@ class DatasetsController < ApplicationController
 						myTable.push(placeHash)
 					}
 				}
-
 			end
 		end
 		totalHash[:freq] = totalFreq
@@ -439,7 +438,6 @@ class DatasetsController < ApplicationController
 	end
 
 	def sort
-		
 		if params[:type] == "victims"
 			redirect_to "/datasets/victims"
 		end

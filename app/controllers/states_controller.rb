@@ -2,29 +2,92 @@ class StatesController < ApplicationController
     before_action :set_state, only: [:show, :edit, :update, :destroy]
     require 'pp'
 
-    def api
+    def loadApi
         myHash = {}
 
-        myYear = Year.where(:name=>"2020")
-        myPeriod = helpers.get_specific_months(myYear, "victims").last
-        myHash[:update] = myPeriod.first_day
+        # LAST UPDATE
+        lastKilling = Killing.all.sort_by{|k| k.event.event_date}.last
+        thisMonth = Event.find(lastKilling.event_id).month
+        lastDay = Event.find(lastKilling.event_id).event_date
 
-        topKillings = myPeriod.killings
-        topKillings = topKillings.sort_by{|k| -k.killed_count}
-        myHash[:killings] = topKillings[0,5]
+        myHash[:lastUpdate] = Date.civil(lastDay.year, lastDay.month, -1)
 
+        # TOTAL VICTIMS PER YEAR (WITH ESTIMATE FOR CURRENT YEAR)
+        myYears = helpers.get_regular_years
+        thisYear = Year.where(:name=>Time.now.year.to_s).last
+        victimYearsArr = []
+        myYears.each{|year|
+            yearHash = {}
+            yearHash[:year] = year.name.to_i
+            if year != thisYear
+                yearHash[:victims] = year.victims.length
+                yearHash[:estimate] = false
+            else
+                n = helpers.get_specific_months([thisYear], "victims").length
+                unless n == 0
+                    yearHash[:victims] = year.victims.length*(12/n)
+                    if n == 12
+                        yearHash[:estimate] = false        
+                    else
+                        yearHash[:estimate] = true
+                    end
+                end
+            end
+            victimYearsArr.push(yearHash)
+        }
+        myHash[:years] = victimYearsArr
 
-
-        stateArr = []
+        # MONTHLY VICITMS FOR 5 MOST VIOLENT STATE (PREVIOUS 12 MONTHS) 
+        topStatesArr = []
         State.all.each{|state|
             stateHash = {}
             stateHash[:code] = state.code
             stateHash[:name] = state.name
             stateHash[:shortname] = state.shortname
-            stateHash[:victims] = myPeriod.victims.merge(state.victims).length 
-            stateArr.push(stateHash)
+            r = 11..0
+            stateHash[:totalVictims] = 0
+            stateHash[:months] = []
+            localVictims = state.victims
+            (r.first).downto(r.last).each {|x|
+                monthHash = {}
+                monthHash[:month] = (thisMonth.first_day - (x*28).days).strftime('%m-%Y')
+                monthHash[:victims] = Month.where(:name=>(thisMonth.first_day - (x*28).days).strftime('%Y_%m')).last.victims.merge(localVictims).length
+                stateHash[:totalVictims] += monthHash[:victims]
+                stateHash[:months].push(monthHash)
+            }
+            topStatesArr.push(stateHash)
         }
-        myHash[:states] = stateArr
+        topStatesArr = topStatesArr.sort_by{|state| -state[:totalVictims]}
+        myHash[:topStates] = topStatesArr[0..4]
+
+        topCountiesArr = []
+        bigCounties = County.where("population > ?",50000)
+        bigCounties.each{|county|
+            countyHash = {}
+            countyHash[:code] = county.full_code
+            countyHash[:name] = county.shortname
+            r = 11..0
+            countyHash[:totalVictims] = 0
+            countyHash[:months] = []
+            localVictims = county.victims
+            (r.first).downto(r.last).each {|x|
+                monthHash = {}
+                monthHash[:month] = (thisMonth.first_day - (x*28).days).strftime('%m-%Y')
+                monthHash[:victims] = Month.where(:name=>(thisMonth.first_day - (x*28).days).strftime('%Y_%m')).last.victims.merge(localVictims).length
+                countyHash[:totalVictims] += monthHash[:victims]
+                countyHash[:months].push(monthHash)
+            }
+            topCountiesArr.push(countyHash)
+        }
+        topCountiesArr = topCountiesArr.sort_by{|county| -county[:totalVictims]}
+        myHash[:topCounties] = topCountiesArr[0..4]
+
+        Cookie.create(:data=>[myHash], :category=>"api")
+        redirect_to "/datasets/load"
+    end
+
+    def api
+        myHash = Cookie.where(:category=>"api").last.data[0]
         render json: myHash
     end
 
@@ -81,6 +144,22 @@ class StatesController < ApplicationController
             if governorKey
                 stateHash[:governor] = state.organizations.where(:league=>"CONAGO").last.members.where(:role_id=>governorKey).last
             end
+
+            stateHash[:evolution_score] = []
+                [7,6,5,4,3,2,1,0].each{|x|
+                t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
+                Quarter.all.each{|q|
+                    periodHash = {}
+                    if (q.first_day.strftime('%m-%Y')) == t
+                        periodString = helpers.quarter_strings(q)
+                        periodString = periodString[:quarterShort]+"/"+q.name[0..3]
+                        periodHash[:string] = periodString
+                        q_score = ircoOutput(q, state)[:score]
+                        periodHash[:score] = q_score
+                        stateHash[:evolution_score].push(periodHash)
+                    end
+                } 
+            }
 
             ircoTable.push(stateHash)
         }

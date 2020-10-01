@@ -139,38 +139,6 @@ class CountiesController < ApplicationController
 		bigCounties = County.where("population > ?",100000)
 		@tableHeader = ["MUNICIPIO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
 
-		# ircoTable = []
-		# bigCounties.each{|county|
-		# 	countyHash = {}
-		# 	countyHash[:county] = county
-		# 	countyHash[:irco] = ircoOutput(myQuarter, county)
-
-		# 	countyHash[:back_one_quarter_irco]  = ircoOutput(back_one_quarter, county) 
-		# 	countyHash[:back_one_year_irco]  = ircoOutput(back_one_year, county)
-		# 	countyHash[:trend] = helpers.quarter_score_trend(countyHash[:irco][:score], countyHash[:back_one_quarter_irco][:score], countyHash[:back_one_year_irco][:score]) 
-			
-		# 	@levels.each {|level|
-		# 		if countyHash[:irco][:score] < level[:score]
-		# 			countyHash[:level] = level[:name]
-		# 			countyHash[:color] = level[:color]
-		# 		end
-		# 	}
-
-		# 	countyHash[:q1_victims_change] = helpers.variable_change_and_icon(countyHash[:irco][:victims],countyHash[:back_one_quarter_irco][:victims])
-		# 	countyHash[:y1_victims_change] = helpers.variable_change_and_icon(countyHash[:irco][:victims],countyHash[:back_one_year_irco][:victims])
-
-		# 	countyHash[:q1_stolen_cars_change] = helpers.variable_change_and_icon(countyHash[:irco][:stolen_cars],countyHash[:back_one_quarter_irco][:stolen_cars])
-		# 	countyHash[:y1_stolen_cars_change] = helpers.variable_change_and_icon(countyHash[:irco][:stolen_cars],countyHash[:back_one_year_irco][:stolen_cars])
-			
-
-		# 	ircoTable.push(countyHash)
-		# }
-		# @sortedTable = ircoTable.sort_by{|row| -row[:irco][:score]}
-		# rankCount = 0
-		# @sortedTable.each{|x|
-		# 	rankCount += 1
-		# 	x[:rank] = rankCount
-		# }
 		@sortedTable = myCookie.data
 
 		if session[:descendingIndex]

@@ -1,13 +1,13 @@
 <% provide :head_tags do %>
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript">
-		$(document).ready(function() {
+		$(document).ready(function() {		
 			
+			// MAP
 			google.charts.load('current', {
 				'packages':['geochart'],
 				'mapsApiKey': '<%= @key %>'
 			});
-
 			function drawRegionsMap() {
 				var data = google.visualization.arrayToDataTable([
 					['State', 'IRCO'],
@@ -23,7 +23,6 @@
 						],
 					<% end %>
 				]);
-
 				var options = {
 					height: 580,
 					region: 'MX',
@@ -31,19 +30,46 @@
 					colorAxis: {
 						values: [0,4,4.00001,5,5.00001,6.5,6.50001,10],
 						colors: ['#aed581','#aed581','#fff176','#fff176','#ffb74d','#ffb74d','#ff8a65','#ff8a65']
-						// colors: ['#9ccc65','#9ccc65','#ffee58','#ffee58','#ffa726','#ffa726','#ef5350','#ef5350']
-						// colors: ['#8bc34a','#8bc34a','#ffeb3b','#ffeb3b','#ff9800','#ff9800','#f44336','#f44336']
+						// MEDIUM colors: ['#9ccc65','#9ccc65','#ffee58','#ffee58','#ffa726','#ffa726','#ef5350','#ef5350']
+						// DARKER colors: ['#8bc34a','#8bc34a','#ffeb3b','#ffeb3b','#ff9800','#ff9800','#f44336','#f44336']
 					},
 					legend: false,
 				};
-
 				var chart = new google.visualization.GeoChart(document.getElementById('map-display'));
-
 				chart.draw(data, options);
-
 			}
-
 			google.charts.setOnLoadCallback(drawRegionsMap);
+			
+			// CHART
+			google.charts.load('current', {'packages':['corechart']
+			});
+
+			<% @sortedTable.each do |row| %>
+				$('#<%= row[:state].id %>-irco-trendline-trigger').click(function() {
+					google.charts.setOnLoadCallback(drawColumnChart<%= row[:state].id %>)
+				});
+				
+				
+				function drawColumnChart<%= row[:state].id %>() {
+					var data = google.visualization.arrayToDataTable([
+						['Trimestre','IRCO'],
+							<% row[:evolution_score].each do |q| %>
+								['<%= q[:string] %>',<%= q[:score] %>],
+							<% end %>
+					]);
+					var options = {
+						height: 360,
+						width: 500,
+						legend: { position: "none" },
+						animation: {"startup": true},
+						series: {
+							0: { color: '#00e5ff' },
+						},
+					};
+					var chart = new google.visualization.LineChart(document.getElementById('<%= row[:state].id %>-irco-trendline'));
+					chart.draw(data, options);
+				}				
+			<% end %>
 		})
 	</script>
 <% end %>
@@ -154,11 +180,12 @@
 							</div>
 						</div>
 					<% end %>
+					<br>
 				</div>
 				<div class="col m7 offset-m1 s12">
 					<ul class="tabs cyan-text">
 						<li class="tab col s4 cyan-text"><a href="#<%= row[:state].id %>-irco-indicadores" class="active cyan-text">Indicadores</a>
-						<li class="tab col s4 cyan-text"><a href="#<%= row[:state].id %>-irco-comparativo" class="cyan-text">Comparativo</a></li>
+						<li id="<%= row[:state].id %>-irco-trendline-trigger" class="tab col s4 cyan-text trend-trigger"><a href="#<%= row[:state].id %>-irco-trendline" class="cyan-text">Evolución</a></li>
 					</ul>
 				</div>
 				<div class="col m7 offset-m1 s12" id="<%= row[:state].id %>-irco-indicadores">
@@ -228,6 +255,9 @@
 							</tr>
 						</tbody>
 					</table>
+				</div>
+				<div class="col m7 offset-m1 s12" id="<%= row[:state].id %>-irco-trendline">
+
 				</div>
 			</div>
 		</div>
