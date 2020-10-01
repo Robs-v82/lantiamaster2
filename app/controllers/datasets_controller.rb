@@ -446,6 +446,26 @@ class DatasetsController < ApplicationController
     def loadApi
         myHash = {}
 
+        stateArr = []
+        State.all.each{|state|
+        	stateHash = {}
+        	stateHash[:code] = state.code
+        	stateHash[:name] = state.name
+        	stateHash[:shortname] = state.shortname
+        	stateHash[:population] = state.population
+        	countyArr = []
+        	County.all.each{|county|
+        		countyHash = {}
+        		countyHash[:code] = county.full_code
+        		countyHash[:name] = county.name
+        		countyHash[:shortname] = county.shortname
+        		countyHash[:population] = county.population
+        		countyArr.push(countyHash)
+        	}
+        	stateArr.push(stateHash)
+        }
+        myHash[:states_and_counties] = stateArr
+ 
         # LAST UPDATE
         validKillings = []
         Killing.all.each {|k|
@@ -466,8 +486,12 @@ class DatasetsController < ApplicationController
         myYears.each{|year|
             yearHash = {}
             yearHash[:year] = year.name.to_i
+            genderHash = {}
             if year != thisYear
                 yearHash[:victims] = year.victims.length
+                genderHash[:maleVictims] = year.victims.where(:gender=>"Masculino").length
+                genderHash[:femaleVictims] = year.victims.where(:gender=>"Femenino").length
+                genderHash[:undefined] = year.victims.where(:gender=>"").length
                 yearHash[:estimate] = false
             else
                 n = helpers.get_specific_months([thisYear], "victims").length
@@ -480,6 +504,7 @@ class DatasetsController < ApplicationController
                     end
                 end
             end
+            yearHash[:victimsGender] = genderHash
             victimYearsArr.push(yearHash)
         }
         myHash[:years] = victimYearsArr
@@ -508,25 +533,43 @@ class DatasetsController < ApplicationController
         myHash[:topStates] = topStatesArr[0..4]
 
         topCountiesArr = []
-        bigCounties = County.where("population > ?",50000)
-        bigCounties.each{|county|
-            countyHash = {}
-            countyHash[:code] = county.full_code
-            countyHash[:name] = county.shortname
-            r = 11..0
-            countyHash[:totalVictims] = 0
-            countyHash[:months] = []
-            localVictims = county.victims
-            (r.first).downto(r.last).each {|x|
-                monthHash = {}
-                monthHash[:month] = (thisMonth.first_day - (x*28).days).strftime('%m-%Y')
-                monthHash[:victims] = Month.where(:name=>(thisMonth.first_day - (x*28).days).strftime('%Y_%m')).last.victims.merge(localVictims).length
-                countyHash[:totalVictims] += monthHash[:victims]
-                countyHash[:months].push(monthHash)
-            }
-            topCountiesArr.push(countyHash)
+        allCountiesArr = []
+        County.all.each{|county|
+            unless county.name == "Sin definir"
+	            countyHash = {}
+	            countyHash[:code] = county.full_code
+	            countyHash[:name] = county.name
+	            countyHash[:shortname] = county.shortname
+	            r = 11..0
+	            countyHash[:totalVictims] = 0
+	            countyHash[:months] = []
+	            localVictims = county.victims
+	            (r.first).downto(r.last).each {|x|
+	                monthHash = {}
+	                monthHash[:month] = (thisMonth.first_day - (x*28).days).strftime('%m-%Y')
+	                monthHash[:victims] = Month.where(:name=>(thisMonth.first_day - (x*28).days).strftime('%Y_%m')).last.victims.merge(localVictims).length
+	                countyHash[:totalVictims] += monthHash[:victims]
+	                countyHash[:months].push(monthHash)
+	            }
+	            if countyHash[:months][11][:victims] > 0
+	            	positiveCountyHash = {}
+	            	positiveCountyHash[:code] = county.full_code
+	            	positiveCountyHash[:name] = county.name
+	            	positiveCountyHash[:shortname] = county.shortname
+		            if countyHash[:months][11][:victims] > 20
+		            	positiveCountyHash[:victimLevel] = "21 en adelante"
+		            elsif countyHash[:months][11][:victims] > 10
+		            	positiveCountyHash[:victimLevel] = "11 a 20"
+		            else
+		            	positiveCountyHash[:victimLevel] = "1 a 10"
+		            end
+		            allCountiesArr.push(positiveCountyHash)
+	            end
+	        end
         }
+
         topCountiesArr = topCountiesArr.sort_by{|county| -county[:totalVictims]}
+        myHash[:countyVictimsMap] = allCountiesArr.sort_by{|county| county[:full_code]}
         myHash[:topCounties] = topCountiesArr[0..4]
 
         Cookie.create(:data=>[myHash], :category=>"api")
@@ -548,6 +591,12 @@ class DatasetsController < ApplicationController
     def county_victims_api
         myData = Cookie.where(:category=>"api").last.data[0]
         myHash = {:lastUpdate=>myData[:lastUpdate], :data=>myData[:topCounties]}
+        render json: myHash 
+    end
+
+    def county_victims_map_api
+        myData = Cookie.where(:category=>"api").last.data[0]
+        myHash = {:lastUpdate=>myData[:lastUpdate], :data=>myData[:countyVictimsMap]}
         render json: myHash 
     end
 
