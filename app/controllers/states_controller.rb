@@ -6,7 +6,13 @@ class StatesController < ApplicationController
         myHash = {}
 
         # LAST UPDATE
-        lastKilling = Killing.all.sort_by{|k| k.event.event_date}.last
+        validKillings = []
+        Killing.all.each {|k|
+            if k.event.event_date
+                validKillings.push(k)
+            end
+        }
+        lastKilling = validKillings.all.sort_by{|k| k.event.event_date}.last
         thisMonth = Event.find(lastKilling.event_id).month
         lastDay = Event.find(lastKilling.event_id).event_date
 
