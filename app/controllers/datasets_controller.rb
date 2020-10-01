@@ -461,10 +461,11 @@ class DatasetsController < ApplicationController
         		countyHash[:shortname] = county.shortname
         		countyHash[:population] = county.population
         		countyArr.push(countyHash)
+        		stateHash[:conties] = countyArr
         	}
-        	stateHash[:conties] = countyArr
         	stateArr.push(stateHash)
         }
+        stateArr.sort_by{|state| state.code}
         myHash[:states_and_counties] = stateArr
  
         # LAST UPDATE
