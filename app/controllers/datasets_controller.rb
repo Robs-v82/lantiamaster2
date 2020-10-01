@@ -465,7 +465,7 @@ class DatasetsController < ApplicationController
         	}
         	stateArr.push(stateHash)
         }
-        stateArr.sort_by{|state| state.code}
+        stateArr = stateArr.sort_by{|state| state.code}
         myHash[:states_and_counties] = stateArr
  
         # LAST UPDATE
