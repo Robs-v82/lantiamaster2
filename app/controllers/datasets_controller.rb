@@ -454,15 +454,15 @@ class DatasetsController < ApplicationController
         	stateHash[:shortname] = state.shortname
         	stateHash[:population] = state.population
         	countyArr = []
-        	County.all.each{|county|
+        	state.counties.each{|county|
         		countyHash = {}
         		countyHash[:code] = county.full_code
         		countyHash[:name] = county.name
         		countyHash[:shortname] = county.shortname
         		countyHash[:population] = county.population
         		countyArr.push(countyHash)
-        		stateHash[:conties] = countyArr
         	}
+        	stateHash[:conties] = countyArr
         	stateArr.push(stateHash)
         }
         stateArr = stateArr.sort_by{|state| state[:code]}
