@@ -608,8 +608,6 @@ class OrganizationsController < ApplicationController
 					unless Organization.where(:name=>x[3]).empty?
 						myOrganization = Organization.where(:name=>x[3]).last.id
 						myString = x[9][6..-1]+"_"+x[9][3,2]
-						print "*************MONTH NAME: "
-						print myString
 						myMonth =  Month.where(:name=>myString).last.id
 						unless x[2].nil? 
 							towns = []
@@ -677,11 +675,15 @@ class OrganizationsController < ApplicationController
 				unless Organization.where(:name=>x[2]).empty?
 					targetOrganization = Organization.where(:name=>x[2]).last
 					towns = []
-					pseudoTown = Town.where(:full_code=>x[0]+"0000").last
+					countyString = x[0].to_i
+          countyString = countyString + 100000
+          countyString = countyString.to_s
+          countyString = countyString[1..-1]
+          pseudoTown = Town.where(:full_code=>countyString+"0000").last
 					towns.push(pseudoTown)
 					unless x[1].nil?
 						x[1].split(";").each{|town|
-							unless County.where(:full_code=>x[0]).last.towns.where(:name=>town)
+							unless County.where(:full_code=>countyString).last.towns.where(:name=>town)
 								myTown = County.where(:full_code=>x[0]).last.towns.where(:name=>town).last
 								towns.push(myTown)
 							end
