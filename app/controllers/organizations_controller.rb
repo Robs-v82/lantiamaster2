@@ -66,12 +66,12 @@ class OrganizationsController < ApplicationController
 
   		@myActivities = []
   		activityArr = [
-  			"Narcotráfico",
-  			"Narcomenudeo",
-  			"Extorsión",
-  			"Mercado Ilícito de Hidrocarburos",
-  			"Trata y tráfico de personas",
-  			"Lavado de dinero"
+        "Narcotráfico",
+        "Narcomenudeo",
+        "Extorsión",
+        "Lavado de dinero",
+        "Mercado Ilícito de Hidrocarburos",
+        "Trata y tráfico de personas"
   		]
 
   		@allActivities = Sector.where(:scian2=>"98").last.divisions
@@ -583,26 +583,36 @@ class OrganizationsController < ApplicationController
 	def load_organization_events
 
 		myCategories = [
-			"Abatimiento",
-			"Ataque directo a civiles",
-			"Ataque directo a funcionarios",
-			"Base social criminal",
-			"Denuncia ciudadana",
-			"Detención de alto perfil",
-			"Ejecución",
-			"Enfrentamiento entre civiles",
-			"Fuga penitenciaria",
-			"Informe gubernamental",
-			"Investigación periodística",
-			"Narcomensaje",
-			"Operativo gubernamental"
+      "Abatimiento en operativo",
+      "Agresión a civiles",
+      "Agresión a servidores públicos",
+      "Base social criminal",
+      "Bloqueo de vías de comunicación",
+      "Denuncia ciudadana",
+      "Desplazamiento forzado",
+      "Detención de alto perfil",
+      "Ejecución de integrantes",
+      "Enfrentamiento con autoridades",
+      "Enfrentamiento con civiles",
+      "Fuga penitenciaria",
+      "Narcomensaje",
+      "Operativo de instituciones de seguridad",
+      "Presencia registrada en investigación académica",
+      "Presencia registrada en medios",
+      "Presencia registrada por autoridades",
+      "Reclutamiento",
+      "Servidores públicos con vínculos criminales"
 		] 
-
-		myFile = load_organization_events_params[:file]
+    
+    myFile = load_organization_events_params[:file]
 		table = CSV.parse(File.read(myFile))
 
 		table.each{|x|
-			x = x.collect{ |e| e ? e.strip : e }
+			countyString = x[1].to_i
+      countyString = countyString + 100000
+      countyString = countyString.to_s
+      countyString = countyString[1..-1]
+      x = x.collect{ |e| e ? e.strip : e }
 			if Lead.where(:legacy_id=>x[0]).empty?
 				if myCategories.include? x[8]
 					unless Organization.where(:name=>x[3]).empty?
@@ -613,16 +623,16 @@ class OrganizationsController < ApplicationController
 							towns = []
 							townArr = x[2].split(";")
 							townArr.each{|townName|
-								unless County.where(:full_code=>x[1]).last.towns.where(:name=>townName).empty?
-									thisTown = County.where(:full_code=>x[1]).last.towns.where(:name=>townName).last.full_code
+								unless County.where(:full_code=>countyString).last.towns.where(:name=>townName).empty?
+									thisTown = County.where(:full_code=>countyString).last.towns.where(:name=>townName).last.full_code
 									towns.push(thisTown)
 								else
-									towns.push(x[1]+"0000")
+									towns.push(countyString+"0000")
 								end
 								towns = towns.uniq
 							}
 						else
-							towns = [x[1]+"0000"]
+							towns = [countyString+"0000"]
 						end
 						towns.each{|town|
 							myTown = Town.where(:full_code=>town).last.id
@@ -654,7 +664,12 @@ class OrganizationsController < ApplicationController
 							end
 						end
 					end
-				end		
+				end
+      else
+        if myCategories.include? x[8]
+          myLead = Lead.where(:legacy_id=>x[0])
+          myLead.update(:category=>x[8])
+        end	
 			end
 		}
 
