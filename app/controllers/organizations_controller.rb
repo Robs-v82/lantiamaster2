@@ -678,8 +678,6 @@ class OrganizationsController < ApplicationController
 					targetOrganization = Organization.where(:name=>x[2]).last
 					towns = []
 					pseudoTown = Town.where(:full_code=>x[0]+"0000").last
-					print "**************TOWN: "
-					print pseudoTown.name
 					towns.push(pseudoTown)
 					unless x[1].nil?
 						x[1].split(";").each{|town|

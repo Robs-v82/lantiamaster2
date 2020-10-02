@@ -469,13 +469,14 @@ class DatasetsController < ApplicationController
         myHash[:states_and_counties] = stateArr
  
         # LAST UPDATE
-        validKillings = []
-        Killing.all.each {|k|
-            if k.event.event_date
-                validKillings.push(k)
-            end
-        }
-        lastKilling = validKillings.sort_by{|k| k.event.event_date}.last
+        # validKillings = []
+        # Killing.all.each {|k|
+        #     if k.event.event_date
+        #         validKillings.push(k)
+        #     end
+        # }
+        # lastKilling = validKillings.sort_by{|k| k.event.event_date}.last
+        lastKilling = Killing.all.sort_by{|k| k.event.event_date}.last
         thisMonth = Event.find(lastKilling.event_id).month
         lastDay = Event.find(lastKilling.event_id).event_date
 
@@ -538,36 +539,38 @@ class DatasetsController < ApplicationController
         allCountiesArr = []
         County.all.each{|county|
             unless county.name == "Sin definir"
-	            countyHash = {}
-	            countyHash[:code] = county.full_code
-	            countyHash[:name] = county.name
-	            countyHash[:shortname] = county.shortname
-	            r = 11..0
-	            countyHash[:totalVictims] = 0
-	            countyHash[:months] = []
-	            localVictims = county.victims
-	            (r.first).downto(r.last).each {|x|
-	                monthHash = {}
-	                monthHash[:month] = (thisMonth.first_day - (x*28).days).strftime('%m-%Y')
-	                monthHash[:victims] = Month.where(:name=>(thisMonth.first_day - (x*28).days).strftime('%Y_%m')).last.victims.merge(localVictims).length
-	                countyHash[:totalVictims] += monthHash[:victims]
-	                countyHash[:months].push(monthHash)
-	            }
-	            if countyHash[:months][11][:victims] > 0
-	            	positiveCountyHash = {}
-	            	positiveCountyHash[:code] = county.full_code
-	            	positiveCountyHash[:name] = county.name
-	            	positiveCountyHash[:shortname] = county.shortname
-		            if countyHash[:months][11][:victims] > 20
-		            	positiveCountyHash[:victimLevel] = "21 en adelante"
-		            elsif countyHash[:months][11][:victims] > 10
-		            	positiveCountyHash[:victimLevel] = "11 a 20"
-		            else
-		            	positiveCountyHash[:victimLevel] = "1 a 10"
+            	unless county.victims == 0
+		            countyHash = {}
+		            countyHash[:code] = county.full_code
+		            countyHash[:name] = county.name
+		            countyHash[:shortname] = county.shortname
+		            r = 11..0
+		            countyHash[:totalVictims] = 0
+		            countyHash[:months] = []
+		            localVictims = county.victims
+		            (r.first).downto(r.last).each {|x|
+		                monthHash = {}
+		                monthHash[:month] = (thisMonth.first_day - (x*28).days).strftime('%m-%Y')
+		                monthHash[:victims] = Month.where(:name=>(thisMonth.first_day - (x*28).days).strftime('%Y_%m')).last.victims.merge(localVictims).length
+		                countyHash[:totalVictims] += monthHash[:victims]
+		                countyHash[:months].push(monthHash)
+		            }
+		            if countyHash[:months][11][:victims] > 0
+		            	positiveCountyHash = {}
+		            	positiveCountyHash[:code] = county.full_code
+		            	positiveCountyHash[:name] = county.name
+		            	positiveCountyHash[:shortname] = county.shortname
+			            if countyHash[:months][11][:victims] > 20
+			            	positiveCountyHash[:victimLevel] = "21 en adelante"
+			            elsif countyHash[:months][11][:victims] > 10
+			            	positiveCountyHash[:victimLevel] = "11 a 20"
+			            else
+			            	positiveCountyHash[:victimLevel] = "1 a 10"
+			            end
+			            allCountiesArr.push(positiveCountyHash)
 		            end
-		            allCountiesArr.push(positiveCountyHash)
-	            end
-	            topCountiesArr.push(countyHash)
+		            topCountiesArr.push(countyHash)
+		        end
 	        end
         }
 
