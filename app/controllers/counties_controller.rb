@@ -88,6 +88,7 @@ class CountiesController < ApplicationController
 				if countyHash[:irco][:score] < level[:score]
 					countyHash[:level] = level[:name]
 					countyHash[:color] = level[:color]
+					countyHash[:hex] =level[:hex]
 				end
 			}
 

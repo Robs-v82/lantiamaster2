@@ -417,6 +417,7 @@ min-width: 85px !important
 }
 
 .modal-logo {
+	display: block;
 	width: 140px;
 }
 
@@ -592,6 +593,8 @@ input:not([type]), input[type=text]:not(.browser-default), input[type=password]:
 
 .large-modal {
 	width: 65% !important;
+	opacity: 1 !important;
+	background-color: white !important;
 }
 
 .tiny-thumb {

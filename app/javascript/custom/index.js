@@ -416,7 +416,6 @@
 			return false
 		})
 
-
 		// GET INDEX COUNTIES
 		$('#index-state-selector').change(function() {
 			var mydata = $('#index-state-selector').serialize();

@@ -40,6 +40,7 @@ class StatesController < ApplicationController
                 if stateHash[:irco][:score] < level[:score]
                     stateHash[:level] = level[:name]
                     stateHash[:color] = level[:color]
+                    stateHash[:hex] = level[:hex]
                 end
             }
 
@@ -57,7 +58,7 @@ class StatesController < ApplicationController
             end
 
             stateHash[:evolution_score] = []
-                [7,6,5,4,3,2,1,0].each{|x|
+            [7,6,5,4,3,2,1,0].each{|x|
                 t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
                 Quarter.all.each{|q|
                     periodHash = {}
@@ -70,6 +71,14 @@ class StatesController < ApplicationController
                         stateHash[:evolution_score].push(periodHash)
                     end
                 } 
+            }
+
+            stateHash[:comparisonArr] = []
+            state.comparison.each{|c|
+                comparisonHash = {}
+                comparisonHash[:state] = State.find(c)
+                comparisonHash[:score] = ircoOutput(myQuarter, comparisonHash[:state])[:score]
+                stateHash[:comparisonArr].push(comparisonHash)
             }
 
             ircoTable.push(stateHash)

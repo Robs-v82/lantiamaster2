@@ -8,6 +8,7 @@
 				'packages':['geochart'],
 				'mapsApiKey': '<%= @key %>'
 			});
+
 			function drawRegionsMap() {
 				var data = google.visualization.arrayToDataTable([
 					['State', 'IRCO'],
@@ -38,19 +39,28 @@
 				var chart = new google.visualization.GeoChart(document.getElementById('map-display'));
 				chart.draw(data, options);
 			}
-			google.charts.setOnLoadCallback(drawRegionsMap);
+			google.charts.setOnLoadCallback(drawRegionsMap)
+			
 			
 			// CHART
 			google.charts.load('current', {'packages':['corechart']
 			});
 
 			<% @sortedTable.each do |row| %>
-				$('#<%= row[:state].id %>-irco-trendline-trigger').click(function() {
-					google.charts.setOnLoadCallback(drawColumnChart<%= row[:state].id %>)
+				$('#index-<%= row[:state].id %>-list-trigger').click(function() {
+					$('.index-<%= row[:state].id %>-modal-section').hide();
+					$('#<%= row[:state].id %>-irco-list').show();
+					return false
+				})
+
+				$('#index-<%= row[:state].id %>-trend-trigger').click(function() {
+					$('.index-<%= row[:state].id %>-modal-section').hide();
+					$('#<%= row[:state].id %>-irco-trend').show();
+					google.charts.setOnLoadCallback(drawLineChart<%= row[:state].id %>);
+					return false
 				});
 				
-				
-				function drawColumnChart<%= row[:state].id %>() {
+				function drawLineChart<%= row[:state].id %>() {
 					var data = google.visualization.arrayToDataTable([
 						['Trimestre','IRCO'],
 							<% row[:evolution_score].each do |q| %>
@@ -59,18 +69,62 @@
 					]);
 					var options = {
 						height: 360,
-						width: 500,
+						width: 680,
 						legend: { position: "none" },
-						animation: {"startup": true},
+						animation: { "startup": true },
 						series: {
-							0: { color: '#00e5ff' },
+							0: { 
+								color: '<%= row[:hex] %>',
+								lineWidth: 3,
+							},
 						},
+						pointSize: 10,
+						pointShape: 'circle',
+						hAxis: {
+							textStyle: { fontSize: 12 }
+						},
+						vAxis: {
+							textStyle: { fontSize: 12 }	
+						}
 					};
-					var chart = new google.visualization.LineChart(document.getElementById('<%= row[:state].id %>-irco-trendline'));
+					var chart = new google.visualization.LineChart(document.getElementById('<%= row[:state].id %>-irco-trend'));
 					chart.draw(data, options);
-				}				
+				};
+				
+				$('#index-<%= row[:state].id %>-column-trigger').click(function() {
+					$('.index-<%= row[:state].id %>-modal-section').hide();
+					$('#<%= row[:state].id %>-irco-column').show();
+					google.charts.setOnLoadCallback(drawColumnChart<%= row[:state].id %>);
+					return false
+				});
+
+				function drawColumnChart<%= row[:state].id%>() {
+					var data = google.visualization.arrayToDataTable([
+						['Estado', 'IRCO', {role: 'style'}],
+						['<%= row[:state].shortname %>', <%= row[:irco][:score] %>, '<%= row[:hex] %>'],
+						<% row[:comparisonArr].each do |c| %>	
+							['<%= c[:state].shortname %>', <%= c[:score] %>, '#bdbdbd'],	
+						<% end %>
+					]);
+					var options = {
+						height: 360,
+						width: 680,
+						legend: { position: "none" },
+						animation: { "startup": true },
+						hAxis: {
+							textStyle: { fontSize: 12 }
+						},
+						vAxis: {
+							textStyle: { fontSize: 12 },
+							baseline: 0,
+
+						}
+					};
+					var chart = new google.visualization.ColumnChart(document.getElementById('<%= row[:state].id %>-irco-column'));
+					chart.draw(data, options);
+				};
 			<% end %>
-		})
+		})				
 	</script>
 <% end %>
 
@@ -149,10 +203,10 @@
 <!-- MODAL SECTION -->
 <% @sortedTable.each do |row| %>
 	<div id="<%= row[:state].id %>-irco-modal" class="modal large-modal">
-		<div class="modal-content">
-			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+		<div class="modal-content">	
 			<div class="row">
 				<div class="col m4 s10 offset-s2">
+					<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
 					<div class="valign-wrapper">
 						<div class="pseudo-button valign-wrapper">
 							<i class="material-icons small <%= row[:color] %> <%= row[:color] %>-text right-extra-margin z-depth-1">brightness_1</i>
@@ -182,14 +236,19 @@
 					<% end %>
 					<br>
 				</div>
-				<div class="col m7 offset-m1 s12">
-					<ul class="tabs cyan-text">
-						<li class="tab col s4 cyan-text"><a href="#<%= row[:state].id %>-irco-indicadores" class="active cyan-text">Indicadores</a>
-						<li id="<%= row[:state].id %>-irco-trendline-trigger" class="tab col s4 cyan-text trend-trigger"><a href="#<%= row[:state].id %>-irco-trendline" class="cyan-text">Evolución</a></li>
-					</ul>
+				<div class="col m7 s12">
+					<div class="right col s9">
+						<div class="row">
+							<div class="right">
+								<a id="index-<%= row[:state].id %>-list-trigger" href="javascript:void(0);"><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">list</i></a>
+								<a id="index-<%= row[:state].id %>-trend-trigger" href="javascript:void(0);"><i class="small material-icons cyan-text text-lighten-2 right-extra-margin index-trend-trigger">show_chart</i></a>
+								<a id="index-<%= row[:state].id %>-column-trigger" href="javascript:void(0);"><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">insert_chart</i></a>
+							</div>
+						</div>
+					</div>
 				</div>
-				<div class="col m7 offset-m1 s12" id="<%= row[:state].id %>-irco-indicadores">
-					<table>
+				<div class="col m7 s12 index-<%= row[:state].id %>-modal-section" id="<%= row[:state].id %>-irco-list">
+					<table class="left-extra-margin">
 						<thead>
 							<tr class="p12">
 								<td class="center-align">INDICADOR</td>
@@ -256,8 +315,9 @@
 						</tbody>
 					</table>
 				</div>
-				<div class="col m7 offset-m1 s12" id="<%= row[:state].id %>-irco-trendline">
-
+				<div id="<%= row[:state].id %>-irco-trend" class="index-<%= row[:state].id %>-modal-section col m7 s12 trend-chart-div">
+				</div>
+				<div id="<%= row[:state].id %>-irco-column" class="index-<%= row[:state].id %>-modal-section col m7 s12 column-chart-div">
 				</div>
 			</div>
 		</div>
