@@ -1,0 +1,9 @@
+<h6  class="h5-no-margin">
+	<% if @annual %>
+		<%= @my_freq_table[0][:period].first.name %><% if @my_freq_table[0][:period].length > 1 %> - <%= @my_freq_table[0][:period].last.name %><% end %>
+	<% elsif @quarterly %>
+		T<%= @my_freq_table[0][:period].first.name[-1]%>/<%= I18n.l(@my_freq_table[0][:period].first.first_day, format: '%Y') %><% if @my_freq_table[0][:period].length > 1 %> - T<%= @my_freq_table[0][:period].last.name[-1]%>/<%= I18n.l(@my_freq_table[0][:period].last.first_day, format: '%Y') %><% end %>
+	<% else %>
+		<%= I18n.l(@my_freq_table[0][:period].first.first_day, format: '%b/%Y') %><% if @my_freq_table[0][:period].length > 1 %> - <%= I18n.l(@my_freq_table[0][:period].last.first_day, format: '%b/%Y') %><% end %>
+	<% end %>
+</h6>

@@ -11,6 +11,35 @@
 					<ul class="collapsible z-depth-0">
 						<li>
 							<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
+								<i class="material-icons small">map</i><p5 class="query-header">Estado</p5>
+							</div>
+							<div id="state_filter_box" class="collapsible-body cyan darken-1">
+								<div class="row">
+									<div class="col s3">
+										<%= render "shared/filterbuttons"%>
+									</div>
+									<div class="col s9 checkbox-scroll">
+										<% @states.each do |state|%>
+											<div class="col s6">	
+												<p>
+													<label>
+														<input type="checkbox" name="query[freq_states][]" value="<%= state["id"] %>" 
+															<% if @checkedStates.include? state["id"] %>	
+																checked
+															<% end %>
+														/>
+														<span class="white-text"><%= state["shortname"] %></span>
+													</label>
+												</p>
+											</div>
+										<% end %>	
+									</div>
+								</div>
+								
+							</div>
+						</li>
+						<li>
+							<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
 								<i class="material-icons small">dns</i><p5 class="query-header">Tipo</p5>
 							</div>
 							<div id="type_filter_box" class="collapsible-body cyan darken-1">

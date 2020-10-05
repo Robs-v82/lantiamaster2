@@ -4,6 +4,16 @@
  *= require jquery-ui
  */
 
+.back-button-box {
+	display: inline-block;
+	vertical-align: top;
+	padding-top: 2px;
+}
+
+.after-back-button-box {
+	display: inline-block;
+}
+
 .gridRowHover{
     cursor: pointer;
  }
@@ -127,6 +137,7 @@ p.collection-item {
 }
 
 .collapsible .checkbox-scroll, {
+	padding-top: 20px;
 	max-height: 200px !important;
 	overflow-x: auto !important;
 }

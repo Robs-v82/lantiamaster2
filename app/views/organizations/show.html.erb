@@ -86,12 +86,7 @@
 					}
 				)
 		<% end %>
-
-
-
-
     })
-
     window.addEventListener("DOMContentLoaded", function(){        
 		}
 	)
@@ -110,32 +105,39 @@
 				<div class="row">
 					<div class="left-extra-margin">
 						<div class="col l5 m6 s12">
-							<h5 class="h5-no-margin">
-								<span class="slim"><%= @headerType %></span>
-							</h5>
-							<h5 class="h5-no-margin"><%= @headerTitle %></h5>
-							<% if @myOrganization.acronym %>
-								<p>(<%= @myOrganization.acronym %>)</p>
-							<% end %>
-							<br>
-							<% unless @myOrganization.mainleague.nil? %>
-								<div class="chip white z-depth-2 ">
-									<span class="valign-wrapper"><%= @myOrganization.mainleague.name %>
-										<a class="modal-trigger" href="#entry-mainleague-modal">
-											<i class="material-icons cyan-text right">info</i>
-										</a>
-									</span>	
-								</div>
-							<% end %>
-							<% unless @myOrganization.thissubleague.nil? %>
-								<div class="chip white z-depth-2 ">
-									<span class="valign-wrapper"><%= @myOrganization.thissubleague.name %>
-										<a class="modal-trigger" href="#entry-subleague-modal">
-											<i class="material-icons cyan-text right">info</i>
-										</a>
-									</span>	
-								</div>
-							<% end %>
+							<div class="back-button-box">
+								<a href="/organizations/back_query">
+									<i class="material-icons right-extra-margin">arrow_back</i>
+								</a>
+							</div>
+							<div class="after-back-button-box">
+								<h5 class="h5-no-margin">
+									<span class="slim"><%= @headerType %></span>
+								</h5>
+								<h5 class="h5-no-margin"><%= @headerTitle %></h5>
+								<% if @myOrganization.acronym %>
+									<p>(<%= @myOrganization.acronym %>)</p>
+								<% end %>
+								<br>
+								<% unless @myOrganization.mainleague.nil? %>
+									<div class="chip white z-depth-2 ">
+										<span class="valign-wrapper"><%= @myOrganization.mainleague.name %>
+											<a class="modal-trigger" href="#entry-mainleague-modal">
+												<i class="material-icons cyan-text right">info</i>
+											</a>
+										</span>	
+									</div>
+								<% end %>
+								<% unless @myOrganization.thissubleague.nil? %>
+									<div class="chip white z-depth-2 ">
+										<span class="valign-wrapper"><%= @myOrganization.thissubleague.name %>
+											<a class="modal-trigger" href="#entry-subleague-modal">
+												<i class="material-icons cyan-text right">info</i>
+											</a>
+										</span>	
+									</div>
+								<% end %>
+							</div>
 						</div>
 					</div>
 				</div>

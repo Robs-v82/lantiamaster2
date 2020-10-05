@@ -265,7 +265,59 @@ class DatasetsController < ApplicationController
   				@maps = true
   			end
   		end
+  		# @lastDay = helpers.lastDay("victims")
+	end
 
+	def load_victim_freq_table
+		years = Year.all
+		tablesArr = [
+			{:scope=>"stateWise", :regions=>State.all, :periods=>helpers.get_specific_years(years, "victims"), :category=>"state_annual_noGenderSplit_victims"},
+			{:scope=>"countyWise", :regions=>County.all, :periods=>helpers.get_specific_years(years, "victims"), :category=>"county_annual_noGenderSplit_victims"}
+		] 
+		
+		tablesArr.each{|x|
+			myArr = []
+			totalHash = {}
+			totalFreq = []
+			(1..x[:periods].length).each {
+				totalFreq.push(0)
+			}
+
+			x[:regions].each{|place|
+				unless place.victims.empty?
+					placeHash = {}
+					placeHash[:name] = place.name
+					if x[:scope] == "countyWise"
+						placeHash[:parent_name] = place.state.shortname
+					end
+					freq = []
+					counter = 0
+					place_total = 0
+					localVictims = place.victims
+					x[:periods].each {|timeUnit|
+						number_of_victims = localVictims.merge(timeUnit.victims).length
+						freq.push(number_of_victims)
+						totalFreq[counter] += number_of_victims
+						counter += 1
+						place_total += number_of_victims
+					}
+					placeHash[:freq] = freq
+					placeHash[:place_total] = place_total
+					myArr.push(placeHash)
+				end
+			}
+			totalHash[:freq] = totalFreq
+			total_total = 0
+			totalFreq.each{|q|
+				total_total += q
+			}
+			totalHash[:total_total] = total_total
+			myArr.push(totalHash)
+			Cookie.create(:data=>myArr, :category=>x[:category])
+		}
+
+		
+		redirect_to '/datasets/load'
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
@@ -469,13 +521,6 @@ class DatasetsController < ApplicationController
         myHash[:states_and_counties] = stateArr
  
         # LAST UPDATE
-        # validKillings = []
-        # Killing.all.each {|k|
-        #     if k.event.event_date
-        #         validKillings.push(k)
-        #     end
-        # }
-        # lastKilling = validKillings.sort_by{|k| k.event.event_date}.last
         lastKilling = Killing.all.sort_by{|k| k.event.event_date}.last
         thisMonth = Event.find(lastKilling.event_id).month
         lastDay = Event.find(lastKilling.event_id).event_date

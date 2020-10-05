@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     get 'county_victims_map_api' => 'datasets#county_victims_map_api'
     get 'loadApi' => 'datasets#loadApi'
     get 'organizations/index'
+    get 'organizations/back_query'
     post 'members/detentions'
     get 'members/detainees'
     get 'members/detainees_query'
@@ -75,4 +76,5 @@ Rails.application.routes.draw do
     get 'organizations/show/:id' => 'organizations#show'
     get 'organizations/query' => 'organizations#query'
     get 'counties/set_index_county/:id' => 'counties#set_index_county'
+    get 'datasets/load_victim_freq_table'
 end

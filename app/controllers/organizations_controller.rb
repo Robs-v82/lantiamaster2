@@ -17,8 +17,9 @@ class OrganizationsController < ApplicationController
   			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
   			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}
   		]
-  		typeKeys = cartels.pluck(:mainleague_id).uniq
-  		session[:organization_selection] = [typeKeys,coalitionKeys]
+  		checkedStates = []
+      typeKeys = cartels.pluck(:mainleague_id).uniq
+  		session[:organization_selection] = [typeKeys, coalitionKeys]
   		redirect_to '/organizations/index'
   	end
 
@@ -38,12 +39,31 @@ class OrganizationsController < ApplicationController
   			end
   		}
   		session[:organization_selection][1] = checkedCoalitions
-  		redirect_to '/organizations/index'
+      if organization_selection_params[:freq_states]
+        myArr = organization_selection_params[:freq_states].map(&:to_i)
+        Cookie.create(:data=>myArr)
+        session[:checkedStates] = Cookie.last.id
+      end
+      redirect_to '/organizations/index'
   	end
+
+    def back_query
+      if session[:organization_selection]
+        redirect_to '/organizations/index'
+      else
+        redirect_to '/organizations/query'  
+      end  
+    end
 
   	def index
  		@key = Rails.application.credentials.google_maps_api_key
- 		allCartels = Sector.where(:scian2=>98).last.organizations.uniq
+ 		@states = State.all.sort
+    if session[:checkedStates]
+      @checkedStates = Cookie.find(session[:checkedStates]).data
+    else
+      @checkedStates = State.pluck(:id)
+    end
+    allCartels = Sector.where(:scian2=>98).last.organizations.uniq
   		
   		@checkedTypes = []
    		session[:organization_selection][0].each{|key|
@@ -82,10 +102,15 @@ class OrganizationsController < ApplicationController
   		}
 
   		@cartels = []
-  		@checkedTypes.each{|type|
-  			@cartels.push(type.organizations)
-  		}
+      @checkedStates.each{|id|
+        state = State.find(id.to_i)
+        localOrganizations = state.rackets.uniq
+        @checkedTypes.each{|type|
+          @cartels.push(type.organizations.merge(localOrganizations))
+        }
+      }
   		@cartels.flatten!
+      @cartels = @cartels.uniq
   		@cartels = @cartels.sort_by{|cartel| cartel.name}
   		@colorArr = []
   		@alliedCartels = []
@@ -138,9 +163,14 @@ class OrganizationsController < ApplicationController
 
   	def show
   		# REPEATED STUFF FOR FILTER-BOX
- 		allCartels = Sector.where(:scian2=>98).last.organizations.uniq
-  		
-  		@checkedTypes = []
+ 		  allCartels = Sector.where(:scian2=>98).last.organizations.uniq
+  	  @states = State.all.sort
+      if session[:checkedStates]
+        @checkedStates = Cookie.find(session[:checkedStates]).data
+      else
+        @checkedStates = State.pluck(:id)
+      end  		
+      @checkedTypes = []
    		session[:organization_selection][0].each{|key|
   			@checkedTypes.push(League.find(key.to_i))
   		}
@@ -727,7 +757,7 @@ class OrganizationsController < ApplicationController
 	private
 
 	def organization_selection_params
-		params.require(:query).permit(types: [], coalitions: [])
+		params.require(:query).permit(types: [], coalitions: [], freq_states: [])
 	end
 
 	def load_organizations_params
