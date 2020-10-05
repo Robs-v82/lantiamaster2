@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="col s5 offset-s1">
+        <div class="input-field short-row">
+            <select class="operation-cartel-selector admins-select browser-default" name="query[cartel_id]">
+                <option value="" selected>Seleccione OC</option>
+                <% @cartels.each do |cartel|%>
+                    <option value="<%= cartel.id %>"><%= cartel.name %></option>
+                <% end %>
+            </select>
+        </div>
+        <div class="label-row">
+            <label class="white-text" for="operation-cartel-selector">ORGANIZACIÓN CRIMINAL</label>
+        </div>
+    </div>
+    <div class="col s5 offset-s1">
+        <div class="input-field short-row">
+            <input id="operation-cartel-newname-selector" class="white" type="text" name="query[new_name]">
+        </div>
+        <div class="label-row">
+            <label class="white-text" for="operation-cartel-newname-selector">NUEVO NOMBRE</label>
+        </div>
+    </div>
+</div>

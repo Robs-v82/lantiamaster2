@@ -671,6 +671,9 @@ module ApplicationHelper
 		if session[:checkedYearsArr]
 			session.delete(:checkedYearsArr)
 		end
+		if session[:checkedStates]
+			session.delete(:checkedStates)
+		end
 		if session[:checkedStatesArr]
 			session.delete(:checkedStatesArr)
 		end

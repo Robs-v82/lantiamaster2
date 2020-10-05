@@ -63,4 +63,10 @@ module OrganizationsHelper
 		return cartelArr
 	end
 
+	def get_cartels
+		cartels = Sector.where(:scian2=>"98").last.organizations.uniq
+		cartels = cartels.sort_by{|c| c.name}
+		return cartels
+	end
+
 end

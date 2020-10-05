@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_29_024204) do
+ActiveRecord::Schema.define(version: 2020_10_05_211634) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -237,6 +237,7 @@ ActiveRecord::Schema.define(version: 2020_09_29_024204) do
     t.boolean "active"
     t.integer "subleague_id"
     t.integer "mainleague_id"
+    t.string "legacy_names"
     t.index ["county_id"], name: "index_organizations_on_county_id"
   end
 

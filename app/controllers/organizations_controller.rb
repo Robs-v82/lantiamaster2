@@ -17,7 +17,6 @@ class OrganizationsController < ApplicationController
   			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
   			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}
   		]
-  		checkedStates = []
       typeKeys = cartels.pluck(:mainleague_id).uniq
   		session[:organization_selection] = [typeKeys, coalitionKeys]
   		redirect_to '/organizations/index'
@@ -754,6 +753,18 @@ class OrganizationsController < ApplicationController
 		redirect_to "/datasets/load"		
 	end
 
+  def new_name
+    myOrganization = Organization.find(new_name_params[:cartel_id])
+    legacy_names = myOrganization.legacy_names
+    myHash = {
+      :name=> myOrganization.name,
+      :change_date=> Date.today
+    }
+    legacy_names.push(myHash)
+    myOrganization.update(:name=>new_name_params[:new_name], :legacy_names=>legacy_names)
+    redirect_to "/datasets/load"
+  end
+
 	private
 
 	def organization_selection_params
@@ -783,14 +794,18 @@ class OrganizationsController < ApplicationController
 
 	def getDivisions_params
     	params.require(:organization).permit(:sector_id)
-  	end
+  end
 
-  	def getMembers_params
-  		params.require(:source).permit(:organization_id)
-  	end
+	def getMembers_params
+		params.require(:source).permit(:organization_id)
+	end
 
-  	def getFields_params
-  		params.require(:query).permit(:general)
-  	end
+	def getFields_params
+		params.require(:query).permit(:general)
+	end
+
+  def new_name_params
+    params.require(:query).permit(:cartel_id, :new_name)
+  end
 
 end

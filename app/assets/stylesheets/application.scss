@@ -186,6 +186,10 @@ ul.z-depth-0 {
 .total-tr {	
 }
 
+input[type=text] {
+	padding-left: 10px !important;
+}
+
 .switch label input[type=checkbox]:checked + .lever:after {
 	background-color: white !important;
 }
