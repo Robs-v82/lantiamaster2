@@ -201,7 +201,11 @@
 													</div>
 												</div>
 											</li>
-											<li id="county-collapsible-tab">
+											<li id="county-collapsible-tab"
+ 												<% unless session[:victim_freq_params][1] == "countyWise" %>
+													class="collapsible-disabled"
+												<% end %>
+											>
 												<div class="collapsible-header cyan darken-1 cyan-text text-accent-2">
 													<i class="material-icons tiny">map</i>
 													MUNICIPIOS
