@@ -298,6 +298,10 @@
 
 		// SWITCH FROM STATE TO CITY IN VICTM FREQUENCY TABLE	
 		$("#geo_query_box input").click(function() {  
+			$('#state-collapsible-tab input').prop('checked', true);
+			$('#city-collapsible-tab input').prop('checked', true);
+			$('#county-collapsible-tab input').prop('checked', true);
+			$('#state_filter_box .select-all, #state_filter_box .clear-all').removeClass('disabled');  
 			if  ($("#nation_query_box").is(':checked')){
 				$('#state-collapsible-tab').addClass('collapsible-disabled');
 				$('#city-collapsible-tab').addClass('collapsible-disabled');
@@ -313,10 +317,9 @@
 			} else {  
 				$('#city-collapsible-tab').addClass('collapsible-disabled');  
 				$('#state-collapsible-tab').removeClass('collapsible-disabled');
-			}
-			$('#state-collapsible-tab input').prop('checked', true);
-			$('#city-collapsible-tab input').prop('checked', true);
-			$('#county-collapsible-tab input').prop('checked', true);  
+				$('#state-collapsible-tab input').prop('checked', false);
+				$('#state_filter_box .select-all, #state_filter_box .clear-all').addClass('disabled');
+			};
 		});
 
 		// ACTIVATE GENDER IN FREQUENCY TABLE
@@ -351,11 +354,15 @@
 
 		// ACTIVATE COUNTIES FILTER
 		$('input[name="query[freq_states][]"]').click(function () {
-		var states = 0
-		$('input[name="query[freq_states][]"]:checked').each(function() {
-		   states = this.value;
-		});
-		var lenghtOfUnchecked = $(this).parent().parent().parent().parent().find('input:checkbox:not(:checked)').length;
+			if ($('#county_query_box').is(':checked')) {
+				$('#state-collapsible-tab input').prop('checked', false);
+				$(this).prop('checked', true);
+			};
+			var states = 0
+			$('input[name="query[freq_states][]"]:checked').each(function() {
+		    	states = this.value;
+			});
+			var lenghtOfUnchecked = $(this).parent().parent().parent().parent().find('input:checkbox:not(:checked)').length;
 			if (lenghtOfUnchecked == 31) {
 				if  ($("#county_query_box").is(':checked')) {
 					$('#county-collapsible-tab').removeClass('collapsible-disabled').addClass('county-switcher')
@@ -638,11 +645,16 @@
 
 		// DEFINE FREQ TABLE TIMEFRAME
 		$('.freq_filer_form input').change(function() {
+			var lenghtOfUnchecked = $('#state_filter_box').find('input:checkbox:not(:checked)').length
 			var mydata = $(this).serialize()
 			newArr = mydata.split("=")
 			$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')
 			$('.send_button i').addClass('text-darken-3')
-			$('.send-to-bottom').show()
+			if ($("#county_query_box").is(':checked') && lenghtOfUnchecked == 32) {
+				$('.send-to-bottom').hide()	
+			} else {
+				$('.send-to-bottom').show()
+			}
 		})
 
 		$('#county_checkboxes_box').on('click', 'input', function() {

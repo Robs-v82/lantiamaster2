@@ -259,7 +259,7 @@ class DatasetsController < ApplicationController
   			@checkedCounties = []
   		end
 
-  		@county_tootip_message = "Para activar el filtro de municipios:\n1) Elija 'municipio' en análisis geográfico.\n2) Filtre un solo estado."
+  		@county_toast_message = "Utilice la sección de Filtros para seleccionar estado y municipios"
 
   		if @stateWise
   			if @genderFrames[0][:checked]
@@ -432,22 +432,23 @@ class DatasetsController < ApplicationController
 			if gender == "noGenderSplit"
 				myTable.push(headerHash)
 				myScope.each {|place|
-					placeHash = {}
-					placeHash[:name] = place.name
-					if scope == "countyWise"
-						placeHash[:parent_name] = place.state.shortname
-					end
-					freq = []
-					counter = 0
-					place_total = 0
 					localVictims = place.victims
-					myPeriod.each {|timeUnit|
-						number_of_victims = localVictims.merge(timeUnit.victims).length
-						freq.push(number_of_victims)
-						totalFreq[counter] += number_of_victims
-						counter += 1
-						place_total += number_of_victims
-					}
+						placeHash = {}
+						placeHash[:name] = place.name
+						if scope == "countyWise"
+							placeHash[:parent_name] = place.state.shortname
+						end
+						freq = []
+						counter = 0
+						place_total = 0
+						
+						myPeriod.each {|timeUnit|
+							number_of_victims = localVictims.merge(timeUnit.victims).length
+							freq.push(number_of_victims)
+							totalFreq[counter] += number_of_victims
+							counter += 1
+							place_total += number_of_victims
+						}
 					placeHash[:freq] = freq
 					placeHash[:place_total] = place_total
 					myTable.push(placeHash)

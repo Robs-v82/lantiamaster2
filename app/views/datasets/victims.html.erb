@@ -65,6 +65,9 @@
 															<% if query[:checked]%>
 																checked
 															<% end %>
+															<% if query[:box_id] == "county_query_box" %>
+																onclick="M.toast({html: '<%= @county_toast_message %>'})"
+															<% end %>
 														/>
 														<span class="white-text p20 slim"><%= query[:caption] %></span>
 													</label>
@@ -139,9 +142,13 @@
 												</div>
 												<div id="state_filter_box" class="collapsible-body cyan darken-1">
 													<div class="row">
-														<div class="col s3">
-															<%= render "shared/filterbuttons"%>
-														</div>
+															<div id="state-select-and-clear-box" class="col s3">
+																<% if session[:victim_freq_params][1] == "countyWise" %>
+																	<%= render "shared/disabledfilterbuttons"%>
+																<% else %>
+																	<%= render "shared/filterbuttons"%>
+																<% end %>
+															</div>
 														<div class="col s9 checkbox-scroll">
 															<% @states.each do |state|%>
 																<div class="col s6">	
@@ -194,11 +201,7 @@
 													</div>
 												</div>
 											</li>
-											<li id="county-collapsible-tab"
-												<% unless session[:victim_freq_params][4].length == 1 && session[:victim_freq_params][1] == "countyWise" %> 
-													class="collapsible-disabled tooltipped" data-position="right" data-tooltip="<%= @county_tootip_message %>"
-												<% end %>
-											>
+											<li id="county-collapsible-tab">
 												<div class="collapsible-header cyan darken-1 cyan-text text-accent-2">
 													<i class="material-icons tiny">map</i>
 													MUNICIPIOS
