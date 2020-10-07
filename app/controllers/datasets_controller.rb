@@ -257,7 +257,7 @@ class DatasetsController < ApplicationController
 
   		@county_toast_message = "Utilice la sección de Filtros para seleccionar estado y municipios"
 
-  		if @stateWise
+  		if @stateWise || @cityWise
   			if @genderFrames[0][:checked]
   				@maps = true
   			elsif @checkedGenderOptions.length == 1
@@ -497,7 +497,6 @@ class DatasetsController < ApplicationController
 
     def loadApi
         myHash = {}
-
         stateArr = []
         State.all.each{|state|
         	stateHash = {}

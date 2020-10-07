@@ -1,17 +1,12 @@
 <% provide :head_tags do %>
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	<script type="text/javascript">
-		
-		$(document).ready(function() {
-			
+	<script type="text/javascript">	
+		$(document).ready(function() {		
 			google.charts.load('current', {
 				'packages':['geochart'],
 				'mapsApiKey': '<%= @key %>'
 			});
-
-			google.charts.setOnLoadCallback(drawRegionsMap);
-
-				
+			google.charts.setOnLoadCallback(drawRegionsMap)
 			function drawRegionsMap() {
 				var data = google.visualization.arrayToDataTable([
 					['Municipio','IRCO'],
@@ -19,7 +14,6 @@
 						['<%= row[:county][:shortname]%>, <%= row[:county].state[:shortname]%>',<%= row[:irco][:score]%>],
 					<% end %>
 				]);
-
 				var options = {
 					height: 500,
 					region: 'MX',
@@ -32,13 +26,9 @@
 					sizeAxis: {minSize: 7,  maxSize: 7},
 					legend: false,
 				};
-
 				var chart = new google.visualization.GeoChart(document.getElementById('map-display'));
-
 				chart.draw(data, options);
 			}
-			
-
 		})
 	</script>
 <% end %>

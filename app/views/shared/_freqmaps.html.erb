@@ -1,48 +1,75 @@
 <script type="text/javascript">
 
 	$(document).ready(function() {
-
 		google.charts.load('current', {
 			'packages':['geochart'],
 			'mapsApiKey': '<%= @key %>'
 		});
-
-		
-		
 		$("#freq-map-trigger").click(function() {
 			$(".freq-entry-display").hide();
 			$("#freq-entry-map").show();
 			google.charts.setOnLoadCallback(drawRegionsMap);
 			return false
 	 	})
-
 		function drawRegionsMap() {
-			var data = google.visualization.arrayToDataTable([
-				['State', 'Frecuencia'],
-				<% @my_freq_table[1..-2].each do |place| %>
-					[
-						<% if place[:name] == "Ciudad de México" %>
-							"Distrito Federal"
-						<% else %>
-							'<%= place[:name] %>'
-						<% end %>
-						,
-						<%= place[:place_total] %>
-					],
-				<% end %>
-			]);
-
-			var options = {
-				height: 500,
-				region: 'MX',
-				resolution: 'provinces',
-				colorAxis: {colors: ['#ffecb3', '#ff6f00']}
-			};
-
+			<% if @stateWise %>
+				var data = google.visualization.arrayToDataTable([
+					['State', 'Víctimas'],
+					<% @my_freq_table[1..-2].each do |place| %>
+						[
+							<% if place[:name] == "Ciudad de México" %>
+								"Distrito Federal"
+							<% else %>
+								'<%= place[:name] %>'
+							<% end %>
+							,
+							<%= place[:place_total] %>
+						],
+					<% end %>
+				]);
+				var options = {
+					height: 500,
+					region: 'MX',
+					resolution: 'provinces',
+					colorAxis: {colors: ['#ffecb3', '#ff6f00']}
+				};
+			<% elsif @cityWise %>
+				var data = new google.visualization.DataTable();
+				data.addColumn('number', 'latitude'); 
+				data.addColumn('number', 'longitude');
+				data.addColumn('string', 'ZM')
+				data.addColumn('number', 'Víctimas'); // Implicit series 1 data col.
+				data.addRows([
+					<% @my_freq_table[1..-2].each do |place| %>
+			 			[
+				 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.latitude %>,
+				 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.longitude %>,
+				 			'<%= place[:name] %>',
+				 			<%= place[:place_total] %>,
+				 		],
+					<% end %>
+				]); 
+				// var data = google.visualization.arrayToDataTable([
+				// 	['latitude','longitude','Víctimas'],
+				// 	<% @my_freq_table[1..-2].each do |place| %>
+				// 		[
+				// 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.latitude %>,
+				// 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.longitude %>,
+				// 			<%= place[:place_total]%>
+				// 		],
+				// 	<% end %>
+				// ]);
+				var options = {
+					height: 500,
+					region: 'MX',
+					displayMode: 'markers',
+					resolution: 'provinces',
+					colorAxis: {colors: ['#ff6f00', '#ff6f00']},
+					legend: false,
+				};
+			<% end  %>
 			var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
-
 			chart.draw(data, options);
-		}
-
+		};
 	})
 </script>

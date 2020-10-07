@@ -140,7 +140,7 @@ rawData = '1,Zona metropolitana de Aguascalientes,1001,Aguascalientes,1
 21,Zona metropolitana de Guadalajara,14120,Zapopan,0
 22,Zona metropolitana de Puerto Vallarta,14067,Puerto Vallarta,1
 22,Zona metropolitana de Puerto Vallarta,18020,Bahía de Banderas,0
-23,Zona metropolitana de Ocotlán,14063,Ocotlán,0
+23,Zona metropolitana de Ocotlán,14063,Ocotlán,1
 23,Zona metropolitana de Ocotlán,14066,Poncitlán,0
 24,Zona metropolitana de Toluca,15005,Almoloya de Juárez,0
 24,Zona metropolitana de Toluca,15018,Calimaya,0
@@ -161,7 +161,7 @@ rawData = '1,Zona metropolitana de Aguascalientes,1001,Aguascalientes,1
 25,Zona metropolitana de Morelia,16053,Morelia,1
 25,Zona metropolitana de Morelia,16088,Tarímbaro,0
 26,Zona metropolitana de Zamora-Jacona,16043,Jacona,0
-26,Zona metropolitana de Zamora-Jacona,16108,Zamora,0
+26,Zona metropolitana de Zamora-Jacona,16108,Zamora,1
 27,Zona metropolitana de La Piedad-Pénjamo,11023,Pénjamo,0
 27,Zona metropolitana de La Piedad-Pénjamo,16069,La Piedad,1
 28,Zona metropolitana de Cuernavaca,17007,Cuernavaca,1
@@ -264,11 +264,11 @@ rawData = '1,Zona metropolitana de Aguascalientes,1001,Aguascalientes,1
 36,Zona metropolitana de Querétaro,22011,El Marqués,0
 36,Zona metropolitana de Querétaro,22014,Querétaro,1
 37,Zona metropolitana de Cancún,23003,Isla Mujeres,0
-37,Zona metropolitana de Cancún,23005,Benito Juárez,0
+37,Zona metropolitana de Cancún,23005,Benito Juárez,1
 38,Zona metropolitana de San Luis Potosí - Soledad de Graciano Sánchez,24028,San Luis Potosí,1
 38,Zona metropolitana de San Luis Potosí - Soledad de Graciano Sánchez,24035,Soledad de Graciano Sánchez,0
 39,Zona metropolitana de Rioverde-Ciudad Fernández,24011,Ciudad Fernández,0
-39,Zona metropolitana de Rioverde-Ciudad Fernández,24024,Rioverde,0
+39,Zona metropolitana de Rioverde-Ciudad Fernández,24024,Rioverde,1
 40,Zona metropolitana de Guaymas,26025,Empalme,0
 40,Zona metropolitana de Guaymas,26029,Guaymas,1
 41,Zona metropolitana de Villahermosa,27004,Centro,1
@@ -280,8 +280,8 @@ rawData = '1,Zona metropolitana de Aguascalientes,1001,Aguascalientes,1
 42,Zona metropolitana de Tampico,30133,Pueblo Viejo,0
 43,Zona metropolitana de Reynosa-Río Bravo,28032,Reynosa,1
 43,Zona metropolitana de Reynosa-Río Bravo,28033,Río Bravo,0
-44,Zona metropolitana de Matamoros,28022,Matamoros,0
-45,Zona metropolitana de Nuevo Laredo,28027,Nuevo Laredo,0
+44,Zona metropolitana de Matamoros,28022,Matamoros,1
+45,Zona metropolitana de Nuevo Laredo,28027,Nuevo Laredo,1
 46,Zona metropolitana de Tlaxcala-Apizaco,29001,Amaxac de Guerrero,0
 46,Zona metropolitana de Tlaxcala-Apizaco,29002,Apetatitlán de Antonio Carvajal,0
 46,Zona metropolitana de Tlaxcala-Apizaco,29005,Apizaco,0
