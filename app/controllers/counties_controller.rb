@@ -97,7 +97,22 @@ class CountiesController < ApplicationController
 
 			countyHash[:q1_stolen_cars_change] = helpers.variable_change_and_icon(countyHash[:irco][:stolen_cars],countyHash[:back_one_quarter_irco][:stolen_cars])
 			countyHash[:y1_stolen_cars_change] = helpers.variable_change_and_icon(countyHash[:irco][:stolen_cars],countyHash[:back_one_year_irco][:stolen_cars])
-			
+
+            countyHash[:evolution_score] = []
+            [7,6,5,4,3,2,1,0].each{|x|
+                t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
+                Quarter.all.each{|q|
+                    periodHash = {}
+                    if (q.first_day.strftime('%m-%Y')) == t
+                        periodString = helpers.quarter_strings(q)
+                        periodString = periodString[:quarterShort]+"/"+q.name[0..3]
+                        periodHash[:string] = periodString
+                        q_score = ircoOutput(q, county)[:score]
+                        periodHash[:score] = q_score
+                        countyHash[:evolution_score].push(periodHash)
+                    end
+                } 
+            }
 
 			ircoTable.push(countyHash)
 		}

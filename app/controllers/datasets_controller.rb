@@ -48,6 +48,11 @@ class DatasetsController < ApplicationController
 		]
 	end
 
+	def api_control
+		@forms = [
+		]		
+	end
+
 	def load_ensu
 
 		myName = load_ensu_params[:year]+"_"+load_ensu_params[:quarter]
@@ -623,7 +628,73 @@ class DatasetsController < ApplicationController
         myHash[:topCounties] = topCountiesArr[0..4]
 
         Cookie.create(:data=>[myHash], :category=>"api")
-        redirect_to "/datasets/load"
+        redirect_to "/datasets/api_control"
+    end
+
+    def load_featured_state
+    	myState = State.where(:name=>"Guerrero").last
+    	levels = helpers.ircoLevels
+    	myHash = {}
+    	irco = Cookie.where(:category=>"irco").last.data
+    	myHash[:quarter] = irco[0][:evolution_score].last[:string] 
+    	myHash[:state] = {:code=>myState.code, :name=>myState.name, :shortname=>myState.shortname}
+    	irco.each{|x|
+    		if x[:state].id == myState.id
+    			myHash[:irco] = {:score=>x[:irco][:score]}
+    			myHash[:irco][:level] = x[:level]
+    			myHash[:irco][:trend] = x[:trend]
+    			myHash[:irco][:rank] = x[:rank].to_i
+    			myHash[:irco][:n] = 32
+    		end
+    	}
+    	myHash[:irco][:score] =  myHash[:irco][:score]*10
+        myHash[:irco][:score] = myHash[:irco][:score].round()
+    	myRackets = {}
+    	cartel_id = League.where(:name=>"Cártel").last.id
+    	mafia_id = League.where(:name=>"Mafia").last.id
+    	band_id = League.where(:name=>"Banda").last.id
+    	myRackets[:n] = myState.rackets.uniq.length
+    	myRackets[:cartels] = myState.rackets.where(:mainleague=>cartel_id).uniq.pluck(:name).sort
+    	myRackets[:mafias] = myState.rackets.where(:mainleague=>mafia_id).uniq.pluck(:name).sort
+    	myRackets[:bands] = myState.rackets.where(:mainleague=>band_id).uniq.pluck(:name).sort
+    	myHash[:rackets] = myRackets
+    
+
+    	Cookie.create(:data=>[myHash], :category=>"featured_state_api")
+    	redirect_to "/featured_state_api"
+    end
+
+    def load_featured_county
+    	myCounty = County.where(:full_code=>"09015").last
+    	levels = helpers.ircoLevels
+    	myHash = {}
+    	irco = Cookie.where(:category=>"irco_counties").last.data
+    	myHash[:quarter] = irco[0][:evolution_score].last[:string]
+    	myHash[:county] = {:code=>myCounty.code, :name=>myCounty.name, :shortname=>myCounty.shortname}
+    	irco.each{|x|
+    		if x[:county].id == myCounty.id
+    			myHash[:irco] = {:score=>x[:irco][:score]}
+    			myHash[:irco][:level] = x[:level]
+    			myHash[:irco][:trend] = x[:trend]
+    			myHash[:irco][:rank] = x[:rank].to_i
+    			myHash[:irco][:n] = 32
+    		end
+    	}
+    	myHash[:irco][:score] =  myHash[:irco][:score]*10
+        myHash[:irco][:score] = myHash[:irco][:score].round()
+    	myRackets = {}
+    	cartel_id = League.where(:name=>"Cártel").last.id
+    	mafia_id = League.where(:name=>"Mafia").last.id
+    	band_id = League.where(:name=>"Banda").last.id
+    	myRackets[:n] = myCounty.rackets.uniq.length
+    	myRackets[:cartels] = myCounty.rackets.where(:mainleague=>cartel_id).uniq.pluck(:name).sort
+    	myRackets[:mafias] = myCounty.rackets.where(:mainleague=>mafia_id).uniq.pluck(:name).sort
+    	myRackets[:bands] = myCounty.rackets.where(:mainleague=>band_id).uniq.pluck(:name).sort
+    	myHash[:rackets] = myRackets
+    
+
+    	Cookie.create(:data=>[myHash], :category=>"featured_county_api")
+    	redirect_to "/featured_county_api"
     end
 
     def states_and_counties_api
@@ -656,6 +727,17 @@ class DatasetsController < ApplicationController
         render json: myHash 
     end
 
+    def featured_state_api
+        myData = Cookie.where(:category=>"featured_state_api").last.data[0]
+        myHash = {:data=>myData}
+    	render json: myHash
+    end
+
+    def featured_county_api
+        myData = Cookie.where(:category=>"featured_county_api").last.data[0]
+        myHash = {:data=>myData}
+    	render json: myHash
+    end
 
 	private
 
