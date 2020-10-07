@@ -26,17 +26,13 @@ class DatasetsController < ApplicationController
 				crimeVictimReportLoaded.push(month.name)
 			end
 		}
-
 		@cartels = helpers.get_cartels
-
 		if session[:load_success]
 			@load_success = true
 		end
-
 		if session[:filename]
 			@filename = session[:filename]
 		end
-
 		@myYears = (2010..2030)
 		@forms = [
 			{caption:"Perfil OC", myAction:"/organizations/load_organizations", timeSearch: nil, myObject:"file", loaded: nil, fileWindow: true},

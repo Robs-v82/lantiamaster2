@@ -6,6 +6,7 @@ class City < ApplicationRecord
 	has_many :killings, :through => :events
 	has_many :victims, :through => :killings
 	has_many :sources, :through => :events
+	belongs_to :core_county, class_name: "County", optional: true
 
 	def self.to_csv
 		attributes = %w{id name code}
