@@ -670,14 +670,14 @@ class DatasetsController < ApplicationController
     	myHash = {}
     	irco = Cookie.where(:category=>"irco_counties").last.data
     	myHash[:quarter] = irco[0][:evolution_score].last[:string]
-    	myHash[:county] = {:code=>myCounty.code, :name=>myCounty.name, :shortname=>myCounty.shortname}
+    	myHash[:county] = {:code=>myCounty.full_code, :name=>myCounty.name, :shortname=>myCounty.shortname}
     	irco.each{|x|
     		if x[:county].id == myCounty.id
     			myHash[:irco] = {:score=>x[:irco][:score]}
     			myHash[:irco][:level] = x[:level]
     			myHash[:irco][:trend] = x[:trend]
     			myHash[:irco][:rank] = x[:rank].to_i
-    			myHash[:irco][:n] = 32
+    			myHash[:irco][:n] = helpers.bigCounties.length
     		end
     	}
     	myHash[:irco][:score] =  myHash[:irco][:score]*10

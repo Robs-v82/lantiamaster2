@@ -72,7 +72,7 @@ class CountiesController < ApplicationController
         myQuarter = Quarter.where(:name=>myName).last
         back_one_quarter = helpers.back_one_q(myQuarter)
         back_one_year = helpers.back_one_y(myQuarter)
-		bigCounties = County.where("population > ?",100000)
+		bigCounties = helpers.bigCounties
 		@levels = helpers.ircoLevels
 		ircoTable = []
 		bigCounties.each{|county|
@@ -152,7 +152,7 @@ class CountiesController < ApplicationController
   			@selectionFrames[0][:checked] = true
   		end
 		@levels = helpers.ircoLevels
-		bigCounties = County.where("population > ?",100000)
+		bigCounties = helpers.bigCounties
 		@tableHeader = ["MUNICIPIO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
 
 		@sortedTable = myCookie.data
