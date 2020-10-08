@@ -4,6 +4,36 @@
  *= require jquery-ui
  */
 
+#map-container {
+    height: 500px; 
+    min-width: 310px; 
+    max-width: 800px; 
+    margin: 0 auto; 	
+}
+
+.loading {
+    margin-top: 10em;
+    text-align: center;
+    color: gray;
+}
+
+.checkbox-scroll .s11 {
+	padding-right: 0 !important;
+}
+
+.checkbox-scroll .col {
+	padding-bottom: 12px;
+}
+
+.checkbox-scroll span {
+	vertical-align: middle;
+}
+
+.checkbox-scroll p {
+	line-height: 1.2 !important;
+}
+
+
 .back-button-box {
 	display: inline-block;
 	vertical-align: top;
@@ -267,11 +297,7 @@ body {
 }
 
 main {
-flex: 1 0 auto;
-}
-
-span {
-	line-hight: 1.2 !important;
+	flex: 1 0 auto;
 }
 
 input {
@@ -552,10 +578,10 @@ input:disabled {
 }
 
 [type="checkbox"] + span:not(.lever) {
-	height: 50px;
 	border: white;
 	padding-left: 28px;
-	line-height: 18px;
+	height: auto;
+	font-size: 14px;
 }
 
 [type="checkbox"] + span:not(.lever):before, [type="checkbox"]:not(.filled-in) + span:not(.lever):after {

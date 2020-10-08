@@ -1,75 +1,129 @@
 <script type="text/javascript">
 
 	$(document).ready(function() {
-		google.charts.load('current', {
-			'packages':['geochart'],
-			'mapsApiKey': '<%= @key %>'
-		});
-		$("#freq-map-trigger").click(function() {
-			$(".freq-entry-display").hide();
-			$("#freq-entry-map").show();
-			google.charts.setOnLoadCallback(drawRegionsMap);
-			return false
-	 	})
-		function drawRegionsMap() {
-			<% if @stateWise %>
-				var data = google.visualization.arrayToDataTable([
-					['State', 'Víctimas'],
-					<% @my_freq_table[1..-2].each do |place| %>
-						[
-							<% if place[:name] == "Ciudad de México" %>
-								"Distrito Federal"
-							<% else %>
-								'<%= place[:name] %>'
-							<% end %>
-							,
-							<%= place[:place_total] %>
-						],
-					<% end %>
-				]);
-				var options = {
-					height: 500,
-					region: 'MX',
-					resolution: 'provinces',
-					colorAxis: {colors: ['#ffecb3', '#ff6f00']}
-				};
-			<% elsif @cityWise %>
-				var data = new google.visualization.DataTable();
-				data.addColumn('number', 'latitude'); 
-				data.addColumn('number', 'longitude');
-				data.addColumn('string', 'ZM')
-				data.addColumn('number', 'Víctimas'); // Implicit series 1 data col.
-				data.addRows([
-					<% @my_freq_table[1..-2].each do |place| %>
-			 			[
-				 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.latitude %>,
-				 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.longitude %>,
-				 			'<%= place[:name] %>',
-				 			<%= place[:place_total] %>,
-				 		],
-					<% end %>
-				]); 
-				// var data = google.visualization.arrayToDataTable([
-				// 	['latitude','longitude','Víctimas'],
-				// 	<% @my_freq_table[1..-2].each do |place| %>
-				// 		[
-				// 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.latitude %>,
-				// 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.longitude %>,
-				// 			<%= place[:place_total]%>
-				// 		],
-				// 	<% end %>
-				// ]);
-				var options = {
-					height: 500,
-					region: 'MX',
-					displayMode: 'markers',
-					resolution: 'provinces',
-					colorAxis: {colors: ['#ff6f00', '#ff6f00']},
-					legend: false,
-				};
-			<% end  %>
-			var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
-			chart.draw(data, options);
-		};
+		<% if @countyWise %>
+			// Prepare random data
+			var data = [
+			    <% @my_freq_table[1..-2].each do |place| %>
+			    	{full_code:'<%= place[:full_code] %>', value:<%= place[:place_total] %>},
+			    <% end %>
+			];
+
+			Highcharts.getJSON('http://localhost:3000/maps/<%= State.find(session[:checkedStatesArr][0]).code %>.geojson', function (geojson) {
+
+			    // Initiate the chart
+			    Highcharts.mapChart('freq-entry-map', {
+			        chart: {
+			            map: geojson,
+			            height: 500,
+			        },
+			        legend: false,
+			        title: false, 
+			        credits: false,
+			        mapNavigation: {
+			            enabled: false,
+			        },
+					exporting: {
+						enabled: false
+					},
+		            colors: ["#aed581", "#fff176", "#ffb74d", "#ff8a65"],
+		            colorAxis: {
+		                dataClassColor: 'category',
+		                dataClasses: [{
+		                    to: <%= session[:checkedYearsArr].length %>
+		                }, {
+		                    from: <%= session[:checkedYearsArr].length %>,
+		                    to: <%= session[:checkedYearsArr].length*10 %>
+		                }, {
+		                    from: <%= session[:checkedYearsArr].length*10 %>,
+		                    to: <%= session[:checkedYearsArr].length*20 %>
+		                }, {
+		                    from: <%= session[:checkedYearsArr].length*20 %>
+		                }]
+		            },
+			        series: [{
+			            data: data,
+			            joinBy: 'full_code',
+			            name: 'Víctimas',
+			            states: {
+			                hover: {
+			                    color: '#ffffff'
+			                }
+			            },
+			            dataLabels: {
+			                enabled: true,
+			                format: '{point.properties.postal}'
+			            }
+			        }]
+			    });
+			});
+			$("#freq-map-trigger").click(function() {
+				$(".freq-entry-display").hide();
+				$("#freq-entry-map").show();
+				return false
+		 	})
+		<% else %>
+			google.charts.load('current', {
+				'packages':['geochart'],
+				'mapsApiKey': '<%= @key %>'
+			});
+			$("#freq-map-trigger").click(function() {
+				$(".freq-entry-display").hide();
+				$("#freq-entry-map").show();
+				google.charts.setOnLoadCallback(drawRegionsMap);
+				return false
+		 	})
+			function drawRegionsMap() {
+				<% if @stateWise %>
+					var data = google.visualization.arrayToDataTable([
+						['State', 'Víctimas'],
+						<% @my_freq_table[1..-2].each do |place| %>
+							[
+								<% if place[:name] == "Ciudad de México" %>
+									"Distrito Federal"
+								<% else %>
+									'<%= place[:name] %>'
+								<% end %>
+								,
+								<%= place[:place_total] %>
+							],
+						<% end %>
+					]);
+					var options = {
+						height: 500,
+						region: 'MX',
+						resolution: 'provinces',
+						colorAxis: {colors: ['#ffecb3', '#ff6f00']}
+					};
+				<% elsif @cityWise %>
+					var data = new google.visualization.DataTable();
+					data.addColumn('number', 'latitude'); 
+					data.addColumn('number', 'longitude');
+					data.addColumn('string', 'ZM')
+					data.addColumn('number', 'Víctimas'); // Implicit series 1 data col.
+					data.addRows([
+						<% @my_freq_table[1..-2].each do |place| %>
+				 			[
+					 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.latitude %>,
+					 			<%= City.where(:name=>place[:name]).last.core_county.towns.where(:name=>"Sin definir").last.longitude %>,
+					 			'<%= place[:name] %>',
+					 			<%= place[:place_total] %>,
+					 		],
+						<% end %>
+					]); 
+	
+					var options = {
+						height: 500,
+						region: 'MX',
+						displayMode: 'markers',
+						resolution: 'provinces',
+						colorAxis: {colors: ['#ff6f00', '#ff6f00']},
+						legend: false,
+					};
+				<% end  %>
+				var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
+				chart.draw(data, options);
+			};
+		<% end %>
 	})
 </script>

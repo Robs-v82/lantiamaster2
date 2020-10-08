@@ -1,0 +1,71 @@
+<script type="text/javascript">
+	var stateMapData = function(year) {
+		$.ajax({
+			type: "GET",
+			url: "/estado/"+state_id+"/"+year+"/stateMapData",
+			dataType: "json",
+			success: function(result) {
+			    console.log(result)
+			    console.log(target_map)
+			    console.log(result.data.clave_estado)
+			    $('#state-map-container').highcharts('Map', {
+
+			        chart: {
+				        backgroundColor: "transparent" 	
+			        },
+			        title : false,
+			        mapNavigation: {
+			            enabled: true,
+			            buttonOptions: {
+			                verticalAlign: 'bottom'
+			            }
+			        },
+
+			        colorAxis: {
+			            min: 0,
+			            max: 50,
+			            minColor: '#ffd600',
+			            maxColor: '#dd2c00',  
+			        },
+
+			        series : [{
+			            data: result.data,
+			            mapData: target_map,
+			            joinBy: 'clave_munici',
+			            name: year,
+			            states: {
+			                hover: {
+			                    color: '#BADA55'
+			                }
+			            },
+			            dataLabels: {
+			                enabled: false,
+			            }
+			        }],
+			        credits: {
+			        	enabled: false, 
+			        },
+					tooltip: {
+		    			backgroundColor: "rgba(0,0,0, 0.65)",
+		    			borderRadius: 0,
+		    			borderWidth: 0,
+						shadow: false,
+						style: {
+							color: "#ffffff"
+						}
+					},
+					legend: {
+						enabled: false,
+					},
+			    })
+			}
+		})
+	}
+    stateMapData(2015)	
+</script>
+<!DOCTYPE html>
+<html>>
+<body>
+	<div id="state-map-container"></div>
+</body>
+</html>

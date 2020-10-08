@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Lantiamaster</title>
+        <meta charset="UTF-8">
         <%= csrf_meta_tags %>
         <%= csp_meta_tag %>
 
@@ -14,65 +15,61 @@
         <%= wicked_pdf_stylesheet_link_tag "application" %>
         <%= javascript_include_tag 'https://maps.googleapis.com/maps/api/js?key='+"AIzaSyBWd0Mv-5p6ARfMQTRyC3pmNPuMucGL2i4" %>
         <%= yield(:head_tags) %>
-        <script src="https://code.highcharts.com/highcharts.js"></script>
-        <script src="https://code.highcharts.com/modules/series-label.js"></script>
-        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+        <script src="https://code.highcharts.com/maps/modules/data.js"></script>
+        <script src="https://code.highcharts.com/maps/modules/data.js"></script>
+        <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>        
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-  <body>
-    <div class="b-container">
-      <br>
-      <div class="row white"> 
-        <div class="valign-wrapper">
-<!--           <img src="app/assets/optimized_logo.jpg" class="col s4"> -->
-          
-          <div class="left">
-          <% if session[:user_id] %>
-            <%= render "shared/slidenavbar"%>
-          <% end %>
-          </div>
+    <body>
+        <div class="b-container">
+            <br>
+            <div class="row white"> 
+                <div class="valign-wrapper">
+                <!--           <img src="app/assets/optimized_logo.jpg" class="col s4"> -->
 
-          <div>
-            <%= image_tag "optimized_logo.jpg", :class => "col m4 s7" %>
-          </div>
-          <% if session[:user_id] %>
-<!--             <div>
-              <div class="input-field">
-                <input type="text" id="organization-autocomplete" class="autocomplete">
-                <label for="organization-autocomplete">Autocomplete</label>
-              </div>
-            </div> -->
-            <div class="col s2 right">
-                <a href="/organizations/logout" class="right tooltipped" data-position="bottom" data-tooltip="Cerrar sesión">
-                  <i class="small material-icons cyan-text text-accent-4 right-extra-margin">exit_to_app</i>
-                </a>
-                <a href="/organizations/main" class="right tooltipped" data-position="bottom" data-tooltip="Consulta interactiva de datos">
-                  <i class="small material-icons cyan-text text-accent-4 right-extra-margin">search</i>
-                </a>
+                <div class="left">
+                    <% if session[:user_id] %>
+                        <%= render "shared/slidenavbar"%>
+                    <% end %>
+                </div>
+
+                <div>
+                    <%= image_tag "optimized_logo.jpg", :class => "col m4 s7" %>
+                </div>
+                <% if session[:user_id] %>
+                    <div class="col s2 right">
+                        <a href="/organizations/logout" class="right tooltipped" data-position="bottom" data-tooltip="Cerrar sesión">
+                            <i class="small material-icons cyan-text text-accent-4 right-extra-margin">exit_to_app</i>
+                        </a>
+                        <a href="/organizations/main" class="right tooltipped" data-position="bottom" data-tooltip="Consulta interactiva de datos">
+                            <i class="small material-icons cyan-text text-accent-4 right-extra-margin">search</i>
+                        </a>
+                    </div>
+                <% end %>
+                </div>
             </div>
-        <% end %>
-        </div>
-      </div>
-      <div>
-          <%= yield %>
-      </div>
-    </div>
-      <footer class="page-footer cyan lighten-3 black-text">
-        <div class="container">
-        <div class="row footer-row">
-          <div class="valign-wrapper">
-            <div class="col l4 m6">
-              <a href="https://twitter.com/LantiaIntel"><%= image_tag "twitter_icon", :class => "footer-icon" %></a> 
-              <a href="https://www.linkedin.com/company/lantia-consultores/"><%= image_tag "linkedin_icon", :class => "footer-icon" %></a> 
+            <div>
+                <%= yield %>
             </div>
-            <div class="col l8 l6">
-              <p class="small-text right-align">ESTRATEGIA, DECISIONES Y MEJORES PRÁCTICAS S.C.
-                PASEO DE LA REFORMA 389, PISO 12, CDMX, CP. 06500.</p>
-              <p class="small-text"></p>
+        </div>
+        <footer class="page-footer cyan lighten-3 black-text">
+            <div class="container">
+                <div class="row footer-row">
+                    <div class="valign-wrapper">
+                        <div class="col l4 m6">
+                            <a href="https://twitter.com/LantiaIntel"><%= image_tag "twitter_icon", :class => "footer-icon" %></a> 
+                            <a href="https://www.linkedin.com/company/lantia-consultores/"><%= image_tag "linkedin_icon", :class => "footer-icon" %></a> 
+                        </div>
+                        <div class="col l8 l6">
+                            <p class="small-text right-align">ESTRATEGIA, DECISIONES Y MEJORES PRÁCTICAS S.C.
+                            PASEO DE LA REFORMA 389, PISO 12, CDMX, CP. 06500.</p>
+                            <p class="small-text"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-        </div>
-      </footer>
-  </body>
+        </footer>
+    </body>
 </html>

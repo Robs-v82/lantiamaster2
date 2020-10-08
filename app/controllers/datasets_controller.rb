@@ -260,15 +260,13 @@ class DatasetsController < ApplicationController
   			@checkedCounties = []
   		end
 
-  		@county_toast_message = "Utilice la sección de Filtros para seleccionar estado y municipios"
+  		@county_toast_message = 'Seleccione estado y municipios en "Filtros"'
 
-  		if @stateWise || @cityWise
-  			if @genderFrames[0][:checked]
-  				@maps = true
-  			elsif @checkedGenderOptions.length == 1
-  				@maps = true
-  			end
-  		end
+		if @genderFrames[0][:checked]
+			@maps = true
+		elsif @checkedGenderOptions.length == 1
+			@maps = true
+		end
   		# @lastDay = helpers.lastDay("victims")
 	end
 
@@ -438,6 +436,7 @@ class DatasetsController < ApplicationController
 						placeHash[:name] = place.name
 						if scope == "countyWise"
 							placeHash[:parent_name] = place.state.shortname
+							placeHash[:full_code] = place.full_code
 						end
 						freq = []
 						counter = 0
@@ -464,6 +463,7 @@ class DatasetsController < ApplicationController
 						placeHash[:name] = place.name
 						if scope == "countyWise"
 							placeHash[:parent_name] = place.state.shortname
+							placeHash[:full_code] = place.full_code
 						end
 						placeHash[:gender] = gender
 						freq = []
