@@ -9,7 +9,7 @@
 			    <% end %>
 			];
 
-			Highcharts.getJSON('http://localhost:3000/maps/<%= State.find(session[:checkedStatesArr][0]).code %>.geojson', function (geojson) {
+			Highcharts.getJSON('/maps/<%= State.find(session[:checkedStatesArr][0]).code %>.geojson', function (geojson) {
 
 			    // Initiate the chart
 			    Highcharts.mapChart('freq-entry-map', {
