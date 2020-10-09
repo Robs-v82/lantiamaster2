@@ -2,33 +2,87 @@
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript">	
 		$(document).ready(function() {		
-			google.charts.load('current', {
-				'packages':['geochart'],
-				'mapsApiKey': '<%= @key %>'
-			});
-			google.charts.setOnLoadCallback(drawRegionsMap)
-			function drawRegionsMap() {
-				var data = google.visualization.arrayToDataTable([
-					['Municipio','IRCO'],
-					<% @pageQuery.each do |row| %>
-						['<%= row[:county][:shortname]%>, <%= row[:county].state[:shortname]%>',<%= row[:irco][:score]%>],
-					<% end %>
-				]);
-				var options = {
-					height: 500,
-					region: 'MX',
-					displayMode: 'markers',
-					resolution: 'provinces',
-					colorAxis: {
-						values: [0,4,4.00001,5,5.00001,6.5,6.50001,10],
-						colors: ['#8bc34a','#8bc34a','#ffeb3b','#ffeb3b','#ff9800','#ff9800','#f44336','#f44336']
-					},
-					sizeAxis: {minSize: 7,  maxSize: 7},
-					legend: false,
-				};
-				var chart = new google.visualization.GeoChart(document.getElementById('map-display'));
-				chart.draw(data, options);
-			}
+			<% if session[:indexCounty] %>
+				var data = [
+				    <% @pageQuery.each do |row| %>
+				    	{full_code:'<%= row[:county].full_code %>', value:<%= row[:irco][:score] %>},
+				    <% end %>
+				];
+				Highcharts.getJSON('/maps/<%= State.find(session[:indexCounty]).code %>.geojson', function (geojson) {
+				    Highcharts.mapChart('map-display', {
+				        chart: {
+				            map: geojson,
+				            height: 500,
+				        },
+				        legend: false,
+				        title: false, 
+				        credits: false,
+				        mapNavigation: {
+				            enabled: false,
+				        },
+						exporting: {
+							enabled: false
+						},
+			            colors: ["#aed581", "#fff176", "#ffb74d", "#ff8a65"],
+			            colorAxis: {
+			                dataClassColor: 'category',
+			                dataClasses: [{
+			                    to: 4
+			                }, {
+			                    from: 4,
+			                    to: 5
+			                }, {
+			                    from: 5,
+			                    to: 6.5
+			                }, {
+			                    from: 6.5
+			                }]
+			            },
+				        series: [{
+				            data: data,
+				            joinBy: 'full_code',
+				            name: 'IRCO',
+				            states: {
+				                hover: {
+				                    color: '#ffffff'
+				                }
+				            },
+				            dataLabels: {
+				                enabled: true,
+				                format: '{point.properties.postal}'
+				            }
+				        }]
+				    });
+				});
+			<% else %>
+				google.charts.load('current', {
+					'packages':['geochart'],
+					'mapsApiKey': '<%= @key %>'
+				});
+				google.charts.setOnLoadCallback(drawRegionsMap)
+				function drawRegionsMap() {
+					var data = google.visualization.arrayToDataTable([
+						['Municipio','IRCO'],
+						<% @pageQuery.each do |row| %>
+							['<%= row[:county][:shortname]%>, <%= row[:county].state[:shortname]%>',<%= row[:irco][:score] %>],
+						<% end %>
+					]);
+					var options = {
+						height: 500,
+						region: 'MX',
+						displayMode: 'markers',
+						resolution: 'provinces',
+						colorAxis: {
+							values: [0,4,4.00001,5,5.00001,6.5,6.50001,10],
+							colors: ['#8bc34a','#8bc34a','#ffeb3b','#ffeb3b','#ff9800','#ff9800','#f44336','#f44336']
+						},
+						sizeAxis: {minSize: 7,  maxSize: 7},
+						legend: false,
+					};
+					var chart = new google.visualization.GeoChart(document.getElementById('map-display'));
+					chart.draw(data, options);
+				}
+			<% end %>
 		})
 	</script>
 <% end %>
@@ -149,7 +203,9 @@
 		<div class="card">
 			<div class="card-content">
 				<div class="full-height">
-					<div id="map-display">
+					<div class="vertical-container">
+						<div id="map-display">
+						</div>
 					</div>
 				</div>	
 			</div>

@@ -8,51 +8,51 @@ class MembersController < ApplicationController
 
 		table.each{|x|
 			x = x.collect{ |e| e ? e.strip : e}
-			unless Organization.where(:name=>x[0]).empty?
-				targetOrganization = Organization.where(:name=>x[0]).last
-				
-				if Detention.where(:legacy_id=>x[1]).empty?
-					
-					# CREATE EVENT AND DETENTION IF THEY DO NOT EXIST
-					myCode = helpers.zero_padded_full_code(x[6])
+			unless Organization.where(:name=>x[9]).empty?
+				targetOrganization = Organization.where(:name=>x[9]).last
+
+				# CREATE EVENT AND DETENTION IF THEY DO NOT EXIST
+				if Detention.where(:legacy_id=>x[0]).empty?
+					myCode = helpers.zero_padded_full_code(x[5])
 					targetCounty = County.where(:full_code=>myCode).last
 					countyPolice = targetCounty.organizations.where(:league=>"Seguridad Pública").last.name
 					targetState = targetCounty.state
 					statePolice = targetState.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last.name
 					stateAttorney = targetState.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Procuración de Justicia").last.name
 					targetTown = targetCounty.towns.where(:name=>"Sin definir").last
-					myDate = "20"+x[4]+"-"+x[3]+"-"+x[2]
+					myDate = "20"+x[3]+"-"+x[2]+"-"+x[1]
 					myDate = myDate.to_datetime
 					monthName = myDate.strftime("%Y")+"_"+myDate.strftime("%m")
 					targetMonth = Month.where(:name=>monthName).last
 					Event.create(:event_date=>myDate, :town_id=>targetTown.id, :month_id=>targetMonth.id)
 					targetEvent = Event.last
-					
 					limit = x.length-1
-					(25..limit).each{|y|
-						if Source.where(:url=>x[y]).empty?
-							Source.create(:url=>x[y])
-							mySource = Source.last
-						else
-							mySource = Source.where(:url=>x[y]).last
-						end
-						unless targetEvent.sources.include? (mySource)
-							targetEvent.sources << mySource
+					(28..limit).each{|y|
+						unless x[y].nil?
+							if Source.where(:url=>x[y]).empty?
+								Source.create(:url=>x[y])
+								mySource = Source.last
+							else
+								mySource = Source.where(:url=>x[y]).last
+							end
+							unless targetEvent.sources.include? (mySource)
+								targetEvent.sources << mySource
+							end
 						end
 					}
-					Detention.create(:event_id=>targetEvent.id,:legacy_id=>x[1])
+					Detention.create(:event_id=>targetEvent.id,:legacy_id=>x[0])
 					targetDetention = Detention.last
 
 					# ADD AUTHORITIES
 					policeArr = [
-						{:name=>"Secretaría de la Defensa Nacional" , :slot=>17},
-						# {:name=>"Secretaría de Marina", :slot=>},
-						{:name=>"Guardia Nacional", :slot=>18},
-						{:name=>"Policía Federal", :slot=>19},
-						{:name=>"Fiscalía General de la República", :slot=>20},
-						{:name=>statePolice, :slot=>21},
-						{:name=>stateAttorney, :slot=>22},
-						{:name=>countyPolice, :slot=>23}
+						{:name=>"Secretaría de la Defensa Nacional" , :slot=>19},
+						{:name=>"Secretaría de Marina", :slot=>20},
+						{:name=>"Guardia Nacional", :slot=>21},
+						# {:name=>"Policía Federal", :slot=>22},
+						{:name=>"Fiscalía General de la República", :slot=>23},
+						{:name=>statePolice, :slot=>24},
+						{:name=>stateAttorney, :slot=>25},
+						{:name=>countyPolice, :slot=>26}
 					]
 					
 					policeArr.each{|z|
@@ -65,7 +65,7 @@ class MembersController < ApplicationController
 					}
 
 				else
-					targetDetention = Detention.where(:legacy_id=>x[1]).last
+					targetDetention = Detention.where(:legacy_id=>x[0]).last
 				end
 
 				# DEFINE ROLE
@@ -76,18 +76,18 @@ class MembersController < ApplicationController
 				end
 
 				# ADD DATEAINEES
-				unless x[9].nil?
-					if x[9] == 1
-						unless x[10].nil? && x[13].nil?
-							if targetOrganization.members.where(:firstname=>x[10],:lastname1=>x[11],:lastname2=>x[12]).empty?
+				unless x[8].nil?
+					if x[8] == 1
+						unless x[11].nil? && x[14].nil?
+							if targetOrganization.members.where(:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13]).empty?
 								myAlias = nil
-								unless x[13].nil?
-									myAlias = x[13].split(";")
+								unless x[14].nil?
+									myAlias = x[14].split(";")
 								end
 								Member.create(:organization_id=>targetOrganization.id,:firstname=>x[10],:lastname1=>x[11],:lastname2=>x[12], :alias=>myAlias)
 								targetMember = Member.last
 							else
-								targetMember = targetOrganization.members.where(:firstname=>x[10],:lastname1=>x[11],:lastname2=>x[12]).last
+								targetMember = targetOrganization.members.where(:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13]).last
 							end
 							targetMember.update(:detention_id=>targetDetention.id)
 						else
@@ -96,7 +96,7 @@ class MembersController < ApplicationController
 						end
 						targetMember.update(:role_id=>targetRole.id)
 					else
-						count = x[9].to_i
+						count = x[8].to_i
 						(1..count).each{
 							Member.create(:organization_id=>targetOrganization.id,:detention_id=>targetDetention.id)
 							if targetRole

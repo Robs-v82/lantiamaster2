@@ -11,6 +11,15 @@
     margin: 0 auto; 	
 }
 
+
+.vertical-container {
+	position: absolute;
+	top: 50%;
+	height: 500px;
+	width: 90%;
+	margin-top: -250px;
+}
+
 .loading {
     margin-top: 10em;
     text-align: center;
@@ -356,6 +365,10 @@ select {
 
 .full-height {
 	height: 680px;
+}
+
+#map-display {
+	vertical-align: middle;
 }
 
 .card-margin {

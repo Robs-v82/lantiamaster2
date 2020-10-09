@@ -2,16 +2,12 @@
 
 	$(document).ready(function() {
 		<% if @countyWise %>
-			// Prepare random data
 			var data = [
 			    <% @my_freq_table[1..-2].each do |place| %>
 			    	{full_code:'<%= place[:full_code] %>', value:<%= place[:place_total] %>},
 			    <% end %>
 			];
-
 			Highcharts.getJSON('/maps/<%= State.find(session[:checkedStatesArr][0]).code %>.geojson', function (geojson) {
-
-			    // Initiate the chart
 			    Highcharts.mapChart('freq-entry-map', {
 			        chart: {
 			            map: geojson,
