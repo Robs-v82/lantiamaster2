@@ -237,7 +237,6 @@ class DatasetsController < ApplicationController
   		@checkedYears = session[:checkedYearsArr]
   		@states = State.all.sort
   		@cities = City.all.sort_by {|city| city.name}
-  		
   		@genderOptions = [
   			{"caption"=>"Masculino","value"=>"Masculino"},
   			{"caption"=>"Femenino","value"=>"Femenino"},
@@ -246,28 +245,25 @@ class DatasetsController < ApplicationController
   		@checkedStates = session[:checkedStatesArr]
   		@checkedCities = session[:checkedCitiesArr]
   		@checkedGenderOptions = session[:checkedGenderOptions]
-  		
   		if @checkedStates.length == 1
   			targetState = State.find(@checkedStates[0])
   			@counties = targetState.counties.sort_by {|county| county.full_code}
   		else
   			@counties = []
   		end
-
   		unless session[:checkedCounties] == "states"
   			@checkedCounties = Cookie.find(session[:checkedCounties]).data
   		else
   			@checkedCounties = []
   		end
-
   		@county_toast_message = 'Seleccione estado y municipios en "Filtros"'
-
-		if @genderFrames[0][:checked]
-			@maps = true
-		elsif @checkedGenderOptions.length == 1
-			@maps = true
+  		unless session[:victim_freq_params][1] == "nationWise"
+			if @genderFrames[0][:checked]
+				@maps = true
+			elsif @checkedGenderOptions.length == 1
+				@maps = true
+			end
 		end
-  		# @lastDay = helpers.lastDay("victims")
 	end
 
 	def load_victim_freq_table

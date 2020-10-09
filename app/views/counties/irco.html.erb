@@ -40,6 +40,9 @@
 			            },
 				        series: [{
 				            data: data,
+				            borderColor: 'white',
+				            borderWidth: 1,
+				            nullColor: '#bdbdbd',
 				            joinBy: 'full_code',
 				            name: 'IRCO',
 				            states: {
@@ -232,7 +235,7 @@
 					<br>
 					<div class="divider"></div>
 					<div class="stress-line valign-wrapper">
-						<p>Municipio <%= row[:rank] %> con mayor riesgo<br><span class="slim">(de <%= number_with_delimiter(@data_length) %> municipios evaluados)</span></p>
+						<p>Municipio <%= row[:rank] %> con mayor riesgo<br><span class="slim">(de <%= number_with_delimiter(@bigCounties.length) %> municipios evaluados)</span></p>
 					</div>
 					<div class="divider"></div>
 					<br>

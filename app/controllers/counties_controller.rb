@@ -152,15 +152,12 @@ class CountiesController < ApplicationController
   			@selectionFrames[0][:checked] = true
   		end
 		@levels = helpers.ircoLevels
-		bigCounties = helpers.bigCounties
+		@bigCounties = helpers.bigCounties
 		@tableHeader = ["MUNICIPIO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
-
 		@sortedTable = myCookie.data
-
 		if session[:descendingIndex]
 			@sortedTable = @sortedTable.sort_by{|row| -row[:rank]}
 		end
-
 		@sortedTable.each{|x|
 			if session[:destinations]
 				unless x[:county].destination
@@ -173,7 +170,6 @@ class CountiesController < ApplicationController
 				@countyMap = true
 			end
 		}
-
 		@page_scope = 20
 		unless session[:indexPage]
 			session[:indexPage] = 1
