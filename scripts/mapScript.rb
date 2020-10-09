@@ -1,4 +1,8 @@
 require 'json'
+def depth (a)
+  return 0 unless a.is_a?(Array)
+  return 1 + depth(a[0])
+end
 State.all.each{|state|
 	x = state.code
 	json = File.read('public/maps/'+x+'.geojson')
@@ -15,6 +19,25 @@ State.all.each{|state|
 			properties['full_code'] = myCounty.full_code
 		end
 		properties[:name] = myCounty.shortname
+		geometry = county['geometry']
+		coordinates = geometry['coordinates']
+		if depth(coordinates) == 4
+			coordinates = coordinates.flatten(1)
+		end
+		newCoordinates = []
+		coordinates.each{|a|
+			newA = []
+			a.each{|b|
+				newB = []
+				b.each{|c|
+					c = c.round()
+					newB.push(c)
+				}
+			newA.push(newB)
+			}
+		newCoordinates.push(newA)
+		}
+	geometry['coordinates'] = newCoordinates
 	}
 	object = data.to_json
 	File.open('public/maps/'+x+'.geojson', 'w:UTF-8') { |f| f.write object }
