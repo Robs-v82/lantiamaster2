@@ -170,6 +170,7 @@ class CountiesController < ApplicationController
 				unless x[:county].state.id == session[:indexCounty]
 					@sortedTable = @sortedTable -[x]
 				end
+				@countyMap = true
 			end
 		}
 

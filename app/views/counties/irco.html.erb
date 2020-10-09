@@ -2,7 +2,7 @@
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript">	
 		$(document).ready(function() {		
-			<% if session[:indexCounty] %>
+			<% if @countyMap %>
 				var data = [
 				    <% @pageQuery.each do |row| %>
 				    	{full_code:'<%= row[:county].full_code %>', value:<%= row[:irco][:score] %>},
