@@ -99,22 +99,21 @@ class MembersController < ApplicationController
 					end
 
 					# ADD DATEAINEES
-					if x[8] == 1
-						unless x[11].nil? && x[14].nil?
-							if targetOrganization.members.where(:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13]).empty?
-								myAlias = nil
-								unless x[14].nil?
-									myAlias = x[14].split(";")
-								end
-								Member.create(:organization_id=>targetOrganization.id,:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13], :alias=>myAlias)
-								targetMember = Member.last
-							else
-								targetMember = targetOrganization.members.where(:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13]).last
-							end
-							targetMember.update(:detention_id=>targetDetention.id)
-						else
+					if x[8] == "1"
+						myAlias = nil
+						if x[11].nil? && x[14].nil?
 							Member.create(:organization_id=>targetOrganization.id)
-							targetMember = Member.last						
+							targetMember = Member.last	
+						else
+							print "**********"
+							print "HIT!!!! "
+							Member.create(:organization_id=>targetOrganization.id,:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13], :alias=>myAlias)
+							unless x[14].nil?
+								myAlias = x[14].split(";")
+							end
+							targetMember = Member.last
+							targetMember = targetOrganization.members.where(:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13]).last
+							targetMember.update(:detention_id=>targetDetention.id)
 						end
 						targetMember.update(:role_id=>targetRole.id)
 						if x[15] == "M"
