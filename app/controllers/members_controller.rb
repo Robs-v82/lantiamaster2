@@ -92,8 +92,8 @@ class MembersController < ApplicationController
 					end
 
 					# DEFINE ROLE
-					unless Role.where(:name=>x[16]).empty?
-						targetRole = Role.where(:name=>x[16]).last
+					unless Role.where(:name=>x[18]).empty?
+						targetRole = Role.where(:name=>x[18]).last
 					else
 						targetRole = nil
 					end
@@ -106,7 +106,7 @@ class MembersController < ApplicationController
 								unless x[14].nil?
 									myAlias = x[14].split(";")
 								end
-								Member.create(:organization_id=>targetOrganization.id,:firstname=>x[10],:lastname1=>x[11],:lastname2=>x[12], :alias=>myAlias)
+								Member.create(:organization_id=>targetOrganization.id,:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13], :alias=>myAlias)
 								targetMember = Member.last
 							else
 								targetMember = targetOrganization.members.where(:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13]).last
@@ -117,20 +117,29 @@ class MembersController < ApplicationController
 							targetMember = Member.last						
 						end
 						targetMember.update(:role_id=>targetRole.id)
+						if x[15] == "M"
+							targetMember.update(:gender=>"Masculino")
+						elsif x[15] = "F"
+							targetMember.update(:gender=>"Femenino")
+						else	
+							targetMember.update(:gender=>"No identificado")	
+						end
 					else
-						count = x[8].to_i
-						(1..count).each{
+						(1..x[8].to_i).each{
 							Member.create(:organization_id=>targetOrganization.id,:detention_id=>targetDetention.id)
 							if targetRole
 								Member.last.update(:role_id=>targetRole.id)
 							end
+							if x[15] == "M"
+								Member.last.update(:gender=>"Masculino")
+							elsif x[15] = "F"
+								Member.last.update(:gender=>"Femenino")
+							else	
+								Member.last.update(:gender=>"No identificado")	
+							end
 						}
 					end		
 				end
-			else
-				print "***********ERROR!!!! "
-				print x[9]
-				print x[10]
 			end	
 		}
 		session[:filename] = detention_params[:file].original_filename
