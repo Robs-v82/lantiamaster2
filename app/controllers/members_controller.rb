@@ -5,78 +5,100 @@ class MembersController < ApplicationController
 	def detentions
 		myFile = detention_params[:file]
 		table = CSV.parse(File.read(myFile))
+		mockOrganizations = [
+			{:acronym=>"CJNG", :name=>"Cártel Jalisco Nueva Generación"},
+			{:acronym=>"CDP", :name=>"Cártel de Sinaloa"},
+			{:acronym=>"CDN", :name=>"Cártel del Noreste"},
+			{:acronym=>"UT", :name=>"La Unión Tepito"}
+		]
 
 		table.each{|x|
 			x = x.collect{ |e| e ? e.strip : e}
-			unless Organization.where(:name=>x[9]).empty?
-				targetOrganization = Organization.where(:name=>x[9]).last
-
-				# CREATE EVENT AND DETENTION IF THEY DO NOT EXIST
-				if Detention.where(:legacy_id=>x[0]).empty?
-					myCode = helpers.zero_padded_full_code(x[5])
-					targetCounty = County.where(:full_code=>myCode).last
-					countyPolice = targetCounty.organizations.where(:league=>"Seguridad Pública").last.name
-					targetState = targetCounty.state
-					statePolice = targetState.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last.name
-					stateAttorney = targetState.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Procuración de Justicia").last.name
-					targetTown = targetCounty.towns.where(:name=>"Sin definir").last
-					myDate = "20"+x[3]+"-"+x[2]+"-"+x[1]
-					myDate = myDate.to_datetime
-					monthName = myDate.strftime("%Y")+"_"+myDate.strftime("%m")
-					targetMonth = Month.where(:name=>monthName).last
-					Event.create(:event_date=>myDate, :town_id=>targetTown.id, :month_id=>targetMonth.id)
-					targetEvent = Event.last
-					limit = x.length-1
-					(28..limit).each{|y|
-						unless x[y].nil?
-							if Source.where(:url=>x[y]).empty?
-								Source.create(:url=>x[y])
-								mySource = Source.last
-							else
-								mySource = Source.where(:url=>x[y]).last
-							end
-							unless targetEvent.sources.include? (mySource)
-								targetEvent.sources << mySource
-							end
-						end
-					}
-					Detention.create(:event_id=>targetEvent.id,:legacy_id=>x[0])
-					targetDetention = Detention.last
-
-					# ADD AUTHORITIES
-					policeArr = [
-						{:name=>"Secretaría de la Defensa Nacional" , :slot=>19},
-						{:name=>"Secretaría de Marina", :slot=>20},
-						{:name=>"Guardia Nacional", :slot=>21},
-						# {:name=>"Policía Federal", :slot=>22},
-						{:name=>"Fiscalía General de la República", :slot=>23},
-						{:name=>statePolice, :slot=>24},
-						{:name=>stateAttorney, :slot=>25},
-						{:name=>countyPolice, :slot=>26}
-					]
-					
-					policeArr.each{|z|
-						if x[z[:slot]] == "1"
-							authority = Organization.where(:name=>z[:name]).last
-							unless targetDetention.organizations.include? (authority)
-								targetDetention.organizations << authority
-							end
-						end
-					}
-
+			
+			#Check that organization exists
+			if x[10].nil?
+				orgString = nil
+				mockOrganizations.each{|m|
+					if x[9] == m[:acronym]
+						orgString = m[:name]
+					end	
+				}
+			else
+				if x[10].include? " ("
+					orgString = x[10].split(" (").first
 				else
-					targetDetention = Detention.where(:legacy_id=>x[0]).last
+					orgString = x[10]
 				end
-
-				# DEFINE ROLE
-				unless Role.where(:name=>x[16]).empty?
-					targetRole = Role.where(:name=>x[16]).last
-				else
-					targetRole = nil
-				end
-
-				# ADD DATEAINEES
+			end
+			targetOrganization = Organization.where(:name=>orgString).last
+			if targetOrganization
 				unless x[8].nil?
+
+					# CREATE EVENT AND DETENTION IF THEY DO NOT EXIST
+					if Detention.where(:legacy_id=>x[0]).empty?
+						myCode = helpers.zero_padded_full_code(x[5])
+						targetCounty = County.where(:full_code=>myCode).last
+						countyPolice = targetCounty.organizations.where(:league=>"Seguridad Pública").last.name
+						targetState = targetCounty.state
+						statePolice = targetState.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last.name
+						stateAttorney = targetState.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Procuración de Justicia").last.name
+						targetTown = targetCounty.towns.where(:name=>"Sin definir").last
+						myDate = "20"+x[3]+"-"+x[2]+"-"+x[1]
+						myDate = myDate.to_datetime
+						monthName = myDate.strftime("%Y")+"_"+myDate.strftime("%m")
+						targetMonth = Month.where(:name=>monthName).last
+						Event.create(:event_date=>myDate, :town_id=>targetTown.id, :month_id=>targetMonth.id)
+						targetEvent = Event.last
+						limit = x.length-1
+						(28..limit).each{|y|
+							unless x[y].nil?
+								if Source.where(:url=>x[y]).empty?
+									Source.create(:url=>x[y])
+									mySource = Source.last
+								else
+									mySource = Source.where(:url=>x[y]).last
+								end
+								unless targetEvent.sources.include? (mySource)
+									targetEvent.sources << mySource
+								end
+							end
+						}
+						Detention.create(:event_id=>targetEvent.id,:legacy_id=>x[0])
+						targetDetention = Detention.last
+
+						# ADD AUTHORITIES
+						policeArr = [
+							{:name=>"Secretaría de la Defensa Nacional" , :slot=>19},
+							{:name=>"Secretaría de Marina", :slot=>20},
+							{:name=>"Guardia Nacional", :slot=>21},
+							# {:name=>"Policía Federal", :slot=>22},
+							{:name=>"Fiscalía General de la República", :slot=>23},
+							{:name=>statePolice, :slot=>24},
+							{:name=>stateAttorney, :slot=>25},
+							{:name=>countyPolice, :slot=>26}
+						]
+						
+						policeArr.each{|z|
+							if x[z[:slot]] == "1"
+								authority = Organization.where(:name=>z[:name]).last
+								unless targetDetention.organizations.include? (authority)
+									targetDetention.organizations << authority
+								end
+							end
+						}
+
+					else
+						targetDetention = Detention.where(:legacy_id=>x[0]).last
+					end
+
+					# DEFINE ROLE
+					unless Role.where(:name=>x[16]).empty?
+						targetRole = Role.where(:name=>x[16]).last
+					else
+						targetRole = nil
+					end
+
+					# ADD DATEAINEES
 					if x[8] == 1
 						unless x[11].nil? && x[14].nil?
 							if targetOrganization.members.where(:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13]).empty?
@@ -105,9 +127,12 @@ class MembersController < ApplicationController
 						}
 					end		
 				end
+			else
+				print "***********ERROR!!!! "
+				print x[9]
+				print x[10]
 			end	
 		}
-
 		session[:filename] = detention_params[:file].original_filename
 		session[:load_success] = true
 		redirect_to "/datasets/load"	
