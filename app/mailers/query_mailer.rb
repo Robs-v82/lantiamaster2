@@ -26,7 +26,7 @@ class QueryMailer < ApplicationMailer
 		# CREATE FILE ACCORDDING TO FILE EXTENSION AND CATALOGUE
 		if myFile.include? ("csv")
 			headers = header
-			CSV.open(fileroot, 'w', write_headers: true, headers: headers, 'w:UTF-8') do |writer|
+			CSV.open(fileroot, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
 				records.each do |record|
 					writer << record
 				end
