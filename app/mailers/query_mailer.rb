@@ -59,7 +59,7 @@ class QueryMailer < ApplicationMailer
 		if filename.include? ("csv")
 			if caption == "localidades"
 				headers = %w{id county.full_code name full_code zip_code urban settlement_type}
-				CSV.open(myFile, 'w', write_headers: true, headers: headers, 'w:UTF-8') do |writer|
+				CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
 					records.each do |record|
 						writer << [record.id, record.county.full_code, record.name, record.full_code, record.zip_code, record.urban, record.settlement_type]
 					end
