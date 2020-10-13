@@ -67,7 +67,7 @@ class QueryMailer < ApplicationMailer
 			end
 			if caption == "municipios"
 				headers = %w{id state.code name full_code city.code city.name}
-				CSV.open(myFile, 'w', write_headers: true, headers: headers, 'w:UTF-8') do |writer|
+				CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
 					records.each do |record|
 						if record.city
 							writer << [record.id, record.state.code, record.name, record.full_code, record.city.code, record.city.name]
@@ -79,7 +79,7 @@ class QueryMailer < ApplicationMailer
 			end
 			if caption == "ciudades"
 				headers = %w{id name code}
-				CSV.open(myFile, 'w', write_headers: true, headers: headers, 'w:UTF-8') do |writer|
+				CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
 					records.each do |record|
 						writer << [record.id, record.name, record.code]
 					end
@@ -87,7 +87,7 @@ class QueryMailer < ApplicationMailer
 			end
 			if caption == "medios"
 				headers = %w{id state.id state.name name domain active_links active_since}
-				CSV.open(myFile, 'w', write_headers: true, headers: headers, 'w:UTF-8') do |writer|
+				CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
 					records.each do |record|
 						writer << [record.id, record.county.state.id, record.county.state.name, record.name, record.domain, record.active_links, record.active_since]
 					end
@@ -95,7 +95,7 @@ class QueryMailer < ApplicationMailer
 			end
 			if caption == "organizaciones criminales"
 				headers = %w{nombre siglas tipo subtipo pertenencia}
-				CSV.open(myFile, 'w', write_headers: true, headers: headers, 'w:UTF-8') do |writer|
+				CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
 					records.each do |record|
 						unless record.parent.nil?
 							myOrigin = record.parent.name
