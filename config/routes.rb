@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     get 'counties/destinations'
     get 'counties/irco'
     get 'states/irco'
+    get 'states/icon'
     get 'states_and_counties_api' => 'datasets#states_and_counties_api'
     get 'year_victims_api' => 'datasets#year_victims_api'
     get 'state_victims_api' => 'datasets#state_victims_api'

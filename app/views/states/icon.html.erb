@@ -1,0 +1,25 @@
+<% provide :head_tags do %>
+<% end %>
+<div class="row top-row valign-wrapper">
+	<div class="col s12">
+		<div class="side-padding">
+			<h5 class=" h5-no-margin">
+				<span class="slim"> Índice de Conflictividad (ICon)</span>
+			</h5>
+			<h5 class="h5-no-margin">
+				<span id="irco-header" class="cyan-text text-accent-4"><%= @current_quarter_strings[:quarterText] %> de <%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %></span>
+			</h5>
+			<br>
+			<% @levels.each do |level| %>
+				<div class="category-tag right-extra-margin">
+					<div class="valign-wrapper">
+						<div class="pseudo-button valign-wrapper">
+							<i class="material-icons right-min-margin <%= level[:color] %> <%= level[:color] %>-text z-depth-1">brightness_1</i>
+						</div>
+						<span><%= level[:name] %></span>
+					</div>
+				</div>
+			<% end %>
+		</div>
+	</div>
+</div>

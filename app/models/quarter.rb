@@ -13,4 +13,5 @@ class Quarter < ApplicationRecord
 
 	has_one_attached :survey
 	has_one_attached :ensu
+	has_one_attached :icon
 end

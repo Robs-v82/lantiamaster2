@@ -109,6 +109,17 @@ class StatesController < ApplicationController
         @sortedTable = myCookie.data
     end
 
+    def icon
+        @key = Rails.application.credentials.google_maps_api_key
+        myQuarter = Quarter.last
+        @current_quarter_strings = helpers.quarter_strings(myQuarter)
+        back_one_quarter = helpers.back_one_q(myQuarter) 
+        @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
+        back_one_year = helpers.back_one_y(myQuarter)
+        @back_one_y_strings = helpers.quarter_strings(back_one_year)
+        @levels = helpers.ircoLevels
+    end
+
     def ircoOutput(quarter, state)
         localVictims = state.victims
         total_victims = helpers.get_quarter_victims(quarter, localVictims)

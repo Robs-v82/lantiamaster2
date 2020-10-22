@@ -8,7 +8,7 @@ myLeagues = [
 		:description=>"Organización regional con lazos familiares o de amistad, y conformada por bandas (brazos armados o pandillas). Son parte de cárteles, se subcontratan a estos, o trabajan de forma independiente."
 	},{
 		:name=>"Banda",
-		:description=>"Grupo con presencia municipal o local. Suelen dedicarse a delitos menores o del fuero común. Recurren a otras organizaciones para abastecerse de insumos o se subcontratan a éstas para llevar a cavo delitos de alto impacto."
+		:description=>"Grupo con presencia municipal o local. Suelen dedicarse a delitos menores o del fuero común. Recurren a otras organizaciones para abastecerse de insumos o se subcontratan a éstas para llevar a cabo delitos de alto impacto."
 	},{
 		:name=>"Brazo armado",
 		:description=>"Grupo de profesionales de la violencia de cárteles o mafias. Puede ser parte de la estructura de la organización criminal o un cuerpos de reserva conformado por sicarios otorgados, o cedidos voluntariamente por las mafias o bandas que componen la organización."
