@@ -61,7 +61,7 @@ gem 'listen', '~> 3.2'
 gem 'database_cleaner'
 
 # gem 'jquery-ui-rails'
-  gem 'sqlite3', '~> 1.4'
+gem 'sqlite3', '~> 1.4'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
