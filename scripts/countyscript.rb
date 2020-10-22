@@ -2462,15 +2462,16 @@ rawData.each_line{|l| line = l.split(","); countyArr.push(line)}
 countyArr.each{|x|x.each{|y|y.strip!}}
 countyArr.each{|x|
 	if County.where(:name=>x[1]).empty?
-		myCode = x[0][2,3]
-		myState = x[0][0,2]
-		target = State.where(:code=>myState).last.id
-		County.create(:name=>x[1],:code=>myCode,:state_id=>target)
+		print x[1]
+		# myCode = x[0][2,3]
+		# myState = x[0][0,2]
+		# target = State.where(:code=>myState).last.id
+		# County.create(:name=>x[1],:code=>myCode,:state_id=>target)
 	end
 }
 
-myCounties = County.all
-myCounties.each{|x| thisCode = x.state.code+x.code; x.update(:full_code=>thisCode)}
+# myCounties = County.all
+# myCounties.each{|x| thisCode = x.state.code+x.code; x.update(:full_code=>thisCode)}
 
 # rawData2 = "1,1,Aguascalientes,1001,1,Aguascalientes,1
 # 13,2,Mexicali,2002,3,Mexicali,1
