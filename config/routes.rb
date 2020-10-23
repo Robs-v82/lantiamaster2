@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-    root 'states#irco'
+    root 'datasets#load'
     post 'states/load_irco'
     post 'counties/load_irco'
     get 'counties/low_risk'

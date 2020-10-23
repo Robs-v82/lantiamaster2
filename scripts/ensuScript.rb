@@ -36,7 +36,6 @@ myCities = [
 
 # ADD ENSU CITIES TO STATES
 myCities.each{|city|
-	print city
 	myState = State.where(:name=>city[0]).last
 	myState.update(:ensu_cities=>city[1])
 }

@@ -2461,7 +2461,7 @@ countyArr = []
 rawData.each_line{|l| line = l.split(","); countyArr.push(line)}
 countyArr.each{|x|x.each{|y|y.strip!}}
 countyArr.each{|x|
-	if County.where(:name=>x[1]).empty?
+	if County.where(:full_code=>x[0]).empty?
 		myCode = x[0][2,3]
 		myState = x[0][0,2]
 		target = State.where(:code=>myState).last.id
@@ -2516,5 +2516,4 @@ capitalArr.each{|x|
 	capital = County.where(:full_code=>myCode).last
 	myState = State.where(:code=>myCode[0,2]).last
 	myState.update(:capital_id=>capital.id)
-	print myState.capital.name
 }
