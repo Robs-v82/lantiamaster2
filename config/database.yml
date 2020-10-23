@@ -20,11 +20,11 @@ development:
 test:
   adapter: postgresql
   encoding: utf8
-  database: <%= Rails.application.credentials[:RDS_DB_NAME] %>
-  username: <%= Rails.application.credentials[:RDS_USERNAME] %>
-  password: <%= Rails.application.credentials[:RDS_PASSWORD] %>
-  host: <%= Rails.application.credentials[:RDS_HOSTNAME] %>
-  port: <%= Rails.application.credentials[:RDS_PORT] %>
+  database: <%= Rails.application.credentials[:TEST_DB_NAME] %>
+  username: <%= Rails.application.credentials[:TEST_USERNAME] %>
+  password: <%= Rails.application.credentials[:TEST_PASSWORD] %>
+  host: <%= Rails.application.credentials[:TEST_HOSTNAME] %>
+  port: <%= Rails.application.credentials[:TEST_PORT] %>
 
 # production:
 #   <<: *default
