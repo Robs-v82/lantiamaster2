@@ -44,7 +44,7 @@ server '3.134.94.157', user: 'ubuntu', roles: %w{app db web}
  set :ssh_options, {
   forward_agent: true, 
   auth_methods: %w[publickey],
-  keys: %w[~/server-keys/lantiamaster-key-pair.pem]
+  keys: %w[~/lantiamasterkeypair.pem]
  }
 
 # The server-based syntax can be used to override options:
