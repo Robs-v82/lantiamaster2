@@ -22,10 +22,10 @@ criminalRoles.each{|role|
 	Role.where(role).last.update(:criminal=>true)
 }
 
-unless Role.where(:name=>"Extorsionador").empty
+unless Role.where(:name=>"Extorsionador").empty?
 	Role.where(:name=>"Extorsionador").last.update(:name=>"Extorsionador-narcomenudista")
 end
 
-unless Role.where(:name=>"Traficante de droga").empty
+unless Role.where(:name=>"Traficante de droga").empty?
 	Role.where(:name=>"Traficante de droga").last.update(:name=>"Traficante o distribuidor")
 end
