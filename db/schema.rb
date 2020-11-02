@@ -41,20 +41,6 @@ ActiveRecord::Schema.define(version: 2020_10_07_150223) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "arrests", force: :cascade do |t|
-    t.integer "event_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["event_id"], name: "index_arrests_on_event_id"
-  end
-
-  create_table "arrests_organizations", force: :cascade do |t|
-    t.integer "arrest_id"
-    t.integer "organization_id"
-    t.index ["arrest_id"], name: "index_arrests_organizations_on_arrest_id"
-    t.index ["organization_id"], name: "index_arrests_organizations_on_organization_id"
-  end
-
   create_table "cities", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
@@ -194,9 +180,7 @@ ActiveRecord::Schema.define(version: 2020_10_07_150223) do
     t.integer "role_id"
     t.string "mail"
     t.text "alias"
-    t.integer "arrest_id"
     t.integer "detention_id"
-    t.index ["arrest_id"], name: "index_members_on_arrest_id"
     t.index ["detention_id"], name: "index_members_on_detention_id"
     t.index ["organization_id"], name: "index_members_on_organization_id"
     t.index ["role_id"], name: "index_members_on_role_id"
@@ -422,7 +406,6 @@ ActiveRecord::Schema.define(version: 2020_10_07_150223) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "arrests", "events"
   add_foreign_key "cities", "counties"
   add_foreign_key "cities", "counties", column: "core_county_id"
   add_foreign_key "cookies", "quarters"
@@ -435,7 +418,6 @@ ActiveRecord::Schema.define(version: 2020_10_07_150223) do
   add_foreign_key "events", "towns"
   add_foreign_key "killings", "events"
   add_foreign_key "leads", "events"
-  add_foreign_key "members", "arrests"
   add_foreign_key "members", "detentions"
   add_foreign_key "members", "organizations"
   add_foreign_key "members", "roles"
