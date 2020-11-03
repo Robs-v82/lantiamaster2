@@ -104,8 +104,6 @@ class MembersController < ApplicationController
 							Member.create(:organization_id=>targetOrganization.id)
 							targetMember = Member.last	
 						else
-							print "**********"
-							print "HIT!!!! "
 							myAlias = nil
 							unless x[14].nil?
 								myAlias = x[14].split(";")
