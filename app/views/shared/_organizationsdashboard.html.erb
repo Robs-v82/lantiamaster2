@@ -1,19 +1,19 @@
 <div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-small-only">
-	<div class="card cyan darken-1">
+	<div class="card paletton-grey">
 		<div class="full-height">
 			<form class="freq_filer_form" action="/organizations/organizations_query" method="post">
 				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
 				<div class="card-content">
 				<%= render "shared/hidefilter"%>
-					<div class="filter-header white-text">
+					<div class="filter-header paletton-red-text">
 						<p class="center-align">FILTROS</p>
 					</div>
 					<ul class="collapsible z-depth-0">
 						<li>
-							<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
-								<i class="material-icons small">map</i><p5 class="query-header">Estado</p5>
+							<div class="collapsible-header valign-wrapper paletton-grey white-text">
+								<i class="material-icons small">map</i><p class="query-header">Estado</p>
 							</div>
-							<div id="state_filter_box" class="collapsible-body cyan darken-1">
+							<div id="state_filter_box" class="collapsible-body paletton-grey">
 								<div class="row">
 									<div class="col s3">
 										<%= render "shared/filterbuttons"%>
@@ -39,10 +39,10 @@
 							</div>
 						</li>
 						<li>
-							<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
-								<i class="material-icons small">dns</i><p5 class="query-header">Tipo</p5>
+							<div class="collapsible-header valign-wrapper paletton-grey white-text">
+								<i class="material-icons small">dns</i><p class="query-header">Tipo</p>
 							</div>
-							<div id="type_filter_box" class="collapsible-body cyan darken-1">
+							<div id="type_filter_box" class="collapsible-body paletton-grey">
 								<div class="row">
 									<div class="col s3">
 										<%= render "shared/filterbuttons"%>
@@ -67,10 +67,10 @@
 							</div>
 						</li>
 						<li>
-							<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
-								<i class="material-icons small">extension</i><p5 class="query-header">Coalición</p5>
+							<div class="collapsible-header valign-wrapper paletton-grey white-text">
+								<i class="material-icons small">extension</i><p class="query-header">Coalición</p>
 							</div>
-							<div id="type_filter_box" class="collapsible-body cyan darken-1">
+							<div id="type_filter_box" class="collapsible-body paletton-grey">
 								<div class="row">
 									<div class="col s3">
 										<%= render "shared/filterbuttons"%>
@@ -96,7 +96,7 @@
 						</li>
 <!-- 						<li>
 							<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
-								<i class="material-icons small">report</i><p5 class="query-header">Giros delictivos</p5>
+								<i class="material-icons small">report</i><p class="query-header">Giros delictivos</p>
 							</div>					
 						</li> -->
 					</ul>

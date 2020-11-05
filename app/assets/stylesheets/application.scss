@@ -11,6 +11,28 @@
     margin: 0 auto; 	
 }
 
+.header-tag {
+	font-size: 12px;
+}
+.paletton-grey {
+	background-color: #454157;
+}
+
+.paletton-dark-grey {
+	background-color: #33333C;
+}
+
+.paletton-light-grey {
+	background-color: #7F7B90;
+}
+
+.paletton-red {
+	background-color: #EF4E50;
+}
+
+.paletton-red-text {
+	color: #EF4E50;
+}
 
 .vertical-container {
 	position: absolute;
@@ -58,7 +80,7 @@
  }
 
 table.highlight>tbody>tr:hover {
-    background-color: rgba(77, 208, 225, 0.28);      
+    background-color: rgba(239, 78, 80, 0.28);      
 }
 
 a[href^="http://maps.google.com/maps"]{display:none !important}
@@ -91,6 +113,10 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 .pseudo-button i {
 	padding: 0px;
 	border-radius: 50%;
+}
+
+.pseudo-button span {
+	font-size: 12px;
 }
 
 .side-padding {
@@ -250,7 +276,7 @@ input[type=text] {
 
 .freq-table th, .freq-table td, #org-table th, #org-table td {
 	padding: 8px 16px;
-	font-size: 13px;
+	font-size: 11px;
 }
 
 
@@ -258,7 +284,7 @@ input[type=text] {
 
 	.freq-table th, .freq-table td, #org-table th, #org-table td, #ispyv_table th, #ispyv_table td, #irco_table th, #irco_table td {
 		padding: 6px 12px;
-		font-size: 11px;
+		font-size: 10px;
 	}
 
 	.card .card-content {
@@ -292,7 +318,7 @@ p {
 }
 
 body {
-	font-family: 'Montserrat', sans-serif;
+	font-family: 'Poppins', sans-serif;
 	display: flex;
 	min-height: 100vh;
 	flex-direction: column;
@@ -432,7 +458,7 @@ min-width: 85px !important
 }
 
 .query-header {
-	font-size: 22px !important;
+	font-size: 18px !important;
 	font-weight: 500;
 	padding-left: 12px !important;
 }
@@ -509,6 +535,10 @@ min-width: 85px !important
 	line-height: 10px !important;
 	margin: 12px 4px 12px 0px !important;
 	font-size: 9px !important;
+}
+
+.filter-btn:hover {
+	background-color: #EF4E50 !important;
 }
 
 .filter-box .collapsible-body{
@@ -595,7 +625,7 @@ input:disabled {
 	border: white;
 	padding-left: 28px;
 	height: auto;
-	font-size: 14px;
+	font-size: 11px;
 }
 
 [type="checkbox"] + span:not(.lever):before, [type="checkbox"]:not(.filled-in) + span:not(.lever):after {

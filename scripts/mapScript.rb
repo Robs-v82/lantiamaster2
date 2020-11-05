@@ -23,8 +23,5 @@ State.all.each{|state|
 	}
 	object = data.to_json
 	File.open('public/maps/'+x+'.geojson', 'w:UTF-8') { |f| f.write object }
-	print " **************"
-	print state.name
-	print " READY! "
 }
 
