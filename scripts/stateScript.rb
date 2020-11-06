@@ -34,7 +34,11 @@ Zacatecas,Zac,32,1648541"
 stateArr = []
 rawData.each_line{|l| line = l.split(","); stateArr.push(line)}
 stateArr.each{|x|x.each{|y|y.strip!}}
-stateArr.each{|x| State.create(name:x[0], shortname:x[1], code:x[2], population:x[3])}
+stateArr.each{|x| 
+	if State.where(:code=>x[2]).empty?
+		State.create(name:x[0], shortname:x[1], code:x[2], population:x[3])
+	end
+}
 
 compArr = [
 {:key=>1,:compare=>[11,14,24,32]},

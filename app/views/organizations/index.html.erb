@@ -2,51 +2,59 @@
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			google.charts.load('current', {
-				'packages':['geochart'],
-				'mapsApiKey': '<%= @key %>'
-			});
+			<% if @checkedStates.length != 1 %>
+				
+				google.charts.load('current', {
+					'packages':['geochart'],
+					'mapsApiKey': '<%= @key %>'
+				});
 
-			$("#freq-map-trigger").click(function() {
-				$(".freq-entry-display").hide();
-				$("#freq-entry-map").show();
-				google.charts.setOnLoadCallback(drawOrganizationsMap);
-				return false
-		 	})
+				$("#freq-map-trigger").click(function() {
+					$(".freq-entry-display").hide();
+					$("#freq-entry-map").show();
+					google.charts.setOnLoadCallback(drawOrganizationsMap);
+					return false
+			 	})
 
-			$("#freq-list-trigger").click(function() {
-				$(".freq-entry-display").hide();
-				$("#freq-entry-list").show();
-				return false
-		 	})
+				$("#freq-list-trigger").click(function() {
+					$(".freq-entry-display").hide();
+					$("#freq-entry-list").show();
+					return false
+			 	})
 
-			function drawOrganizationsMap() {
-				var data = google.visualization.arrayToDataTable([
-					['State', 'Organizaciones'],
-					<% @stateArr.each do |state| %>
-						[
-							<% if state[:name] == "Ciudad de México" %>
-								"Distrito Federal"
-							<% else %>
-								'<%= state[:name] %>'
-							<% end %>
-							,
-							<%= state[:freq] %>
-						],
-					<% end %>
-				]);
+				function drawOrganizationsMap() {
+					var data = google.visualization.arrayToDataTable([
+						['State', 'Organizaciones'],
+						<% @stateArr.each do |state| %>
+							[
+								<% if state[:name] == "Ciudad de México" %>
+									"Distrito Federal"
+								<% else %>
+									'<%= state[:name] %>'
+								<% end %>
+								,
+								<%= state[:freq] %>
+							],
+						<% end %>
+					]);
 
-				var options = {
-					height: 500,
-					region: 'MX',
-					resolution: 'provinces',
-					colorAxis: {colors: ['<%= @lightMapColor %>', '<%= @darkMapColor %>']}
-				};
+					var options = {
+						height: 500,
+						region: 'MX',
+						resolution: 'provinces',
+						colorAxis: {colors: ['<%= @lightMapColor %>', '<%= @darkMapColor %>']}
+					};
 
-				var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
+					var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
 
-				chart.draw(data, options);
-			}
+					chart.draw(data, options);
+				}
+
+			<% else %>
+
+				
+
+			<% end %>
 
 		})
 	</script>
