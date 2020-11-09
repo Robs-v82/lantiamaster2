@@ -5,32 +5,32 @@ class MembersController < ApplicationController
 	def detentions
 		myFile = detention_params[:file]
 		table = CSV.parse(File.read(myFile))
-		mockOrganizations = [
-			{:acronym=>"CJNG", :name=>"Cártel Jalisco Nueva Generación"},
-			{:acronym=>"CDP", :name=>"Cártel de Sinaloa"},
-			{:acronym=>"CDN", :name=>"Cártel del Noreste"},
-			{:acronym=>"UT", :name=>"La Unión Tepito"}
-		]
+		# mockOrganizations = [
+		# 	{:acronym=>"CJNG", :name=>"Cártel Jalisco Nueva Generación"},
+		# 	{:acronym=>"CDP", :name=>"Cártel de Sinaloa"},
+		# 	{:acronym=>"CDN", :name=>"Cártel del Noreste"},
+		# 	{:acronym=>"UT", :name=>"La Unión Tepito"}
+		# ]
 
 		table.each{|x|
 			x = x.collect{ |e| e ? e.strip : e}
 			
 			#Check that organization exists
-			if x[10].nil?
-				orgString = nil
-				mockOrganizations.each{|m|
-					if x[9] == m[:acronym]
-						orgString = m[:name]
-					end	
-				}
-			else
-				if x[10].include? " ("
-					orgString = x[10].split(" (").first
-				else
-					orgString = x[10]
-				end
-			end
-			targetOrganization = Organization.where(:name=>orgString).last
+			# if x[10].nil?
+			# 	orgString = nil
+			# 	mockOrganizations.each{|m|
+			# 		if x[9] == m[:acronym]
+			# 			orgString = m[:name]
+			# 		end	
+			# 	}
+			# else
+			# 	if x[10].include? " ("
+			# 		orgString = x[10].split(" (").first
+			# 	else
+			# 		orgString = x[10]
+			# 	end
+			# end
+			targetOrganization = Organization.where(:name=>x[10]).last
 			if targetOrganization
 				unless x[8].nil?
 

@@ -51,11 +51,54 @@
 				}
 
 			<% else %>
+				var data = [
 
-				
-
+				];
+				Highcharts.getJSON('/maps/<%= State.find(@checkedStates.last).code %>.geojson', function (geojson) {
+				    Highcharts.mapChart('freq-entry-map', {
+				        chart: {
+				            map: geojson,
+				            height: 500,
+				        },
+				        legend: false,
+				        title: false, 
+				        credits: false,
+				        mapNavigation: {
+				            enabled: false,
+				        },
+						exporting: {
+							enabled: false
+						},
+			            colors: ["#aed581", "#fff176", "#ffb74d", "#ff8a65"],
+			            colorAxis: {
+			                dataClassColor: 'category',
+			            },
+				        series: [{
+				            data: data,
+				            joinBy: 'full_code',
+			            	name: 'Víctimas',
+				            borderColor: 'white',
+				            borderWidth: 1,
+				            nullColor: '#bdbdbd',
+				            states: {
+				                hover: {
+				                    color: '#ffffff',
+					                borderColor: '#424242'
+				                }
+				            },
+				            dataLabels: {
+				                enabled: true,
+				                format: '{point.properties.postal}'
+				            }
+				        }]
+				    });
+				});
+				$("#freq-map-trigger").click(function() {
+					$(".freq-entry-display").hide();
+					$("#freq-entry-map").show();
+					return false
+			 	})		
 			<% end %>
-
 		})
 	</script>
 <% end %>

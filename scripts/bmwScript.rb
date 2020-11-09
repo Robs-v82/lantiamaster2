@@ -1,6 +1,6 @@
 require 'pp'
 table = []
-s = State.where(:code=>"16").last.leads.where.not(:category=>"Presencia registrada en medios")
+s = State.where(:name=>"San Luis Potosí").last.leads.where.not(:category=>"Presencia registrada en medios")
 m = Month.where(:name=>"2020_01").last.leads.where.not(:category=>"Presencia registrada en medios")
 # myLeads = myLeads.where.not(:category=>"Presencia registrada por autoridades")
 myLeads = s.merge(m)
@@ -17,7 +17,7 @@ pp table
 
 headers = %w{DATE MUNICIPALITY ORGANIZATION TYPE}
 
-myFile = 'public/leads_mich.csv'
+myFile = 'public/leads_slp.csv'
 
 CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
 	table.each do |record|
