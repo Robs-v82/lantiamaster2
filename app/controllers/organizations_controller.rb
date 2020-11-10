@@ -136,7 +136,26 @@ class OrganizationsController < ApplicationController
   		@checkedCoalitions = session[:organization_selection][1]
   		@n = @alliedCartels.length-1
 
-  		@stateArr = []
+  		if @checkedStates.length == 1
+        @countyArr = []
+        State.find(@checkedStates).last.counties.each{|county|
+          countyRackets = county.rackets.uniq
+          myRackets = []
+          racketString = ""
+          countyRackets.each{|racket|
+            if @alliedCartels.include? racket
+              myRackets.push(racket.name)
+              racketString += racket.name+" "
+            end
+          }
+          countyHash = {:name=>county.name, :shortname=>county.shortname, :full_code=>county.full_code, :freq=>myRackets.length, :rackets=>racketString}
+          unless countyHash[:freq] == 0
+            @countyArr.push(countyHash)
+          end
+        }
+      end
+
+      @stateArr = []
   		State.all.each{|state|
   			stateRackets = state.rackets.uniq
   			myRackets = []

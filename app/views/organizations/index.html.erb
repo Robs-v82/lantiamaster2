@@ -52,7 +52,15 @@
 
 			<% else %>
 				var data = [
-
+					<% @countyArr.each do |place| %>
+						{full_code:'<%= place[:full_code] %>', value:<%= place[:freq] %>, rackets:'<%= place[:rackets] %>',
+						<% if place[:freq] == 1 %>
+							string:'organización'
+						<% else %>
+							string:'organizaciones'
+						<% end %>
+					},
+					<% end %>
 				];
 				Highcharts.getJSON('/maps/<%= State.find(@checkedStates.last).code %>.geojson', function (geojson) {
 				    Highcharts.mapChart('freq-entry-map', {
@@ -76,7 +84,7 @@
 				        series: [{
 				            data: data,
 				            joinBy: 'full_code',
-			            	name: 'Víctimas',
+			            	name: 'Organizaciones',
 				            borderColor: 'white',
 				            borderWidth: 1,
 				            nullColor: '#bdbdbd',
@@ -86,9 +94,9 @@
 					                borderColor: '#424242'
 				                }
 				            },
-				            dataLabels: {
-				                enabled: true,
-				                format: '{point.properties.postal}'
+				            tooltip: {
+				            	headerFormat: '<span style="font-size:14px">{point.key}</span><br>',
+				            	pointFormat: '{point.value} {point.string}:<br>{point.rackets}'	
 				            }
 				        }]
 				    });

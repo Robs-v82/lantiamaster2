@@ -10,7 +10,7 @@ criminalRoles = [
 	{:name=>"Secuestrador"},
 	{:name=>"Traficante de droga"},
 	{:name=>"Narcomenudista"},
-	{:name=>"Otro"},
+	{:name=>"Sin definir"},
 	{:name=>"Jefe operativo"},	
 	{:name=>"Jefe regional u operador"}	
 ]
