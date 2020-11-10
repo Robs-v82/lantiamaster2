@@ -2,25 +2,33 @@
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
+			
+			$("#freq-map-trigger").click(function() {
+				$(".freq-entry-display").hide();
+				$("#freq-entry-map").show();
+				$('#multicoalition-label').show();
+				return false
+		 	})
+
+			$("#freq-list-trigger").click(function() {
+				$(".freq-entry-display").hide();
+				$("#freq-entry-list").show();
+				$('#multicoalition-label').hide();
+				return false
+		 	})
+
 			<% if @checkedStates.length != 1 %>
+
+				$("#freq-map-trigger").click(function() {
+					google.charts.setOnLoadCallback(drawOrganizationsMap);
+					return false
+				})
+
 				
 				google.charts.load('current', {
 					'packages':['geochart'],
 					'mapsApiKey': '<%= @key %>'
 				});
-
-				$("#freq-map-trigger").click(function() {
-					$(".freq-entry-display").hide();
-					$("#freq-entry-map").show();
-					google.charts.setOnLoadCallback(drawOrganizationsMap);
-					return false
-			 	})
-
-				$("#freq-list-trigger").click(function() {
-					$(".freq-entry-display").hide();
-					$("#freq-entry-list").show();
-					return false
-			 	})
 
 				function drawOrganizationsMap() {
 					var data = google.visualization.arrayToDataTable([
@@ -53,7 +61,7 @@
 			<% else %>
 				var data = [
 					<% @countyArr.each do |place| %>
-						{full_code:'<%= place[:full_code] %>', value:<%= place[:freq] %>, rackets:'<%= place[:rackets] %>',
+						{full_code:'<%= place[:full_code] %>', value:<%= place[:coalition] %>, rackets:'<% place[:rackets].each do |racket|%><span style="color:<%= racket[:color] %>">- <%= racket[:name] %><br><span><% end %>', freq:<%= place[:freq]%>, 
 						<% if place[:freq] == 1 %>
 							string:'organización'
 						<% else %>
@@ -77,10 +85,23 @@
 						exporting: {
 							enabled: false
 						},
-			            colors: ["#aed581", "#fff176", "#ffb74d", "#ff8a65"],
 			            colorAxis: {
-			                dataClassColor: 'category',
-			            },
+			            	dataClasses: [{
+				                to: 0.9,
+				                color: "#FF7575"
+				            },{
+				            	from: 0.9,
+				            	to: 1.9,
+				            	color: '#80cbc4'
+				            },{
+				            	from: 1.9,
+				            	to: 2.9,
+				            	color: '#ffcc80'			            	
+				            },{
+				            	from: 2.9,
+				            	color: '#454157'	
+				            }]
+				        },
 				        series: [{
 				            data: data,
 				            joinBy: 'full_code',
@@ -95,8 +116,9 @@
 				                }
 				            },
 				            tooltip: {
-				            	headerFormat: '<span style="font-size:14px">{point.key}</span><br>',
-				            	pointFormat: '{point.value} {point.string}:<br>{point.rackets}'	
+				            	borderWidth: 0,
+				            	headerFormat: '<span style="font-size:14px; color:#454157">{point.key}</span><br>',
+				            	pointFormat: '<div style="padding-bottom:12px"><span style="color:#454157">{point.freq} {point.string}:</span></div><br><div>{point.rackets}</div>'	
 				            }
 				        }]
 				    });
@@ -118,37 +140,6 @@
 				<div class="side-padding">
 					<h5 class="h5-no-margin">Organizaciones criminales</h5>
 					<%= render "shared/scopetitle" %>
-					<br>
-					<% if @checkedCoalitions.pluck("name").include? "Cártel de Sinaloa" %>
-						<div class="bottom-margin-div">
-							<div class="valign-wrapper">
-								<div class="pseudo-button valign-wrapper">
-									<i class="material-icons right-min-margin teal lighten-3 teal-text text-lighten-3 z-depth-1">brightness_1</i>
-								</div>
-								<span class="header-tag">Coalición del Cártel de Sinaloa</span>
-							</div>
-						</div>
-					<% end %>
-					<% if @checkedCoalitions.pluck("name").include? "Cártel Jalisco Nueva Generación" %>
-						<div class="bottom-margin-div">
-							<div class="valign-wrapper">
-								<div class="pseudo-button valign-wrapper">
-									<i class="material-icons right-min-margin orange lighten-3 orange-text text-lighten-3 z-depth-1">brightness_1</i>
-								</div>
-								<span class="header-tag">Coalición del Cártel Jalisco Nueva Generación</span>
-							</div>
-						</div>
-					<% end %>
-					<% if @checkedCoalitions.pluck("name").include? "Sin vinculación" %>
-						<div class="bottom-margin-div">
-							<div class="valign-wrapper">
-								<div class="pseudo-button valign-wrapper">
-									<i class="material-icons right-min-margin grey lighten-3 grey-text text-lighten-3 z-depth-1">brightness_1</i>
-								</div>
-								<span class="header-tag">Sin coalición</span>
-							</div>
-						</div>
-					<% end %>
 				</div>
 			</div>
 		</div>	
@@ -158,7 +149,50 @@
 			<div class="card-content">
 				<div class="row card-narrow">
 					<%= render "shared/showfilter"%>
-					<div class="right col s9">
+					<div class="legend-box col m8 s12">
+						<% if @checkedCoalitions.pluck("name").include? "Cártel de Sinaloa" %>
+							<div class="bottom-margin-div">
+								<div class="valign-wrapper">
+									<div class="pseudo-button valign-wrapper">
+										<i class="material-icons tiny right-min-margin teal lighten-3 teal-text text-lighten-3 z-depth-1">brightness_1</i>
+									</div>
+									<span class="header-tag">Coalición del Cártel de Sinaloa</span>
+								</div>
+							</div>
+						<% end %>
+						<% if @checkedCoalitions.pluck("name").include? "Cártel Jalisco Nueva Generación" %>
+							<div class="bottom-margin-div">
+								<div class="valign-wrapper">
+									<div class="pseudo-button valign-wrapper">
+										<i class="material-icons tiny right-min-margin orange lighten-3 orange-text text-lighten-3 z-depth-1">brightness_1</i>
+									</div>
+									<span class="header-tag">Coalición del Cártel Jalisco Nueva Generación</span>
+								</div>
+							</div>
+						<% end %>
+						<% if @checkedCoalitions.pluck("name").include? "Sin vinculación" %>
+							<div class="bottom-margin-div">
+								<div class="valign-wrapper">
+									<div class="pseudo-button valign-wrapper">
+										<i class="material-icons tiny right-min-margin paletton-grey paletton-grey-text z-depth-1">brightness_1</i>
+									</div>
+									<span class="header-tag">Sin coalición</span>
+								</div>
+							</div>
+						<% end %>
+
+						<% if @checkedCoalitions.length > 1 && @checkedStates.length == 1 %>
+							<div id="multicoalition-label" class="bottom-margin-div" style="display: none">
+								<div class="valign-wrapper">
+									<div class="pseudo-button valign-wrapper">
+										<i class="material-icons tiny right-min-margin paletton-light-red paletton-light-red-text z-depth-1">brightness_1</i>
+									</div>
+									<span class="header-tag">Distintas coaliciones</span>
+								</div>
+							</div>
+						<% end %>
+					</div>
+					<div class="right col m4 s9">
 						<div class="right">
 							<a id="freq-info-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">info</i></a>
 							<a id="freq-table-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">list</i></a>

@@ -4,6 +4,16 @@
  *= require jquery-ui
  */
 
+.btn-floating:hover {
+	background-color: #EF4E50 !important;
+}
+
+.highcharts-tooltip-box {
+	fill: white;
+	fill-opacity: 1;
+	stroke-width: 0;
+}
+
 #map-container {
     height: 500px; 
     min-width: 310px; 
@@ -32,6 +42,18 @@
 
 .paletton-red-text {
 	color: #EF4E50;
+}
+
+.paletton-light-red {
+	background-color: #FF7575;
+}
+
+.paletton-light-red-text{
+	color: #FF7575; 
+} 
+
+.paletton-grey-text {
+	color: #454157;
 }
 
 .vertical-container {
@@ -210,6 +232,7 @@ p.collection-item {
 
 .card-narrow {
 	padding: 10px;
+	margin-bottom: 0;
 }
 
 .b-container {
@@ -289,6 +312,11 @@ input[type=text] {
 
 	.card .card-content {
 		padding: 16px 10px !important;
+	}
+
+
+	.legend-box {
+		margin: 16px 0px;
 	}
 	
 }

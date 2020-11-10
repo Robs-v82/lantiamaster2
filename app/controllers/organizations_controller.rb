@@ -12,11 +12,7 @@ class OrganizationsController < ApplicationController
   		helpers.clear_session
       cartels = Sector.where(:scian2=>98).last.organizations.uniq
   		cartels = cartels.sort_by{|cartel| cartel.name}
-  		coalitionKeys = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c',"material_color"=>'teal'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}
-  		]
+  		coalitionKeys = helpers.coalitionKeys
       typeKeys = cartels.pluck(:mainleague_id).uniq
   		session[:organization_selection] = [typeKeys, coalitionKeys]
   		redirect_to '/organizations/index'
@@ -25,11 +21,7 @@ class OrganizationsController < ApplicationController
   	def post_query
   		session[:organization_selection][0] = organization_selection_params[:types]
 
-    	coalitionKeys = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c',"material_color"=>'teal'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}
-  		]
+    	coalitionKeys = helpers.coalitionKeys
   		checkedCoalitions = []
 
   		coalitionKeys.each{|coalition| 
@@ -75,11 +67,7 @@ class OrganizationsController < ApplicationController
   			@allTypes.push(League.find(key.to_i))
   		}
 
-  		@allCoalitions = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c',"material_color"=>'teal'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}		
-  		]
+  		@allCoalitions = helpers.coalitionKeys
 
   		@checkedCoalitions = session[:organization_selection][1]
 
@@ -115,7 +103,7 @@ class OrganizationsController < ApplicationController
   		@alliedCartels = []
   		@cartels.each {|cartel|
   			cartelIn = false
-  			session[:organization_selection][1].each{|coalition|
+  			@checkedCoalitions.each{|coalition|
   				leader = Organization.where(:name=>coalition["name"]).last
   				if leader
   					if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
@@ -133,22 +121,50 @@ class OrganizationsController < ApplicationController
   				@alliedCartels.push(cartel)
   			end
   		}
-  		@checkedCoalitions = session[:organization_selection][1]
   		@n = @alliedCartels.length-1
 
   		if @checkedStates.length == 1
         @countyArr = []
         State.find(@checkedStates).last.counties.each{|county|
-          countyRackets = county.rackets.uniq
+          countyRackets = county.rackets.merge(@alliedCartels)
           myRackets = []
-          racketString = ""
+          myLeaders = []
           countyRackets.each{|racket|
+            racketHash = {}
             if @alliedCartels.include? racket
-              myRackets.push(racket.name)
-              racketString += racket.name+" "
+              racketHash[:name] = racket.name
             end
+            cartelIn = false
+            @checkedCoalitions.each{|coalition|
+              leader = Organization.where(:name=>coalition["name"]).last
+              if leader
+                if racket.name == leader.name or leader.subordinates.include? racket or leader.allies.include? racket.id
+                  myLeaders.push(leader.name)
+                  cartelIn = true
+                  racketHash[:color] = coalition["dark_color"]
+                end
+              end
+            }
+            unless cartelIn
+              myLeaders.push("Sin coalición")
+              cartelIn = true
+              racketHash[:color] = '#7f7b90'         
+            end
+            myRackets.push(racketHash)
           }
-          countyHash = {:name=>county.name, :shortname=>county.shortname, :full_code=>county.full_code, :freq=>myRackets.length, :rackets=>racketString}
+          myLeaders = myLeaders.uniq
+          if myLeaders.length > 1
+            countyCoalition = 0
+          else
+            if myLeaders.last == "Cártel de Sinaloa"
+              countyCoalition = 1
+            elsif myLeaders.last == "Cártel Jalisco Nueva Generación"
+              countyCoalition = 2
+            else
+              countyCoalition = 3
+            end
+          end
+          countyHash = {:name=>county.name, :shortname=>county.shortname, :full_code=>county.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>countyCoalition}
           unless countyHash[:freq] == 0
             @countyArr.push(countyHash)
           end
@@ -199,11 +215,7 @@ class OrganizationsController < ApplicationController
   			@allTypes.push(League.find(key.to_i))
   		}
 
-  		@allCoalitions = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#b2dfdb',"dark_color"=>'#00695c',"material_color"=>'teal'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffe0b2',"dark_color"=>'#ef6c00',"material_color"=>'orange'},
-  			{"name"=>"Sin vinculación","color"=>'#f5f5f5',"dark_color"=>'#424242',"material_color"=>'grey'}		
-  		]
+  		@allCoalitions = helpers.coalitionKeys
 
   		@checkedCoalitions = session[:organization_selection][1][0..-2]
   		if session[:organization_selection][2] == true
