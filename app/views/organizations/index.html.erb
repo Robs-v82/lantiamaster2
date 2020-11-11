@@ -21,7 +21,7 @@
 							<% else %>
 								full_code:'<%= place[:full_code] %>',
 							<% end %>
-							value:<%= place[:coalition] %>, rackets:'<% place[:rackets].each do |racket|%><a href="elpais.com"><span style="color:<%= racket[:color] %>">- <%= racket[:name][0..32] %><span></a><br><% end %>', freq:<%= place[:freq]%>, 
+							value:<%= place[:coalition] %>, rackets:'<% place[:rackets].each do |racket|%><span style="color:<%= racket[:color] %>">- <%= racket[:name][0..32] %><% if racket[:name].length > 33 %>...<% end %><span><br><% end %>', freq:<%= place[:freq]%>, 
 							<% if place[:freq] == 1 %>
 								string:'organización'
 							<% else %>
@@ -41,7 +41,7 @@
 				    Highcharts.mapChart('org-entry-map', {
 				        chart: {
 				            map: geojson,
-				            height: 350,
+				            height: 320,
 				        },
 				        legend: false,
 				        title: false, 
@@ -111,9 +111,19 @@
 				            		pointerEvents: 'auto'
 				            	},
 				            }
-				        }]
-				    });
-				});	
+				        }],
+				    },
+				 //    <% if @checkedStates.length == 1 %>
+					// function (chartt) { // on complete
+					// 	chartt.renderer.image('/assets/mexico-icon.png',0,0,60,40).on('click', function() {
+     //    					var urlString = '/organizations/query';
+     //    					window.location = urlString;	
+					// 	})
+    	// 				.add();
+    	// 			}
+    	// 			<% end %>
+				);
+			});	
 		})
 	</script>
 <% end %>
@@ -179,21 +189,14 @@
 							</div>
 						<% end %>
 						<% if @checkedStates.length == 1 %>
-							<div class="state-map-box">
-								<div class="col s10">
-									<div id="org-entry-map" class="org-entry-display">
-									</div>
-								</div>
-								<div class="col s2">
-									<a href='/organizations/query'>
-										<%= image_tag "mexico-icon.png", :class => "mexico-icon" %>
-									</a>
-								</div>
-							</div>
-						<% else %>
-							<div id="org-entry-map" class="org-entry-display">
+							<div>
+								<a href="/organizations/query">
+									<img src="/assets//mexico-icon.png" class="mexico-icon">
+								</a>
 							</div>
 						<% end %>
+						<div id="org-entry-map" class="org-entry-display">
+						</div>
 					</div>
 					<div class="col l6 m12">
 						<div id="org-entry-list" class="org-entry-display">
