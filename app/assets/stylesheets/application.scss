@@ -4,6 +4,15 @@
  *= require jquery-ui
  */
 
+.state-map-box .col {
+	padding: 0 !important;
+}
+
+.mexico-icon {
+	width: 100%;
+	display: inline-block;
+}
+
 .btn-floating:hover {
 	background-color: #EF4E50 !important;
 }
@@ -406,7 +415,7 @@ select {
 }
 
 .flex-card {
-	min-height: 680px;
+	min-height: 548px;
 }
 
 .border-section {
@@ -419,7 +428,7 @@ select {
 }
 
 .full-height {
-	height: 680px;
+	height: 600px;
 }
 
 #map-display {

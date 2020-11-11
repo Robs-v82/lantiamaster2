@@ -38,6 +38,13 @@ class OrganizationsController < ApplicationController
       redirect_to '/organizations/index'
   	end
 
+    def get_query
+      target = [State.where(:code=>params[:code]).last.id]
+      Cookie.create(:data=>target)
+      session[:checkedStates] = Cookie.last.id
+      redirect_to '/organizations/index'
+    end
+
     def back_query
       if session[:organization_selection]
         redirect_to '/organizations/index'
@@ -153,23 +160,21 @@ class OrganizationsController < ApplicationController
             end
           }
           unless cartelIn
-            myLeaders.push("Sin coalición")
-            cartelIn = true
-            racketHash[:color] = '#7f7b90'         
+            racketHash[:color] = '#A09EAB'         
           end
           myRackets.push(racketHash)
         }
         myLeaders = myLeaders.uniq
-        if myLeaders.length > 1
+        if myLeaders.length == 2
           placeCoalition = 0
+        elsif myLeaders.length == 0
+          placeCoalition = 3
         else
           if myLeaders.last == "Cártel de Sinaloa"
-            placeCoalition = 1
-          elsif myLeaders.last == "Cártel Jalisco Nueva Generación"
-            placeCoalition = 2
+            placeCoalition = 1 
           else
-            placeCoalition = 3
-          end
+            placeCoalition = 2
+          end     
         end
         if @checkedStates.length == 1
           placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}

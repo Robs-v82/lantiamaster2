@@ -75,6 +75,7 @@ Rails.application.routes.draw do
     post 'datasets/victims_query' => 'datasets#post_victim_query'
     post 'members/detainees_query' => 'members#post_detainees_query'
     post 'organizations/organizations_query' => 'organizations#post_query'
+    get 'organizations/organizations_query/:code' => 'organizations#get_query'
     get 'datasets/victims'
     get 'datasets/basic'
     get 'datasets/:type/:cell' => 'datasets#sort'
