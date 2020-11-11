@@ -17,60 +17,70 @@
 				return false
 		 	})
 
-			<% if @checkedStates.length != 1 %>
-
-				$("#freq-map-trigger").click(function() {
-					google.charts.setOnLoadCallback(drawOrganizationsMap);
-					return false
-				})
+				// $("#freq-map-trigger").click(function() {
+				// 	google.charts.setOnLoadCallback(drawOrganizationsMap);
+				// 	return false
+				// })
 
 				
-				google.charts.load('current', {
-					'packages':['geochart'],
-					'mapsApiKey': '<%= @key %>'
-				});
+				// google.charts.load('current', {
+				// 	'packages':['geochart'],
+				// 	'mapsApiKey': '<%= @key %>'
+				// });
 
-				function drawOrganizationsMap() {
-					var data = google.visualization.arrayToDataTable([
-						['State', 'Organizaciones'],
-						<% @stateArr.each do |state| %>
-							[
-								<% if state[:name] == "Ciudad de México" %>
-									"Distrito Federal"
-								<% else %>
-									'<%= state[:name] %>'
-								<% end %>
-								,
-								<%= state[:freq] %>
-							],
-						<% end %>
-					]);
+				// function drawOrganizationsMap() {
+				// 	var data = google.visualization.arrayToDataTable([
+				// 		['State', 'Organizaciones'],
+				// 		<% @stateArr.each do |state| %>
+				// 			[
+				// 				<% if state[:name] == "Ciudad de México" %>
+				// 					"Distrito Federal"
+				// 				<% else %>
+				// 					'<%= state[:name] %>'
+				// 				<% end %>
+				// 				,
+				// 				<%= state[:freq] %>
+				// 			],
+				// 		<% end %>
+				// 	]);
 
-					var options = {
-						height: 500,
-						region: 'MX',
-						resolution: 'provinces',
-						colorAxis: {colors: ['<%= @lightMapColor %>', '<%= @darkMapColor %>']}
-					};
+				// 	var options = {
+				// 		height: 500,
+				// 		region: 'MX',
+				// 		resolution: 'provinces',
+				// 		colorAxis: {colors: ['<%= @lightMapColor %>', '<%= @darkMapColor %>']}
+				// 	};
 
-					var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
+				// 	var chart = new google.visualization.GeoChart(document.getElementById('freq-entry-map'));
 
-					chart.draw(data, options);
-				}
+				// 	chart.draw(data, options);
+				// }
 
-			<% else %>
 				var data = [
-					<% @countyArr.each do |place| %>
-						{full_code:'<%= place[:full_code] %>', value:<%= place[:coalition] %>, rackets:'<% place[:rackets].each do |racket|%><span style="color:<%= racket[:color] %>">- <%= racket[:name] %><br><span><% end %>', freq:<%= place[:freq]%>, 
-						<% if place[:freq] == 1 %>
-							string:'organización'
-						<% else %>
-							string:'organizaciones'
-						<% end %>
-					},
+					<% @placeArr.each do |place| %>
+						{
+							<% if @checkedStates.length != 1 %>
+								code:'<%= place[:code] %>',
+							<% else %>
+								full_code:'<%= place[:full_code] %>',
+							<% end %>
+							value:<%= place[:coalition] %>, rackets:'<% place[:rackets].each do |racket|%><span style="color:<%= racket[:color] %>">- <%= racket[:name] %><br><span><% end %>', freq:<%= place[:freq]%>, 
+							<% if place[:freq] == 1 %>
+								string:'organización'
+							<% else %>
+								string:'organizaciones'
+							<% end %>
+						},
 					<% end %>
 				];
-				Highcharts.getJSON('/maps/<%= State.find(@checkedStates.last).code %>.geojson', function (geojson) {
+
+				Highcharts.getJSON(
+					<% if @checkedStates.length != 1 %>
+						'/maps/national_map.json'
+					<% else %>
+						'/maps/<%= State.find(@checkedStates.last).code %>.geojson'
+					<% end %>
+					, function (geojson) {
 				    Highcharts.mapChart('freq-entry-map', {
 				        chart: {
 				            map: geojson,
@@ -104,7 +114,11 @@
 				        },
 				        series: [{
 				            data: data,
-				            joinBy: 'full_code',
+				            <% if @checkedStates.length != 1 %>
+				            	joinBy: 'code',
+				            <% else %>
+				            	joinBy: 'full_code',
+				            <% end %>
 			            	name: 'Organizaciones',
 				            borderColor: 'white',
 				            borderWidth: 1,
@@ -118,17 +132,11 @@
 				            tooltip: {
 				            	borderWidth: 0,
 				            	headerFormat: '<span style="font-size:14px; color:#454157">{point.key}</span><br>',
-				            	pointFormat: '<div style="padding-bottom:12px"><span style="color:#454157">{point.freq} {point.string}:</span></div><br><div>{point.rackets}</div>'	
+				            	pointFormat: '<div style="padding-bottom:12px"><span style="color:#454157">{point.freq} {point.string}:</span></div><br><div>{point.rackets}</div>',
 				            }
 				        }]
 				    });
-				});
-				$("#freq-map-trigger").click(function() {
-					$(".freq-entry-display").hide();
-					$("#freq-entry-map").show();
-					return false
-			 	})		
-			<% end %>
+				});	
 		})
 	</script>
 <% end %>
@@ -181,7 +189,7 @@
 							</div>
 						<% end %>
 
-						<% if @checkedCoalitions.length > 1 && @checkedStates.length == 1 %>
+						<% if @checkedCoalitions.length > 1 %>
 							<div id="multicoalition-label" class="bottom-margin-div" style="display: none">
 								<div class="valign-wrapper">
 									<div class="pseudo-button valign-wrapper">

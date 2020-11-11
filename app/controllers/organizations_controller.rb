@@ -89,8 +89,10 @@ class OrganizationsController < ApplicationController
   		}
 
   		@cartels = []
+      myStates = []
       @checkedStates.each{|id|
         state = State.find(id.to_i)
+        myStates.push(state)
         localOrganizations = state.rackets.uniq
         @checkedTypes.each{|type|
           @cartels.push(type.organizations.merge(localOrganizations))
@@ -124,66 +126,73 @@ class OrganizationsController < ApplicationController
   		@n = @alliedCartels.length-1
 
   		if @checkedStates.length == 1
-        @countyArr = []
-        State.find(@checkedStates).last.counties.each{|county|
-          countyRackets = county.rackets.merge(@alliedCartels)
-          myRackets = []
-          myLeaders = []
-          countyRackets.each{|racket|
-            racketHash = {}
-            if @alliedCartels.include? racket
-              racketHash[:name] = racket.name
-            end
-            cartelIn = false
-            @checkedCoalitions.each{|coalition|
-              leader = Organization.where(:name=>coalition["name"]).last
-              if leader
-                if racket.name == leader.name or leader.subordinates.include? racket or leader.allies.include? racket.id
-                  myLeaders.push(leader.name)
-                  cartelIn = true
-                  racketHash[:color] = coalition["dark_color"]
-                end
-              end
-            }
-            unless cartelIn
-              myLeaders.push("Sin coalición")
-              cartelIn = true
-              racketHash[:color] = '#7f7b90'         
-            end
-            myRackets.push(racketHash)
-          }
-          myLeaders = myLeaders.uniq
-          if myLeaders.length > 1
-            countyCoalition = 0
-          else
-            if myLeaders.last == "Cártel de Sinaloa"
-              countyCoalition = 1
-            elsif myLeaders.last == "Cártel Jalisco Nueva Generación"
-              countyCoalition = 2
-            else
-              countyCoalition = 3
-            end
-          end
-          countyHash = {:name=>county.name, :shortname=>county.shortname, :full_code=>county.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>countyCoalition}
-          unless countyHash[:freq] == 0
-            @countyArr.push(countyHash)
-          end
-        }
+        myPlaces = State.find(@checkedStates).last.counties
+      else
+        myPlaces = myStates
       end
+
+      @placeArr = []
+      myPlaces.each{|place|
+        placeRackets = place.rackets.merge(@alliedCartels)
+        myRackets = []
+        myLeaders = []
+        placeRackets.each{|racket|
+          racketHash = {}
+          if @alliedCartels.include? racket
+            racketHash[:name] = racket.name
+          end
+          cartelIn = false
+          @checkedCoalitions.each{|coalition|
+            leader = Organization.where(:name=>coalition["name"]).last
+            if leader
+              if racket.name == leader.name or leader.subordinates.include? racket or leader.allies.include? racket.id
+                myLeaders.push(leader.name)
+                cartelIn = true
+                racketHash[:color] = coalition["dark_color"]
+              end
+            end
+          }
+          unless cartelIn
+            myLeaders.push("Sin coalición")
+            cartelIn = true
+            racketHash[:color] = '#7f7b90'         
+          end
+          myRackets.push(racketHash)
+        }
+        myLeaders = myLeaders.uniq
+        if myLeaders.length > 1
+          placeCoalition = 0
+        else
+          if myLeaders.last == "Cártel de Sinaloa"
+            placeCoalition = 1
+          elsif myLeaders.last == "Cártel Jalisco Nueva Generación"
+            placeCoalition = 2
+          else
+            placeCoalition = 3
+          end
+        end
+        if @checkedStates.length == 1
+          placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+        else
+          placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+        end
+        unless placeHash[:freq] == 0
+          @placeArr.push(placeHash)
+        end
+      }
 
       @stateArr = []
   		State.all.each{|state|
   			stateRackets = state.rackets.uniq
   			myRackets = []
+
   			stateRackets.each{|racket|
-  				if @alliedCartels.include? racket
+  				racketHash = {}
+          if @alliedCartels.include? racket
   					myRackets.push(racket)
   				end
+          cartelIn = false
   			}
-  			stateHash = {:name=>state.name, :shortname=>state.shortname, :freq=>myRackets.length}
-  			unless stateHash[:freq] == 0
-  				@stateArr.push(stateHash)
-  			end
   		}
 
   		if @checkedCoalitions.length == 1
