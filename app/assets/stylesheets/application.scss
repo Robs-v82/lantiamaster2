@@ -5,6 +5,10 @@
  */
 
 
+.second-map {
+	display: none;
+}
+
 .tabs-padding {
 	padding: 12px;
 }
@@ -171,6 +175,10 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 	padding: 0 !important;
 }
 
+.collapsible-header {
+	padding: 10px;
+}
+
 #tree-entry-content .collapsible-header {
 }
 #tree-entry-content h6 {
@@ -201,7 +209,8 @@ p.collection-item {
 }
 
 .collection-item span {
-	font-weight: 400
+	font-weight: 400;
+	color: #454157;
 }
 
 .collection-column li {
@@ -234,7 +243,7 @@ p.collection-item {
 
 #map {
     width: 100%;
-    height: 580px;
+    height: 494px;
 }
 
 
@@ -367,6 +376,7 @@ p {
 body {
 	font-family: 'Poppins', sans-serif;
 	font-weight: 300;
+	color: #33333C;
 	display: flex;
 	min-height: 100vh;
 	flex-direction: column;
@@ -399,8 +409,12 @@ select {
 	width: 100%;
 }
 
+.state-selector-row {
+	margin: 10px !important;
+}
+
 .collapsible-body {
-	padding: 10px !important;
+	padding: 6px 18px !important;
 }
 
 .no-margin-bottom {
@@ -440,6 +454,10 @@ select {
 
 .full-height {
 	height: 600px;
+}
+
+.medium-height {
+	height: 500px;
 }
 
 #map-display {

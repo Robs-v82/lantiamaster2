@@ -347,7 +347,7 @@ class OrganizationsController < ApplicationController
   			@singleSections.push(parentSection)
   		end
   		
-  		@leads = @myOrganization.leads
+  		@leads = @myOrganization.leads.sort_by{|lead| lead.event.event_date}
 
   		@leadArr = []
   		myCounter = 0

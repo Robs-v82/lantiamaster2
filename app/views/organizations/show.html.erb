@@ -17,7 +17,6 @@
 		$("#entry-map-trigger").click(function() {
 			$(".geo-entry-display").hide();
 			$("#entry-map").show();
-			console.log("ON")
 			$.get(
 				'/queries/mapOn/'
 				)
@@ -108,8 +107,7 @@
 				'/maps/<%= State.find(@racketStates.last.id).code %>.geojson',
 			<% end %>
 			function (geojson) {
-				console.log("working!")
-				Highcharts.mapChart('geo-distribution', {
+				Highcharts.mapChart('general-map', {
 			        chart: {
 			            map: geojson,
 			            height: 380,
@@ -129,6 +127,20 @@
 				                color: "<%= @coalitionColor %>"
 				            }]
 					},
+			        <% if @racketStates.length != 1 %>
+				        plotOptions: {
+				        	series: {
+				        		point: {
+				        			events: {
+				        				click: function() {
+				        					$('.geo-distribution-display').hide();
+				        					$('#'+this.code+'-org-map').show();
+				        				}
+				        			}
+				        		}
+				        	}
+				        },
+				    <% end %>
 			        series: [{
 			            data: data,
 			            <% if @racketStates.length != 1 %>
@@ -146,6 +158,9 @@
 				                borderColor: '#424242'
 			                }
 			            },
+			            <% if @racketStates.length != 1 %>
+			            	cursor: 'pointer',
+			            <% end %>
 			            tooltip: {
 			            	borderWidth: 0,
 			            	headerFormat: '<span style="font-size:14px; color:#454157">{point.key}</span><br>',
@@ -158,6 +173,68 @@
 			    })
 			}
 		)
+
+		// SECONDARY MAPS
+		<% if @racketStates.length != 1 %>
+			<% @racketStates.each do |state| %>
+				var <%= state.shortname %>Data = [
+					<% @racketCounties.each do |county| %>
+						{
+							full_code: '<%= county.full_code %>',
+							value: 1
+						},
+					<% end %>			
+				];
+				Highcharts.getJSON(
+					'/maps/<%= state.code %>.geojson',
+					function (geojson) {
+						Highcharts.mapChart('<%= state.code %>-inner-org-map', {
+					        chart: {
+					            map: geojson,
+					            height: 380,
+					        },
+					        legend: false,
+					        title: false, 
+					        credits: false,
+					        mapNavigation: {
+					            enabled: false,
+					        },
+							exporting: {
+								enabled: false
+							},
+							colorAxis: {
+					            	dataClasses: [{
+						                to: 1000000000,
+						                color: "<%= @coalitionColor %>"
+						            }]
+							},
+					        series: [{
+					            data: <%= state.shortname %>Data,
+					            joinBy: 'full_code',
+				            	name: 'Organizaciones',
+					            borderColor: 'white',
+					            borderWidth: 1,
+					            nullColor: '#bdbdbd',
+					            states: {
+					                hover: {
+					                    color: '#ffffff',
+						                borderColor: '#424242'
+					                }
+					            },
+					            tooltip: {
+					            	borderWidth: 0,
+					            	headerFormat: '<span style="font-size:14px; color:#454157">{point.key}</span><br>',
+					            	pointFormat: false,
+					            	style: {
+					            		pointerEvents: 'auto'
+					            	},
+					            },
+					        }],
+					    })
+					}
+				)
+			<% end %>
+		<% end %>
     	window.addEventListener("DOMContentLoaded", function(){        
 		}
 	)
@@ -305,6 +382,39 @@
 					</div>	
 					<div class="col s12">
 						<div id="geo-distribution">
+							<% unless @racketStates.length == 1 %>
+								<div class="col s2">
+									<a id="back-to-general-map" href="#">
+										<img src="/assets//mexico-icon.png" class="mexico-icon">
+									</a>
+								</div>
+								<% if @racketStates.length < 5 %>
+									<div class="col s10">
+										<div class="row state-selector-row">
+											<% @racketStates.each do |state| %>
+												<div class="col s3 center">
+													<div class="">
+													<a id="state-map-<%= state.code %>" class="go-to-state-map" href="#">
+														<span class="p12 bold"><%= state.shortname.upcase %></span>
+													</a>
+													</div>
+												</div>
+											<% end %>
+										</div>
+									</div>
+								<% end %>
+							<% end %>
+							<div class="col s12">
+								<div id="general-map" class="geo-distribution-display">
+								</div>
+								<% unless @racketStates == 1 %>
+									<% @racketStates.each do |state| %>
+										<div id="<%= state.code %>-org-map" class="geo-distribution-display second-map">
+											<div id="<%= state.code %>-inner-org-map"></div>
+										</div>
+									<% end %>
+								<% end %>
+							</div>
 						</div>
 					</div>
 					<div class="col s12">
@@ -312,7 +422,6 @@
 							<div class="right col s9">
 								<div class="right">
 									<a id="entry-grid-trigger" href=""><i class="small material-icons paletton-red-text text-lighten-2 right-extra-margin">list</i></a>
-									<a id="entry-chart-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">insert_chart</i></a>
 									<a id="entry-map-trigger" href=""><i class="small material-icons paletton-red-text text-lighten-2 right-extra-margin">map</i></a>	
 									<a id="entry-download-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>		
 								</div>

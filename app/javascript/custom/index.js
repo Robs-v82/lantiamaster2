@@ -176,6 +176,18 @@ $(document).ready(function(){
 		$('#filter-dashboard').addClass('hide-on-small-only');
 	})
 
+	// MAPS NAVIGATION
+	$('#back-to-general-map').click(function() {
+		$('.geo-distribution-display').hide();
+		$('#general-map').show();
+	})
+
+	$('.go-to-state-map').click(function() {
+		var myId = $(this).attr('id'); 
+		var myState = myId.substr(myId.length - 2);
+		$('.geo-distribution-display').hide();
+		$('#'+myState+'-org-map').show();
+	})
 
 	// SORT BUTTONS
 		$('.sort-btn').click(function() {
