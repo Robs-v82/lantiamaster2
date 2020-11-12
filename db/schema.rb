@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_06_204015) do
+ActiveRecord::Schema.define(version: 2020_11_12_210601) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -335,7 +335,8 @@ ActiveRecord::Schema.define(version: 2020_11_06_204015) do
     t.integer "query_counter"
     t.string "remember_token"
     t.datetime "email_verified_at"
-    t.integer "role_id"
+    t.integer "role_id", default: 2
+    t.integer "membership_id"
     t.index ["member_id"], name: "index_users_on_member_id"
   end
 
