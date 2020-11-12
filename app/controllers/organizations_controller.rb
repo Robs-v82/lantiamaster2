@@ -387,7 +387,7 @@ class OrganizationsController < ApplicationController
         if leader
           if @myOrganization.name == leader.name or leader.subordinates.include? @myOrganization or leader.allies.include? @myOrganization.id
             cartelIn = true
-            @coalitionColor = coalition["dark_color"]
+            @coalitionColor = coalition["color"]
           end
         end 
         unless cartelIn
