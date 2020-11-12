@@ -1,3 +1,7 @@
+Role.all.each{|role|
+	role.update(:criminal=>false)
+}
+
 criminalRoles = [
 	{:name=>"Líder"},
 	{:name=>"Operador"},
@@ -8,11 +12,11 @@ criminalRoles = [
 	{:name=>"Jefe de célula"},
 	{:name=>"Extorsionador"},
 	{:name=>"Secuestrador"},
-	{:name=>"Traficante de droga"},
+	{:name=>"Traficante o distribuidor"},
 	{:name=>"Narcomenudista"},
 	{:name=>"Sin definir"},
 	{:name=>"Jefe operativo"},	
-	{:name=>"Jefe regional u operador"}	
+	{:name=>"Jefe regional"}	
 ]
 
 criminalRoles.each{|role|
@@ -21,11 +25,3 @@ criminalRoles.each{|role|
 	end
 	Role.where(role).last.update(:criminal=>true)
 }
-
-unless Role.where(:name=>"Extorsionador").empty?
-	Role.where(:name=>"Extorsionador").last.update(:name=>"Extorsionador-narcomenudista")
-end
-
-unless Role.where(:name=>"Traficante de droga").empty?
-	Role.where(:name=>"Traficante de droga").last.update(:name=>"Traficante o distribuidor")
-end
