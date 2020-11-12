@@ -37,7 +37,7 @@ module ApplicationHelper
 
 	def get_regular_quarters
 		myQuarters = []
-		Quarter.all.each{|quarter|
+		Quarter.all.sort.each{|quarter|
 			unless quarter.victims.empty?
 				myQuarters.push(quarter)
 			end
@@ -49,7 +49,7 @@ module ApplicationHelper
 		myQuarters = []
 		years.each{|thisYear|
 			year = Year.find(thisYear["id"])
-			year.quarters.each {|quarter|
+			year.quarters.sort.each {|quarter|
 			if  unit == "victims"
 				unless quarter.victims.empty?
 					myQuarters.push(quarter)
