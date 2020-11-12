@@ -285,8 +285,10 @@ class OrganizationsController < ApplicationController
   		# PROPER SHOW STUFF
   		session[:map] = true
   		@myOrganization = Organization.find(params[:id])
-  		# HEADER
-  		@headerType = "Lantipedia"
+      @racketStates = @myOrganization.states.uniq
+  		@racketCounties = @myOrganization.counties.uniq
+
+      # HEADER
   		@headerTitle = @myOrganization.name
 
   		@cartels = Sector.where(:scian2=>98).last.organizations.uniq
@@ -375,10 +377,23 @@ class OrganizationsController < ApplicationController
   			end 
   		} 
   		@leadArr = @leadArr
-
-  		@place = {:latitude=>19.097119,:longitude=>-99.913613}
-  		@zip = "20303"
   		@key = Rails.application.credentials.google_maps_api_key
+
+
+      @allCoalitions = helpers.coalitionKeys
+      cartelIn = false
+      @allCoalitions.each{|coalition|
+        leader = Organization.where(:name=>coalition["name"]).last
+        if leader
+          if @myOrganization.name == leader.name or leader.subordinates.include? @myOrganization or leader.allies.include? @myOrganization.id
+            cartelIn = true
+            @coalitionColor = coalition["dark_color"]
+          end
+        end 
+        unless cartelIn
+            @coalitionColor = '#7f7b90'  
+        end     
+      }
   	end
 
   	def main

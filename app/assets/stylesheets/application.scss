@@ -4,6 +4,10 @@
  *= require jquery-ui
  */
 
+
+.tabs-padding {
+	padding: 12px;
+}
 .state-map-box .col {
 	padding: 0 !important;
 }
@@ -51,7 +55,7 @@
 }
 
 .paletton-red-text {
-	color: #EF4E50;
+	color: #EF4E50 !important;
 }
 
 .paletton-light-red {
@@ -176,6 +180,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 #activity-collection .collection-item {
 	padding: 2px 8px;
 	line-height: 1.2rem;
+	border-style: none !important;
 }
 
 #grid-collection {
@@ -185,14 +190,18 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 }
 
 p.collection-item {
-	height: 56px;
+	height: 70px;
 	padding: 8px;
-	border: 1px solid #e0e0e0;
+	border-bottom: 1px solid #454157;
 	line-height: 1.2rem !important;
 }
 
 .collection-column {
 	padding: 0 !important
+}
+
+.collection-item span {
+	font-weight: 400
 }
 
 .collection-column li {
@@ -209,7 +218,7 @@ p.collection-item {
 }
 
 .entry a {
-	color: #00BCD4 !important;
+	color: #EF4E50 !important;
 }
 
 .entry p {
@@ -357,6 +366,7 @@ p {
 
 body {
 	font-family: 'Poppins', sans-serif;
+	font-weight: 300;
 	display: flex;
 	min-height: 100vh;
 	flex-direction: column;
@@ -664,6 +674,7 @@ input:disabled {
 	padding-left: 28px;
 	height: auto;
 	font-size: 11px;
+	line-height: 16px;
 }
 
 [type="checkbox"] + span:not(.lever):before, [type="checkbox"]:not(.filled-in) + span:not(.lever):after {
@@ -731,12 +742,12 @@ ul.tabs {
 }
 
 .tabs .tab a.active {
-	background-color: rgba(0, 188, 212, 0.12) !important;
+	background-color: transparent !important;
 }
 
 
 li.indicator {
-	background-color: #00bcd4 !important;
+	background-color: #FF7575 !important;
 }
 
 .cyan-tabs li.indicator {

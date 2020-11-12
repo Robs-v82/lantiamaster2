@@ -30,7 +30,6 @@
 				'https://maps.googleapis.com/maps/api/geocode/json?components=country:MX|postal_code:<%= @zip %>&key=<%= @key %>',
 				$(this).serialize(),
 				function(data) {
-					console.log(data)
 					var coords = data.results[0].geometry.location; 
 
 					function initMap() {
@@ -59,8 +58,6 @@
 									  '</p>'+
 									  '</div>';
 
-									console.log(contentString)
-
 									var marker<%= lead[:counter] %> = new google.maps.Marker({
 										position: {
 											lat: <%= lead[:lat]%>,
@@ -86,17 +83,92 @@
 					}
 				)
 		<% end %>
-    })
-    window.addEventListener("DOMContentLoaded", function(){        
+
+		var data = [
+			<% if @racketStates.length != 1 %>
+				<% @racketStates.each do |state| %>
+					{
+						code: '<%= state.code %>',
+						value: 1
+					},
+				<% end %>
+			<% else %>
+				<% @racketCounties.each do |county| %>
+					{
+						full_code: '<%= county.full_code %>',
+						value: 1
+					},
+				<% end %>			
+			<% end %>
+		];
+		Highcharts.getJSON(
+			<% if @racketStates.length != 1 %>
+				'/maps/national_map.json',
+			<% else %>
+				'/maps/<%= State.find(@racketStates.last.id).code %>.geojson',
+			<% end %>
+			function (geojson) {
+				console.log("working!")
+				Highcharts.mapChart('geo-distribution', {
+			        chart: {
+			            map: geojson,
+			            height: 380,
+			        },
+			        legend: false,
+			        title: false, 
+			        credits: false,
+			        mapNavigation: {
+			            enabled: false,
+			        },
+					exporting: {
+						enabled: false
+					},
+					colorAxis: {
+			            	dataClasses: [{
+				                to: 1000000000,
+				                color: "<%= @coalitionColor %>"
+				            }]
+					},
+			        series: [{
+			            data: data,
+			            <% if @racketStates.length != 1 %>
+			            	joinBy: 'code',
+			            <% else %>
+			            	joinBy: 'full_code',
+			            <% end %>
+		            	name: 'Organizaciones',
+			            borderColor: 'white',
+			            borderWidth: 1,
+			            nullColor: '#bdbdbd',
+			            states: {
+			                hover: {
+			                    color: '#ffffff',
+				                borderColor: '#424242'
+			                }
+			            },
+			            tooltip: {
+			            	borderWidth: 0,
+			            	headerFormat: '<span style="font-size:14px; color:#454157">{point.key}</span><br>',
+			            	pointFormat: false,
+			            	style: {
+			            		pointerEvents: 'auto'
+			            	},
+			            },
+			        }],
+			    })
+			}
+		)
+    	window.addEventListener("DOMContentLoaded", function(){        
 		}
 	)
+})
     </script>
 <% end %>
 <div class="row">
 	<%= render "shared/organizationsdashboard"%>
 	<div class="entry col l9 m7 s12">
 		<div class="row">
-			<div class="s12">
+			<div class="col l5 s12">
 				<div class="row">
 					<div class="left-extra-margin">
 						<%= render "shared/showfilter"%>
@@ -104,16 +176,13 @@
 				</div>
 				<div class="row">
 					<div class="left-extra-margin">
-						<div class="col l5 m6 s12">
+						<div class="s12">
 							<div class="back-button-box">
 								<a href="/organizations/back_query">
-									<i class="material-icons right-extra-margin">arrow_back</i>
+									<i class="material-icons paletton-red-text right-extra-margin">arrow_back</i>
 								</a>
 							</div>
 							<div class="after-back-button-box">
-								<h5 class="h5-no-margin">
-									<span class="slim"><%= @headerType %></span>
-								</h5>
 								<h5 class="h5-no-margin"><%= @headerTitle %></h5>
 								<% if @myOrganization.acronym %>
 									<p>(<%= @myOrganization.acronym %>)</p>
@@ -123,7 +192,7 @@
 									<div class="chip white z-depth-2 ">
 										<span class="valign-wrapper"><%= @myOrganization.mainleague.name %>
 											<a class="modal-trigger" href="#entry-mainleague-modal">
-												<i class="material-icons cyan-text right">info</i>
+												<i class="material-icons paletton-red-text right">info</i>
 											</a>
 										</span>	
 									</div>
@@ -132,7 +201,7 @@
 									<div class="chip white z-depth-2 ">
 										<span class="valign-wrapper"><%= @myOrganization.thissubleague.name %>
 											<a class="modal-trigger" href="#entry-subleague-modal">
-												<i class="material-icons cyan-text right">info</i>
+												<i class="material-icons paletton-red-text right">info</i>
 											</a>
 										</span>	
 									</div>
@@ -141,125 +210,143 @@
 						</div>
 					</div>
 				</div>
-			</div>
-			<div id="tree-entry-content" class="entry-content col l5 m8 s12">			
-				<ul class="collapsible z-depth-0">
-					<% if @originOrganization %>
-						<li>
+				<div id="tree-entry-content" class="entry-content">			
+					<ul class="collapsible z-depth-0">
+						<% if @originOrganization %>
+							<li>
+								<div class="collapsible-header">
+									<h6><a href="/organizations/show/<%= @originOrganization.id %>">Origen: <%= @originOrganization.name %></a></h6>
+								</div>
+							</li>
+						<% elsif @thisString %>
+							<li>
+								<div class="collapsible-header">
+									<h6>Origen: <%= @thisString %></h6>
+								</div>
+							</li>
+						<% end %>
+						<% unless @aliasSections[0].nil? %>
+							<li>
+								<div class="collapsible-header">
+									<h6>Otras denominaciones</h6>
+								</div>
+								<div class="collapsible-body">
+									<% @aliasSections[0][:records].each do |record| %>
+										<% if @aliasSections[0][:links] == true%>
+											<% if record.is_a? (Integer) %>
+												<p><a href="/organizations/show/<%= record %>"><%= Organization.find(record).name%></a></p>
+											<% else%>
+												<p><a href="/organizations/show/<%= record.id %>"><%= record.name %></a></p>
+											<%end %>
+										<% else %>
+											<p><%= record %></p>
+										<% end %>
+									<% end %>
+								</div>
+							</li>
+						<% end %>
+						<% unless @singleSections[0].nil? %>
+							<li>
+								<div class="collapsible-header">
+									<h6 class="valign-wrapper"><a href="/organizations/show/<%= @singleSections[0][:record].id %>"><%= @singleSections[0][:title] %><%= @singleSections[0][:record].name%></a></h6>
+								</div>
+								<div class="collapsible-body">
+									
+								</div>
+							</li>
+						<% end %>
+						<% @treeSections.each do |section| %>
+							<li>
+								<div class="collapsible-header">
+									<h6><%= section[:title] %></h6>
+								</div>
+								<div class="collapsible-body">
+									<% section[:records].each do |record| %>
+										<% if section[:links] == true%>
+											<% if record.is_a? (Integer) %>
+												<p class="valign-wrapper"><a href="/organizations/show/<%= record %>"><%= Organization.find(record).name%></a></p>
+											<% else%>
+												<a href="/organizations/show/<%= record.id %>"><p class="valign-wrapper"><%= record.name %></a></p>
+											<%end %>
+										<% else %>
+											<p><%= record %></p>
+										<% end %>
+									<% end %>
+								</div>
+							</li>
+						<% end %>
+						<li class="active">
 							<div class="collapsible-header">
-								<h6><a href="/organizations/show/<%= @originOrganization.id %>">Origen: <%= @originOrganization.name %></a></h6>
-							</div>
-						</li>
-					<% elsif @thisString %>
-						<li>
-							<div class="collapsible-header">
-								<h6>Origen: <%= @thisString %></h6>
-							</div>
-						</li>
-					<% end %>
-					<% unless @aliasSections[0].nil? %>
-						<li>
-							<div class="collapsible-header">
-								<h6>Otras denominaciones</h6>
+								<h6>Giros delictivos</h6>
 							</div>
 							<div class="collapsible-body">
-								<% @aliasSections[0][:records].each do |record| %>
-									<% if @aliasSections[0][:links] == true%>
-										<% if record.is_a? (Integer) %>
-											<p><a href="/organizations/show/<%= record %>"><%= Organization.find(record).name%></a></p>
-										<% else%>
-											<p><a href="/organizations/show/<%= record.id %>"><%= record.name %></a></p>
-										<%end %>
+								<% @myActivities.each do |activity| %>
+									<% unless activity.shortname.nil? %>
+										<p><i class="material-icons right-extra-margin">check</i><%= activity.shortname %></p>
 									<% else %>
-										<p><%= record %></p>
+										<p><i class="material-icons right-extra-margin">check</i><%= activity.name %></p>
 									<% end %>
 								<% end %>
 							</div>
 						</li>
-					<% end %>
-					<% unless @singleSections[0].nil? %>
-						<li>
-							<div class="collapsible-header">
-								<h6 class="valign-wrapper"><a href="/organizations/show/<%= @singleSections[0][:record].id %>"><%= @singleSections[0][:title] %><%= @singleSections[0][:record].name%></a></h6>
-							</div>
-							<div class="collapsible-body">
-								
-							</div>
-						</li>
-					<% end %>
-					<% @treeSections.each do |section| %>
-						<li>
-							<div class="collapsible-header">
-								<h6><%= section[:title] %></h6>
-							</div>
-							<div class="collapsible-body">
-								<% section[:records].each do |record| %>
-									<% if section[:links] == true%>
-										<% if record.is_a? (Integer) %>
-											<p class="valign-wrapper"><a href="/organizations/show/<%= record %>"><%= Organization.find(record).name%></a></p>
-										<% else%>
-											<a href="/organizations/show/<%= record.id %>"><p class="valign-wrapper"><%= record.name %></a></p>
-										<%end %>
-									<% else %>
-										<p><%= record %></p>
-									<% end %>
-								<% end %>
-							</div>
-						</li>
-					<% end %>
-					<li class="active">
-						<div class="collapsible-header">
-							<h6>Giros delictivos</h6>
-						</div>
-						<div class="collapsible-body">
-							<% @myActivities.each do |activity| %>
-								<% unless activity.shortname.nil? %>
-									<p><i class="material-icons right-extra-margin">check</i><%= activity.shortname %></p>
-								<% else %>
-									<p><i class="material-icons right-extra-margin">check</i><%= activity.name %></p>
-								<% end %>
-							<% end %>
-						</div>
-					</li>
-				</ul>
+					</ul>
+				</div>
 			</div>
 		<div id="geo-entry-content" class="col l7 m12 s12">
-			<h5 class="slim">Actividades reportadas</h5>
-			<div class="card full-height">
-				<div class="card-content">
-					<div class="right col s9">
-						<div class="right">
-							<a id="entry-grid-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">list</i></a>
-							<a id="entry-chart-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">insert_chart</i></a>
-							<a id="entry-map-trigger" href=""><i class="small material-icons cyan-text text-lighten-2 right-extra-margin">map</i></a>	
-							<a id="entry-download-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>		
+			<div class="card full-height z-depth-0">
+				<div class="row">
+					<div class="col s12">
+						<div class="tabs-padding">
+							<ul class="tabs">
+								<li class="tab col s6"><a href="#geo-distribution" class="paletton-red-text">Presencia</a></li>
+								<li class="tab col s6"><a href="#reported-activities" class="paletton-red-text">Actividades</a></li>
+							</ul>
+						</div>
+					</div>	
+					<div class="col s12">
+						<div id="geo-distribution">
 						</div>
 					</div>
-				</div>
-				<div id="entry-grid" class="geo-entry-display">
-					<div id="grid-collection" class="card-content">
-<!-- 						<ul class="collection">
--->						<% @leads.each do |lead| %>
-<!-- 							<li class="collection-item">
--->							
-								<p class="collection-item valign-wrapper">
-								<%= lead.event.event_date.strftime("%d/%m/%Y") %>,
-								<% unless lead.event.town.name == "Sin definir" %>
-									<%= lead.event.town.name %>,
-								<%end%>
-								<% unless lead.event.town.county.name == "Sin definir" %>
-									<%= lead.event.town.county.name %>,
-								<%end%>	 
-								<%= lead.event.town.county.state.shortname %>:
-								<%= lead.category%>	
-							</p>	
-<!-- 							</li>
--->						<% end %>
-<!-- 						</ul>
- -->				</div>
-				</div>
-				<div id="entry-map" class="geo-entry-display">
-					<div id="map"></div>
+					<div class="col s12">
+						<div id="reported-activities">
+							<div class="right col s9">
+								<div class="right">
+									<a id="entry-grid-trigger" href=""><i class="small material-icons paletton-red-text text-lighten-2 right-extra-margin">list</i></a>
+									<a id="entry-chart-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">insert_chart</i></a>
+									<a id="entry-map-trigger" href=""><i class="small material-icons paletton-red-text text-lighten-2 right-extra-margin">map</i></a>	
+									<a id="entry-download-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>		
+								</div>
+							</div>
+							<div id="entry-grid" class="geo-entry-display">
+								<div id="grid-collection" class="card-content">
+			<!-- 						<ul class="collection">
+			-->						<% @leads.each do |lead| %>
+			<!-- 							<li class="collection-item">
+			-->							
+										<p class="collection-item">
+											<%= I18n.l(lead.event.event_date, :format=> "%-d de %B de %Y") %>,<br>
+											<% if lead.event.town.name != "Sin definir" %>
+												<%= lead.event.town.name %>, <%= lead.event.town.county.shortname %>, <%= lead.event.town.county.state.shortname %>:
+											<% else %>
+												<% if lead.event.town.county.name != "Sin definir" %>
+													<%= lead.event.town.county.shortname %>, <%= lead.event.town.county.state.shortname %>:
+												<% else %>
+													<%= lead.event.town.county.state.name %>:
+												<% end %>
+											<%end%>	 
+											<br>
+											<span><%= lead.category%></span>	
+										</p>	
+			<!-- 							</li>
+			-->						<% end %>
+			<!-- 						</ul>
+			 -->				</div>
+							</div>
+							<div id="entry-map" class="geo-entry-display">
+								<div id="map"></div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
