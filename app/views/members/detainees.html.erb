@@ -15,7 +15,7 @@
 </div>
 <div class="row freq-row">
 	<div id="filter-dashboard" class="col l4 m8 s12 short-row hide-on-small-only">
-		<div class="card cyan darken-1">
+		<div class="card paletton-grey">
 			<div class="full-height">
 				<form id="detainee_freq_table" class="freq_filer_form" action="/members/detainees_query" method="post">
 				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
@@ -24,16 +24,16 @@
 							<%= render "shared/hidefilter"%>
 							<div class="row">
 								<div cass="col s12">
-									<ul class="tabs cyan-tabs">
-										<li class="tab col s6"><a class="white-text" href="#detainee_freq_params">ANÁLISIS</a></li>
-										<li class="tab col s6"><a class="white-text" href="#detainee_freq_filters">FILTROS</a></li>
+									<ul class="tabs paletton-red-tabs">
+										<li class="tab col s6"><a class="paletton-red-text" href="#detainee_freq_params">ANÁLISIS</a></li>
+										<li class="tab col s6"><a class="paletton-red-text" href="#detainee_freq_filters">FILTROS</a></li>
 									</ul>
 								</div>
 							</div>
 							<div id="detainee_freq_params">
 								<div class="row">
 									<div class="col s12">
-										<div class="query-header-box valign-wrapper cyan-text text-accent-2">
+										<div class="query-header-box valign-wrapper white-text">
 											<i class="material-icons small">today</i><p5 class="query-header">Temporal</p5>
 										</div>
 										<div id="detainee_freq_timeframe_selector">
@@ -45,7 +45,7 @@
 																checked
 															<% end %>
 														/>
-														<span class="white-text p20 slim"><%= query[:caption] %></span>
+														<span class="white-text p16"><%= query[:caption] %></span>
 													</label>
 												</p>
 									    	<% end %>
@@ -54,7 +54,7 @@
 								</div>
 								<div id="geo_query_box" class="row">
 									<div class="col s12">
-									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+									    <div class="query-header-box valign-wrapper white-text">
 											<i class="material-icons small">map</i><p5 class="query-header">Geográfico</p5>
 										</div>
 										<div id="detainee_freq_placeframe_selector">
@@ -66,7 +66,7 @@
 																checked
 															<% end %>
 														/>
-														<span class="white-text p20 slim"><%= query[:caption] %></span>
+														<span class="white-text p16"><%= query[:caption] %></span>
 													</label>
 												</p>
 									    	<% end %>
@@ -75,7 +75,7 @@
 							    </div>
 								<div id="organization_query_box" class="row">
 									<div class="col s12">
-									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+									    <div class="query-header-box valign-wrapper white-text">
 											<i class="material-icons small">group</i><p5 class="query-header">Organización</p5>
 										</div>
 										<div id="detainee_freq_organizationframe_selector">
@@ -87,7 +87,7 @@
 																checked
 															<% end %>
 														/>
-														<span class="white-text p20 slim"><%= query[:caption] %></span>
+														<span class="white-text p16"><%= query[:caption] %></span>
 													</label>
 												</p>
 									    	<% end %>
@@ -96,7 +96,7 @@
 							    </div>
 								<div id="role_query_box" class="row">
 									<div class="col s12">
-									    <div class="query-header-box valign-wrapper cyan-text text-accent-2">
+									    <div class="query-header-box valign-wrapper white-text">
 											<i class="material-icons small">contacts</i><p5 class="query-header">Posición</p5>
 										</div>
 										<div id="detainee_freq_roleframe_selector">
@@ -108,7 +108,7 @@
 																checked
 															<% end %>
 														/>
-														<span class="white-text p20 slim"><%= query[:caption] %></span>
+														<span class="white-text p16"><%= query[:caption] %></span>
 													</label>
 												</p>
 									    	<% end %>
@@ -125,11 +125,11 @@
 													class="collapsible-disabled"
 												<% end %>
 											>
-												<div class="collapsible-header cyan darken-1 cyan-text text-accent-2">
+												<div class="collapsible-header paletton-grey white-text">
 													<i class="material-icons tiny">map</i>
 													ESTADOS
 												</div>
-												<div id="state_filter_box" class="collapsible-body cyan darken-1">
+												<div id="state_filter_box" class="collapsible-body paletton-grey">
 													<div class="row">
 														<div class="col s3">
 															<%= render "shared/filterbuttons"%>
@@ -158,11 +158,11 @@
 													class="collapsible-disabled"
 												<% end %>
 											>
-												<div class="collapsible-header cyan darken-1 cyan-text text-accent-2">
+												<div class="collapsible-header paletton-grey white-text">
 													<i class="material-icons tiny">group</i>
 													ORGANIZACIONES
 												</div>
-												<div id="organization_filter_box" class="collapsible-body cyan darken-1">
+												<div id="organization_filter_box" class="collapsible-body paletton-grey">
 													<div class="row">
 														<div class="col s3">
 															<%= render "shared/filterbuttons"%>
@@ -191,11 +191,11 @@
 													class="collapsible-disabled"
 												<% end %>
 											>
-												<div class="collapsible-header cyan darken-1 cyan-text text-accent-2">
+												<div class="collapsible-header paletton-grey white-text">
 													<i class="material-icons tiny">contacts</i>
 													POSICIONES
 												</div>
-												<div id="role_filter_box" class="collapsible-body cyan darken-1">
+												<div id="role_filter_box" class="collapsible-body paletton-grey">
 													<div class="row">
 														<div class="col s3">
 															<%= render "shared/filterbuttons"%>

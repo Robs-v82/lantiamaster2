@@ -54,6 +54,10 @@
 	background-color: #7F7B90;
 }
 
+.paletton-light-grey-text {
+	color: #7F7B90;
+}
+
 .paletton-red {
 	background-color: #EF4E50;
 }
@@ -69,6 +73,10 @@
 .paletton-light-red-text{
 	color: #FF7575; 
 } 
+
+.paletton-translucent-red {
+	background-color: rgba(239, 78, 80, 0.28);
+}
 
 .paletton-grey-text {
 	color: #454157;
@@ -473,7 +481,7 @@ select {
 }
 
 .collapsible-disabled .collapsible-header {
-	color: #0097a7 !important;
+	color: #7F7B90 !important;
 }
 
 
@@ -768,8 +776,8 @@ li.indicator {
 	background-color: #FF7575 !important;
 }
 
-.cyan-tabs li.indicator {
-	background-color: white !important;
+.paletton-red-tabs li.indicator {
+	background-color: #EF4E50 !important;
 }
 
 .chartjs-render-monitor {
