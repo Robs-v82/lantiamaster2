@@ -189,6 +189,34 @@ $(document).ready(function(){
 		$('#'+myState+'-org-map').show();
 	})
 
+	// PAGES
+	$('.page-number-button').click(function() {
+		var page = $(this).attr('data');
+		var numberOfPages = $(this).attr('dataPlus')
+		var nextPage = Number(page)+1
+		var previousPage = page-1
+		console.log(numberOfPages)
+		$('.clickable-row').hide();
+		$('.org-row-'+page).show();
+		$('.page-number-button').hide();
+		$('#page-'+nextPage+'-marker').show();
+		$('#page-'+page+'-marker').show();
+		$('#page-'+previousPage+'-marker').show();
+		$('.page-number-button').removeClass('active-page paletton-red white-text');
+		$('.page-number-button').addClass('white paletton-grey-text');
+		$(this).removeClass('white paletton-grey-text').addClass('active-page paletton-red');
+		if (Number(page) > 2) {
+			$('#back-two-pages').show();
+		} else {
+			$('#back-two-pages').hide();
+		};
+		if (Number(page) > (numberOfPages - 1)) {
+			$('#forward-two-pages').hide();
+		} else {
+			$('#forward-two-pages').show();
+		};
+	})
+
 	// SORT BUTTONS
 		$('.sort-btn').click(function() {
 			function sortTableDown(myCell) {

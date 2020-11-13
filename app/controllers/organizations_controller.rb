@@ -207,6 +207,19 @@ class OrganizationsController < ApplicationController
   			@lightMapColor = "#ffcdd2"
   			@darkMapColor = "#c62828"
   		end
+
+      # PAGES
+      @page_scope = 10
+      @numberOfPages = @n/@page_scope
+      session[:indexPage] = 0
+      @beginning = 1+((session[:indexPage]-1)*@page_scope) 
+      if session[:indexPage] >= (@n/@page_scope.to_f).ceil
+        @finalPage = true
+      end
+      if session[:indexPage]+1 >= (@n/@page_scope.to_f).ceil
+        @finalPagePlus = true
+      end
+
   	end
 
   	def show

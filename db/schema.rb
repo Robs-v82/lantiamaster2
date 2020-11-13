@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_12_210601) do
+ActiveRecord::Schema.define(version: 2020_11_13_214720) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -325,8 +325,8 @@ ActiveRecord::Schema.define(version: 2020_11_12_210601) do
 
   create_table "users", force: :cascade do |t|
     t.string "mail"
-    t.integer "mobile_phone"
-    t.integer "other_phone"
+    t.string "mobile_phone"
+    t.string "other_phone"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "member_id"

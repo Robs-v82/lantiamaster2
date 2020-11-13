@@ -21,7 +21,8 @@
 							<% else %>
 								full_code:'<%= place[:full_code] %>',
 							<% end %>
-							value:<%= place[:coalition] %>, rackets:'<% place[:rackets].each do |racket|%><span style="color:<%= racket[:color] %>">- <%= racket[:name][0..32] %><% if racket[:name].length > 33 %>...<% end %><span><br><% end %>', freq:<%= place[:freq]%>, 
+							value:<%= place[:coalition] %>, rackets:'<% place[:rackets][0..15].each do |racket|%><span style="color:<%= racket[:color]%>; font-size:9px">- <%= racket[:name][0..32] %><% if racket[:name].length > 33 %>...<% end %><span><br><% end %><% if place[:rackets].length > 16 %><span style="font-size:9px">...</span><% end %>',
+							freq:<%= place[:freq]%>, 
 							<% if place[:freq] == 1 %>
 								string:'organización'
 							<% else %>
@@ -105,8 +106,8 @@
 				            <% end %>
 				            tooltip: {
 				            	borderWidth: 0,
-				            	headerFormat: '<span style="font-size:14px; color:#454157">{point.key}</span><br>',
-				            	pointFormat: '<div style="padding-bottom:12px"><span style="color:#454157">{point.freq} {point.string}:</span></div><br><div>{point.rackets}</div>',
+				            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+				            	pointFormat: '<div style="padding-bottom:12px"><span style="color:#454157; font-size:9px">{point.freq} {point.string}:</span></div><br><div>{point.rackets}</div>',
 				            	style: {
 				            		pointerEvents: 'auto'
 				            	},
@@ -139,7 +140,7 @@
 			</div>
 		</div>	
 	</div>
-	<div class="entry col l9 m7 s12">
+	<div class="col l9 m7 s12">
 		<div class="card flex-card">
 			<div class="card-content">
 				<div class="row card-narrow">
@@ -225,48 +226,57 @@
 									</tr>
 								</thead>
 								<tbody>
-									<% (0..@n).each do |n| %>
-										<tr class="clickable-row" data-href="/organizations/show/<%= @alliedCartels[n].id %>">
-											<td>
-												<div class="valign-wrapper">
-													<div class="pseudo-button valign-wrapper">
-														<i class="material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
-													</div>
-													<span class="valign-wrapper">
-														<%= @alliedCartels[n].name %>
-													</span>
-												</div>		
-											</td>
-											<td><%= @alliedCartels[n].league %></td>
-											<td>
-												<% if @alliedCartels[n].subleague %>
-													<%= @alliedCartels[n].subleague %>
-												<% else %>
-													--
+									<% (1..@numberOfPages).each do |x| %>
+										<% ((x-1)*@page_scope..(x-1)*@page_scope+(@page_scope-1)).each do |n| %>
+											<tr class="clickable-row org-row-<%= x %>"
+												<% unless x == 1 %>
+													style="display:none"
 												<% end %>
-											</td>
-		<!-- 									<% @myActivities.each do |activity| %>
-												<td class="center-align">
-													<% if @alliedCartels[n].divisions.include? activity%>
-														<i class="material-icons">check</i>
+											data-href="/organizations/show/<%= @alliedCartels[n].id %>">
+												<td>
+													<div class="valign-wrapper">
+														<div class="pseudo-button valign-wrapper">
+															<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
+														</div>
+														<span class="valign-wrapper">
+															<%= @alliedCartels[n].name %>
+														</span>
+													</div>		
+												</td>
+												<td><%= @alliedCartels[n].league %></td>
+												<td>
+													<% if @alliedCartels[n].subleague %>
+														<%= @alliedCartels[n].subleague %>
+													<% else %>
+														--
 													<% end %>
 												</td>
-											<% end %> -->
-										</tr>
+											</tr>
+										<% end %>
 									<% end %>
 								</tbody>
 							</table>
+							<br>
+							<div class="center">
+								<a id="back-two-pages" class="btn-small page-btn bold center-align white paletton-grey-text p18" style="display:none"><</a>
+									<% (1..@numberOfPages).each do |x| %>
+										<a id="page-<%= x%>-marker" class="btn-small page-btn page-number-button bold center-align
+											<% if x == 1 %>
+												active-page  paletton-red white-text
+											<% else %> 
+												white paletton-grey-text 
+											<% end %>
+										" 
+											<% if x > 2 %>
+												style="display:none"
+											<% end %>
+										data="<%= x %>" dataPlus="<%= @numberOfPages %>" ><%= x %></a>
+									<% end %>
+								<a id="forward-two-pages" class="btn-small white page-btn bold center-align paletton-grey-text p18">></a>
+							</div>
 						</div>
 					</div>
-<!-- 					<div class="right col m4 s9">
-						<div class="right">
-							<a id="freq-info-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">info</i></a>
-							<a id="freq-table-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">list</i></a>
-							<a id="freq-map-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">map</i></a>
-							<a id="freq-download-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>
-						</div> -->
-<!-- 					</div>
- -->			</div>
+				</div>
 			</div>
 		</div>
 	</div>

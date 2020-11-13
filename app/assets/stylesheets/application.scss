@@ -4,6 +4,21 @@
  *= require jquery-ui
  */
 
+.hidden-page-section {
+	display: none;
+}
+
+.page-btn {
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+	padding: 0 !important;
+	margin: 0 3px;
+}
+
+.active-page {
+	color: white !important;
+}
 
 .second-map {
 	display: none;
@@ -22,7 +37,7 @@
 	padding-top: 6px;
 }
 
-.btn-floating:hover {
+.btn-floating:hover, .active-page:hover {
 	background-color: #EF4E50 !important;
 }
 
