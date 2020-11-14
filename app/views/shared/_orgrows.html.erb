@@ -1,0 +1,17 @@
+<tr class="clickable-row org-row-<%= x %>"
+	<% unless x == 1 %>
+		style="display:none"
+	<% end %>
+		data-href="/organizations/show/<%= @alliedCartels[n].id %>">
+	<td>
+		<div class="valign-wrapper">
+			<div class="pseudo-button valign-wrapper">
+				<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
+			</div>
+			<span class="valign-wrapper">
+				<%= @alliedCartels[n].name %>
+			</span>
+		</div>		
+	</td>
+	<td><%= @alliedCartels[n].league %></td>
+</tr>

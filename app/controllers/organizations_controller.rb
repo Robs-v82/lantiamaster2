@@ -62,7 +62,7 @@ class OrganizationsController < ApplicationController
       @checkedStates = State.pluck(:id)
     end
     allCartels = Sector.where(:scian2=>98).last.organizations.uniq
-  		
+
   		@checkedTypes = []
    		session[:organization_selection][0].each{|key|
   			@checkedTypes.push(League.find(key.to_i))
@@ -108,6 +108,17 @@ class OrganizationsController < ApplicationController
   		@cartels.flatten!
       @cartels = @cartels.uniq
   		@cartels = @cartels.sort_by{|cartel| cartel.name}
+      byType = [[],[],[]]
+      @cartels.each{|cartel|
+        if cartel.league == "Cártel"
+          byType[0].push(cartel)
+        elsif cartel.league == "Mafia"
+          byType[1].push(cartel)
+        else
+          byType[2].push(cartel)
+        end
+      }
+      @cartels = byType.flatten
   		@colorArr = []
   		@alliedCartels = []
   		@cartels.each {|cartel|
@@ -246,7 +257,7 @@ class OrganizationsController < ApplicationController
 
   		@checkedCoalitions = session[:organization_selection][1][0..-2]
   		if session[:organization_selection][2] == true
-  			@checkedCoalitions.push({"name"=>"Sin vinculación","color"=>'#f5f5f5'})
+  			@checkedCoalitions.push({"name"=>"Sin coalición","color"=>'#f5f5f5'})
   		end
 
   		@myActivities = []
@@ -404,7 +415,7 @@ class OrganizationsController < ApplicationController
           end
         end 
         unless cartelIn
-            @coalitionColor = '#7f7b90'  
+            @coalitionColor = '#454157'  
         end     
       }
   	end
@@ -476,9 +487,8 @@ class OrganizationsController < ApplicationController
 	    if target_user && target_user.authenticate(password_params[:password])
 	      session[:user_id] = target_user[:id]
 	      helpers.clear_session
-        redirect_to '/states/irco'
+        redirect_to '/organizations/index'
 	    else
-	    	print "***************WRONG PASSWORD!!! "
 	    	session[:password_error] = true
 	      redirect_to '/password'
 	    end   

@@ -190,32 +190,52 @@ $(document).ready(function(){
 	})
 
 	// PAGES
-	$('.page-number-button').click(function() {
-		var page = $(this).attr('data');
-		var numberOfPages = $(this).attr('dataPlus')
-		var nextPage = Number(page)+1
-		var previousPage = page-1
-		console.log(numberOfPages)
+	var movePage = function(data) {
+		var nextPage = Number(data[0])+1
+		var previousPage = data[0]-1
 		$('.clickable-row').hide();
-		$('.org-row-'+page).show();
+		$('.org-row-'+data[0]).show();
 		$('.page-number-button').hide();
 		$('#page-'+nextPage+'-marker').show();
-		$('#page-'+page+'-marker').show();
+		$('#page-'+data[0]+'-marker').show();
 		$('#page-'+previousPage+'-marker').show();
 		$('.page-number-button').removeClass('active-page paletton-red white-text');
 		$('.page-number-button').addClass('white paletton-grey-text');
-		$(this).removeClass('white paletton-grey-text').addClass('active-page paletton-red');
-		if (Number(page) > 2) {
+		$('#page-'+data[0]+'-marker').removeClass('white paletton-grey-text').addClass('active-page paletton-red');
+		if (Number(data[0]) > 2) {
 			$('#back-two-pages').show();
 		} else {
 			$('#back-two-pages').hide();
 		};
-		if (Number(page) > (numberOfPages - 1)) {
+		if (Number(data[0]) > (data[1] - 2)) {
 			$('#forward-two-pages').hide();
 		} else {
 			$('#forward-two-pages').show();
 		};
+	}
+
+	$('.page-number-button').click(function() {
+		var page = $(this).attr('data');
+		var numberOfPages = $(this).attr('dataPlus')
+		movePage([page, numberOfPages]);
 	})
+
+
+	$('#back-two-pages').click(function() {
+		var page = $('#org-paginator').find('.active-page').attr('data');
+		var target = Number(page)-2;
+		var numberOfPages = $('#org-paginator').find('.active-page').attr('dataPlus');
+		movePage([target, numberOfPages]);
+	})
+
+	$('#forward-two-pages').click(function() {
+		var page = $('#org-paginator').find('.active-page').attr('data');
+		var target = Number(page)+2;
+		var numberOfPages = $('#org-paginator').find('.active-page').attr('dataPlus');
+		movePage([target, numberOfPages]);
+	})
+
+
 
 	// SORT BUTTONS
 		$('.sort-btn').click(function() {
@@ -324,7 +344,7 @@ $(document).ready(function(){
 	// SELECT ALL BUTTONS	
 		$('.select-all').click(function() {
 			$(this).parent().siblings().find('input').prop('checked', true)
-			$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')
+			$('.send_button').removeClass('disabled').addClass('white pulse')
 			$('.send_button i').addClass('text-darken-3')
 			$('.send-to-bottom').show();
 		})
@@ -683,7 +703,7 @@ $(document).ready(function(){
 		var lenghtOfUnchecked = $('#state_filter_box').find('input:checkbox:not(:checked)').length
 		var mydata = $(this).serialize()
 		newArr = mydata.split("=")
-		$('.send_button').removeClass('disabled').addClass('teal lighten-5 pulse')
+		$('.send_button').removeClass('disabled').addClass('white pulse')
 		$('.send_button i').addClass('text-darken-3')
 		if ($("#county_query_box").is(':checked') && lenghtOfUnchecked == 32) {
 			$('.send-to-bottom').hide()	

@@ -28,34 +28,23 @@
             <br>
             <div class="row white"> 
                 <div class="valign-wrapper">
-                <!--           <img src="app/assets/optimized_logo.jpg" class="col s4"> -->
-
-                <div class="left">
+                    <div class="left">
+                        <% if session[:user_id] %>
+                            <%= render "shared/slidenavbar"%>
+                        <% end %>
+                    </div>
                     <% if session[:user_id] %>
-                        <%= render "shared/slidenavbar"%>
+                        <div class="col s2 right">
+                            <a href="/organizations/logout" class="right tooltipped" data-position="bottom" data-tooltip="Cerrar sesión">
+                                <i class="small material-icons paletton-red-text right-extra-margin">exit_to_app</i>
+                            </a>
+                        </div>
                     <% end %>
                 </div>
-
-                <div>
-                    <%= image_tag "optimized_logo.jpg", :class => "col m4 s7" %>
-                </div>
-                <% if session[:user_id] %>
-                    <div class="col s2 right">
-                        <a href="/organizations/logout" class="right tooltipped" data-position="bottom" data-tooltip="Cerrar sesión">
-                            <i class="small material-icons cyan-text text-accent-4 right-extra-margin">exit_to_app</i>
-                        </a>
-                        <a href="/organizations/main" class="right tooltipped" data-position="bottom" data-tooltip="Consulta interactiva de datos">
-                            <i class="small material-icons cyan-text text-accent-4 right-extra-margin">search</i>
-                        </a>
-                    </div>
-                <% end %>
-                </div>
-            </div>
-            <div>
                 <%= yield %>
             </div>
         </div>
-        <footer class="page-footer cyan lighten-3 black-text">
+<!--         <footer class="page-footer cyan lighten-3 black-text">
             <div class="container">
                 <div class="row footer-row">
                     <div class="valign-wrapper">
@@ -71,6 +60,6 @@
                     </div>
                 </div>
             </div>
-        </footer>
+        </footer> -->
     </body>
 </html>

@@ -12,7 +12,6 @@
 			$("#freq-list-trigger").click(function() {
 				return false
 		 	})
-
 				var data = [
 					<% @placeArr.each do |place| %>
 						{
@@ -21,7 +20,7 @@
 							<% else %>
 								full_code:'<%= place[:full_code] %>',
 							<% end %>
-							value:<%= place[:coalition] %>, rackets:'<% place[:rackets][0..15].each do |racket|%><span style="color:<%= racket[:color]%>; font-size:9px">- <%= racket[:name][0..32] %><% if racket[:name].length > 33 %>...<% end %><span><br><% end %><% if place[:rackets].length > 16 %><span style="font-size:9px">...</span><% end %>',
+							value:<%= place[:coalition] %>, rackets:'<% place[:rackets][0..15].each do |racket|%><span style="color:<%= racket[:color]%>; font-size:10px">- <%= racket[:name][0..32] %><% if racket[:name].length > 33 %>...<% end %><span><br><% end %><% if place[:rackets].length > 16 %><span style="font-size:10px">...</span><% end %>',
 							freq:<%= place[:freq]%>, 
 							<% if place[:freq] == 1 %>
 								string:'organización'
@@ -42,7 +41,11 @@
 				    Highcharts.mapChart('org-entry-map', {
 				        chart: {
 				            map: geojson,
-				            height: 320,
+				            <% if @checkedStates.length != 1 %>
+				            	height: 372,
+				            <% else %>	
+				            	height: 328,
+				            <% end %>
 				        },
 				        legend: false,
 				        title: false, 
@@ -94,7 +97,7 @@
 			            	name: 'Organizaciones',
 				            borderColor: 'white',
 				            borderWidth: 1,
-				            nullColor: '#bdbdbd',
+				            nullColor: '#e0e0e0',
 				            states: {
 				                hover: {
 				                    color: '#ffffff',
@@ -107,22 +110,13 @@
 				            tooltip: {
 				            	borderWidth: 0,
 				            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
-				            	pointFormat: '<div style="padding-bottom:12px"><span style="color:#454157; font-size:9px">{point.freq} {point.string}:</span></div><br><div>{point.rackets}</div>',
+				            	pointFormat: '<div style="padding-bottom:12px"><span style="color:#454157; font-size:10px">{point.freq} {point.string}:</span></div><br><div>{point.rackets}</div>',
 				            	style: {
 				            		pointerEvents: 'auto'
 				            	},
 				            }
 				        }],
 				    },
-				 //    <% if @checkedStates.length == 1 %>
-					// function (chartt) { // on complete
-					// 	chartt.renderer.image('/assets/mexico-icon.png',0,0,60,40).on('click', function() {
-     //    					var urlString = '/organizations/query';
-     //    					window.location = urlString;	
-					// 	})
-    	// 				.add();
-    	// 			}
-    	// 			<% end %>
 				);
 			});	
 		})
@@ -141,11 +135,17 @@
 		</div>	
 	</div>
 	<div class="col l9 m7 s12">
-		<div class="card flex-card">
+		<div class="card
+			<% if @checkedStates.length < 32 %> 
+				flex-card
+			<% else %>
+				long-card
+			<% end %>
+		">
 			<div class="card-content">
 				<div class="row card-narrow">
 					<%= render "shared/showfilter"%>
-					<div class="legend-box col l6 m12 s12">
+					<div class="legend-box col l7 m12 s12">
 						<div class="bottom-margin-div">
 						<span class="header-tag bold">COALICIÓN</span>
 						</div>
@@ -179,7 +179,7 @@
 								</div>
 							</div>
 						<% end %>
-						<% if @checkedCoalitions.pluck("name").include? "Sin vinculación" %>
+						<% if @checkedCoalitions.pluck("name").include? "Sin coalición" %>
 							<div class="bottom-margin-div">
 								<div class="valign-wrapper">
 									<div class="pseudo-button valign-wrapper">
@@ -199,30 +199,13 @@
 						<div id="org-entry-map" class="org-entry-display">
 						</div>
 					</div>
-					<div class="col l6 m12">
+					<div class="col l5 m12">
 						<div id="org-entry-list" class="org-entry-display">
 							<table id="org-table" class="highlight">
-								<col>
-								<colgroup span="3"></colgroup>
-			  					<colgroup span="<%= @myActivities.length %>"></colgroup>
 								<thead>
-<!-- 									<tr>
- --><!-- 										<th class="center-align" colspan="3" scope="colgroup">CARACTERÍSTICAS GENERALES</th>
- -->		<!-- 								<th class="center-align" colspan="<%= @myActivities.length %>" scope="colgroup">GIROS DELICTIVOS</th>
-		 --><!-- 							</tr> -->
 									<tr class="center-align">
 										<th class="center-align">NOMBRE</th>
 										<th class="center-align" >TIPO</th>
-										<th class="center-align" >SUBTIPO</th>
-		<!-- 								<% @myActivities.each do |activity| %>
-											<th class="center-align small-cell">
-												<% if activity.shortname %>
-													<%= activity.shortname %>
-												<% else %>
-													<%= activity.name %>
-												<% end %>
-											</th>
-										<% end %> -->
 									</tr>
 								</thead>
 								<tbody>
@@ -232,7 +215,7 @@
 												<% unless x == 1 %>
 													style="display:none"
 												<% end %>
-											data-href="/organizations/show/<%= @alliedCartels[n].id %>">
+													data-href="/organizations/show/<%= @alliedCartels[n].id %>">
 												<td>
 													<div class="valign-wrapper">
 														<div class="pseudo-button valign-wrapper">
@@ -244,22 +227,36 @@
 													</div>		
 												</td>
 												<td><%= @alliedCartels[n].league %></td>
-												<td>
-													<% if @alliedCartels[n].subleague %>
-														<%= @alliedCartels[n].subleague %>
-													<% else %>
-														--
-													<% end %>
-												</td>
 											</tr>
 										<% end %>
+									<% end %>
+									<% (@numberOfPages*@page_scope..@n).each do |n| %>
+										<% x = @numberOfPages+1 %>
+										<tr class="clickable-row org-row-<%= x %>"
+											<% unless x == 1 %>
+												style="display:none"
+											<% end %>
+												data-href="/organizations/show/<%= @alliedCartels[n].id %>">
+											<td>
+												<div class="valign-wrapper">
+													<div class="pseudo-button valign-wrapper">
+														<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
+													</div>
+													<span class="valign-wrapper">
+														<%= @alliedCartels[n].name %>
+													</span>
+												</div>		
+											</td>
+											<td><%= @alliedCartels[n].league %></td>
+										</tr>
 									<% end %>
 								</tbody>
 							</table>
 							<br>
-							<div class="center">
-								<a id="back-two-pages" class="btn-small page-btn bold center-align white paletton-grey-text p18" style="display:none"><</a>
-									<% (1..@numberOfPages).each do |x| %>
+							<% unless @n <= @page_scope %>
+								<div id="org-paginator" class="center">
+									<a id="back-two-pages" class="btn-small page-btn bold center-align white paletton-grey-text p18" style="display:none"><</a>
+									<% (1..@numberOfPages+1).each do |x| %>
 										<a id="page-<%= x%>-marker" class="btn-small page-btn page-number-button bold center-align
 											<% if x == 1 %>
 												active-page  paletton-red white-text
@@ -270,10 +267,13 @@
 											<% if x > 2 %>
 												style="display:none"
 											<% end %>
-										data="<%= x %>" dataPlus="<%= @numberOfPages %>" ><%= x %></a>
+										data="<%= x %>" dataPlus="<%= @numberOfPages+1 %>" ><%= x %></a>
 									<% end %>
-								<a id="forward-two-pages" class="btn-small white page-btn bold center-align paletton-grey-text p18">></a>
-							</div>
+									<% unless @numberOfPages < 2 %>
+										<a id="forward-two-pages" class="btn-small white page-btn bold center-align paletton-grey-text p18">></a>
+									<% end %>
+								</div>
+							<% end %>
 						</div>
 					</div>
 				</div>
