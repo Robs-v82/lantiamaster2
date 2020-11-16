@@ -121,6 +121,13 @@ $(document).ready(function(){
 		}
 	})
 
+	// EMPTY QUERY MODAL
+	$(document).ready(function(){
+		if($('#empty-query-modal').length) {
+    		$('#empty-query-modal').modal('open')
+		}
+	})
+
 	// PASSWORD ERROR MODAL
 	$(document).ready(function(){
 		if($('#password-error-modal').length) {
@@ -180,6 +187,7 @@ $(document).ready(function(){
 	$('#back-to-general-map').click(function() {
 		$('.geo-distribution-display').hide();
 		$('#general-map').show();
+		return false
 	})
 
 	$('.go-to-state-map').click(function() {
@@ -187,6 +195,7 @@ $(document).ready(function(){
 		var myState = myId.substr(myId.length - 2);
 		$('.geo-distribution-display').hide();
 		$('#'+myState+'-org-map').show();
+		return false
 	})
 
 	// PAGES

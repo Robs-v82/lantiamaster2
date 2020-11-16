@@ -92,7 +92,7 @@
 					},
 				<% end %>
 			<% else %>
-				<% @racketCounties.each do |county| %>
+				<% @racketCounties.uniq.each do |county| %>
 					{
 						full_code: '<%= county.full_code %>',
 						value: 1
@@ -178,7 +178,7 @@
 		<% if @racketStates.length != 1 %>
 			<% @racketStates.each do |state| %>
 				var <%= state.shortname %>Data = [
-					<% @racketCounties.each do |county| %>
+					<% @racketCounties.uniq.each do |county| %>
 						{
 							full_code: '<%= county.full_code %>',
 							value: 1
@@ -409,9 +409,20 @@
 								</div>
 								<% unless @racketStates == 1 %>
 									<% @racketStates.each do |state| %>
-										<div id="<%= state.code %>-org-map" class="geo-distribution-display second-map">
-											<div id="<%= state.code %>-inner-org-map"></div>
-										</div>
+										<% if @racketCounties.where.not(:name=>"Sin definir").pluck(:state_id).include? state.id %>
+											<div id="<%= state.code %>-org-map" class="geo-distribution-display second-map">
+												<div id="<%= state.code %>-inner-org-map"></div>
+											</div>
+										<% else %>
+											<div id="<%= state.code %>-org-map" class="geo-distribution-display second-map">
+												<br>
+												<p class="center-align">
+													<i class="small material-icons">warning</i>
+													<br>
+													Información de presencia por municipio de <%= @myOrganization.name %> no disponible para <%= state.name%>.
+												</p>
+											</div>
+										<% end %>
 									<% end %>
 								<% end %>
 							</div>
@@ -421,17 +432,14 @@
 						<div id="reported-activities">
 							<div class="right col s9">
 								<div class="right">
-									<a id="entry-grid-trigger" href=""><i class="small material-icons paletton-red-text text-lighten-2 right-extra-margin">list</i></a>
-									<a id="entry-map-trigger" href=""><i class="small material-icons paletton-red-text text-lighten-2 right-extra-margin">map</i></a>	
-									<a id="entry-download-trigger" href=""><i class="small material-icons grey-text text-lighten-2 right-extra-margin">cloud_download</i></a>		
+									<a id="entry-grid-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">list</i></a>
+									<a id="entry-map-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">map</i></a>	
+									<a id="entry-download-trigger" href=""><i class="small material-icons grey-text right-extra-margin">cloud_download</i></a>		
 								</div>
 							</div>
 							<div id="entry-grid" class="geo-entry-display">
 								<div id="grid-collection" class="card-content">
-			<!-- 						<ul class="collection">
-			-->						<% @leads.each do |lead| %>
-			<!-- 							<li class="collection-item">
-			-->							
+									<% @leads.each do |lead| %>				
 										<p class="collection-item">
 											<%= I18n.l(lead.event.event_date, :format=> "%-d de %B de %Y") %>,<br>
 											<% if lead.event.town.name != "Sin definir" %>
@@ -446,10 +454,8 @@
 											<br>
 											<span><%= lead.category%></span>	
 										</p>	
-			<!-- 							</li>
-			-->						<% end %>
-			<!-- 						</ul>
-			 -->				</div>
+									<% end %>
+								</div>
 							</div>
 							<div id="entry-map" class="geo-entry-display">
 								<div id="map"></div>

@@ -98,6 +98,22 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
+	def remove_empty_query_message
+		if session[:empty_query]
+			session[:empty_query] = nil
+			print "****"
+			print "REMOVING EMPTY QUERY "
+		end
+	end
+
+	def remove_empty_request
+		if session[:empty_request]
+			session[:empty_request] = nil
+			print "****"
+			print "REMOVING EMPTY QUERY "
+		end
+	end
+
 	def clear_query_params
   		session[:params] = nil
 	end

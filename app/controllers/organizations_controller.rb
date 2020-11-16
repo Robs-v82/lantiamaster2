@@ -1,6 +1,8 @@
 class OrganizationsController < ApplicationController
 	require 'pp'
 	after_action :remove_password_error_message, only: [:password]
+  after_action :remove_empty_query_message, only: [:index]
+  after_action :remove_empty_request, only: [:query]
 
 	def password
 	    if session[:password_error]
@@ -9,7 +11,10 @@ class OrganizationsController < ApplicationController
   	end
 
   	def query
-  		helpers.clear_session
+  		if session[:empty_request]
+        session[:empty_query] = true
+      end
+      helpers.clear_session
       cartels = Sector.where(:scian2=>98).last.organizations.uniq
   		cartels = cartels.sort_by{|cartel| cartel.name}
   		coalitionKeys = helpers.coalitionKeys
@@ -67,6 +72,8 @@ class OrganizationsController < ApplicationController
    		session[:organization_selection][0].each{|key|
   			@checkedTypes.push(League.find(key.to_i))
   		}
+
+      @type_title = get_type_title(@checkedTypes)
 
   		@typeKeys = allCartels.pluck(:mainleague_id).uniq
   		@allTypes = []
@@ -141,7 +148,13 @@ class OrganizationsController < ApplicationController
   				@alliedCartels.push(cartel)
   			end
   		}
-  		@n = @alliedCartels.length-1
+
+  		if @alliedCartels.empty?
+        session[:empty_request] = true
+        redirect_to '/organizations/query'
+      end
+
+      @n = @alliedCartels.length-1
 
   		if @checkedStates.length == 1
         myPlaces = State.find(@checkedStates).last.counties
@@ -310,7 +323,7 @@ class OrganizationsController < ApplicationController
   		session[:map] = true
   		@myOrganization = Organization.find(params[:id])
       @racketStates = @myOrganization.states.uniq
-  		@racketCounties = @myOrganization.counties.uniq
+  		@racketCounties = @myOrganization.counties
 
       # HEADER
   		@headerTitle = @myOrganization.name
@@ -846,6 +859,31 @@ class OrganizationsController < ApplicationController
     legacy_names.push(myHash)
     myOrganization.update(:name=>new_name_params[:new_name], :legacy_names=>legacy_names)
     redirect_to "/datasets/load"
+  end
+
+  def get_type_title(types)
+    if types.length == 1
+      if types[0][:name] == "Banda"
+        myString = "Bandas"
+      elsif types[0][:name] == "Mafia"
+        myString = "Mafias"
+      else
+        myString = "Cárteles"
+      end
+    elsif types.length == 2
+      if types.pluck(:name).include? "Banda" 
+        if types.pluck(:name).include? "Mafia" 
+          myString = "Mafias y Bandas"
+        else
+          myString = "Cárteles y Bandas"
+        end
+      else
+        myString = "Cárteles y Mafias"
+      end 
+    else
+      myString = "Organizaciones criminales"
+    end
+    return myString
   end
 
 	private

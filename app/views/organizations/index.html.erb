@@ -128,7 +128,7 @@
 		<div class="top-row valign-wrapper">
 			<div class="col s12">
 				<div class="side-padding">
-					<h5 class="h5-no-margin">Organizaciones criminales</h5>
+					<h5 class="h5-no-margin"><%= @type_title %></h5>
 					<%= render "shared/scopetitle" %>
 				</div>
 			</div>
@@ -204,8 +204,8 @@
 							<table id="org-table" class="highlight">
 								<thead>
 									<tr class="center-align">
-										<th class="center-align">NOMBRE</th>
-										<th class="center-align" >TIPO</th>
+										<th class="center-align" style="width:80%">NOMBRE</th>
+										<th class="center-align" style="width:20%">TIPO</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -281,3 +281,15 @@
 		</div>
 	</div>
 </div>
+<!-- MODAL SECTION -->
+<% if session[:empty_query]	%>
+	<div id="empty-query-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p14 slim">La búsqueda no generó ningún resultado.</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>
