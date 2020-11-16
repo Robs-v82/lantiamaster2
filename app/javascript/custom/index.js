@@ -17,23 +17,38 @@ $(document).ready(function(){
 
 $(document).ready(function(){
 
-	// myFunction();
-
-	// function myFunction() {
-	// 	$.ajax({
-	// 		type: 'GET',
-	// 		dataType: 'json',
-	// 		url: '/organizations/dictionary',
-	// 		data: $(this).serialize(),
-	// 		success: function(response) {
-	// 			$('input.autocomplete').autocomplete({	
-	//     			data: response,
- //      			});
-	// 		}
-	// 	});
-	// }
-	
-		
+	function myFunction() {
+		var myString = $('#autocomplete-input').val();
+		if (myString) {
+			myString = myString;
+		} else {
+			myString = 'Xp987jy';
+		};
+		console.log(myString);
+		$.ajax({
+			type: 'GET',
+			dataType: 'json',
+			url: '/organizations/get_cartels/'+myString,
+			data: $(this).serialize(),
+			success: function(response) {
+				if (response !== undefined) {
+					$('#org-entry-list').hide();
+					var startHTML = '<div id="org-entry-list" class="org-entry-display"><table id="org-table" class="highlight"><tbody>';
+					var myRows = '';
+					for (i = 0; i < response.length; i++) {
+						console.log('loop working!')
+						myRows += '<tr><td><a href="/organizations/show/'+response[i].id+'">'+response[i].name+'</a></td><tr>'
+					}
+					var endHTML = '</tbody></table></div>';
+					var newHTML = startHTML + myRows + endHTML;
+					$('#new-entry-list').html(newHTML);
+				} else {
+					$('#new-entry-list').html('');
+					$('#org-entry-list').show();
+				}
+			}
+		});
+	}	
 
 	// TEST JQUERY	
 	$("#jquery-test").click(function(){
@@ -196,6 +211,11 @@ $(document).ready(function(){
 		$('.geo-distribution-display').hide();
 		$('#'+myState+'-org-map').show();
 		return false
+	})
+
+	// ORGANIZATION AUTOCOMPLETE
+	$('#autocomplete-input').keyup(function() {
+		myFunction();
 	})
 
 	// PAGES

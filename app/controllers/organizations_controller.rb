@@ -554,13 +554,12 @@ class OrganizationsController < ApplicationController
 	    render json: {members: targetMembers}		
 	end
 
-	def dictionary
-		organizationsHash = {}
-		Organization.all.each{|x|
-			myKey = x.name + "; " + x.subleague
-			organizationsHash[myKey] = nil
-		}
- 		render json: organizationsHash
+	def get_cartels
+    myCartels = Sector.where(:scian2=>98).last.organizations.uniq
+    matches = myCartels.select{|cartel| cartel.name.downcase.include? params[:myString].downcase}    
+ 		if matches.length >= 1 && matches.length <= 10 
+      render json: matches
+    end
 	end
 
 	def load_organizations

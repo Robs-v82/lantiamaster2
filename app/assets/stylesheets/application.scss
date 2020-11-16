@@ -4,6 +4,35 @@
  *= require jquery-ui
  */
 
+
+#org-table a {
+	color: #EF4E50 !important;
+}
+
+ #autocomplete-icon {
+ 	margin-top: 5px;
+ }
+
+ #autocomplete-input {
+ 	border: 1px solid #EF4E50 !important;
+ 	border-radius: 2px;
+ 	height: 26px !important;
+ }
+
+ #autocomplete-input:focus {
+ 	box-shadow: none !important;
+ 	font-family: 'Poppins', sans-serif;
+ 	font-weight: 300;
+ }
+
+ #autocomplete-box {
+ 	margin-bottom: 8px;
+ }
+
+#autocomplete-box .col {
+	padding: 0 !important;
+}
+
 .checkbox-scroll .s6 {
 	padding: 0px 9px 9px !important;
 }
@@ -148,6 +177,10 @@
 
 .gridRowHover{
     cursor: pointer;
+ }
+
+.not-clickable {
+    cursor: not-allowed !important;
  }
 
 table.highlight>tbody>tr:hover {
@@ -356,13 +389,13 @@ input[type=text] {
 }
 
 .freq-table th, .freq-table td, #org-table th, #org-table td {
-	padding: 8px 16px;
+	padding: 6px 12px;
 	font-size: 11px;
 }
 
 @media only screen and (min-width: 993px) {
 	#org-table {
-		min-height: 447px;
+		min-height: 422px;
 	};
 }
 

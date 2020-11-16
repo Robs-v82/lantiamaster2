@@ -290,7 +290,7 @@
 				<div id="tree-entry-content" class="entry-content">			
 					<ul class="collapsible z-depth-0">
 						<% if @originOrganization %>
-							<li>
+							<li class="">
 								<div class="collapsible-header">
 									<h6><a href="/organizations/show/<%= @originOrganization.id %>">Origen: <%= @originOrganization.name %></a></h6>
 								</div>
@@ -298,7 +298,7 @@
 						<% elsif @thisString %>
 							<li>
 								<div class="collapsible-header">
-									<h6>Origen: <%= @thisString %></h6>
+									<h6 class="not-clickable">Origen: <%= @thisString %></h6>
 								</div>
 							</li>
 						<% end %>

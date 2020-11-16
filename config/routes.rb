@@ -29,7 +29,7 @@ Rails.application.routes.draw do
     get 'datasets/load_featured_state'
     get 'datasets/load_featured_county'
     get 'sources/twitter'
-    get 'organizations/dictionary'
+    get 'organizations/get_cartels/:myString' => 'organizations#get_cartels'
     post 'organizations/load_organizations'
     post 'organizations/load_organization_events'
     post 'organizations/load_organization_territory'
