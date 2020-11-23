@@ -4,6 +4,17 @@
  *= require jquery-ui
  */
 
+.state-detention-charts h6 {
+	margin: 0;
+}
+
+.top-row {
+	margin-bottom: 10px !important;
+}
+
+.tabs .tab a {
+	padding: 0 12px !important;
+}
 
 #org-table a {
 	color: #EF4E50 !important;
@@ -184,7 +195,7 @@
  }
 
 table.highlight>tbody>tr:hover {
-    background-color: rgba(239, 78, 80, 0.28);      
+    background-color: rgba(239, 78, 80, 0.09);      
 }
 
 a[href^="http://maps.google.com/maps"]{display:none !important}
@@ -206,8 +217,8 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 	display: inline-block;
 }
 
-.no-inner-padding .col {
-	padding: 0;
+.small-inner-padding .col {
+	padding: 0 6px;
 }
 
 .county-tag p {
@@ -231,7 +242,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 	padding: 8px 9px !important; 
 }
 
-#entry-grid, #freq-entry-chart, #freq-entry-map {
+#entry-grid, #freq-entry-chart {
 	display: none;
 }
 
@@ -328,7 +339,7 @@ p.collection-item {
 }
 
 .b-container {
-	width: 90%;
+	width: 94%;
 	margin: 0 auto;
 }
 

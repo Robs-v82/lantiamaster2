@@ -1,0 +1,284 @@
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#freq-map-trigger").click(function() {
+			$(".freq-entry-display").hide();
+			$("#freq-entry-map").show();
+			return false
+	 	});
+		var data = [
+			<% @my_freq_table[1..-2].each do |place| %>
+				{name:'<%= place[:name] %>', value:<%= place[:place_total] %>, code:'<%= place[:code] %>'},
+			<% end %>
+		];
+		Highcharts.getJSON('/maps/national_map.json', function (geojson) {
+		    Highcharts.mapChart('detention-map', {
+		        chart: {
+		            map: geojson,
+		            height: 320,
+		        },
+		        legend: {
+		        	layout: 'vertical',
+		        	align: 'left',
+		        	verticalAlign: 'middle',
+		        	x: 14,
+		        	y: 90,
+		        	floating: true,
+		        	backgroundColor: 'white',
+		        },
+		        title: false, 
+		        credits: false,
+		        mapNavigation: {
+		            enabled: false,
+		        },
+				exporting: {
+					enabled: false
+				},
+	            colors: ['#e0e0e0', "#ffa0a0", "#ef4e50", "#ad1111"],
+	            colorAxis: {
+	                dataClassColor: 'category',
+	                dataClasses: [{
+	                	to: 0
+	                }, {
+	                    from: 1,
+	                    to: 10
+	                }, {
+	                    from: 11,
+	                    to: 50
+	                }, {
+	                    from: 51
+	                }]
+	            },
+		        plotOptions: {
+		        	series: {
+		        		point: {
+		        			events: {
+		        				click: function() {
+		        					var myState = this.code;
+		        					console.log(myState);
+		        					$('.detention-toggle-charts').hide();
+		        					$('#'+myState+'-detention-charts').show();
+		        				}
+		        			}
+		        		}
+		        	}
+		        },
+		        series: [{
+		            data: data,
+		            joinBy: 'name',
+	            	name: 'Arrestos',
+		            borderColor: 'white',
+		            borderWidth: 1,
+		            nullColor: '#e0e0e0',
+		            states: {
+		                hover: {
+		                    color: '#ffffff',
+			                borderColor: '#424242'
+		                }
+		            },
+		            cursor: 'pointer', 
+		            dataLabels: {
+		                enabled: true,
+		                format: '{point.properties.postal}'
+		            }
+		        }],
+	            tooltip: {
+	            	enabled: false
+	            },
+		    })		
+		});
+		<% @my_freq_table[1..-2].each do |place| %>
+			<% unless place[:place_total] == 0 %>
+				Highcharts.chart('<%= place[:code]%>-detainees-trend-chart', {
+				    chart: {
+				        type: 'line',
+				        height: 124,
+				        marginTop: 6,
+				        marginBottom: 60,
+				    },
+			        title: false, 
+				       credits: false,
+					exporting: {
+						enabled: false
+					},
+			        legend: {
+			        	enabled: false
+			        },
+			        xAxis: [{
+			        	categories: [
+			        		<% @my_freq_table[0][:period].each do |period| %>
+								<% if @annual %>
+									"<%= period.name %>"
+								<% elsif @quarterly %>
+									"T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y')[2,2] %>"
+								<% else %>
+									"<%= I18n.l(period.first_day, format: '%b/%Y') %>"
+								<% end %>,
+			        		<% end %>
+			        	], 
+			        }],
+			        yAxis: [{
+			        	title: {
+			        		text: null
+			        	},
+			        }],
+			        series: [{
+			        	data: [
+			        		<% (0..place[:freq].length-1).each do |x| %>
+			        			["a<%=x%>",<%= place[:freq][x] %>],
+			        		<% end %>
+			        	],
+			        	color: "#0A6868",
+						tooltip: {
+							headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
+							pointFormat: false,
+						}
+			        }]
+				});
+				Highcharts.chart('<%= place[:code]%>-detainees-role-chart', {
+				    chart: {
+				        type: 'pie',
+				        height: 150,
+				        marginTop: 0,
+				    },
+			        title: false, 
+				    credits: false,
+					exporting: {
+						enabled: false
+					},
+			        legend: {
+			        	enabled: false
+			        },
+				    plotOptions: {
+				        pie: {
+				            allowPointSelect: true,
+				            cursor: 'pointer',
+				            dataLabels: {
+				                enabled: false
+				            },
+				            showInLegend: true,
+				            innerSize: '40%',
+							states: {
+								inactive: {
+									opacity: 1
+								},
+							},
+
+				        }
+				    },
+			        series: [{
+			        	data: [
+			        		<% place[:roles].each do |role| %>
+			        			{
+			        				name: '<%= role[:role] %>',
+			        				y: <%= role[:freq] %>,
+			        				showInLegend: true,
+			        				color: '<%= role[:color] %>'
+			        			},
+			        		<% end %>
+				        ],
+						tooltip: {
+							headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}</span><br>',
+							pointFormat: false,
+						}
+
+			        }]
+				});
+				Highcharts.chart('<%= place[:code]%>-detainees-coalition-chart', {
+					chart: {
+				        type: 'pie',
+				        height: 150,
+				        marginTop: 0,
+					},
+			        title: false, 
+				    credits: false,
+					exporting: {
+						enabled: false
+					},
+			        legend: {
+			        	enabled: false
+			        },
+				    plotOptions: {
+				        pie: {
+				            allowPointSelect: true,
+				            cursor: 'pointer',
+				            dataLabels: {
+				                enabled: false
+				            },
+				            showInLegend: true,
+				            innerSize: '40%',
+							states: {
+								inactive: {
+									opacity: 1
+								},
+							},
+
+				        }
+				    },
+			        series: [{
+			        	data: [
+			        		<% place[:coalitions].each do |coalition| %>
+			        			{
+			        				name: '<%= coalition[:name] %>',
+			        				y: <%= coalition[:freq] %>,
+			        				showInLegend: true,
+			        				color: '<%= coalition[:color] %>'
+			        			},
+			        		<% end %>
+				        ],
+						tooltip: {
+							headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}</span><br>',
+							pointFormat: false,
+						}
+
+			        }]
+				});
+				Highcharts.chart('<%= place[:code]%>-detainees-agencies-chart', {
+					chart: {
+						type: 'bar',
+						height: 120,
+						marginTop: 0,
+					},
+			        title: false, 
+				    credits: false,
+					exporting: {
+						enabled: false
+					},
+			        legend: {
+			        	enabled: false
+			        },
+			        xAxis: {
+			        	categories: [
+			        		<% place[:agencies].each do |agency| %>
+			        			'<%= agency[:name]%>',
+			        		<% end %>
+			        	]
+			        },
+			        yAxis: {
+			        	title: {
+			        		text: null
+			        	},
+			        	labels: {
+			        		enabled: false
+			        	},
+			        },
+			        series: [{
+			        	data: [
+			        		<% place[:agencies].each do |agency| %>
+			        			{
+			        				name: '<%= agency[:name]%>',
+			        				y: <%= agency[:share] %>,
+			        				color: '#4DA7A7',
+			        				showInLegend: true,
+			        			},
+			        		<% end %>
+			        	],
+						tooltip: {
+							headerFormat: '<span style="font-size:12px; color:#454157">{point.y}%</span><br>',
+							pointFormat: false,
+						}
+			        }]
+				})
+			<% end %>
+		<% end %>
+	})
+</script>

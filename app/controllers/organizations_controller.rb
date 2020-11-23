@@ -66,6 +66,15 @@ class OrganizationsController < ApplicationController
     else
       @checkedStates = State.pluck(:id)
     end
+
+    @shortMap = [
+      State.where(:code=>"12").last.id,
+      State.where(:code=>"16").last.id,
+      State.where(:code=>"20").last.id,
+      State.where(:code=>"27").last.id,
+      State.where(:code=>"29").last.id,
+      State.where(:code=>"31").last.id,
+    ]
     allCartels = Sector.where(:scian2=>98).last.organizations.uniq
 
   		@checkedTypes = []

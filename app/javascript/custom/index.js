@@ -24,7 +24,6 @@ $(document).ready(function(){
 		} else {
 			myString = 'Xp987jy';
 		};
-		console.log(myString);
 		$.ajax({
 			type: 'GET',
 			dataType: 'json',
@@ -36,7 +35,6 @@ $(document).ready(function(){
 					var startHTML = '<div id="org-entry-list" class="org-entry-display"><table id="org-table" class="highlight"><tbody>';
 					var myRows = '';
 					for (i = 0; i < response.length; i++) {
-						console.log('loop working!')
 						myRows += '<tr><td><a href="/organizations/show/'+response[i].id+'">'+response[i].name+'</a></td><tr>'
 					}
 					var endHTML = '</tbody></table></div>';
@@ -151,6 +149,10 @@ $(document).ready(function(){
 	})
 
 	// CUSTOM JAVASCRIPT
+
+	// MAP HOVER
+	$('path').hover(function() {
+	})
 
 	// INDEX SWITCH
 	$('#index_switch').change(function() {
@@ -776,6 +778,5 @@ $(document).ready(function(){
 
 // AVOID PAGE TO THE BOTTOM
 $(document).on('click', 'input:checkbox', function() {
-	console.log('Scrolling to Top');
 	$("html, body").animate({ scrollTop: 0 }, "fast");
 })

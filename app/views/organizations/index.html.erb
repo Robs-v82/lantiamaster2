@@ -42,9 +42,13 @@
 				        chart: {
 				            map: geojson,
 				            <% if @checkedStates.length != 1 %>
-				            	height: 372,
+				            	height: 300,
 				            <% else %>	
-				            	height: 328,
+				            	<% if @shortMap.include? @checkedStates.last %>
+				            		height: 288,
+				            	<% else %>
+				            		height: 328,
+				            	<% end %>
 				            <% end %>
 				        },
 				        legend: false,

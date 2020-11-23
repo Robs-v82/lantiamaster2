@@ -5,35 +5,11 @@ class MembersController < ApplicationController
 	def detentions
 		myFile = detention_params[:file]
 		table = CSV.parse(File.read(myFile))
-		# mockOrganizations = [
-		# 	{:acronym=>"CJNG", :name=>"Cártel Jalisco Nueva Generación"},
-		# 	{:acronym=>"CDP", :name=>"Cártel de Sinaloa"},
-		# 	{:acronym=>"CDN", :name=>"Cártel del Noreste"},
-		# 	{:acronym=>"UT", :name=>"La Unión Tepito"}
-		# ]
-
 		table.each{|x|
 			x = x.collect{ |e| e ? e.strip : e}
-			
-			#Check that organization exists
-			# if x[10].nil?
-			# 	orgString = nil
-			# 	mockOrganizations.each{|m|
-			# 		if x[9] == m[:acronym]
-			# 			orgString = m[:name]
-			# 		end	
-			# 	}
-			# else
-			# 	if x[10].include? " ("
-			# 		orgString = x[10].split(" (").first
-			# 	else
-			# 		orgString = x[10]
-			# 	end
-			# end
 			targetOrganization = Organization.where(:name=>x[10]).last
 			if targetOrganization
 				unless x[8].nil?
-
 					# CREATE EVENT AND DETENTION IF THEY DO NOT EXIST
 					if Detention.where(:legacy_id=>x[0]).empty?
 						myCode = helpers.zero_padded_full_code(x[5])
@@ -152,10 +128,12 @@ class MembersController < ApplicationController
 		myRoles.each{|role|
 			roleOptions.push(role.id.to_s)
 		} 
-		session[:checkedStates] = false
+		myArr = State.pluck(:id)
+		Cookie.create(:data=>myArr)
+		session[:checkedStates] = Cookie.last.id
 		session[:checkedOrganizations] = false
 		session[:checkedRoles] = false
-		session[:detainee_freq_params] = ["quarterly","nationWise","organizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
+		session[:detainee_freq_params] = ["quarterly","stateWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
 		redirect_to "/members/detainees"
 	end
 
@@ -193,8 +171,6 @@ class MembersController < ApplicationController
 
 	def detainees
 		@key = Rails.application.credentials.google_maps_api_key
-				print "*********"*100
-				print session[:detainee_freq_params]
 		@my_freq_table = detainee_freq_table(
 			session[:detainee_freq_params][0],
 			session[:detainee_freq_params][1],
@@ -286,17 +262,14 @@ class MembersController < ApplicationController
 				@maps = true
 			end
 		end
-
-		print "*******"
-		print session
 	end
 
 	def detainee_freq_table(period, scope, organization, role, organizationOptions, states, organizations, roleOptions)
-
 		myTable = []
 		headerHash = {}
 		totalHash = {}
-		totalHash[:name] = "Total"		
+		totalHash[:name] = "Total"
+		coalitionKeys = helpers.coalitionKeys		
 
 		years = Year.all
 		if period == "quarterly"
@@ -304,8 +277,6 @@ class MembersController < ApplicationController
 		else
 			myPeriod = helpers.get_specific_months(years, "detainees")
 		end
-
-
 
 		if scope == "nationWise"
 			myScope = nil
@@ -439,7 +410,41 @@ class MembersController < ApplicationController
 				myTable.push(headerHash)
 				myScope.each{|place|
 					placeHash = {}
+					rolesArr = []
+					myRoles.each{|r|
+						roleHash = {}
+						roleHash[:role] = r.name
+						number_of_detainees = r.members.merge(place.detainees).length
+						if number_of_detainees
+							roleHash[:freq] = number_of_detainees
+							rolesArr.push(roleHash)
+						end
+					}
+					rolesArr = rolesArr.sort_by{|r| -r[:freq]}
+					newRolesArr = []
+					residual = 0
+					colors = ['#71a110','#addf49','#d8f69b']
+					colorCounter = 0
+					rolesArr.each{|r|
+						if newRolesArr.length < 3 && r[:role] != "Sin definir" && r[:freq] > 0
+							r[:color] = colors[colorCounter]
+							newRolesArr.push(r)
+							colorCounter += 1
+						else
+							residual += r[:freq]
+						end
+					}
+					if residual > 0
+						residualHash = {:role=>"Otro/Sin definir"}
+						residualHash[:freq] = residual
+						residualHash[:color] = '#e0e0e0'
+						newRolesArr.push(residualHash)
+					end
+					placeHash[:roles] = newRolesArr
 					placeHash[:name] = place.name
+					if scope = "stateWise"
+						placeHash[:code] = place.code
+					end
 					freq = []
 					counter = 0
 					place_total = 0
@@ -453,6 +458,37 @@ class MembersController < ApplicationController
 					}
 					placeHash[:freq] = freq
 					placeHash[:place_total] = place_total 
+					unless place_total == 0
+						placeHash[:agencies] = []
+						myAgencies = helpers.law_enforcement
+						myAgencies.push(place.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last)
+						myAgencies.each{|agency|
+							agencyHash = {}
+							if agency.acronym
+								agencyHash[:name] = agency.acronym
+							else
+								agencyHash[:name] = "Policía Estatal"		
+							end
+							agencyShare = (agency.detainees.merge(place.detainees).length/place_total.to_f).round(2)
+							agencyHash[:share] = (agencyShare*100).round(0) 
+							unless agencyHash[:share] == 0
+								placeHash[:agencies].push(agencyHash)								
+							end
+						}
+						placeHash[:coalitions] = []
+						helpers.coalitionKeys.each{|coalition|
+							coalitionCounter = 0
+							organizationOptions.each{|organization|
+								myOrganization = Organization.where(:name=>organization).last
+								if myOrganization.coalition == coalition["name"]
+									orgNumber = place.detainees.where(:organization_id=>myOrganization.id).length
+									coalitionCounter += orgNumber
+								end
+							}
+							coalitionHash = {:name=>coalition["name"], :freq=>coalitionCounter, :color=>coalition["color"]}
+							placeHash[:coalitions].push(coalitionHash)
+						}
+					end
 					myTable.push(placeHash)
 				}
 			else
@@ -463,6 +499,9 @@ class MembersController < ApplicationController
 					organizationOptions.each{|organization|
 						placeHash = {}
 						placeHash[:name] = place.name
+						if scope = "stateWise"
+							placeHash[:code] = place.code
+						end
 						targetOrganization = Organization.where(:name=>organization).last
 						placeHash[:organization] = organization
 						freq = []
@@ -483,7 +522,6 @@ class MembersController < ApplicationController
 				}
 			end
 		end
-
 		totalHash[:freq] = totalFreq
 		total_total = 0
 		totalFreq.each{|q|
@@ -491,9 +529,6 @@ class MembersController < ApplicationController
 		}
 		totalHash[:total_total] = total_total
 		myTable.push(totalHash)
-		print "***********TABLE: "
-		pp myTable
-
 	end
 
 	private
@@ -505,5 +540,4 @@ class MembersController < ApplicationController
 	def detainee_freq_params
 		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_organizationframe, :freq_roleframe, freq_states: [], freq_organizations: [], freq_roles: [])
 	end
-
 end
