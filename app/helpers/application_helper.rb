@@ -735,4 +735,22 @@ module ApplicationHelper
   		return number_of_victims
   	end
 
+  	def bob_decode(myString)
+  		spanish = {
+  			"Á" => "A",
+  			"á" => "a",
+  			"É" => "E",
+  			"é" => "e",
+  			"Í" => "I",
+  			"í" => "i",
+  			"Ó" => "O",
+  			"ó" => "o",
+  			"ú" => "u",
+  			"ü" => "u",
+  			"ñ" => "n",
+  		}
+  		myString = myString.encode("ASCII", "UTF-8", fallback: spanish)
+  		return myString
+  	end
+
 end

@@ -565,7 +565,7 @@ class OrganizationsController < ApplicationController
 
 	def get_cartels
     myCartels = Sector.where(:scian2=>98).last.organizations.uniq
-    matches = myCartels.select{|cartel| cartel.name.downcase.include? params[:myString].downcase}    
+    matches = myCartels.select{|cartel| helpers.bob_decode(cartel.name).downcase.include? helpers.bob_decode(params[:myString]).downcase}    
  		if matches.length >= 1 && matches.length <= 10 
       render json: matches
     end
