@@ -601,24 +601,26 @@ class DatasetsController < ApplicationController
 		                countyHash[:months].push(monthHash)
 		            }
 		            topCountiesArr.push(countyHash)
-		            if county.population > 100000
-			            if countyHash[:months][11][:victims] > 0
-			            	positiveCountyHash = {}
-			            	positiveCountyHash[:code] = county.full_code
-			            	positiveCountyHash[:name] = county.name
-			            	positiveCountyHash[:shortname] = county.shortname
-			            	positiveCountyHash[:latitude] = county.towns.where(:code=>"0000").last.latitude
-			            	positiveCountyHash[:longitude] = county.towns.where(:code=>"0000").last.latitude
-				            if countyHash[:months][11][:victims] > 20
-				            	positiveCountyHash[:victimLevel] = "21 en adelante"
-				            elsif countyHash[:months][11][:victims] > 10
-				            	positiveCountyHash[:victimLevel] = "11 a 20"
-				            else
-				            	positiveCountyHash[:victimLevel] = "1 a 10"
+		            if county.population
+			            if county.population > 100000
+				            if countyHash[:months][11][:victims] > 0
+				            	positiveCountyHash = {}
+				            	positiveCountyHash[:code] = county.full_code
+				            	positiveCountyHash[:name] = county.name
+				            	positiveCountyHash[:shortname] = county.shortname
+				            	positiveCountyHash[:latitude] = county.towns.where(:code=>"0000").last.latitude
+				            	positiveCountyHash[:longitude] = county.towns.where(:code=>"0000").last.latitude
+					            if countyHash[:months][11][:victims] > 20
+					            	positiveCountyHash[:victimLevel] = "21 en adelante"
+					            elsif countyHash[:months][11][:victims] > 10
+					            	positiveCountyHash[:victimLevel] = "11 a 20"
+					            else
+					            	positiveCountyHash[:victimLevel] = "1 a 10"
+					            end
+					            allCountiesArr.push(positiveCountyHash)
 				            end
-				            allCountiesArr.push(positiveCountyHash)
-			            end
-		        	end
+			        	end
+			        end
 		        end
 	        end
         }
