@@ -607,8 +607,8 @@ class DatasetsController < ApplicationController
 			            	positiveCountyHash[:code] = county.full_code
 			            	positiveCountyHash[:name] = county.name
 			            	positiveCountyHash[:shortname] = county.shortname
-			            	positiveCountyHash[:latitude] = county.town.where(:code=>"0000").last.latitude
-			            	positiveCountyHash[:longitude] = county.town.where(:code=>"0000").last.latitude
+			            	positiveCountyHash[:latitude] = county.towns.where(:code=>"0000").last.latitude
+			            	positiveCountyHash[:longitude] = county.towns.where(:code=>"0000").last.latitude
 				            if countyHash[:months][11][:victims] > 20
 				            	positiveCountyHash[:victimLevel] = "21 en adelante"
 				            elsif countyHash[:months][11][:victims] > 10
