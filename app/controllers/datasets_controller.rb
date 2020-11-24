@@ -600,21 +600,25 @@ class DatasetsController < ApplicationController
 		                countyHash[:totalVictims] += monthHash[:victims]
 		                countyHash[:months].push(monthHash)
 		            }
-		            if countyHash[:months][11][:victims] > 0
-		            	positiveCountyHash = {}
-		            	positiveCountyHash[:code] = county.full_code
-		            	positiveCountyHash[:name] = county.name
-		            	positiveCountyHash[:shortname] = county.shortname
-			            if countyHash[:months][11][:victims] > 20
-			            	positiveCountyHash[:victimLevel] = "21 en adelante"
-			            elsif countyHash[:months][11][:victims] > 10
-			            	positiveCountyHash[:victimLevel] = "11 a 20"
-			            else
-			            	positiveCountyHash[:victimLevel] = "1 a 10"
-			            end
-			            allCountiesArr.push(positiveCountyHash)
-		            end
 		            topCountiesArr.push(countyHash)
+		            if county.population > 100000
+			            if countyHash[:months][11][:victims] > 0
+			            	positiveCountyHash = {}
+			            	positiveCountyHash[:code] = county.full_code
+			            	positiveCountyHash[:name] = county.name
+			            	positiveCountyHash[:shortname] = county.shortname
+			            	positiveCountyHash[:latitude] = county.town.where(:code=>"0000").last.latitude
+			            	positiveCountyHash[:longitude] = county.town.where(:code=>"0000").last.latitude
+				            if countyHash[:months][11][:victims] > 20
+				            	positiveCountyHash[:victimLevel] = "21 en adelante"
+				            elsif countyHash[:months][11][:victims] > 10
+				            	positiveCountyHash[:victimLevel] = "11 a 20"
+				            else
+				            	positiveCountyHash[:victimLevel] = "1 a 10"
+				            end
+				            allCountiesArr.push(positiveCountyHash)
+			            end
+		        	end
 		        end
 	        end
         }

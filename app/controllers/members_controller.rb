@@ -133,7 +133,7 @@ class MembersController < ApplicationController
 		session[:checkedStates] = Cookie.last.id
 		session[:checkedOrganizations] = false
 		session[:checkedRoles] = false
-		session[:detainee_freq_params] = ["quarterly","stateWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
+		session[:detainee_freq_params] = ["monthly","stateWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
 		redirect_to "/members/detainees"
 	end
 
@@ -269,7 +269,8 @@ class MembersController < ApplicationController
 		headerHash = {}
 		totalHash = {}
 		totalHash[:name] = "Total"
-		coalitionKeys = helpers.coalitionKeys		
+		coalitionKeys = helpers.coalitionKeys	
+		topDetentions = get_top_detentions	
 
 		years = Year.all
 		if period == "quarterly"
@@ -471,10 +472,15 @@ class MembersController < ApplicationController
 							end
 							agencyShare = (agency.detainees.merge(place.detainees).length/place_total.to_f).round(2)
 							agencyHash[:share] = (agencyShare*100).round(0) 
-							unless agencyHash[:share] == 0
-								placeHash[:agencies].push(agencyHash)								
-							end
+							placeHash[:agencies].push(agencyHash)								
 						}
+						localPolice = {:name=>"Policía Municipal", :freq=>0}
+						place.counties.where.not(:name=>"Sin definir").each{|county|
+							localPolice[:freq] += county.organizations.where(:league=>"Seguridad Pública").last.detainees.length
+						}
+						localPoliceShare = (localPolice[:freq]/place_total.to_f).round(2)
+						localPolice[:share] = (localPoliceShare*100).round(0)
+						placeHash[:agencies].push(localPolice)
 						placeHash[:coalitions] = []
 						helpers.coalitionKeys.each{|coalition|
 							coalitionCounter = 0
@@ -529,6 +535,15 @@ class MembersController < ApplicationController
 		}
 		totalHash[:total_total] = total_total
 		myTable.push(totalHash)
+	end
+
+	def get_top_detentions
+		detentionArr = []
+		Role.where(:name=>"Líder").last.members.each{|leader|
+			detentionArr.push(leader.detention)
+		}
+		detentionArr.uniq!
+		return detentionArr
 	end
 
 	private

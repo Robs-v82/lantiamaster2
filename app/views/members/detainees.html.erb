@@ -25,7 +25,7 @@
 								<div class="row">
 									<div class="col s12">
 										<div class="query-header-box valign-wrapper white-text">
-											<i class="material-icons small">today</i><p5 class="query-header">Temporal</p5>
+											<i class="material-icons">today</i><p class="query-header">Temporal</p>
 										</div>
 										<div id="detainee_freq_timeframe_selector">
 									    	<% @timeFrames.each do |query| %>
@@ -36,7 +36,7 @@
 																checked
 															<% end %>
 														/>
-														<span class="white-text p16"><%= query[:caption] %></span>
+														<span class="white-text p12"><%= query[:caption] %></span>
 													</label>
 												</p>
 									    	<% end %>
@@ -46,7 +46,7 @@
 								<div id="geo_query_box" class="row">
 									<div class="col s12">
 									    <div class="query-header-box valign-wrapper white-text">
-											<i class="material-icons small">map</i><p5 class="query-header">Geográfico</p5>
+											<i class="material-icons">map</i><p class="query-header">Geográfico</p>
 										</div>
 										<div id="detainee_freq_placeframe_selector">
 									    	<% @placeFrames.each do |query| %>
@@ -57,7 +57,7 @@
 																checked
 															<% end %>
 														/>
-														<span class="white-text p16"><%= query[:caption] %></span>
+														<span class="white-text p12"><%= query[:caption] %></span>
 													</label>
 												</p>
 									    	<% end %>
@@ -67,7 +67,7 @@
 								<div id="organization_query_box" class="row">
 									<div class="col s12">
 									    <div class="query-header-box valign-wrapper white-text">
-											<i class="material-icons small">group</i><p5 class="query-header">Organización</p5>
+											<i class="material-icons">group</i><p class="query-header">Organización</p>
 										</div>
 										<div id="detainee_freq_organizationframe_selector">
 									    	<% @organizationFrames.each do |query| %>
@@ -78,7 +78,7 @@
 																checked
 															<% end %>
 														/>
-														<span class="white-text p16"><%= query[:caption] %></span>
+														<span class="white-text p12"><%= query[:caption] %></span>
 													</label>
 												</p>
 									    	<% end %>
@@ -88,7 +88,7 @@
 								<div id="role_query_box" class="row">
 									<div class="col s12">
 									    <div class="query-header-box valign-wrapper white-text">
-											<i class="material-icons small">contacts</i><p5 class="query-header">Posición</p5>
+											<i class="material-icons">contacts</i><p class="query-header">Posición</p>
 										</div>
 										<div id="detainee_freq_roleframe_selector">
 									    	<% @roleFrames.each do |query| %>
@@ -99,7 +99,7 @@
 																checked
 															<% end %>
 														/>
-														<span class="white-text p16"><%= query[:caption] %></span>
+														<span class="white-text p12"><%= query[:caption] %></span>
 													</label>
 												</p>
 									    	<% end %>
@@ -255,9 +255,9 @@
 								style="display: none;"
 							<% end %>
 						>
-							<div id="detention-map" class="col m6 s12">
+							<div id="detention-map" class="col m7 s12">
 							</div>
-							<div id="detention-charts" class="col m6 s12">
+							<div id="detention-charts" class="col m5 s12">
 								<% @my_freq_table[1..-2].each do |place| %>
 									<div id="<%= place[:code]%>-detention-charts" class="state-detention-charts detention-toggle-charts" style="display:none">
 										<h6><%= place[:name]%>: 
@@ -279,12 +279,12 @@
 												</div>
 											</div>
 											<div class="col s6">
-												<p class="center-align">Posición de los arrestados</p>
+												<p class="center-align">Posición</p>
 												<div id="<%= place[:code]%>-detainees-role-chart" class="center">
 												</div>
 											</div>
 											<div class="col s6">
-												<p class="center-align">Coalición de los arrestados</p>
+												<p class="center-align">Coalición</p>
 												<div id="<%= place[:code]%>-detainees-coalition-chart" class="center">
 												</div>
 											</div>

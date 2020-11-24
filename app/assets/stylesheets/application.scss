@@ -365,7 +365,7 @@ ul.z-depth-0 {
 .send-to-bottom {
 	position: absolute;
 	right: 0;
-	margin: 16px;
+	margin: 0 16px;
 	display: none;
 }
 
@@ -568,6 +568,7 @@ select {
 	padding: 0 8px !important;
 	width: 80% !important;
 	margin-left: 10px !important;
+	
 }
 
 .filter-header {
@@ -611,13 +612,13 @@ min-width: 85px !important
 }
 
 .query-header {
-	font-size: 18px !important;
+	font-size: 16px !important;
 	font-weight: 500;
 	padding-left: 12px !important;
 }
 
 .query-header-box {
-	padding-bottom: 10px !important;
+	padding-bottom: 6px !important;
 }
 
 .short-row {
