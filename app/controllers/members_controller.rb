@@ -117,7 +117,7 @@ class MembersController < ApplicationController
 		}
 		session[:filename] = detention_params[:file].original_filename
 		session[:load_success] = true
-		redirect_to "/datasets/load"	
+		redirect_to "/members/detainees_freq_api"	
 	end
 
 	def detainees_query
@@ -154,6 +154,11 @@ class MembersController < ApplicationController
 			session[:detainee_freq_params][4] = detainee_freq_params[:freq_organizations]
 		end
 		if detainee_freq_params[:freq_states]
+			if Cookie.find(session[:checkedStates]).data.length == 32
+				session[:detainee_freq_params][5] = false
+			else
+				session[:detainee_freq_params][5] = true				
+			end
 			myArr = detainee_freq_params[:freq_states].map(&:to_i)
 			Cookie.create(:data=>myArr)
 			session[:checkedStates] = Cookie.last.id
@@ -171,16 +176,42 @@ class MembersController < ApplicationController
 
 	def detainees
 		@key = Rails.application.credentials.google_maps_api_key
-		@my_freq_table = detainee_freq_table(
-			session[:detainee_freq_params][0],
-			session[:detainee_freq_params][1],
-			session[:detainee_freq_params][2],
-			session[:detainee_freq_params][3],
-			session[:detainee_freq_params][4],
-			session[:checkedStates],
-			session[:detainee_freq_params][6],
-			session[:detainee_freq_params][7]
-		)
+		@chartDisplay = true
+		freq_table_params = session[:detainee_freq_params]
+		freq_table_params[5] = session[:checkedStates] 
+		if Cookie.find(session[:checkedStates]).data.length < 32 || session[:detainee_freq_params][2] == "organizationSplit" || session[:detainee_freq_params][3] == "roleSplit"
+			@my_freq_table = detainee_freq_table(
+				freq_table_params[0],
+				freq_table_params[1],
+				freq_table_params[2],
+				freq_table_params[3],
+				freq_table_params[4],
+				freq_table_params[5],
+				freq_table_params[6],
+				freq_table_params[7]
+			)
+		else		 
+			if session[:detainee_freq_params][0] == "monthly" && session[:detainee_freq_params][1] == "stateWise"
+				@my_freq_table = Cookie.where(:category=>"detainees_state_monthly_API").last.data
+			elsif session[:detainee_freq_params][0] == "quarterly" && session[:detainee_freq_params][1] == "stateWise"
+				@my_freq_table = Cookie.where(:category=>"detainees_state_quarterly_API").last.data
+			elsif session[:detainee_freq_params][0] == "monthly" && session[:detainee_freq_params][1] == "nationWise"
+				@my_freq_table = Cookie.where(:category=>"detainees_national_monthly_API").last.data
+			elsif session[:detainee_freq_params][0] == "quarterly" && session[:detainee_freq_params][1] == "nationWise"
+				@my_freq_table = Cookie.where(:category=>"detainees_national_quarterly_API").last.data
+			else
+				@my_freq_table = detainee_freq_table(
+					freq_table_params[0],
+					freq_table_params[1],
+					freq_table_params[2],
+					freq_table_params[3],
+					freq_table_params[4],
+					freq_table_params[5],
+					freq_table_params[6],
+					freq_table_params[7]
+				)
+			end
+		end
 		@timeFrames = [
 			{caption:"Trimestral", box_id:"quarterly_query_box", name:"quarterly"},
 			{caption:"Mensual", box_id:"monthly_query_box", name:"monthly"},
@@ -226,6 +257,7 @@ class MembersController < ApplicationController
 
 		@sortCounter = 0
 		@states = State.all.sort
+
 		if session[:checkedStates]
 			@checkedStates = Cookie.find(session[:checkedStates]).data
 		else
@@ -262,6 +294,77 @@ class MembersController < ApplicationController
 				@maps = true
 			end
 		end
+		@detention_cartels = helpers.detention_cartels
+		@topDetentions = get_top_detentions
+		@topDetentionRoles = helpers.top_detention_roles
+	end
+
+	def detainees_freq_api
+		helpers.clear_session
+		organizationOptions = helpers.get_detainees_cartels
+		roleOptions = []
+		myRoles = Role.where(:criminal=>true)
+		myRoles.each{|role|
+			roleOptions.push(role.id.to_s)
+		} 
+		myArr = State.pluck(:id)
+		Cookie.create(:data=>myArr)
+		session[:checkedStates] = Cookie.last.id
+		session[:checkedOrganizations] = false
+		session[:checkedRoles] = false
+		session[:detainee_freq_params] = ["monthly","stateWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
+		my_freq_table = detainee_freq_table(
+			session[:detainee_freq_params][0],
+			session[:detainee_freq_params][1],
+			session[:detainee_freq_params][2],
+			session[:detainee_freq_params][3],
+			session[:detainee_freq_params][4],
+			session[:checkedStates],
+			session[:detainee_freq_params][6],
+			session[:detainee_freq_params][7]
+		)
+		Cookie.create(:data=>my_freq_table, :category=>"detainees_state_monthly_API")
+
+		session[:detainee_freq_params] = ["quarterly","stateWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
+		my_freq_table = detainee_freq_table(
+			session[:detainee_freq_params][0],
+			session[:detainee_freq_params][1],
+			session[:detainee_freq_params][2],
+			session[:detainee_freq_params][3],
+			session[:detainee_freq_params][4],
+			session[:checkedStates],
+			session[:detainee_freq_params][6],
+			session[:detainee_freq_params][7]
+		)
+		Cookie.create(:data=>my_freq_table, :category=>"detainees_state_quarterly_API")
+
+		session[:detainee_freq_params] = ["monthly","nationWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
+		my_freq_table = detainee_freq_table(
+			session[:detainee_freq_params][0],
+			session[:detainee_freq_params][1],
+			session[:detainee_freq_params][2],
+			session[:detainee_freq_params][3],
+			session[:detainee_freq_params][4],
+			session[:checkedStates],
+			session[:detainee_freq_params][6],
+			session[:detainee_freq_params][7]
+		)
+		Cookie.create(:data=>my_freq_table, :category=>"detainees_national_monthly_API")
+
+		session[:detainee_freq_params] = ["quarterly","nationWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
+		my_freq_table = detainee_freq_table(
+			session[:detainee_freq_params][0],
+			session[:detainee_freq_params][1],
+			session[:detainee_freq_params][2],
+			session[:detainee_freq_params][3],
+			session[:detainee_freq_params][4],
+			session[:checkedStates],
+			session[:detainee_freq_params][6],
+			session[:detainee_freq_params][7]
+		)
+		Cookie.create(:data=>my_freq_table, :category=>"detainees_national_quarterly_API")
+
+		redirect_to "/datasets/load"
 	end
 
 	def detainee_freq_table(period, scope, organization, role, organizationOptions, states, organizations, roleOptions)
@@ -269,8 +372,7 @@ class MembersController < ApplicationController
 		headerHash = {}
 		totalHash = {}
 		totalHash[:name] = "Total"
-		coalitionKeys = helpers.coalitionKeys	
-		topDetentions = get_top_detentions	
+		coalitionKeys = helpers.coalitionKeys		
 
 		years = Year.all
 		if period == "quarterly"
@@ -407,15 +509,29 @@ class MembersController < ApplicationController
 				end		
 			end
 		else
+
+			# MAP DATA
 			if organization == "noOrganizationSplit"
 				myTable.push(headerHash)
+				myScope.push("Nacional")
 				myScope.each{|place|
+					if place == "Nacional"
+						placeName = "Nacional"
+						placeCode = "00"
+						localDetainees = Member.where.not(:detention_id=>nil)
+						localCounties = County.where.not(:name=>"Sin definir")
+					else
+						placeName = place.name
+						placeCode = place.code
+						localDetainees = place.detainees
+						localCounties = place.counties.where.not(:name=>"Sin definir")
+					end
 					placeHash = {}
 					rolesArr = []
 					myRoles.each{|r|
 						roleHash = {}
 						roleHash[:role] = r.name
-						number_of_detainees = r.members.merge(place.detainees).length
+						number_of_detainees = r.members.merge(localDetainees).length
 						if number_of_detainees
 							roleHash[:freq] = number_of_detainees
 							rolesArr.push(roleHash)
@@ -442,18 +558,17 @@ class MembersController < ApplicationController
 						newRolesArr.push(residualHash)
 					end
 					placeHash[:roles] = newRolesArr
-					placeHash[:name] = place.name
-					if scope = "stateWise"
-						placeHash[:code] = place.code
-					end
+					placeHash[:name] = placeName
+					placeHash[:code] = placeCode
 					freq = []
 					counter = 0
 					place_total = 0
-					localDetainees = place.detainees
 					myPeriod.each {|timeUnit|
 						number_of_detainees = localDetainees.merge(timeUnit.detainees).length
 						freq.push(number_of_detainees)
-						totalFreq[counter] += number_of_detainees
+						unless place == "Nacional"
+							totalFreq[counter] += number_of_detainees
+						end
 						counter += 1
 						place_total += number_of_detainees
 					}
@@ -462,7 +577,9 @@ class MembersController < ApplicationController
 					unless place_total == 0
 						placeHash[:agencies] = []
 						myAgencies = helpers.law_enforcement
-						myAgencies.push(place.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last)
+						unless place == "Nacional"
+							myAgencies.push(place.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last)
+						end
 						myAgencies.each{|agency|
 							agencyHash = {}
 							if agency.acronym
@@ -470,12 +587,21 @@ class MembersController < ApplicationController
 							else
 								agencyHash[:name] = "Policía Estatal"		
 							end
-							agencyShare = (agency.detainees.merge(place.detainees).length/place_total.to_f).round(2)
+							agencyShare = (agency.detainees.merge(localDetainees).length/place_total.to_f).round(2)
 							agencyHash[:share] = (agencyShare*100).round(0) 
 							placeHash[:agencies].push(agencyHash)								
 						}
+						if place == "Nacional"
+							statePolice = {:name=>"Policía Estatal", :freq=>0}
+							State.all.each{|state|
+								statePolice[:freq] += state.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last.detainees.length
+							}
+							statePoliceShare = (statePolice[:freq]/place_total.to_f).round(2)
+							statePolice[:share] = (statePoliceShare*100).round(0)
+							placeHash[:agencies].push(statePolice)
+						end
 						localPolice = {:name=>"Policía Municipal", :freq=>0}
-						place.counties.where.not(:name=>"Sin definir").each{|county|
+						localCounties.each{|county|
 							localPolice[:freq] += county.organizations.where(:league=>"Seguridad Pública").last.detainees.length
 						}
 						localPoliceShare = (localPolice[:freq]/place_total.to_f).round(2)
@@ -487,7 +613,7 @@ class MembersController < ApplicationController
 							organizationOptions.each{|organization|
 								myOrganization = Organization.where(:name=>organization).last
 								if myOrganization.coalition == coalition["name"]
-									orgNumber = place.detainees.where(:organization_id=>myOrganization.id).length
+									orgNumber = localDetainees.where(:organization_id=>myOrganization.id).length
 									coalitionCounter += orgNumber
 								end
 							}
@@ -497,6 +623,8 @@ class MembersController < ApplicationController
 					end
 					myTable.push(placeHash)
 				}
+				# MAP DATA END
+
 			else
 				headerHash[:organization] = "ORGANIZACIÓN"
 				totalHash[:organization_placer] = "--"
@@ -539,10 +667,20 @@ class MembersController < ApplicationController
 
 	def get_top_detentions
 		detentionArr = []
-		Role.where(:name=>"Líder").last.members.each{|leader|
-			detentionArr.push(leader.detention)
+		topDetentionRoles = helpers.top_detention_roles
+		topDetentionRoles.each{|role|
+			Role.where(:name=>role).last.members.each{|myMember|
+				detentionArr.push(myMember.detention)
+			}
+		}
+		Detention.all.each{|detention|
+			if detention.detainees.length > 9
+				detentionArr.push(detention)
+			end
 		}
 		detentionArr.uniq!
+		detentionArr.compact!
+		detentionArr = detentionArr.sort_by{|d| -d.event.event_date.to_i}
 		return detentionArr
 	end
 

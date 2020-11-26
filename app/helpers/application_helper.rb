@@ -436,10 +436,10 @@ module ApplicationHelper
 
 	def ircoLevels
 		levelArr =[
-			{:name=>"Crítico",:color=>"red",:score=>10, :hex=>"#f44336"},
-			{:name=>"Alto",:color=>"orange",:score=>6.5, :hex=>"#ff9800"},
-			{:name=>"Medio",:color=>"yellow",:score=>5, :hex=>"#ffeb3b"},
-			{:name=>"Bajo",:color=>"light-green",:score=>4, :hex=>"#8bc34a"}
+			{:name=>"Crítico",:color=>"red",:score=>10, :hex=>"#f44336", :light_color=>"#ff8a65"},
+			{:name=>"Alto",:color=>"orange",:score=>6.5, :hex=>"#ff9800", :light_color=>"#ffb74d"},
+			{:name=>"Medio",:color=>"yellow",:score=>5, :hex=>"#ffeb3b", :light_color=>"#fff176"},
+			{:name=>"Bajo",:color=>"light-green",:score=>4, :hex=>"#8bc34a", :light_color=>"#aed581"}
 		]
 		return levelArr	
 	end

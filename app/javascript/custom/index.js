@@ -192,7 +192,7 @@ $(document).ready(function(){
 	
 
 	$('#show-filter-dashboard').click(function() {
-		$('#filter-dashboard').removeClass('hide-on-small-only');
+		$('#filter-dashboard').removeClass('hide-on-med-and-down');
 		$("html, body").animate({ scrollTop: 0 }, "slow");
 	})
 
@@ -214,6 +214,14 @@ $(document).ready(function(){
 		$('#'+myState+'-org-map').show();
 		return false
 	})
+
+	// STATE CHARTS TOGGLE
+	$('.close-state').click(function() {
+		$('.detention-toggle-charts').hide();
+		$('#00-detention-charts').show();
+		$('.collection-item').show();
+		return false
+	});
 
 	// ORGANIZATION AUTOCOMPLETE
 	$('#autocomplete-input').keyup(function() {
@@ -493,6 +501,25 @@ $(document).ready(function(){
 			$('#role-collapsible-tab').addClass('collapsible-disabled');
 			$("#role-collapsible-tab input").prop('checked', true)
 			M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
+		}
+	})
+
+	// SWITCH BETWEEN ORGANIZATION AND STATE DESAGGREGATION
+	$('#organization_split_query_box').click(function() {
+		if ($('#state_query_box').is(':checked')) {
+			$('#nation_query_box').prop('checked', true)
+			$('#state-collapsible-tab').addClass('collapsible-disabled');
+			$("#state-collapsible-tab input").prop('checked', true)
+			M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
+		}				
+	})
+
+	$('#state_query_box').click(function() {
+		if ($('#organization_split_query_box').is(':checked')) {
+			$('#no_organization_split_query_box').prop('checked', true)
+			$('#organization-collapsible-tab').addClass('collapsible-disabled');
+			$("#organization-collapsible-tab input").prop('checked', true)
+			M.toast({html: 'No es posible desagregar por organización y estado de forma simultánea'})
 		}
 	})
 

@@ -1,5 +1,11 @@
-<div class="hide-on-med-and-up">
+<div 
+	<% if @chartDisplay %>
+		class="hide-on-large-only"
+	<% else %>
+		class="hide-on-med-and-up"
+	<% end %>
+>
 	<div class="col s2">
-		<button id="show-filter-dashboard" class="btn-floating btn-tiny paletton-red lighten-2 pulse"><i class="small material-icons white-text right-extra-margin">tune</i></button>						
+		<button id="show-filter-dashboard" class="btn-floating btn-small paletton-red lighten-2 pulse"><i class="material-icons white-text right-extra-margin">tune</i></button>						
 	</div>
 </div>

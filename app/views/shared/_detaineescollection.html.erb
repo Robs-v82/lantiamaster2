@@ -1,0 +1,70 @@
+<div id="detention-collecton">
+	<% @topDetentions.each do |detention| %>
+		<p class="collection-item <%= detention.event.town.county.state.code %>-detention-item p12">
+			<%= I18n.l(detention.event.event_date, :format=> "%-d de %B de %Y") %>,
+			<% if detention.event.town.name != "Sin definir" %>
+				<%= detention.event.town.name %>, <%= detention.event.town.county.shortname %>, <%= detention.event.town.county.state.shortname %>:
+			<% else %>
+				<% if detention.event.town.county.name != "Sin definir" %>
+					<%= detention.event.town.county.shortname %>, <%= detention.event.town.county.state.shortname %>:
+				<% else %>
+					<%= detention.event.town.county.state.name %>:
+				<% end %>
+			<% end %>
+			<% if detention.detainees.length == 1 %>
+				<% if detention.detainees.last.firstname && detention.detainees.last.lastname1 && detention.detainees.last.lastname2 %>
+					<%= detention.detainees.last.firstname %> <%= detention.detainees.last.lastname1 %> <%= detention.detainees.last.lastname2 %>,
+				<% elsif detention.detainees.last.firstname && detention.detainees.last.lastname1 %>
+					<%= detention.detainees.last.firstname %> <%= detention.detainees.last.lastname1 %>,
+				<% end %>
+				<% if detention.detainees.last.alias.any? %>
+					"<%= detention.detainees.last.alias[0] %>",
+				<% end %>
+				<%= detention.detainees.last.role.name.downcase %>
+					<% if detention.detainees.last.role.name == "Autoridad cooptada" %>
+						por
+					<% else %>
+						de
+					<% end %>
+				<a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name -%></a>.
+			<% else %>
+				<% if detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).any? %>
+					<% if detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.firstname && detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.lastname1 && detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.lastname2 %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>, incluyendo a <%= detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.firstname %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.lastname1 %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.lastname2 %>,
+					<% elsif detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.firstname && detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.lastname1 %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>, incluyendo a <%= detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.firstname %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.lastname1 %>,
+					<% else %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>,
+					<% end %>
+					<% if detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.alias.any? %>
+						"<%= detention.detainees.where(:role_id=>Role.where(:name=>"Líder").last.id).last.alias[0] %>".
+					<% end %>
+				<% elsif detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).any? %>
+					<% if detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.firstname && detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.lastname1 && detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.lastname2 %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>, incluyendo a <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.firstname %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.lastname1 %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.lastname2 %>,
+					<% elsif detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.firstname && detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.lastname1 %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>, incluyendo a <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.firstname %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.lastname1 %>,
+					<% else %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>,
+					<% end %>
+					<% if detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.alias.any? %>
+						"<%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe de célula").last.id).last.alias[0] %>".
+					<% end %>
+				<% elsif detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).any? %>
+					<% if detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.firstname && detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.lastname1 && detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.lastname2 %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>, incluyendo a <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.firstname %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.lastname1 %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.lastname2 %>,
+					<% elsif detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.firstname && detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.lastname1 %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>, incluyendo a <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.firstname %> <%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.lastname1 %>,
+					<% else %>
+						<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>,
+					<% end %>
+					<% if detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.alias.any? %>
+						"<%= detention.detainees.where(:role_id=>Role.where(:name=>"Jefe regional u operador").last.id).last.alias[0] %>".
+					<% end %>
+				<% else %>
+					<%= detention.detainees.length %> miembros de <a class="paletton-red-text" href="/organizations/show/<%= detention.detainees.last.organization.id %>"><%= detention.detainees.last.organization.name %></a>.
+				<% end %>
+			<% end %>
+		</p>
+	<% end %>
+</div>

@@ -5,7 +5,7 @@
 	<% end %>
 <% end %>
 <div class="row freq-row">
-	<div id="filter-dashboard" class="col l3 m8 s12 short-row hide-on-small-only">
+	<div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-med-and-down">
 		<div class="card paletton-grey">
 			<div class="full-height">
 				<form id="detainee_freq_table" class="freq_filer_form" action="/members/detainees_query" method="post">
@@ -223,11 +223,16 @@
 	<div class="col l9 m12 s12 short-row">
 	<div class="header-div">
 		<div class="row top-row valign-wrapper">
-			<div class="col l6 m6 s12">
-				<h5 class="h5-no-margin">Arrestos</h5>
-				<%= render "shared/freqdates" %>
+			<div class="col m8 s12">
+				<div class="info-box inline-block">
+					<a id="detainees-info-modal-trigger" class="modal-trigger" href="#detainees-info-modal"><i class="small material-icons paletton-red-text right-min-margin">info</i></a>
+				</div>
+				<div class="info-box inline-block">
+					<h5 class="h5-no-margin">Arrestos <span class="p18">(organizaciones criminales)</span></h5>
+					<%= render "shared/freqdates" %>
+				</div>
 			</div>
-			<div class="col l6 m6 s12">
+			<div class="col m4 s12">
 				<%= render "shared/controlpanel"%>
 			</div>
 		</div>
@@ -237,64 +242,103 @@
 				<div class="card-content">
 					<div class="row card-narrow">
 						<%= render "shared/showfilter"%>					
-					</div>
-					<div id="freq-entry-list" class="freq-entry-display"
-						<% unless @nationWise%>
-							style="display: none;"
-						<% end %>
-					>
-						<table class="freq-table striped">	
-							<%= render "shared/sorttable"%>
-						</table>
-					</div>
-					<div class="small-inner-padding">
-<!-- 						<div id="freq-entry-chart" class="freq-entry-display col s12">
-						</div> -->
-						<div id="freq-entry-map" class="freq-entry-display col s12"
-							<% if @nationWise%>
+						<div id="freq-entry-list" class="freq-entry-display"
+							<% unless @nationWise%>
 								style="display: none;"
 							<% end %>
 						>
-							<div id="detention-map" class="col m7 s12">
-							</div>
-							<div id="detention-charts" class="col m5 s12">
-								<% @my_freq_table[1..-2].each do |place| %>
-									<div id="<%= place[:code]%>-detention-charts" class="state-detention-charts detention-toggle-charts" style="display:none">
-										<h6><%= place[:name]%>: 
-											<span class="slim"><%= place[:place_total] %> 
-												<% if place[:place_total] == 1 %>
-													arresto
-												<% else %>
-													arrestos
-												<% end %>
-											</span>
-										</h6>
-										<% unless place[:place_total] == 0 %>
-											<br>
-											<div id="<%= place[:code]%>-detainees-trend-chart"></div>
-											<br>
-											<div class="col s12">
-												<p>Participación de autoridades</p>
-												<div id="<%= place[:code]%>-detainees-agencies-chart">
-												</div>
-											</div>
-											<div class="col s6">
-												<p class="center-align">Posición</p>
-												<div id="<%= place[:code]%>-detainees-role-chart" class="center">
-												</div>
-											</div>
-											<div class="col s6">
-												<p class="center-align">Coalición</p>
-												<div id="<%= place[:code]%>-detainees-coalition-chart" class="center">
-												</div>
-											</div>
-										<% end %>
-									</div>
+							<table class="freq-table striped">	
+								<%= render "shared/sorttable"%>
+							</table>
+						</div>
+						<div class="small-inner-padding">
+							<div id="freq-entry-map" class="freq-entry-display col s12"
+								<% if @nationWise%>
+									style="display: none;"
 								<% end %>
+							>
+								<div class="col m7 s12">
+									<div id="detention-map">
+									</div>
+									<div id ="top-detentions">
+										<p>Arrestos de alto perfil</p>
+										<%= render "shared/detaineescollection"%>
+									</div>
+								</div>
+								<div class="hide-on-med-and-up col s12 break-for-mobile">
+								</div>
+								<div id="detention-charts" class="col m5 s12">
+									<% @my_freq_table[1..-2].each do |place| %>
+										<div id="<%= place[:code]%>-detention-charts" class="state-detention-charts detention-toggle-charts"
+											<% unless place[:code] == "00" %>
+												style="display:none"
+											<% end %>
+										>
+											<div class="valign-wrapper">
+												<% unless place[:code] == "00" %>
+													<i class="material-icons close-state tiny paletton-red-text right-extra-margin">close</i>
+												<% end %>
+												<h6>
+													<%= place[:name]%>: 
+													<span class="slim"><%= number_with_delimiter(place[:place_total]) %> 
+														<% if place[:place_total] == 1 %>
+															arresto
+														<% else %>
+															arrestados
+														<% end %>
+													</span>
+												</h6>
+											</div>
+											<% unless place[:place_total] == 0 %>
+												<br>
+												<div id="<%= place[:code]%>-detainees-trend-chart"></div>
+												<br>
+												<div class="col s12">
+													<p>Participación de autoridades</p>
+													<div id="<%= place[:code]%>-detainees-agencies-chart">
+													</div>
+												</div>
+												<div class="col s6">
+													<p class="center-align">Posición</p>
+													<div id="<%= place[:code]%>-detainees-role-chart" class="center">
+													</div>
+												</div>
+												<div class="col s6">
+													<p class="center-align">Coalición</p>
+													<div id="<%= place[:code]%>-detainees-coalition-chart" class="center">
+													</div>
+												</div>
+											<% end %>
+										</div>
+									<% end %>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL SECTION -->
+<div id="detainees-info-modal" class="modal large-modal">
+	<div class="modal-content">	
+		<div class="row">
+			<div class="col s12">
+				<div class="right"><%= image_tag "optimized_logo.jpg", :class => "modal-logo"%></div>
+			</div>
+		<div>
+		</div class="row">
+			<div class="col s12">
+				<h6>Arrestos (organizaciones criminales)</h6>
+				<p>Se refiere exclusivamente a miembros de alguna de las <a class="paletton-red-text" href="/organizations/query">organizaciones criminales</a> identificadas por Lantia Intelligence que fueron detenidos y posteriormente puestos a disposición de la autoridad.</p>
+				<p>Actualmente incluye sólo a miembros de las siguientes organizaciones (así como de las mafias y bandas aliadas o subordinadas a ellas):</p>
+				<ul>
+					<% @detention_cartels.each do |cartel| %>
+						<li class="padding-left">- <a class="paletton-red-text" href="/organizations/show/<%= cartel.id %>"><%= cartel.name %></a></li>
+					<% end %>
+				</ul>
 			</div>
 		</div>
 	</div>

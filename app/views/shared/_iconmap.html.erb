@@ -1,0 +1,90 @@
+
+<script type="text/javascript">
+	$(document).ready(function(){
+
+	 	// NATIONAL MAP
+		var data = [
+			<% @icon_table.each do |place| %>
+				{name:'<%= place[:name] %>', value:<%= place[:score] %>, code:'<%= place[:code] %>'},
+			<% end %>
+		];
+
+		Highcharts.getJSON('/maps/national_map.json', function (geojson) {
+		    Highcharts.mapChart('icon-map', {
+		        chart: {
+		            map: geojson,
+		            height: 300,
+		        },
+		        legend: false,
+		        title: false, 
+		        credits: false,
+		        mapNavigation: {
+		            enabled: false,
+		        },
+				exporting: {
+					enabled: false
+				},
+	            colors: [
+	            	<% @levels.reverse.each do |level| %>
+	            		'<%= level[:light_color] %>',
+	            	<% end %>
+	            ],
+	            colorAxis: {
+	                dataClassColor: 'category',
+	                dataClasses: [{
+	                	to: 25,
+	                }, {
+	                    from: 25,
+	                    to: 45
+	                }, {
+	                    from: 45,
+	                    to: 65
+	                }, {
+	                    from: 65
+	                }]
+	            },
+		        plotOptions: {
+		        	series: {
+		        		point: {
+		        			events: {
+		        				click: function() {
+		        					var myState = this.code;
+		        					$('.detention-toggle-charts').hide();
+		        					$('.collection-item').hide();
+		        					$('#'+myState+'-detention-charts').show();
+		        					$('.'+myState+'-detention-item').show();
+		        				}
+		        			}
+		        		}
+		        	}
+		        },
+		        series: [{
+		            data: data,
+		            joinBy: 'name',
+	            	name: 'Arrestos',
+		            borderColor: 'white',
+		            borderWidth: 1,
+		            nullColor: '#e0e0e0',
+		            states: {
+		                hover: {
+		                    color: '#ffffff',
+			                borderColor: '#424242'
+		                }
+		            },
+		            cursor: 'pointer', 
+		            dataLabels: {
+		                enabled: true,
+		                format: '{point.properties.postal}'
+		            }
+		        }],
+	            tooltip: {
+	            	enabled: false
+	            }
+		    }, function (chart) { 
+				    var originalWidth = chart.chartWidth - 105;
+				    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+    				.add();
+        	});		
+		});
+	})
+</script>

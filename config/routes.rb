@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
     root 'organizations#query'
     post 'states/load_irco'
+    post 'states/load_icon'
     post 'counties/load_irco'
     get 'counties/low_risk'
     get 'counties/high_risk'
@@ -21,6 +22,7 @@ Rails.application.routes.draw do
     post 'members/detentions'
     get 'members/detainees'
     get 'members/detainees_query'
+    get 'members/detainees_freq_api'
     get 'quarters/ispyv'
     get 'months/reports' => 'months#reports'
     get 'datasets/show'

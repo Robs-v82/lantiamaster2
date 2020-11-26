@@ -91,26 +91,28 @@
 
 <tbody id="sort-table"> 
 	<% @my_freq_table[1..-2].each do |place| %>
-		<tr>
-			<% if place[:parent_name] %>
-				<td><%= place[:parent_name] %></td>
-			<% end %>
-			<td><%= place[:name] %></td>
-			<% if place[:organization] %>
-				<td><%= place[:organization] %></td>
-			<% end %>
-			<% if place[:role] %>
-				<td><%= place[:role] %></td>
-			<% end %>
-			<% if place[:gender] %>
-				<td><%= place[:gender] %></td>
-			<% end %>
-			<% place[:freq].each do |x| %>
-				<td class="right-align"><%= number_with_delimiter(x) %></td>
-			<% end %>
-			<% unless @my_freq_table[-1][:freq].length == 1%>
-				<td class="right-align"><%= number_with_delimiter(place[:place_total]) %></td> 
-			<% end %>
-		</tr>
+		<% unless @stateWise && place[:name] == "Nacional" %>
+			<tr>
+				<% if place[:parent_name] %>
+					<td><%= place[:parent_name] %></td>
+				<% end %>
+				<td><%= place[:name] %></td>
+				<% if place[:organization] %>
+					<td><%= place[:organization] %></td>
+				<% end %>
+				<% if place[:role] %>
+					<td><%= place[:role] %></td>
+				<% end %>
+				<% if place[:gender] %>
+					<td><%= place[:gender] %></td>
+				<% end %>
+				<% place[:freq].each do |x| %>
+					<td class="right-align"><%= number_with_delimiter(x) %></td>
+				<% end %>
+				<% unless @my_freq_table[-1][:freq].length == 1%>
+					<td class="right-align"><%= number_with_delimiter(place[:place_total]) %></td> 
+				<% end %>
+			</tr>
+		<% end %>
 	<% end %>
 </tbody>

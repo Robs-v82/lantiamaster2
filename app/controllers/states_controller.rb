@@ -16,6 +16,21 @@ class StatesController < ApplicationController
         @states = State.all
     end
 
+    def load_icon
+        myFile = load_icon_params[:file]
+        myName = load_icon_params[:year]+"_"+load_icon_params[:quarter]
+        myQuarter = Quarter.where(:name=>myName).last
+        iconTable = []
+        CSV.foreach(myFile, :headers => true) do |row|
+          row[:score] = row[myQuarter.name]
+          row[:name] = State.where(:code=>row["code"]).last.name
+          iconTable.push(row)
+        end
+        @states = State.all.sort_by{|state| state.name}
+        Cookie.create(:data=>iconTable, :quarter_id=>myQuarter.id, :category=>"icon")    
+        redirect_to "/datasets/load"
+    end
+
     def load_irco
         unless Role.where(:name=>"Gobernador").empty?
            governorKey = Role.where(:name=>"Gobernador").last.id 
@@ -110,14 +125,20 @@ class StatesController < ApplicationController
     end
 
     def icon
-        @key = Rails.application.credentials.google_maps_api_key
-        myQuarter = Quarter.last
+        myCookie = Cookie.where(:category=>"icon").last
+        myQuarter = myCookie.quarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
         back_one_quarter = helpers.back_one_q(myQuarter) 
         @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
         back_one_year = helpers.back_one_y(myQuarter)
         @back_one_y_strings = helpers.quarter_strings(back_one_year)
         @levels = helpers.ircoLevels
+        @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
+        @icon_table = myCookie.data
+        @screens = [
+            {:style=>"show-on-large", :width=>"l6", :scopes=>[0..15,16..31]},
+            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..31]}
+        ]
     end
 
     def ircoOutput(quarter, state)
@@ -208,8 +229,11 @@ class StatesController < ApplicationController
         params.require(:state).permit(:name, :shortname, :code, :population)
     end
 
+    def load_icon_params
+        params.require(:query).permit(:year, :quarter, :file)
+    end
+
     def load_irco_params
         params.require(:query).permit(:year, :quarter)
-        
     end
 end

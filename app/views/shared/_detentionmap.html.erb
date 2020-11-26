@@ -1,10 +1,17 @@
 <script type="text/javascript">
 	$(document).ready(function() {
+		$("#freq-table-trigger").click(function() {
+			$(".freq-entry-display").hide();
+			$("#freq-entry-list").show();
+			return false
+	 	});
 		$("#freq-map-trigger").click(function() {
 			$(".freq-entry-display").hide();
 			$("#freq-entry-map").show();
 			return false
 	 	});
+
+	 	// NATIONAL MAP
 		var data = [
 			<% @my_freq_table[1..-2].each do |place| %>
 				{name:'<%= place[:name] %>', value:<%= place[:place_total] %>, code:'<%= place[:code] %>'},
@@ -24,6 +31,9 @@
 		        	y: 90,
 		        	floating: true,
 		        	backgroundColor: 'white',
+		            labelFormatter: function () {
+		                return (this.from || '<') + ' - ' + (this.to || '>');
+		            },
 		        },
 		        title: false, 
 		        credits: false,
@@ -37,15 +47,15 @@
 	            colorAxis: {
 	                dataClassColor: 'category',
 	                dataClasses: [{
-	                	to: 0
+	                	to: 1,
 	                }, {
 	                    from: 1,
 	                    to: 10
 	                }, {
-	                    from: 11,
+	                    from: 10,
 	                    to: 50
 	                }, {
-	                    from: 51
+	                    from: 50
 	                }]
 	            },
 		        plotOptions: {
@@ -56,7 +66,9 @@
 		        					var myState = this.code;
 		        					console.log(myState);
 		        					$('.detention-toggle-charts').hide();
+		        					$('.collection-item').hide();
 		        					$('#'+myState+'-detention-charts').show();
+		        					$('.'+myState+'-detention-item').show();
 		        				}
 		        			}
 		        		}
@@ -83,9 +95,16 @@
 		        }],
 	            tooltip: {
 	            	enabled: false
-	            },
-		    })		
+	            }
+		    }, function (chart) { 
+				    var originalWidth = chart.chartWidth - 105;
+				    console.log(originalWidth)
+				    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+    				.add();
+        	});		
 		});
+
+		// TREND CHART
 		<% @my_freq_table[1..-2].each do |place| %>
 			<% unless place[:place_total] == 0 %>
 				Highcharts.chart('<%= place[:code]%>-detainees-trend-chart', {
@@ -134,6 +153,8 @@
 						}
 			        }]
 				});
+
+				// ROLES PIE CHART
 				Highcharts.chart('<%= place[:code]%>-detainees-role-chart', {
 				    chart: {
 				        type: 'pie',
@@ -183,6 +204,8 @@
 
 			        }]
 				});
+
+				// COALITION PIE CHART
 				Highcharts.chart('<%= place[:code]%>-detainees-coalition-chart', {
 					chart: {
 				        type: 'pie',
@@ -232,6 +255,8 @@
 
 			        }]
 				});
+
+				// AGENCIES BAR CHART
 				Highcharts.chart('<%= place[:code]%>-detainees-agencies-chart', {
 					chart: {
 						type: 'bar',

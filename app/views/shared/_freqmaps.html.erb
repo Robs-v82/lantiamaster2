@@ -55,23 +55,15 @@
 			                format: '{point.properties.postal}'
 			            }
 			        }]
-			    });
-			});
-			$("#freq-map-trigger").click(function() {
-				$(".freq-entry-display").hide();
-				$("#freq-entry-map").show();
-				return false
+			    	});
+				});
 		 	})
 		<% else %>
 			google.charts.load('current', {
 				'packages':['geochart'],
 				'mapsApiKey': '<%= @key %>'
 			});
-			$("#freq-map-trigger").click(function() {
-				$(".freq-entry-display").hide();
-				$("#freq-entry-map").show();
-				google.charts.setOnLoadCallback(drawRegionsMap);
-				return false
+
 		 	})
 			function drawRegionsMap() {
 				<% if @stateWise %>

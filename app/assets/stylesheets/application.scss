@@ -4,6 +4,30 @@
  *= require jquery-ui
  */
 
+.legend-label-box {
+	min-width: 65px;
+}
+
+.break-for-mobile {
+	height: 35px;	
+}
+
+.small-break {
+	height: 15px;	
+}
+
+.info-box {
+	vertical-align: text-top;
+}
+
+.inline-block {
+	display: inline-block;
+}
+
+.close-state {
+    cursor: pointer;
+}
+
 .state-detention-charts h6 {
 	margin: 0;
 }
@@ -85,7 +109,7 @@
 	padding-top: 6px;
 }
 
-.btn-floating:hover, .active-page:hover {
+.btn-floating:hover, .btn-floating:focus, .active-page:hover {
 	background-color: #EF4E50 !important;
 }
 
@@ -267,16 +291,28 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 }
 
 #grid-collection {
-		height: 580px !important;
-		width: 100%;
-		overflow-y: scroll !important;
+	height: 580px !important;
+	width: 100%;
+	overflow-y: scroll !important;
 }
 
-p.collection-item {
+#detention-collecton {
+	height: 150px !important;
+	width: 100%;
+	overflow-y: scroll !important;	
+}
+
+#grid-collection p.collection-item {
 	height: 70px;
 	padding: 8px;
-	border-bottom: 1px solid #454157;
+	border-bottom: 1px solid #e0e0e0;
 	line-height: 1.2rem !important;
+}
+
+#detention-collecton p.collection-item {
+	padding: 6px;
+	border-bottom: 1px solid #e0e0e0;
+	line-height: 1.2rem !important;	
 }
 
 .collection-column {
@@ -392,7 +428,7 @@ input[type=text] {
 	margin: 0 auto;
 }
 
-.freq-table, #org-table, #ispyv_table, #irco_table {
+.freq-table, #org-table, #ispyv_table, #irco_table, #icon_table {
 	display: block !important;
 	position: relative !important;
 	overflow-x: auto;
@@ -412,7 +448,7 @@ input[type=text] {
 
 @media only screen and (max-width: 600px) {
 
-	.freq-table th, .freq-table td, #org-table th, #org-table td, #ispyv_table th, #ispyv_table td, #irco_table th, #irco_table td {
+	.freq-table th, .freq-table td, #org-table th, #org-table td, #ispyv_table th, #ispyv_table td, #irco_table th, #irco_table td, #icon_table th, #icon_table td {
 		padding: 6px 12px;
 		font-size: 10px;
 	}
@@ -500,7 +536,7 @@ select {
 	margin-bottom: 0 !important;
 }
 
-#ispyv_table td, #irco_table td {
+#ispyv_table td, #irco_table td, #icon_table td {
 	padding: 8px 5px;
 }
 
@@ -671,6 +707,10 @@ min-width: 85px !important
 }
 
 .p10 {
+	font-size: 10px !important;
+}
+
+.p11 {
 	font-size: 10px !important;
 }
 

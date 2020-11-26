@@ -1,0 +1,26 @@
+<table id="icon_table" class="highlight center-align">
+	<thead>
+		<tr>
+			<% @tableHeader.each do |head| %>
+				<th class="center-align p12"><%= head %></th>
+			<% end %>
+		</tr>
+	</thead>
+	<tbody>
+		<% @icon_table[scope].each do |row| %>
+			<tr class="pseudo-clickable-row modal-trigger p12">
+				<td class="valign-wrapper">
+					<div class="pseudo-button valign-wrapper">
+						<i class="material-icons tiny <%= row[:color] %> <%= row[:color] %>-text right-extra-margin z-depth-1">brightness_1</i>
+					</div>
+					<div class="county-tag">
+						<p><%= State.where(:code=>row["code"]).last.shortname %></p>
+					</div>
+				</td>
+				<td class="right-align"><%= row["rank"]%> </td>
+				<td class="right-align"><%= number_with_precision(row[:score]) %></td>
+				<td class="center-align"><%= row["tendencia"] %></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
