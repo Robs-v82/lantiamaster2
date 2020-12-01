@@ -41,6 +41,17 @@ class StatesController < ApplicationController
           }
           iconTable.push(row)
         end
+        iconTable.each{|row|
+            comparisonArr = []
+            State.where(:code=>row["code"]).last.comparison.each{|key|
+                comparisonHash = {:name=> State.find(key).shortname}
+                myState = iconTable.select{|state| state["code"] == State.find(key).code}.last
+                comparisonHash[:score] = myState[:score]
+                comparisonArr.push(comparisonHash)
+            }
+            row[:comparison] = comparisonArr 
+            row[:max] = comparisonArr.max_by{|k| k[:score] }[:score]
+        }
         @states = State.all.sort_by{|state| state.name}
         Cookie.create(:data=>iconTable, :quarter_id=>myQuarter.id, :category=>"icon")    
         redirect_to "/datasets/load"

@@ -52,6 +52,7 @@
 		        					console.log(myState)
 		        					$('.index-display').hide();
 		        					$('#'+myState+'-card-display').show();
+		        					$("html, body").animate({ scrollTop: 580 }, "slow");
 		        				}
 		        			}
 		        		}
@@ -92,8 +93,8 @@
 			Highcharts.chart('<%= place["code"]%>-icon-trend-chart', {
 			    chart: {
 			        type: 'line',
-			        height: 160,
-			        marginTop: 20,
+			        height: 136,
+			        marginTop: 12,
 			        backgroundColor: 'rgba(0,0,0,0)',
 			    },
 		        title: false, 
@@ -153,6 +154,7 @@
 		        	]
 		        },
 		        yAxis: {
+		        	max: <%= place[:max].to_i %>,
 		        	title: {
 		        		text: null
 		        	},
@@ -167,10 +169,10 @@
 	        				y: <%= place[:score]%>,
 	        				color: '<%= place[:color] %>'
         				},
-		        		<% State.where(:code=>place["code"]).last.comparison.each do |stateKey| %>
+		        		<% place[:comparison].each do |stateKey| %>
 		        			{
-		        				name: '<%= State.find(stateKey).shortname %>',
-		        				y: <%= @icon_table.select{|state| state["code"] == State.find(stateKey).code}.last[:score] %>,
+		        				name: '<%= stateKey[:name] %>',
+		        				y: <%= stateKey[:score].to_f %>,
 		        				color: '#e0e0e0',
 		        			},
 		        		<% end %>
@@ -192,7 +194,7 @@
 			        title: {
 			        	align: "right",
 			        	verticalAlign: 'middle',
-			        	useHTML: '<span class="p18"><%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%</span>',
+			        	useHTML: '<span class="p16"><%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%</span>',
 			        	text: '<%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%', 
 			        }, 
 				    credits: false,
@@ -231,7 +233,15 @@
 		        			{
 		        				name: '<%= place[component[:name]] %>',
 		        				y: <%= place[component[:key]].to_f/component[:share] %>,
-		        				color: "#f44336",
+		        				<% if place[component[:key]].to_f/component[:share] > 65 %>
+		        					color: "#f44336",
+		        				<% elsif place[component[:key]].to_f/component[:share] > 45 %>
+		        					color: "#ff9800",
+		        				<% elsif place[component[:key]].to_f/component[:share] > 25 %>
+		        					color: "#ffeb3b",
+		        				<% else %>
+			        				color: "#8bc34a",
+		        				<% end %>
 		        			},
 		        			{
 		        				name: null,

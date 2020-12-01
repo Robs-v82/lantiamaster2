@@ -192,7 +192,7 @@ $(document).ready(function(){
 	
 
 	$('#show-filter-dashboard').click(function() {
-		$('#filter-dashboard').removeClass('hide-on-med-and-down');
+		$('#filter-dashboard').removeClass('hide-on-med-and-down hide-on-small-only');
 		$("html, body").animate({ scrollTop: 0 }, "slow");
 	})
 
@@ -226,7 +226,7 @@ $(document).ready(function(){
 	$('.close-index-card').click(function() {
 		$('.index-display').hide();
 		$('#icon-table-display').show();
-		return false
+		$("html, body").animate({ scrollTop: 0 }, "slow");
 	});
 
 	// ORGANIZATION AUTOCOMPLETE

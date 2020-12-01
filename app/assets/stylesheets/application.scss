@@ -4,6 +4,10 @@
  *= require jquery-ui
  */
 
+.index-header h5 {
+	margin: 0 !important;
+}
+
 span.highcharts-title {
 	font-family: 'Poppins', sans-serif !important;
 	top: 17px !important;
@@ -16,8 +20,9 @@ span.highcharts-title {
 	color: #8bc34a;
 }
 
-#governor-box {
-	min-width: 85px !important;
+.governor-box {
+	max-width: 85px !important;
+	display: inline-block !important;
 }
 
 .variation-box {
@@ -474,13 +479,12 @@ input[type=text] {
 		font-size: 10px;
 	}
 
-	.card .card-content {
-		padding: 16px 10px !important;
-	}
-
-
 	.legend-box {
 		margin: 16px 0px;
+	}
+
+	.overview-tab {
+		font-size: 11px;
 	}
 	
 }
@@ -581,6 +585,14 @@ select {
 
 .long-card {
 	min-height: 563px;
+}
+
+.short-card {
+	min-height: 466px;
+}
+
+.index-card {
+	min-height: 528px;
 }
 
 .border-section {
@@ -786,7 +798,7 @@ min-width: 85px !important
 }
 
 .left-large-margin {
-	margin-left: 72px;
+	margin-left: 69px;
 }
 
 .tall-textarea {
@@ -910,9 +922,17 @@ input:not([type]), input[type=text]:not(.browser-default), input[type=password]:
 }
 
 .tiny-thumb {
-	width: 65px;
-	height: 65px;
+	width: 58px;
+	height: 58px;
 	overflow: hidden;
+	display: flex;
+	align-items: center;
+}
+
+.tiny-thumb img {
+	margin: 0 auto !important;
+	max-width: 58px !important;
+	display: block !important;
 }
 
 ul.tabs {
