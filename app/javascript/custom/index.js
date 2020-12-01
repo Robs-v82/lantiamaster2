@@ -220,7 +220,7 @@ $(document).ready(function(){
 		$('.detention-toggle-charts').hide();
 		$('#00-detention-charts').show();
 		$('.collection-item').show();
-		return false
+		$("html, body").animate({ scrollTop: 0 }, "slow");
 	});
 
 	$('.close-index-card').click(function() {
