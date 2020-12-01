@@ -69,7 +69,9 @@
 		        					$('.collection-item').hide();
 		        					$('#'+myState+'-detention-charts').show();
 		        					$('.'+myState+'-detention-item').show();
-		        					$("html, body").animate({ scrollTop: 680 }, "slow");
+		        					if ($(window).width() < 600) {
+		        						$("html, body").animate({ scrollTop: 680 }, "slow");
+		        					};
 		        				}
 		        			}
 		        		}
@@ -99,7 +101,6 @@
 	            }
 		    }, function (chart) { 
 				    var originalWidth = chart.chartWidth - 105;
-				    console.log(originalWidth)
 				    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
     				.add();
         	});		
