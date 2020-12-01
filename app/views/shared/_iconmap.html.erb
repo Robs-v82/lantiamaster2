@@ -5,7 +5,7 @@
 	 	// NATIONAL MAP
 		var data = [
 			<% @icon_table.each do |place| %>
-				{name:'<%= place[:name] %>', value:<%= place[:score] %>, code:'<%= place[:code] %>'},
+				{name:'<%= place[:name] %>', value:<%= place[:score] %>, code:'<%= place["code"] %>'},
 			<% end %>
 		];
 
@@ -49,10 +49,9 @@
 		        			events: {
 		        				click: function() {
 		        					var myState = this.code;
-		        					$('.detention-toggle-charts').hide();
-		        					$('.collection-item').hide();
-		        					$('#'+myState+'-detention-charts').show();
-		        					$('.'+myState+'-detention-item').show();
+		        					console.log(myState)
+		        					$('.index-display').hide();
+		        					$('#'+myState+'-card-display').show();
 		        				}
 		        			}
 		        		}
@@ -78,7 +77,8 @@
 		            }
 		        }],
 	            tooltip: {
-	            	enabled: false
+	            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+	            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
 	            }
 		    }, function (chart) { 
 				    var originalWidth = chart.chartWidth - 105;
@@ -86,5 +86,162 @@
     				.add();
         	});		
 		});
+
+		// TREND CHART
+		<% @icon_table.each do |place| %>
+			Highcharts.chart('<%= place["code"]%>-icon-trend-chart', {
+			    chart: {
+			        type: 'line',
+			        height: 160,
+			        marginTop: 20,
+			        backgroundColor: 'rgba(0,0,0,0)',
+			    },
+		        title: false, 
+			       credits: false,
+				exporting: {
+					enabled: false
+				},
+		        legend: {
+		        	enabled: false
+		        },
+		        xAxis: [{
+		        	categories: [
+		        		<% @evolutionArr.each do |period| %>
+							"T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y')[2,2] %>",
+		        		<% end %>
+		        	], 
+		        }],
+		        yAxis: [{
+		        	title: {
+		        		text: null
+		        	},
+		        }],
+		        series: [{
+		        	data: [
+		        		<% @evolutionArr.each do |period| %>
+		        			["T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y')[2,2] %>",<%= place[period.name] %>],
+		        		<% end %>
+		        	],
+		        	color: "#0A6868",
+					tooltip: {
+						headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
+						pointFormat: false,
+					}
+		        }]
+			});
+			Highcharts.chart('<%= place["code"]%>-icon-bar-chart', {
+				chart: {
+					type: 'column',
+					height: 120,
+					marginTop: 0,
+					backgroundColor: 'rgba(0,0,0,0)',
+				},
+		        title: false, 
+			    credits: false,
+				exporting: {
+					enabled: false
+				},
+		        legend: {
+		        	enabled: false
+		        },
+		        xAxis: {
+		        	categories: [
+		        		'<%= State.where(:code=>place["code"]).last.shortname %>',
+		        		<% State.where(:code=>place["code"]).last.comparison.each do |stateKey| %>
+		        			'<%= State.find(stateKey).shortname %>',
+		        		<% end %>
+		        	]
+		        },
+		        yAxis: {
+		        	title: {
+		        		text: null
+		        	},
+		        	labels: {
+		        		enabled: false
+		        	},
+		        },
+		        series: [{
+		        	data: [
+						{
+	        				name: '<%= State.where(:code=>place["code"]).last.shortname %>',
+	        				y: <%= place[:score]%>,
+	        				color: '<%= place[:color] %>'
+        				},
+		        		<% State.where(:code=>place["code"]).last.comparison.each do |stateKey| %>
+		        			{
+		        				name: '<%= State.find(stateKey).shortname %>',
+		        				y: <%= @icon_table.select{|state| state["code"] == State.find(stateKey).code}.last[:score] %>,
+		        				color: '#e0e0e0',
+		        			},
+		        		<% end %>
+		        	],
+					tooltip: {
+						headerFormat: '<span style="font-size:12px; color:#454157">{point.y}</span><br>',
+						pointFormat: false,
+					}
+		        }]
+			});
+			<% @components.each do |component| %>
+				Highcharts.chart('<%= component[:key] %>-<%= place["code"] %>-component-pie-chart', {
+				    chart: {
+				        type: 'pie',
+				        height: 60,
+				        width: 110,
+				        margin: [0,55,0,0],
+				    },
+			        title: {
+			        	align: "right",
+			        	verticalAlign: 'middle',
+			        	useHTML: '<span class="p18"><%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%</span>',
+			        	text: '<%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%', 
+			        }, 
+				    credits: false,
+					exporting: {
+						enabled: false
+					},
+			        legend: {
+			        	 enabled: false,
+			        },
+			        tooltip: false,
+				    plotOptions: {
+				        pie: {
+				            allowPointSelect: true,
+				            dataLabels: {
+				                enabled: false
+				            },
+				            showInLegend: true,
+				            innerSize: '40%',
+							states: {
+								inactive: {
+									opacity: 1
+								},
+							},
+
+				        },
+				        series: {
+				            states: {
+				                hover: {
+				                    halo: null,
+				                }
+				            }
+				        },
+				    },
+			        series: [{
+			        	data: [
+		        			{
+		        				name: '<%= place[component[:name]] %>',
+		        				y: <%= place[component[:key]].to_f/component[:share] %>,
+		        				color: "#f44336",
+		        			},
+		        			{
+		        				name: null,
+		        				y: 100-<%= place[component[:key]].to_f/component[:share] %>,
+		        				color: '#e0e0e0',        				
+		        			}
+				        ],
+			        }]
+			    });
+			<% end %>
+		<% end %>
 	})
 </script>

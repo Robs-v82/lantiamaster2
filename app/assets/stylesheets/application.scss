@@ -4,6 +4,27 @@
  *= require jquery-ui
  */
 
+span.highcharts-title {
+	font-family: 'Poppins', sans-serif !important;
+	top: 17px !important;
+}
+
+.critical-color {
+	color: #f44336;
+}
+.low-color {
+	color: #8bc34a;
+}
+
+#governor-box {
+	min-width: 85px !important;
+}
+
+.variation-box {
+	display: inline !important;
+	max-width: 80px;
+}
+
 .legend-label-box {
 	min-width: 65px;
 }
@@ -24,7 +45,7 @@
 	display: inline-block;
 }
 
-.close-state {
+.close-state, .close-index-card {
     cursor: pointer;
 }
 
@@ -428,14 +449,14 @@ input[type=text] {
 	margin: 0 auto;
 }
 
-.freq-table, #org-table, #ispyv_table, #irco_table, #icon_table {
+.freq-table, #org-table, #ispyv_table, #irco_table, #icon_table, .component-table {
 	display: block !important;
 	position: relative !important;
 	overflow-x: auto;
 	overflow-y: auto !important;
 }
 
-.freq-table th, .freq-table td, #org-table th, #org-table td {
+.freq-table th, .freq-table td, #org-table th, #org-table td, .component-table th, .component-table td {
 	padding: 6px 12px;
 	font-size: 11px;
 }
@@ -448,7 +469,7 @@ input[type=text] {
 
 @media only screen and (max-width: 600px) {
 
-	.freq-table th, .freq-table td, #org-table th, #org-table td, #ispyv_table th, #ispyv_table td, #irco_table th, #irco_table td, #icon_table th, #icon_table td {
+	.freq-table th, .freq-table td, #org-table th, #org-table td, #ispyv_table th, #ispyv_table td, #irco_table th, #irco_table td, #icon_table th, #icon_table td, .component-table th, .component-table td {
 		padding: 6px 12px;
 		font-size: 10px;
 	}
@@ -536,7 +557,7 @@ select {
 	margin-bottom: 0 !important;
 }
 
-#ispyv_table td, #irco_table td, #icon_table td {
+#ispyv_table td, #irco_table td, #icon_table td, .component-table td {
 	padding: 8px 5px;
 }
 
@@ -765,7 +786,7 @@ min-width: 85px !important
 }
 
 .left-large-margin {
-	margin-left: 75px;
+	margin-left: 72px;
 }
 
 .tall-textarea {

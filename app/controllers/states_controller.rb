@@ -24,6 +24,21 @@ class StatesController < ApplicationController
         CSV.foreach(myFile, :headers => true) do |row|
           row[:score] = row[myQuarter.name]
           row[:name] = State.where(:code=>row["code"]).last.name
+          components = [
+            "cs",
+            "gob",
+            "vd",
+            "vis"
+          ]
+          components.each{|component|
+            row[component+"-1"] =  row[component].to_f - row[component+"-1"].to_f 
+            row[component+"-4"] =  row[component].to_f - row[component+"-4"].to_f
+          }
+          helpers.ircoLevels.each{|level|
+              if row[:score].to_f > level[:floor] && row[:score].to_f < level[:ceiling] 
+                  row[:color] = level[:hex]
+              end
+          }
           iconTable.push(row)
         end
         @states = State.all.sort_by{|state| state.name}
@@ -136,8 +151,23 @@ class StatesController < ApplicationController
         @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
         @icon_table = myCookie.data
         @screens = [
-            {:style=>"show-on-large", :width=>"l6", :scopes=>[0..15,16..31]},
+            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..15,16..31]},
             {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..31]}
+        ]
+        @evolutionArr = []
+        [7,6,5,4,3,2,1,0].each{|x|
+            t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
+            Quarter.all.each{|q|
+                if (q.first_day.strftime('%m-%Y')) == t
+                    @evolutionArr.push(q)
+                end
+            } 
+        }
+        @components = [
+            {:key=>"cs", :name=>"Conflictividad social", :share=>0.14},
+            {:key=>"gob", :name=>"Gobernabilidad", :share=>0.22},
+            {:key=>"vd", :name=>"Violencia con daños colaterales", :share=>0.4},
+            {:key=>"vis", :name=>"Violencia con impacto social", :share=>0.24}
         ]
     end
 
