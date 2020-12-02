@@ -87,4 +87,9 @@ Rails.application.routes.draw do
     get 'counties/set_index_county/:id' => 'counties#set_index_county'
     get 'datasets/load_victim_freq_table'
     post 'organizations/new_name' => 'organizations#new_name'
+    post 'victims/query'
+    get 'victims/new_query'
+    post 'victims/load_victims'
+    get 'victims' => 'victims#victims'
+    get 'victims/api'
 end
