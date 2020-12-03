@@ -19,15 +19,16 @@ class VictimsController < ApplicationController
 	end
 
 	def query
-		session[:victims_api] = false
 		if victim_freq_params[:freq_timeframe]
 			session[:victim_freq_params][0] = victim_freq_params[:freq_timeframe]
 		end
 		if victim_freq_params[:freq_placeframe]
 			session[:victim_freq_params][1] = victim_freq_params[:freq_placeframe]
+			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_genderframe]
 			session[:victim_freq_params][2] = victim_freq_params[:freq_genderframe]
+			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_years]
 			session[:checkedYearsArr] = victim_freq_params[:freq_years].map(&:to_i)
@@ -36,6 +37,7 @@ class VictimsController < ApplicationController
 				myArr.push(Year.find(id))
 			}
 			session[:victim_freq_params][3] = myArr
+			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_states]
 			session[:checkedStatesArr] = victim_freq_params[:freq_states].map(&:to_i) 
@@ -44,10 +46,12 @@ class VictimsController < ApplicationController
 			# 	myArr.push(id)
 			# }
 			session[:victim_freq_params][4] = session[:checkedStatesArr]
+			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_gender_options]
 			session[:checkedGenderOptions] = victim_freq_params[:freq_gender_options]
 			session[:victim_freq_params][6] = session[:checkedGenderOptions]
+			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_counties]
 			myArr = victim_freq_params[:freq_counties].map(&:to_i)
@@ -358,9 +362,9 @@ class VictimsController < ApplicationController
         			else
         				event[:town_id] = County.where(:full_code=>myString).last.towns.where(:name=>"Sin definir").last.id
         			end
-					monthString = event[:event_date].strftime("%Y_%m")
-					event[:month_id] = Month.where(:name=>monthString).last.id
         			Event.create(event)
+					myMonth = Month.where(:name=>Event.last.event_date.strftime("%Y_%m")).last.id
+					Event.update(:month_id=>myMonth)
         			linkArr.each{|x|
         				unless row[x].nil?
 			        		if Source.where(:url=>row[x]).any?
