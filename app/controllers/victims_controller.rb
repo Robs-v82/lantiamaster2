@@ -69,11 +69,10 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
-		
-		if session[:victims_api]
-			@my_freq_table = Cookie.where(:category=>"victims").last.data
-		else
+		if session[:checkedCounties] != "states"
 			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
+		else
+			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]]
 		end
 
 		# FRAMES FOR ANALISYS
@@ -334,10 +333,17 @@ class VictimsController < ApplicationController
 		session[:checkedCitiesArr] = cities.pluck(:id)
 		genderOptions = ["Masculino","Femenino","No identificado"]
 		session[:checkedGenderOptions] = genderOptions
-		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, "states"]
-		session[:checkedCounties] = "states"
-		freq_table = victim_freq_table(*session[:victim_freq_params])
-		Cookie.create(:data=>freq_table, :category=>"victims")
+		data = {}
+		myArr = [%w{annual quarterly monthly},%w{nationWise stateWise cityWise}]
+		myArr[0].each{|timeframe|
+			timeHash = {}
+			myArr[1].each{|placeframe|
+				session[:victim_freq_params] = [timeframe, placeframe, "noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, "states"]
+				timeHash[placeframe] = freq_table = victim_freq_table(*session[:victim_freq_params])
+			}
+			data[timeframe] = timeHash
+		}
+		Cookie.create(:data=>[data], :category=>"victims")
 		redirect_to '/victims/new_query'
 	end
 
@@ -364,7 +370,7 @@ class VictimsController < ApplicationController
         			end
         			Event.create(event)
 					myMonth = Month.where(:name=>Event.last.event_date.strftime("%Y_%m")).last.id
-					Event.update(:month_id=>myMonth)
+					Event.last.update(:month_id=>myMonth)
         			linkArr.each{|x|
         				unless row[x].nil?
 			        		if Source.where(:url=>row[x]).any?
