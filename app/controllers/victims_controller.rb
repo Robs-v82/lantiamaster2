@@ -14,7 +14,6 @@ class VictimsController < ApplicationController
 		countiesArr = []
 		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr]
 		session[:checkedCounties] = "states"
-		session[:victims_api] = true
 		redirect_to '/victims'
 	end
 
@@ -24,11 +23,9 @@ class VictimsController < ApplicationController
 		end
 		if victim_freq_params[:freq_placeframe]
 			session[:victim_freq_params][1] = victim_freq_params[:freq_placeframe]
-			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_genderframe]
 			session[:victim_freq_params][2] = victim_freq_params[:freq_genderframe]
-			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_years]
 			session[:checkedYearsArr] = victim_freq_params[:freq_years].map(&:to_i)
@@ -37,7 +34,6 @@ class VictimsController < ApplicationController
 				myArr.push(Year.find(id))
 			}
 			session[:victim_freq_params][3] = myArr
-			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_states]
 			session[:checkedStatesArr] = victim_freq_params[:freq_states].map(&:to_i) 
@@ -46,12 +42,10 @@ class VictimsController < ApplicationController
 			# 	myArr.push(id)
 			# }
 			session[:victim_freq_params][4] = session[:checkedStatesArr]
-			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_gender_options]
 			session[:checkedGenderOptions] = victim_freq_params[:freq_gender_options]
 			session[:victim_freq_params][6] = session[:checkedGenderOptions]
-			session[:victims_api] = false
 		end
 		if victim_freq_params[:freq_counties]
 			myArr = victim_freq_params[:freq_counties].map(&:to_i)
@@ -69,10 +63,19 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
-		if session[:checkedCounties] != "states"
+		@years = helpers.get_regular_years
+		if session[:victim_freq_params][3].length < @years.length
+			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
+		elsif session[:victim_freq_params][4].length < State.all.length
+			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
+		elsif session[:victim_freq_params][5].length < City.all.length
+			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
+		elsif session[:victim_freq_params][6].length < 3
+			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
+		elsif session[:checkedCounties] != "states"
 			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
 		else
-			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]]
+			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
 		end
 
 		# FRAMES FOR ANALISYS
@@ -124,7 +127,6 @@ class VictimsController < ApplicationController
 
   		@sortCounter = 0
   		@sortType = "victims"
-  		@years = helpers.get_regular_years
   		@checkedYears = session[:checkedYearsArr]
   		@states = State.all.sort
   		@cities = City.all.sort_by {|city| city.name}
@@ -334,12 +336,16 @@ class VictimsController < ApplicationController
 		genderOptions = ["Masculino","Femenino","No identificado"]
 		session[:checkedGenderOptions] = genderOptions
 		data = {}
-		myArr = [%w{annual quarterly monthly},%w{nationWise stateWise cityWise}]
+		myArr = [%w{annual quarterly monthly},%w{nationWise stateWise cityWise},%w{noGenderSplit genderSplit}]
 		myArr[0].each{|timeframe|
 			timeHash = {}
 			myArr[1].each{|placeframe|
-				session[:victim_freq_params] = [timeframe, placeframe, "noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, "states"]
-				timeHash[placeframe] = freq_table = victim_freq_table(*session[:victim_freq_params])
+				placeHash = {}
+				myArr[2].each{|genderframe|
+					session[:victim_freq_params] = [timeframe, placeframe, genderframe, years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, "states"]
+					placeHash[genderframe] = victim_freq_table(*session[:victim_freq_params])
+				}
+				timeHash[placeframe] = placeHash
 			}
 			data[timeframe] = timeHash
 		}
