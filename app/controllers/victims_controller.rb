@@ -12,7 +12,7 @@ class VictimsController < ApplicationController
 		genderOptions = ["Masculino","Femenino","No identificado"]
 		session[:checkedGenderOptions] = genderOptions
 		countiesArr = []
-		session[:victim_freq_params] = ["annual","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr]
+		session[:victim_freq_params] = ["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr]
 		session[:checkedCounties] = "states"
 		redirect_to '/victims'
 	end
@@ -63,16 +63,13 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
+		@maps = true
 		@years = helpers.get_regular_years
-		if session[:victim_freq_params][3].length < @years.length
-			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
-		elsif session[:victim_freq_params][4].length < State.all.length
-			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
-		elsif session[:victim_freq_params][5].length < City.all.length
-			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
-		elsif session[:victim_freq_params][6].length < 3
-			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
-		elsif session[:checkedCounties] != "states"
+		if session[:victim_freq_params][3].length < @years.length ||
+			session[:victim_freq_params][4].length < State.all.length ||
+			session[:victim_freq_params][5].length < City.all.length ||
+			session[:victim_freq_params][6].length < 3 ||
+			session[:checkedCounties] != "states"
 			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
 		else
 			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
@@ -106,6 +103,7 @@ class VictimsController < ApplicationController
   		end
 
   		if session[:victim_freq_params][1] == "nationWise"
+  			@maps = false
   			@nationWise = true
   			@placeFrames[0][:checked] = true
   		elsif session[:victim_freq_params][1] == "stateWise"
@@ -122,6 +120,7 @@ class VictimsController < ApplicationController
   		if session[:victim_freq_params][2] == "noGenderSplit"
   			@genderFrames[0][:checked] = true
   		elsif session[:victim_freq_params][2] == "genderSplit"
+  			@maps = false
   			@genderFrames[1][:checked] = true
   		end
 
@@ -150,6 +149,11 @@ class VictimsController < ApplicationController
   			@checkedCounties = []
   		end
   		@county_toast_message = 'Seleccione estado y municipios en "Filtros"'	
+  		@dataClasses = [
+  			200*@checkedYears.length,
+  			500*@checkedYears.length,
+  			1000*@checkedYears.length
+  		]
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
@@ -215,6 +219,7 @@ class VictimsController < ApplicationController
 		}
 
 		headerHash[:period] = myPeriod
+		genderKeys = helpers.gender_keys
 
 		if myScope == nil
 			if gender == "noGenderSplit"
@@ -258,31 +263,58 @@ class VictimsController < ApplicationController
 				}	
 			end
 		else
+
+			# MAP DATA
 			if gender == "noGenderSplit"
 				myTable.push(headerHash)
 				myScope.each {|place|
+					if place == "Nacional"
+						placeName = "Nacional"
+						placeCode = "00"
+					else
+						placeName = place.name
+						placeCode = place.code
+					end
 					localVictims = place.victims
-						placeHash = {}
-						placeHash[:name] = place.name
-						if scope == "countyWise"
-							placeHash[:parent_name] = place.state.shortname
-							placeHash[:full_code] = place.full_code
+					placeHash = {}
+					placeHash[:name] = placeName
+					placeHash[:code] = placeCode
+					if scope == "countyWise"
+						placeHash[:parent_name] = place.state.shortname
+						placeHash[:full_code] = place.full_code
+					end
+					freq = []
+					counter = 0
+					place_total = 0
+					myPeriod.each {|timeUnit|
+						number_of_victims = localVictims.merge(timeUnit.victims).length
+						freq.push(number_of_victims)
+						totalFreq[counter] += number_of_victims
+						counter += 1
+						place_total += number_of_victims
+					}
+
+					genderArr = []
+					genderKeys.each{|k|
+						genderHash = k
+						if k[:name] == "Femenino" || k[:name] == "Masculino"
+							number_of_victims = localVictims.where(:gender=>k[:name]).length
+						else
+							number_of_victims = localVictims.where(:gender=>nil).length
 						end
-						freq = []
-						counter = 0
-						place_total = 0
-						
-						myPeriod.each {|timeUnit|
-							number_of_victims = localVictims.merge(timeUnit.victims).length
-							freq.push(number_of_victims)
-							totalFreq[counter] += number_of_victims
-							counter += 1
-							place_total += number_of_victims
-						}
+						if number_of_victims
+							genderHash[:freq] = number_of_victims
+							genderArr.push(genderHash)
+						end
+					}
+					placeHash[:genders] = genderArr
+
 					placeHash[:freq] = freq
 					placeHash[:place_total] = place_total
 					myTable.push(placeHash)
 				}
+				# END OF MAP DATA
+
 			else
 				headerHash[:gender] = "GÉNERO"
 				totalHash[:gender_placer] = "--"
@@ -353,41 +385,91 @@ class VictimsController < ApplicationController
 		redirect_to '/victims/new_query'
 	end
 
+	def elsetsss
+		myFile = load_victims_params[:file]
+		testArr = []
+		testArrOfHashes = []
+		doubleArr = []
+		doubleFreqArr = []
+		myCounter = 0
+        CSV.foreach(myFile, :headers => true) do |row|
+        	if testArr.include? row["No Evento"]
+        		myHash = {:state=>row["Estado"], :x=>row["No Evento"]}
+        		unless testArrOfHashes.include? myHash
+        			print "*****"*50
+        			print "Error: "
+        			print row["No Evento"]
+        			doubleArr.push(row["No Evento"])
+        		end
+        		if doubleArr.include? row["No Evento"]
+        			myCounter += 1
+        		end
+        	end
+        	testArr.push(row["No Evento"])
+        	testArrOfHashes.push({:state=>row["Estado"], :x=>row["No Evento"]})
+        end
+        print doubleArr
+        print "*********COUNTER: "
+        print myCounter
+        redirect_to "/datasets/load"
+	end
+
 	def load_victims
 		myFile = load_victims_params[:file]
 		linkArr = []
 		(1..10).map{|x| linkArr.push("Link "+x.to_s)}
+		boolean_killing_dictionary = [
+			{:fire_weapon=>"Arma de Fuego"},
+			{:white_weapon=>"Arma Blanca"},
+			{:aggression=>"Fue Agresion"},
+			{:shooting_between_criminals_and_authorities=>"Fue Enfrentamiento entre DO y Aut"},
+			{:car_chase=>"Hubo Persecución"},
+			{:shooting_among_criminals=>"Fue Entrentamiento entre delincuentes"}
+		]
         CSV.foreach(myFile, :headers => true) do |row|
         	if Killing.where(:legacy_id=>row["ID"]).length == 0
-        		if Killing.where(:legacy_id=>row["No Evento"]).length == 0
+        		if row["Estado"] == "Distrito Federal"
+        			myState = State.where(:name=>"Ciudad de México").last
+        		else
+        			myState = State.where(:name=>row["Estado"]).last
+        		end
+    			if row["Municipio"].nil?
+    				myString = myState.code + "0000000"
+    				myCounty = myState.counties.where(:name=>"Sin definir").last
+    			else
+    				myString = helpers.zero_padded_full_code(row["Municipio"]) + "0000"
+    				myCounty = County.where(:full_code=>myString[0,5]).last
+    			end
+        		if myCounty.killings.where(:legacy_id=>row["No Evento"]).length == 0
         			
         			# CREATE EVENT AND ADD SOURCES
         			event = {}
         			event[:event_date] = row["Año"]+"-"+row["Mes"]+"-"+row["Día"]
-        			unless row["Municipio"].nil?
-        				myString = helpers.zero_padded_full_code(row["Municipio"])
-        			else
-        				myString = State.where(:name=>row["Estado"]).last.code + "000"	
-        			end
-        			unless County.where(:full_code=>myString).last.towns.where(:name=>row["Colonia o Localidad"]).empty?
-        				event[:town_id] = County.where(:full_code=>myString).last.towns.where(:name=>row["Colonia o Localidad"]).last.id
-        			else
-        				event[:town_id] = County.where(:full_code=>myString).last.towns.where(:name=>"Sin definir").last.id
-        			end
+        			event[:town_id] = Town.where(:full_code=>myString).last.id
+        			# unless row["Municipio"].nil?
+        			# 	myString = helpers.zero_padded_full_code(row["Municipio"])
+        			# else
+        			# 	myString = State.where(:name=>row["Estado"]).last.code + "000"	
+        			# end
+        			# unless County.where(:full_code=>myString).last.towns.where(:name=>row["Colonia o Localidad"]).empty?
+        			# 	event[:town_id] = County.where(:full_code=>myString).last.towns.where(:name=>row["Colonia o Localidad"]).last.id
+        			# else
+        			# 	event[:town_id] = County.where(:full_code=>myString).last.towns.where(:name=>"Sin definir").last.id
+        			# end
         			Event.create(event)
 					myMonth = Month.where(:name=>Event.last.event_date.strftime("%Y_%m")).last.id
 					Event.last.update(:month_id=>myMonth)
-        			linkArr.each{|x|
-        				unless row[x].nil?
-			        		if Source.where(:url=>row[x]).any?
-								mySource = Source.where(:url=>row[x]).last
-							else
-								Source.create(:url=>row[x])
-								mySource = Source.last
-							end
-							Event.last.sources << mySource
-        				end
-        			}
+       #  			linkArr.each{|x|
+       #  				unless row[x].nil?
+			    #     		if Source.where(:url=>row[x]).any?
+							# 	mySource = Source.where(:url=>row[x]).last
+							# else
+							# 	Source.create(:url=>row[x])
+							# 	mySource = Source.last
+							# end
+							# Event.last.sources << mySource
+       #  				end
+       #  			}
 
         			# CREATE KILLING
         			killing = {}
@@ -403,29 +485,21 @@ class VictimsController < ApplicationController
 					else
 						killing[:type_of_place] = row["Lugar en que fue Ejecutado_Recat"]
 					end
-					boolean_killing_dictionary = [
-						{:fire_weapon=>"Arma de Fuego"},
-						{:white_weapon=>"Arma Blanca"},
-						{:aggression=>"Fue Agresion"},
-						{:shooting_between_criminals_and_authorities=>"Fue Enfrentamiento entre DO y Aut"},
-						{:car_chase=>"Hubo Persecución"},
-						{:shooting_among_criminals=>"Fue Entrentamiento entre delincuentes"}
-					]
-					boolean_killing_dictionary.each{|variable|
-						myString = variable.values[0]
-						myKey = variable.keys[0]
-						if row[myString] == "VERDADERO"
-							killing[myKey] = true
-						else
-							killing[myKey] = false
-						end
-					}
+					# boolean_killing_dictionary.each{|variable|
+					# 	myString = variable.values[0]
+					# 	myKey = variable.keys[0]
+					# 	if row[myString] == "VERDADERO"
+					# 		killing[myKey] = true
+					# 	else
+					# 		killing[myKey] = false
+					# 	end
+					# }
 					Killing.create(killing)
 
 					# CREATE VICTIMS
 					create_victims(row, Killing.last.id)
 				else
-					create_victims(row, Killing.where(:legacy_id=>row["No Evento"]).last.id)
+					create_victims(row, myCounty.killings.where(:legacy_id=>row["No Evento"]).last.id)
         		end
         	end
         end
@@ -452,7 +526,7 @@ class VictimsController < ApplicationController
 		else	
 			victim[:innocent_bystander] = false
 		end
-		(1..row["Numero de Ejecutados"].to_i).map{Victim.create(victim)}      	
+		(1..row["Total Ejecuciones"].to_i).map{Victim.create(victim)}      	
     end
 
 	private

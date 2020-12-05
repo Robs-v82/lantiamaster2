@@ -1,0 +1,214 @@
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#freq-table-trigger").click(function() {
+			$(".freq-entry-display").hide();
+			$("#freq-entry-list").show();
+			return false
+	 	});
+		$("#freq-map-trigger").click(function() {
+			$(".freq-entry-display").hide();
+			$("#freq-entry-map").show();
+			return false
+	 	});
+
+	 	// NATIONAL MAP
+		var data = [
+			<% @my_freq_table[1..-2].each do |place| %>
+				{name:'<%= place[:name] %>', value:<%= place[:place_total] %>, code:'<%= place[:code] %>'},
+			<% end %>
+		];
+		Highcharts.getJSON('/maps/national_map.json', function (geojson) {
+		    Highcharts.mapChart('victim-map', {
+		        chart: {
+		            map: geojson,
+		            height: 300,
+		        },
+		        legend: {
+		        	layout: 'vertical',
+		        	align: 'left',
+		        	verticalAlign: 'middle',
+		        	x: 14,
+		        	y: 90,
+		        	floating: true,
+		        	backgroundColor: 'white',
+		            labelFormatter: function () {
+		                return (this.from || '<') + ' - ' + (this.to || '>');
+		            },
+		        },
+		        title: false, 
+		        credits: false,
+		        mapNavigation: {
+		            enabled: false,
+		        },
+				exporting: {
+					enabled: false
+				},
+	            colors: ['#e0e0e0', "#ffa0a0", "#ef4e50", "#ad1111",'#610000'],
+	            colorAxis: {
+	                dataClassColor: 'category',
+	                dataClasses: [{
+	                	to: 0
+	                }, {
+	                	from: 0,
+	                	to: <%= @dataClasses[0] %>,
+	                }, {
+	                    from: <%= @dataClasses[0] %>,
+	                    to: <%= @dataClasses[1] %>
+	                }, {
+	                    from: <%= @dataClasses[1] %>,
+	                    to: <%= @dataClasses[2] %>
+	                }, {
+	                    from: <%= @dataClasses[2] %>
+	                }]
+	            },
+		        plotOptions: {
+		        	series: {
+		        		point: {
+		        			events: {
+		        				click: function() {
+		        					var myState = this.code;
+		        					$('.victim-toggle-charts').hide();
+		        					$('.collection-item').hide();
+		        					$('#'+myState+'-victim-charts').show();
+		        					$('.'+myState+'-victim-item').show();
+		        					if ($(window).width() < 600) {
+		        						$("html, body").animate({ scrollTop: 680 }, "slow");
+		        					};
+		        				}
+		        			}
+		        		}
+		        	}
+		        },
+		        series: [{
+		            data: data,
+		            joinBy: 'name',
+	            	name: 'Arrestos',
+		            borderColor: 'white',
+		            borderWidth: 1,
+		            nullColor: '#e0e0e0',
+		            states: {
+		                hover: {
+		                    color: '#ffffff',
+			                borderColor: '#424242'
+		                }
+		            },
+		            cursor: 'pointer', 
+		            dataLabels: {
+		                enabled: true,
+		                format: '{point.properties.postal}'
+		            }
+		        }],
+	            tooltip: {
+	            	enabled: false
+	            }
+		    }, function (chart) { 
+				    var originalWidth = chart.chartWidth - 105;
+				    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+    				.add();
+        	});		
+		});
+
+		// TREND CHART
+		<% @my_freq_table[1..-2].each do |place| %>
+			<% unless place[:place_total] == 0 %>
+				Highcharts.chart('<%= place[:code]%>-victims-trend-chart', {
+				    chart: {
+				        type: 'line',
+				        height: 124,
+				        marginTop: 6,
+				        marginBottom: 58,
+				    },
+			        title: false, 
+				       credits: false,
+					exporting: {
+						enabled: false
+					},
+			        legend: {
+			        	enabled: false
+			        },
+			        xAxis: [{
+			        	categories: [
+			        		<% @my_freq_table[0][:period].each do |period| %>
+								<% if @annual %>
+									"<%= period.name %>"
+								<% elsif @quarterly %>
+									"T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y')[2,2] %>"
+								<% else %>
+									"<%= I18n.l(period.first_day, format: '%b/%Y') %>"
+								<% end %>,
+			        		<% end %>
+			        	], 
+			        }],
+			        yAxis: [{
+			        	title: {
+			        		text: null
+			        	},
+			        }],
+			        series: [{
+			        	data: [
+			        		<% (0..place[:freq].length-1).each do |x| %>
+			        			["a<%=x%>",<%= place[:freq][x] %>],
+			        		<% end %>
+			        	],
+			        	color: "#0A6868",
+						tooltip: {
+							headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
+							pointFormat: false,
+						}
+			        }]
+				});
+
+				// GENDER PIE CHART
+				Highcharts.chart('<%= place[:code]%>-victims-gender-chart', {
+				    chart: {
+				        type: 'pie',
+				        height: 148,
+				        marginTop: 0,
+				    },
+			        title: false, 
+				    credits: false,
+					exporting: {
+						enabled: false
+					},
+			        legend: {
+			        	enabled: false
+			        },
+				    plotOptions: {
+				        pie: {
+				            allowPointSelect: true,
+				            cursor: 'pointer',
+				            dataLabels: {
+				                enabled: false
+				            },
+				            showInLegend: true,
+				            innerSize: '40%',
+							states: {
+								inactive: {
+									opacity: 1
+								},
+							},
+
+				        }
+				    },
+			        series: [{
+			        	data: [
+			        		<% place[:genders].each do |gender| %>
+			        			{
+			        				name: '<%= gender[:name] %>',
+			        				y: <%= gender[:freq] %>,
+			        				showInLegend: true,
+			        				color: '<%= gender[:color] %>'
+			        			},
+			        		<% end %>
+				        ],
+						tooltip: {
+							headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}</span><br>',
+							pointFormat: false,
+						}
+
+			        }]
+				});
+			<% end %>
+		<% end %>
+	});
+</script>

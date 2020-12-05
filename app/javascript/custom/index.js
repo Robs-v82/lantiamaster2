@@ -219,6 +219,8 @@ $(document).ready(function(){
 	$('.close-state').click(function() {
 		$('.detention-toggle-charts').hide();
 		$('#00-detention-charts').show();
+		$('.victim-toggle-charts').hide();
+		$('#00-victim-charts').show();
 		$('.collection-item').show();
 		$("html, body").animate({ scrollTop: 0 }, "slow");
 	});

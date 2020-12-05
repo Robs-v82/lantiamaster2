@@ -1,5 +1,7 @@
 <% provide :head_tags do %>
-
+	<% if @maps %>
+		<%= render "shared/victimmap"%>
+	<% end %>
 <% end %>
 <div class="row freq-row">
 	<div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-med-and-down">
@@ -290,8 +292,8 @@
 					<div class="row card-narrow">
 						<%= render "shared/showfilter"%>					
 						<div id="freq-entry-list" class="freq-entry-display"
-							<% unless @nationWise%>
-								
+							<% if @maps %>
+								style="display: none;"
 							<% end %>
 						>
 							<table class="freq-table striped">	
@@ -300,13 +302,50 @@
 						</div>
 						<div class="small-inner-padding">
 							<div id="freq-entry-map" class="freq-entry-display col s12"
-								<% if @nationWise%>
+								<% unless @maps %>
 									style="display: none;"
 								<% end %>
 							>
 								<div class="col m7 s12">
 									<div id="victim-map">
 									</div>
+								</div>
+								<div class="hide-on-med-and-up col s12 break-for-mobile">
+								</div>
+								<div id="victim-charts" class="col m5 s12">
+									<% @my_freq_table[1..-2].each do |place| %>
+										<div id="<%= place[:code]%>-victim-charts" class="state-victim-charts victim-toggle-charts"
+											<% unless place[:code] == "00" %>
+												style="display:none"
+											<% end %>
+										>
+											<div class="valign-wrapper">
+												<% unless place[:code] == "00" %>
+													<i class="material-icons close-state tiny paletton-red-text right-extra-margin">close</i>
+												<% end %>
+												<h6>
+													<%= place[:name]%>: 
+													<span class="slim"><%= number_with_delimiter(place[:place_total]) %> 
+														<% if place[:place_total] == 1 %>
+															víctima
+														<% else %>
+															víctimas
+														<% end %>
+													</span>
+												</h6>
+											</div>
+											<% unless place[:place_total] == 0 %>
+												<br>
+												<div id="<%= place[:code]%>-victims-trend-chart"></div>
+												<br>
+												<div class="col s6">
+													<p class="center-align">Género</p>
+													<div id="<%= place[:code]%>-victims-gender-chart" class="center">
+													</div>
+												</div>
+											<% end %>
+										</div>
+									<% end %>
 								</div>
 							</div>
 						</div>
