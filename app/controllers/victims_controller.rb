@@ -220,6 +220,7 @@ class VictimsController < ApplicationController
 
 		headerHash[:period] = myPeriod
 		genderKeys = helpers.gender_keys
+		ageKeys = helpers.age_keys
 
 		if myScope == nil
 			if gender == "noGenderSplit"
@@ -267,15 +268,17 @@ class VictimsController < ApplicationController
 			# MAP DATA
 			if gender == "noGenderSplit"
 				myTable.push(headerHash)
+				myScope.push("Nacional")
 				myScope.each {|place|
 					if place == "Nacional"
 						placeName = "Nacional"
 						placeCode = "00"
+						localVictims = Victim.all
 					else
 						placeName = place.name
 						placeCode = place.code
+						localVictims = place.victims
 					end
-					localVictims = place.victims
 					placeHash = {}
 					placeHash[:name] = placeName
 					placeHash[:code] = placeCode
@@ -293,24 +296,33 @@ class VictimsController < ApplicationController
 						counter += 1
 						place_total += number_of_victims
 					}
+					placeHash[:freq] = freq
+					placeHash[:place_total] = place_total
 
+					# GENDER
 					genderArr = []
 					genderKeys.each{|k|
-						genderHash = k
 						if k[:name] == "Femenino" || k[:name] == "Masculino"
+							genderHash = {:name=>k[:name], :color=>k[:color]}
 							number_of_victims = localVictims.where(:gender=>k[:name]).length
-						else
-							number_of_victims = localVictims.where(:gender=>nil).length
-						end
-						if number_of_victims
 							genderHash[:freq] = number_of_victims
+							genderHash[:share] = number_of_victims/localVictims.where.not(:gender=>nil).length.to_f
 							genderArr.push(genderHash)
 						end
 					}
 					placeHash[:genders] = genderArr
 
-					placeHash[:freq] = freq
-					placeHash[:place_total] = place_total
+					# AGE
+					ageArr = []
+					ageKeys.each{|k|
+						ageHash = {:name=>k[:name]}
+						number_of_victims = localVictims.where('age >= ?', k[:range][0])
+						number_of_victims = number_of_victims.where('age <= ?', k[:range][1]).length
+						ageHash[:freq] = number_of_victims
+						ageHash[:share] = number_of_victims/localVictims.where.not(:age=>nil).length.to_f
+						ageArr.push(ageHash)
+					}
+					placeHash[:ages] = ageArr
 					myTable.push(placeHash)
 				}
 				# END OF MAP DATA
@@ -385,35 +397,6 @@ class VictimsController < ApplicationController
 		redirect_to '/victims/new_query'
 	end
 
-	def elsetsss
-		myFile = load_victims_params[:file]
-		testArr = []
-		testArrOfHashes = []
-		doubleArr = []
-		doubleFreqArr = []
-		myCounter = 0
-        CSV.foreach(myFile, :headers => true) do |row|
-        	if testArr.include? row["No Evento"]
-        		myHash = {:state=>row["Estado"], :x=>row["No Evento"]}
-        		unless testArrOfHashes.include? myHash
-        			print "*****"*50
-        			print "Error: "
-        			print row["No Evento"]
-        			doubleArr.push(row["No Evento"])
-        		end
-        		if doubleArr.include? row["No Evento"]
-        			myCounter += 1
-        		end
-        	end
-        	testArr.push(row["No Evento"])
-        	testArrOfHashes.push({:state=>row["Estado"], :x=>row["No Evento"]})
-        end
-        print doubleArr
-        print "*********COUNTER: "
-        print myCounter
-        redirect_to "/datasets/load"
-	end
-
 	def load_victims
 		myFile = load_victims_params[:file]
 		linkArr = []
@@ -446,16 +429,6 @@ class VictimsController < ApplicationController
         			event = {}
         			event[:event_date] = row["Año"]+"-"+row["Mes"]+"-"+row["Día"]
         			event[:town_id] = Town.where(:full_code=>myString).last.id
-        			# unless row["Municipio"].nil?
-        			# 	myString = helpers.zero_padded_full_code(row["Municipio"])
-        			# else
-        			# 	myString = State.where(:name=>row["Estado"]).last.code + "000"	
-        			# end
-        			# unless County.where(:full_code=>myString).last.towns.where(:name=>row["Colonia o Localidad"]).empty?
-        			# 	event[:town_id] = County.where(:full_code=>myString).last.towns.where(:name=>row["Colonia o Localidad"]).last.id
-        			# else
-        			# 	event[:town_id] = County.where(:full_code=>myString).last.towns.where(:name=>"Sin definir").last.id
-        			# end
         			Event.create(event)
 					myMonth = Month.where(:name=>Event.last.event_date.strftime("%Y_%m")).last.id
 					Event.last.update(:month_id=>myMonth)

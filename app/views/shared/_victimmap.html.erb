@@ -1,5 +1,7 @@
 <script type="text/javascript">
 	$(document).ready(function() {
+		buildLocalCharts('00');
+
 		$("#freq-table-trigger").click(function() {
 			$(".freq-entry-display").hide();
 			$("#freq-entry-list").show();
@@ -70,7 +72,7 @@
 		        					$('.victim-toggle-charts').hide();
 		        					$('.collection-item').hide();
 		        					$('#'+myState+'-victim-charts').show();
-		        					$('.'+myState+'-victim-item').show();
+		        					buildLocalCharts(myState);
 		        					if ($(window).width() < 600) {
 		        						$("html, body").animate({ scrollTop: 680 }, "slow");
 		        					};
@@ -109,106 +111,158 @@
 		});
 
 		// TREND CHART
-		<% @my_freq_table[1..-2].each do |place| %>
-			<% unless place[:place_total] == 0 %>
-				Highcharts.chart('<%= place[:code]%>-victims-trend-chart', {
-				    chart: {
-				        type: 'line',
-				        height: 124,
-				        marginTop: 6,
-				        marginBottom: 58,
-				    },
-			        title: false, 
-				       credits: false,
-					exporting: {
-						enabled: false
-					},
-			        legend: {
-			        	enabled: false
-			        },
-			        xAxis: [{
-			        	categories: [
-			        		<% @my_freq_table[0][:period].each do |period| %>
-								<% if @annual %>
-									"<%= period.name %>"
-								<% elsif @quarterly %>
-									"T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y')[2,2] %>"
-								<% else %>
-									"<%= I18n.l(period.first_day, format: '%b/%Y') %>"
-								<% end %>,
-			        		<% end %>
-			        	], 
-			        }],
-			        yAxis: [{
-			        	title: {
-			        		text: null
-			        	},
-			        }],
-			        series: [{
-			        	data: [
-			        		<% (0..place[:freq].length-1).each do |x| %>
-			        			["a<%=x%>",<%= place[:freq][x] %>],
-			        		<% end %>
-			        	],
-			        	color: "#0A6868",
-						tooltip: {
-							headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
-							pointFormat: false,
-						}
-			        }]
-				});
-
-				// GENDER PIE CHART
-				Highcharts.chart('<%= place[:code]%>-victims-gender-chart', {
-				    chart: {
-				        type: 'pie',
-				        height: 148,
-				        marginTop: 0,
-				    },
-			        title: false, 
-				    credits: false,
-					exporting: {
-						enabled: false
-					},
-			        legend: {
-			        	enabled: false
-			        },
-				    plotOptions: {
-				        pie: {
-				            allowPointSelect: true,
-				            cursor: 'pointer',
-				            dataLabels: {
-				                enabled: false
-				            },
-				            showInLegend: true,
-				            innerSize: '40%',
-							states: {
-								inactive: {
-									opacity: 1
-								},
+		function buildLocalCharts(place) {
+			<% @my_freq_table[1..-2].each do |place| %>
+				<% unless place[:place_total] == 0 %>			
+					if (place == <%= place[:code] %>) {
+						Highcharts.chart(place+'-victims-trend-chart', {
+						    chart: {
+						        type: 'line',
+						        height: 124,
+						        marginTop: 6,
+						        marginBottom: 58,
+						    },
+					        title: false, 
+						       credits: false,
+							exporting: {
+								enabled: false
 							},
+					        legend: {
+					        	enabled: false
+					        },
+					        xAxis: [{
+					        	categories: [
+					        		<% @my_freq_table[0][:period].each do |period| %>
+										<% if @annual %>
+											"<%= period.name %>"
+										<% elsif @quarterly %>
+											"T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y')[2,2] %>"
+										<% else %>
+											"<%= I18n.l(period.first_day, format: '%b/%Y') %>"
+										<% end %>,
+					        		<% end %>
+					        	], 
+					        }],
+					        yAxis: [{
+					        	title: {
+					        		text: null
+					        	},
+					        }],
+					        series: [{
+					        	data: [
+					        		<% (0..place[:freq].length-1).each do |x| %>
+					        			["a<%=x%>",<%= place[:freq][x] %>],
+					        		<% end %>
+					        	],
+					        	color: "#0A6868",
+								tooltip: {
+									headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
+									pointFormat: false,
+								}
+					        }]
+						});
 
-				        }
-				    },
-			        series: [{
-			        	data: [
-			        		<% place[:genders].each do |gender| %>
-			        			{
-			        				name: '<%= gender[:name] %>',
-			        				y: <%= gender[:freq] %>,
-			        				showInLegend: true,
-			        				color: '<%= gender[:color] %>'
-			        			},
-			        		<% end %>
-				        ],
-						tooltip: {
-							headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}</span><br>',
-							pointFormat: false,
-						}
+						// GENDER PIE CHART
+						Highcharts.chart(place+'-victims-gender-chart', {
+						    chart: {
+						        type: 'pie',
+						        height: 148,
+						        marginTop: 0,
+						    },
+					        title: false, 
+						    credits: false,
+							exporting: {
+								enabled: false
+							},
+					        legend: {
+					        	enabled: false
+					        },
+						    plotOptions: {
+						        pie: {
+						            allowPointSelect: true,
+						            cursor: 'pointer',
+						            dataLabels: {
+						                enabled: false
+						            },
+						            showInLegend: true,
+						            innerSize: '40%',
+									states: {
+										inactive: {
+											opacity: 1
+										},
+									},
 
-			        }]
-				});
+						        }
+						    },
+					        series: [{
+					        	data: [
+					        		<% place[:genders].each do |gender| %>
+					        			{
+					        				name: '<%= gender[:name] %>',
+					        				y: <%= number_with_precision(gender[:share]*100, precision: 1) %>,
+					        				showInLegend: true,
+					        				color: '<%= gender[:color] %>'
+					        			},
+					        		<% end %>
+						        ],
+								tooltip: {
+									headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}%</span><br>',
+									pointFormat: false,
+								}
+
+					        }]
+						});
+
+						// AGE BAR CHART
+						Highcharts.chart('<%= place[:code]%>-victims-age-chart', {
+							chart: {
+								type: 'bar',
+								height: 120,
+								marginTop: 28,
+							},
+					        title: false, 
+						    credits: false,
+							exporting: {
+								enabled: false
+							},
+					        legend: {
+					        	enabled: false
+					        },
+					        xAxis: {
+					        	categories: [
+					        		<% place[:ages].each do |group| %>
+					        			'<%= group[:name]%>',
+					        		<% end %>
+					        	]
+					        },
+					        yAxis: {
+					        	title: {
+					        		text: null
+					        	},
+					        	labels: {
+					        		enabled: false
+					        	},
+					        },
+					        series: [{
+					        	data: [
+					        		<% place[:ages].each do |group| %>
+					        			{
+					        				name: '<%= group[:name]%>',
+					        				y: <%= number_with_precision(group[:share]*100, precision: 1) %>,
+					        				color: '#EF974E',
+					        				showInLegend: true,
+					        			},
+					        		<% end %>
+					        	],
+								tooltip: {
+									headerFormat: '<span style="font-size:12px; color:#454157">{point.y}%</span><br>',
+									pointFormat: false,
+								}
+					        }]
+						});
+					};
 			<% end %>
 		<% end %>
+		};
 	});
 </script>

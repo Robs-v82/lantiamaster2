@@ -277,7 +277,7 @@
 						<a id="victims-info-modal-trigger" class="modal-trigger" href="#victims-info-modal"><i class="small material-icons paletton-red-text right-min-margin">info</i></a>
 					</div>
 					<div class="info-box inline-block">
-						<h5 class="h5-no-margin">Víctimas letales <span class="p18">(crimen organizado)</span></h5>
+						<h6 class="h5-no-margin p20">Víctimas letales del crimen organizado</h6>
 						<%= render "shared/freqdates" %>
 					</div>
 				</div>
@@ -338,9 +338,14 @@
 												<br>
 												<div id="<%= place[:code]%>-victims-trend-chart"></div>
 												<br>
-												<div class="col s6">
-													<p class="center-align">Género</p>
+												<div class="col s5">
+													<p class="center-align">Género*</p>
 													<div id="<%= place[:code]%>-victims-gender-chart" class="center">
+													</div>
+												</div>
+												<div class="col s7">
+													<p class="center-align">Edad*</p>
+													<div id="<%= place[:code]%>-victims-age-chart" class="center">
 													</div>
 												</div>
 											<% end %>
