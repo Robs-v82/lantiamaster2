@@ -307,6 +307,13 @@
 								<% end %>
 							>
 								<div class="col m7 s12">
+									<% if @countyWise %>
+										<div>
+											<a href="/victims/reset_map">
+												<img src="/assets//mexico-icon.png" class="mexico-icon">
+											</a>
+										</div>
+									<% end %>
 									<div id="victim-map">
 									</div>
 								</div>
@@ -314,40 +321,74 @@
 								</div>
 								<div id="victim-charts" class="col m5 s12">
 									<% @my_freq_table[1..-2].each do |place| %>
-										<div id="<%= place[:code]%>-victim-charts" class="state-victim-charts victim-toggle-charts"
-											<% unless place[:code] == "00" %>
-												style="display:none"
-											<% end %>
-										>
-											<div class="valign-wrapper">
-												<% unless place[:code] == "00" %>
-													<i class="material-icons close-state tiny paletton-red-text right-extra-margin">close</i>
+										<% if @countyWise%>
+											<div id="<%= place[:full_code]%>-victim-charts" class="state-victim-charts victim-toggle-charts"
+												<% unless place[:full_code] == "00000" %>
+													style="display:none"
 												<% end %>
-												<h6>
-													<%= place[:name]%>: 
-													<span class="slim"><%= number_with_delimiter(place[:place_total]) %> 
-														<% if place[:place_total] == 1 %>
-															víctima
-														<% else %>
-															víctimas
-														<% end %>
-													</span>
-												</h6>
-											</div>
+											>
+										<% else %>
+											<div id="<%= place[:code]%>-victim-charts" class="state-victim-charts victim-toggle-charts"
+												<% unless place[:code] == "00" %>
+													style="display:none"
+												<% end %>
+											>
+										<% end %>
+										<div class="valign-wrapper">
+											<% unless place[:code] == "00" || place[:full_code] == "00000" %>
+												<i class="material-icons close-state tiny paletton-red-text right-extra-margin">close</i>
+											<% end %>
+											<h6>
+												<%= place[:name]%>: 
+												<span class="slim"><%= number_with_delimiter(place[:place_total]) %> 
+													<% if place[:place_total] == 1 %>
+														víctima
+													<% else %>
+														víctimas
+													<% end %>
+												</span>
+											</h6>
+										</div>
 											<% unless place[:place_total] == 0 %>
-												<br>
-												<div id="<%= place[:code]%>-victims-trend-chart"></div>
-												<br>
-												<div class="col s5">
-													<p class="center-align">Género*</p>
-													<div id="<%= place[:code]%>-victims-gender-chart" class="center">
+												<% if @countyWise %>
+													<br>
+													<div id="<%= place[:full_code]%>-victims-trend-chart"></div>
+													<br>
+													<div class="col s5">
+														<p class="center-align">Género*</p>
+														<div id="<%= place[:full_code]%>-victims-gender-chart" class="center">
+														</div>
 													</div>
-												</div>
-												<div class="col s7">
-													<p class="center-align">Edad*</p>
-													<div id="<%= place[:code]%>-victims-age-chart" class="center">
+													<div class="col s7">
+														<p class="center-align">Edad*</p>
+														<div id="<%= place[:full_code]%>-victims-age-chart" class="center">
+														</div>
 													</div>
-												</div>
+													<div class="col s12">
+														<p class="center-align">Elementos de seguridad asesinados</p>
+														<div id="<%= place[:full_code]%>-victims-police-chart" class="center">
+														</div>
+													</div>
+												<% else %>
+													<br>
+													<div id="<%= place[:code]%>-victims-trend-chart"></div>
+													<br>
+													<div class="col s5">
+														<p class="center-align">Género*</p>
+														<div id="<%= place[:code]%>-victims-gender-chart" class="center">
+														</div>
+													</div>
+													<div class="col s7">
+														<p class="center-align">Edad*</p>
+														<div id="<%= place[:code]%>-victims-age-chart" class="center">
+														</div>
+													</div>
+													<div class="col s12">
+														<p class="center-align">Elementos de seguridad asesinados</p>
+														<div id="<%= place[:code]%>-victims-police-chart" class="center">
+														</div>
+													</div>
+												<% end %>
 											<% end %>
 										</div>
 									<% end %>

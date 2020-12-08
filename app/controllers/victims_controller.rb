@@ -62,18 +62,28 @@ class VictimsController < ApplicationController
 		redirect_to "/victims"	
 	end
 
+	def county_query
+		session[:victim_freq_params][1] = "countyWise"
+		session[:checkedStatesArr] = [State.where(:code=>params[:code]).last.id]
+		session[:victim_freq_params][4] = session[:checkedStatesArr]
+		session[:checkedCounties] = "states"
+		session[:victim_freq_params][7] = session[:checkedCounties]
+		redirect_to '/victims'
+	end
+
+	def reset_map
+		session[:checkedStatesArr] = State.pluck(:id)
+		session[:victim_freq_params][1] = "stateWise"
+		session[:checkedCounties] = "states"
+		session[:victim_freq_params][4] = session[:checkedStatesArr]
+		redirect_to '/victims'
+	end
+
 	def victims
 		@maps = true
 		@years = helpers.get_regular_years
-		if session[:victim_freq_params][3].length < @years.length ||
-			session[:victim_freq_params][4].length < State.all.length ||
-			session[:victim_freq_params][5].length < City.all.length ||
-			session[:victim_freq_params][6].length < 3 ||
-			session[:checkedCounties] != "states"
-			@my_freq_table = victim_freq_table(*session[:victim_freq_params])
-		else
-			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
-		end
+		@checkedStates = session[:checkedStatesArr]
+		@stateCode = State.find(session[:checkedStatesArr].last).code
 
 		# FRAMES FOR ANALISYS
 		@timeFrames = [
@@ -124,6 +134,18 @@ class VictimsController < ApplicationController
   			@genderFrames[1][:checked] = true
   		end
 
+		if session[:victim_freq_params][3].length < @years.length ||
+			session[:victim_freq_params][4].length < State.all.length ||
+			session[:victim_freq_params][5].length < City.all.length ||
+			session[:victim_freq_params][6].length < 3 ||
+			session[:checkedCounties] != "states"
+				@my_freq_table = victim_freq_table(*session[:victim_freq_params])
+		elsif @countyWise
+			@my_freq_table = Cookie.where(:category=>"state_victims").last.data[0][@checkedStates.last.code][session[:victim_freq_params][0]][session[:victim_freq_params][2]]
+		else
+			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
+		end
+
   		@sortCounter = 0
   		@sortType = "victims"
   		@checkedYears = session[:checkedYearsArr]
@@ -134,7 +156,6 @@ class VictimsController < ApplicationController
   			{"caption"=>"Femenino","value"=>"Femenino"},
   			{"caption"=>"No identificado","value"=>"No identificado"},
   		]
-  		@checkedStates = session[:checkedStatesArr]
   		@checkedCities = session[:checkedCitiesArr]
   		@checkedGenderOptions = session[:checkedGenderOptions]
   		if @checkedStates.length == 1
@@ -149,11 +170,17 @@ class VictimsController < ApplicationController
   			@checkedCounties = []
   		end
   		@county_toast_message = 'Seleccione estado y municipios en "Filtros"'	
+  		factor = 1
+  		if @countyWise
+  			factor = 0.05
+  		end
   		@dataClasses = [
-  			200*@checkedYears.length,
-  			500*@checkedYears.length,
-  			1000*@checkedYears.length
+  			factor*200*@checkedYears.length,
+  			factor*500*@checkedYears.length,
+  			factor*1000*@checkedYears.length
   		]
+  		print "*******"
+  		print @my_freq_table
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
@@ -189,14 +216,16 @@ class VictimsController < ApplicationController
 			myScope = []
 			if counties == "states"
 				myStates.each{|state|
-					myScope.push(state.counties)
+					myScope.push(state.counties.select{|county| county.victims.any?})
 				}
 			else
 				myCounties = []
 				myKeys = Cookie.find(counties).data
 				myKeys.each {|x|
 					myCounty = County.find(x)
-					myCounties.push(myCounty)
+					if myCounty.victims.any?	
+						myCounties.push(myCounty)
+					end
 				}
 				myScope = myCounties
 			end		
@@ -221,6 +250,7 @@ class VictimsController < ApplicationController
 		headerHash[:period] = myPeriod
 		genderKeys = helpers.gender_keys
 		ageKeys = helpers.age_keys
+		policeKeys = helpers.police_keys
 
 		if myScope == nil
 			if gender == "noGenderSplit"
@@ -268,12 +298,20 @@ class VictimsController < ApplicationController
 			# MAP DATA
 			if gender == "noGenderSplit"
 				myTable.push(headerHash)
-				myScope.push("Nacional")
+				if scope == "stateWise"
+					myScope.push("Nacional")
+				elsif scope == "countyWise" && states.length == 1
+					myScope.push("Estado")
+				end
 				myScope.each {|place|
 					if place == "Nacional"
 						placeName = "Nacional"
 						placeCode = "00"
 						localVictims = Victim.all
+					elsif place == "Estado"
+						placeName = State.find(states.last).name
+						placeCode = "000"
+						localVictims = State.find(states.last).victims
 					else
 						placeName = place.name
 						placeCode = place.code
@@ -283,8 +321,13 @@ class VictimsController < ApplicationController
 					placeHash[:name] = placeName
 					placeHash[:code] = placeCode
 					if scope == "countyWise"
-						placeHash[:parent_name] = place.state.shortname
-						placeHash[:full_code] = place.full_code
+						if place == "Estado"
+							placeHash[:parent_name] = placeName
+							placeHash[:full_code] = "00000"	
+						else
+							placeHash[:parent_name] = place.state.shortname
+							placeHash[:full_code] = place.full_code
+						end
 					end
 					freq = []
 					counter = 0
@@ -323,6 +366,16 @@ class VictimsController < ApplicationController
 						ageArr.push(ageHash)
 					}
 					placeHash[:ages] = ageArr
+
+					# POLICE
+					policeArr = []
+					policeKeys.each{|k|
+						policeHash = {:name=>k[:name]}
+						policeHash[:freq] = localVictims.where(:legacy_role_officer=>k[:categories]).length
+						policeArr.push(policeHash)
+					}
+					placeHash[:agencies] = policeArr
+
 					myTable.push(placeHash)
 				}
 				# END OF MAP DATA
@@ -379,8 +432,27 @@ class VictimsController < ApplicationController
 		session[:checkedCitiesArr] = cities.pluck(:id)
 		genderOptions = ["Masculino","Femenino","No identificado"]
 		session[:checkedGenderOptions] = genderOptions
+		
+		# CREATE API FOR EACH STATE
 		data = {}
-		myArr = [%w{annual quarterly monthly},%w{nationWise stateWise cityWise},%w{noGenderSplit genderSplit}]
+		myArr = [%w{annual quarterly monthly}, %w{noGenderSplit genderSplit}]
+		State.all.each{|state|
+			stateHash = {}
+			myArr[0].each{|timeframe|
+				timeHash = {}
+				myArr[1].each{|genderframe|
+					stateParams = [timeframe, "countyWise", genderframe, years, [state.id], session[:checkedCitiesArr], genderOptions, "states"]
+					timeHash[genderframe] = victim_freq_table(*stateParams)
+				}
+				stateHash[timeframe] = timeHash
+			}
+			data[state.code] = stateHash
+		}
+		Cookie.create(:data=>[data], :category=>"state_victims")
+
+		# CREATE NATIONAL API
+		data = {}
+		myArr = [%w{annual quarterly monthly}, %w{nationWise stateWise cityWise}, %w{noGenderSplit genderSplit}]
 		myArr[0].each{|timeframe|
 			timeHash = {}
 			myArr[1].each{|placeframe|
@@ -394,6 +466,7 @@ class VictimsController < ApplicationController
 			data[timeframe] = timeHash
 		}
 		Cookie.create(:data=>[data], :category=>"victims")
+		
 		redirect_to '/victims/new_query'
 	end
 

@@ -12,6 +12,12 @@
 			$("#freq-entry-map").show();
 			return false
 	 	});
+	 	
+		if ($(window).height() < 600) {
+			var mapHeight = 300
+        } else {
+        	var mapHeight = $(window).height()/2
+        }; 
 
 	 	// NATIONAL MAP
 		var data = [
@@ -23,7 +29,7 @@
 		    Highcharts.mapChart('detention-map', {
 		        chart: {
 		            map: geojson,
-		            height: 300,
+		            height: mapHeight,
 		        },
 		        legend: {
 		        	layout: 'vertical',

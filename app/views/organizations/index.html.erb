@@ -12,6 +12,14 @@
 			$("#freq-list-trigger").click(function() {
 				return false
 		 	})
+
+
+			if ($(window).height() < 600) {
+				var mapHeight = 300
+	        } else {
+	        	var mapHeight = $(window).height()/2
+	        }; 
+
 				var data = [
 					<% @placeArr.each do |place| %>
 						{
@@ -42,12 +50,12 @@
 				        chart: {
 				            map: geojson,
 				            <% if @checkedStates.length != 1 %>
-				            	height: 300,
+				            	height: mapHeight,
 				            <% else %>	
 				            	<% if @shortMap.include? @checkedStates.last %>
-				            		height: 288,
+				            		height: mapHeight - 12,
 				            	<% else %>
-				            		height: 328,
+				            		height: mapHeight + 28,
 				            	<% end %>
 				            <% end %>
 				        },

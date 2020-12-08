@@ -120,7 +120,7 @@ class MembersController < ApplicationController
 		redirect_to "/members/detainees_freq_api"	
 	end
 
-	def detainees_query
+	def new_query
 		helpers.clear_session
 		organizationOptions = helpers.get_detainees_cartels
 		roleOptions = []
@@ -137,7 +137,7 @@ class MembersController < ApplicationController
 		redirect_to "/members/detainees"
 	end
 
-	def post_detainees_query
+	def query
 		if detainee_freq_params[:freq_timeframe]
 			session[:detainee_freq_params][0] = detainee_freq_params[:freq_timeframe]
 		end

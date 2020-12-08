@@ -19,4 +19,17 @@ module VictimsHelper
 		]
 	end
 
+	def police_keys
+		keys = [
+			{:name=>"SEDENA", :categories=>["Militar SEDENA"]},
+			{:name=>"SEMAR", :categories=>["Militar SEMAR"]},
+			{:name=>"PF/GN", :categories=>["Guardia Nacional", "Policía Federal"]},
+			{:name=>"Policía Estatal", :categories=>["Policía Estatal (caminos)", "Policía Estatal (investigación)", "Policía Estatal (procesal)", "Policía Estatal (reacción)", "Policía Estatal (auxiliar)", "Policía Estatal (custodio penitenciario)", "Policía Estatal (bancaria)", "Policía Estatal (no especificado)"]},
+			{:name=>"Policía Municipal", :categories=>["Policía Municipal (preventivo)","Policía Municipal (tránsito o vial)","Policía Municipal (comunitario)","Policía Municipal (no especificado)"]},
+			{:name=>"Policía (no especificado)", :categories=>["Policía No Especificado u otro"]},
+			{:name=>"FGR/Fiscalía Estatal", :categories=>[]}
+		]
+		return keys
+	end
+
 end
