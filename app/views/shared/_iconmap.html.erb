@@ -2,6 +2,14 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 
+	 	// TRIGGER CARDS IN INDEX
+		$('.pseudo-clickable-row').click(function() {
+			var myState = $(this).attr('id').split('-')[0];
+			$('.index-display').hide();
+			$('#'+myState+'-card-display').show();
+			buildLocalCharts(myState)
+		});
+
 	 	// NATIONAL MAP
 		var data = [
 			<% @icon_table.each do |place| %>
@@ -50,9 +58,9 @@
 		        			events: {
 		        				click: function() {
 		        					var myState = this.code;
-		        					console.log(myState)
 		        					$('.index-display').hide();
 		        					$('#'+myState+'-card-display').show();
+		        					buildLocalCharts(myState)
 		        					$("html, body").animate({ scrollTop: 580 }, "slow");
 		        				}
 		        			}
@@ -88,10 +96,12 @@
     				.add();
         	});		
 		});
-
-		// TREND CHART
-		<% @icon_table.each do |place| %>
-			Highcharts.chart('<%= place["code"]%>-icon-trend-chart', {
+	
+		function buildLocalCharts(state) {
+			<% @icon_table.each do |place| %>
+				if (state == '<%= place["code"] %>') {
+					console.log(state)	
+Highcharts.chart('<%= place["code"]%>-icon-trend-chart', {
 			    chart: {
 			        type: 'line',
 			        height: 136,
@@ -253,6 +263,13 @@
 			        }]
 			    });
 			<% end %>
+				};
+			<% end %>
+
+		}
+		// TREND CHART
+		<% @icon_table.each do |place| %>
+			
 		<% end %>
 	})
 </script>

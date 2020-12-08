@@ -545,13 +545,6 @@ $(document).ready(function(){
 		return false
 	})
 
-	// TRIGGER CARDS IN INDEX
-	$('.pseudo-clickable-row').click(function() {
-		var myId = $(this).attr('id').split('-');
-		$('.index-display').hide();
-		$('#'+myId[0]+'-card-display').show();
-	});
-
 	// GET INDEX COUNTIES
 	$('#index-state-selector').change(function() {
 		var mydata = $('#index-state-selector').serialize();
