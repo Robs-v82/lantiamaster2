@@ -1,3 +1,4 @@
+<script src="http://cdnjs.cloudflare.com/ajax/libs/proj4js/2.2.2/proj4.js"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
 		<% if @countyWise %>
@@ -24,126 +25,261 @@
         }; 
 
 	 	// NATIONAL MAP
-		var data = [
-			<% @my_freq_table[1..-2].each do |place| %>
-				{
-					<% if @countyWise%>
-						code: '<%= place[:code] %>',
-						full_code:'<%= place[:full_code] %>',
-					<% else %>
-						code:'<%= place[:code] %>',
-					<% end %>
-					value:<%= place[:place_total] %>
-				},
-			<% end %>
-		];
-		Highcharts.getJSON(
-			<% if @countyWise %>
-				'/maps/<%= @stateCode %>.geojson'
-			<% else %>
-				'/maps/national_map.json'
-			<% end %>
-		, function (geojson) {
-		    Highcharts.mapChart('victim-map', {
-		        chart: {
-		            map: geojson,
-		            height: mapHeight,
-		        },
-		        legend: {
-		        	layout: 'vertical',
-		        	align: 'left',
-		        	verticalAlign: 'middle',
-		        	x: 14,
-		        	y: 90,
-		        	floating: true,
-		        	backgroundColor: 'white',
-		            labelFormatter: function () {
-		                return (this.from || '<') + ' - ' + (this.to || '>');
+	 	<% if @cityWise %>
+			var mxStates = [
+			    ['mx-3622', null],
+			    ['mx-bc', null],
+			    ['mx-bs', null],
+			    ['mx-so', null],
+			    ['mx-cl', null],
+			    ['mx-na', null],
+			    ['mx-cm', null],
+			    ['mx-qr', null],
+			    ['mx-mx', null],
+			    ['mx-mo', null],
+			    ['mx-df', null],
+			    ['mx-qt', null],
+			    ['mx-tb', null],
+			    ['mx-cs', null],
+			    ['mx-nl', null],
+			    ['mx-si', null],
+			    ['mx-ch', null],
+			    ['mx-ve', null],
+			    ['mx-za', null],
+			    ['mx-ag', null],
+			    ['mx-ja', null],
+			    ['mx-mi', null],
+			    ['mx-oa', null],
+			    ['mx-pu', null],
+			    ['mx-gr', null],
+			    ['mx-tl', null],
+			    ['mx-tm', null],
+			    ['mx-co', null],
+			    ['mx-yu', null],
+			    ['mx-dg', null],
+			    ['mx-gj', null],
+			    ['mx-sl', null],
+			    ['mx-hg', null]
+			];
+			var data = [
+				<% @my_freq_table[1..-2].each do |place| %>
+					{
+						name: '<%= place[:name] %>',
+						lat: <%= County.find(City.where(:name=>place[:name]).last.core_county_id).towns.where(:name=>"Sin definir").last.latitude %>,
+						lon: <%= County.find(City.where(:name=>place[:name]).last.core_county_id).towns.where(:name=>"Sin definir").last.longitude %>,
+						value: <%= place[:place_total] %>,
+						<% if place[:place_total] < 1 %>
+							color: '#e0e0e0'
+						<% elsif place[:place_total] <  @dataClasses[0] %>
+							color: '#ffa0a0'
+						<% elsif place[:place_total] <  @dataClasses[1] %>
+							color: "#ef4e50"
+						<% elsif place[:place_total] <  @dataClasses[2] %>
+							color: "#ad1111"
+						<% else %>
+							color: '#610000'
+						<% end %>
+					},
+				<% end %>
+			]
+			Highcharts.getJSON('/maps/mx-all.geojson', function (geojson) {
+				Highcharts.mapChart('victim-map', {
+			        chart: {
+			            map: geojson,
+			            height: mapHeight,
+			        },
+			        title: false, 
+			        credits: false,
+			        mapNavigation: {
+			            enabled: false,
+			        },
+					exporting: {
+						enabled: false
+					},
+			        legend: {
+			        	layout: 'vertical',
+			        	align: 'left',
+			        	verticalAlign: 'middle',
+			        	x: 14,
+			        	y: 90,
+			        	floating: true,
+			        	backgroundColor: 'white',
+			            labelFormatter: function () {
+			                return (this.from || '<') + ' - ' + (this.to || '>');
+			            },
+			        },
+		            colors: ['#e0e0e0', "#ffa0a0", "#ef4e50", "#ad1111",'#610000'],
+		            colorAxis: {
+		                dataClassColor: 'category',
+		                dataClasses: [{
+		                	to: 0
+		                }, {
+		                	from: 0,
+		                	to: <%= @dataClasses[0] %>,
+		                }, {
+		                    from: <%= @dataClasses[0] %>,
+		                    to: <%= @dataClasses[1] %>
+		                }, {
+		                    from: <%= @dataClasses[1] %>,
+		                    to: <%= @dataClasses[2] %>
+		                }, {
+		                    from: <%= @dataClasses[2] %>
+		                }]
 		            },
-		        },
-		        title: false, 
-		        credits: false,
-		        mapNavigation: {
-		            enabled: false,
-		        },
-				exporting: {
-					enabled: false
-				},
-	            colors: ['#e0e0e0', "#ffa0a0", "#ef4e50", "#ad1111",'#610000'],
-	            colorAxis: {
-	                dataClassColor: 'category',
-	                dataClasses: [{
-	                	to: 0
-	                }, {
-	                	from: 0,
-	                	to: <%= @dataClasses[0] %>,
-	                }, {
-	                    from: <%= @dataClasses[0] %>,
-	                    to: <%= @dataClasses[1] %>
-	                }, {
-	                    from: <%= @dataClasses[1] %>,
-	                    to: <%= @dataClasses[2] %>
-	                }, {
-	                    from: <%= @dataClasses[2] %>
-	                }]
-	            },
-		        plotOptions: {
-		        	series: {
-		        		point: {
-		        			events: {
-		        				<% if @countyWise %>
-			        				click: function() {
-			        					var myCounty = this.full_code;
-			        					$('.victim-toggle-charts').hide();
-			        					$('.collection-item').hide();
-			        					$('#'+myCounty+'-victim-charts').show();
-			        					buildLocalCharts(myCounty);
-			        					if ($(window).width() < 600) {
-			        						$("html, body").animate({ scrollTop: 680 }, "slow");
-			        					};
-			        				}
-			        			<% else %>
-			        				click: function() {
-			        					var urlString = '/victims/county_query/'+this.code;
-			        					window.location = urlString;
-			        				}
-			        			<% end %>
-		        			}
-		        		}
-		        	}
-		        },
-		        series: [{
-		            data: data,
-		            <% if @countyWise %>
-		            	joinBy: 'full_code',
-		            <% else %>
-		            	joinBy: 'code',
-		            <% end %>
-	            	name: 'Arrestos',
-		            borderColor: 'white',
-		            borderWidth: 1,
-		            nullColor: '#e0e0e0',
-		            states: {
-		                hover: {
-		                    color: '#ffffff',
-			                borderColor: '#424242'
-		                }
+			        series: [
+				        {
+				            data: mxStates,
+				            borderColor: 'white',
+				            borderWidth: 1,
+				            nullColor: '#e0e0e0',
+				            cursor: 'pointer', 
+				            dataLabels: {
+				                enabled: true,
+				                format: '{point.properties.postal}'
+				            }
+				        }, {
+				        	type: 'mappoint',
+				        	data: data,
+				        	marker: {
+				        		radius: 6
+				        	},
+				            dataLabels: {
+				                enabled: false,
+				            },
+				            tooltip: {
+				            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+				            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
+				            }
+			            }
+			        ],
+			    }, function (chart) { 
+					    var originalWidth = chart.chartWidth - 105;
+					    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+	    				.add();
+	        	});	
+	        });	
+	 	<% else %>
+			var data = [
+				<% @my_freq_table[1..-2].each do |place| %>
+					{
+						<% if @countyWise%>
+							code: '<%= place[:code] %>',
+							full_code:'<%= place[:full_code] %>',
+						<% else %>
+							code:'<%= place[:code] %>',
+						<% end %>
+						value:<%= place[:place_total] %>
+					},
+				<% end %>
+			];
+			Highcharts.getJSON(
+				<% if @countyWise %>
+					'/maps/<%= @stateCode %>.geojson'
+				<% else %>
+					'/maps/national_map.json'
+				<% end %>
+			, function (geojson) {
+			    Highcharts.mapChart('victim-map', {
+			        chart: {
+			            map: geojson,
+			            height: mapHeight,
+			        },
+			        legend: {
+			        	layout: 'vertical',
+			        	align: 'left',
+			        	verticalAlign: 'middle',
+			        	x: 14,
+			        	y: 90,
+			        	floating: true,
+			        	backgroundColor: 'white',
+			            labelFormatter: function () {
+			                return (this.from || '<') + ' - ' + (this.to || '>');
+			            },
+			        },
+			        title: false, 
+			        credits: false,
+			        mapNavigation: {
+			            enabled: false,
+			        },
+					exporting: {
+						enabled: false
+					},
+		            colors: ['#e0e0e0', "#ffa0a0", "#ef4e50", "#ad1111",'#610000'],
+		            colorAxis: {
+		                dataClassColor: 'category',
+		                dataClasses: [{
+		                	to: 0
+		                }, {
+		                	from: 0,
+		                	to: <%= @dataClasses[0] %>,
+		                }, {
+		                    from: <%= @dataClasses[0] %>,
+		                    to: <%= @dataClasses[1] %>
+		                }, {
+		                    from: <%= @dataClasses[1] %>,
+		                    to: <%= @dataClasses[2] %>
+		                }, {
+		                    from: <%= @dataClasses[2] %>
+		                }]
 		            },
-		            cursor: 'pointer', 
-		            dataLabels: {
-		                enabled: true,
-		                format: '{point.properties.postal}'
+			        plotOptions: {
+			        	series: {
+			        		point: {
+			        			events: {
+			        				<% if @countyWise %>
+				        				click: function() {
+				        					var myCounty = this.full_code;
+				        					$('.victim-toggle-charts').hide();
+				        					$('.collection-item').hide();
+				        					$('#'+myCounty+'-victim-charts').show();
+				        					buildLocalCharts(myCounty);
+				        					if ($(window).width() < 600) {
+				        						$("html, body").animate({ scrollTop: 680 }, "slow");
+				        					};
+				        				}
+				        			<% else %>
+				        				click: function() {
+				        					var urlString = '/victims/county_query/'+this.code;
+				        					window.location = urlString;
+				        				}
+				        			<% end %>
+			        			}
+			        		}
+			        	}
+			        },
+			        series: [{
+			            data: data,
+			            <% if @countyWise %>
+			            	joinBy: 'full_code',
+			            <% else %>
+			            	joinBy: 'code',
+			            <% end %>
+		            	name: 'Arrestos',
+			            borderColor: 'white',
+			            borderWidth: 1,
+			            nullColor: '#e0e0e0',
+			            states: {
+			                hover: {
+			                    color: '#ffffff',
+				                borderColor: '#424242'
+			                }
+			            },
+			            cursor: 'pointer', 
+			            dataLabels: {
+			                enabled: true,
+			                format: '{point.properties.postal}'
+			            }
+			        }],
+		            tooltip: {
+		            	enabled: false
 		            }
-		        }],
-	            tooltip: {
-	            	enabled: false
-	            }
-		    }, function (chart) { 
-				    var originalWidth = chart.chartWidth - 105;
-				    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
-    				.add();
-        	});		
-		});
+			    }, function (chart) { 
+					    var originalWidth = chart.chartWidth - 105;
+					    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+	    				.add();
+	        	});		
+			});
+		<% end %>
 
 		// TREND CHART
 		function buildLocalCharts(key) {
