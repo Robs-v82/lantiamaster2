@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_23_191533) do
+ActiveRecord::Schema.define(version: 2020_12_09_033740) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -148,6 +148,7 @@ ActiveRecord::Schema.define(version: 2020_11_23_191533) do
     t.boolean "car_chase"
     t.boolean "shooting_among_criminals"
     t.string "message"
+    t.boolean "shooting"
     t.index ["event_id"], name: "index_killings_on_event_id"
   end
 

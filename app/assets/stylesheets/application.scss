@@ -4,6 +4,11 @@
  *= require jquery-ui
  */
 
+
+#victim-charts h6 {
+	margin: 2px 0px 16px !important;
+}
+
 .index-header h5 {
 	margin: 0 !important;
 }
@@ -693,6 +698,15 @@ min-width: 85px !important
 .short-row {
 	margin-bottom: 0;
 	margin-top: 0;
+}
+
+.mid-row {
+	margin-bottom: 10px;
+	margin-top: 0
+}
+
+.mid-row .tabs {
+	max-height: 42px !important;
 }
 
 .side-icon {

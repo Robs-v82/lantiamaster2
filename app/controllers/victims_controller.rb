@@ -80,6 +80,7 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
+		@victims = true
 		@maps = true
 		@years = helpers.get_regular_years
 		@checkedStates = session[:checkedStatesArr]
@@ -135,13 +136,13 @@ class VictimsController < ApplicationController
   		end
 
 		if session[:victim_freq_params][3].length < @years.length ||
-			session[:victim_freq_params][4].length < State.all.length ||
+			session[:victim_freq_params][4].length < State.all.length && session[:victim_freq_params][4].length > 1 ||
 			session[:victim_freq_params][5].length < City.all.length ||
 			session[:victim_freq_params][6].length < 3 ||
 			session[:checkedCounties] != "states"
 				@my_freq_table = victim_freq_table(*session[:victim_freq_params])
 		elsif @countyWise
-			@my_freq_table = Cookie.where(:category=>"state_victims").last.data[0][@checkedStates.last.code][session[:victim_freq_params][0]][session[:victim_freq_params][2]]
+			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][2]]
 		else
 			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
 		end
@@ -298,7 +299,7 @@ class VictimsController < ApplicationController
 			# MAP DATA
 			if gender == "noGenderSplit"
 				myTable.push(headerHash)
-				if scope == "stateWise"
+				if scope == "stateWise" || scope == "cityWise" 
 					myScope.push("Nacional")
 				elsif scope == "countyWise" && states.length == 1
 					myScope.push("Estado")
@@ -335,9 +336,11 @@ class VictimsController < ApplicationController
 					myPeriod.each {|timeUnit|
 						number_of_victims = localVictims.merge(timeUnit.victims).length
 						freq.push(number_of_victims)
-						totalFreq[counter] += number_of_victims
+						unless place == "Nacional" || place =="Estado"
+							totalFreq[counter] += number_of_victims
+						end
 						counter += 1
-						place_total += number_of_victims
+						place_total += number_of_victims	
 					}
 					placeHash[:freq] = freq
 					placeHash[:place_total] = place_total
@@ -446,9 +449,9 @@ class VictimsController < ApplicationController
 				}
 				stateHash[timeframe] = timeHash
 			}
-			data[state.code] = stateHash
+			data = stateHash
+			Cookie.create(:data=>[data], :category=>state.code+"_victims")
 		}
-		Cookie.create(:data=>[data], :category=>"state_victims")
 
 		# CREATE NATIONAL API
 		data = {}
@@ -480,7 +483,8 @@ class VictimsController < ApplicationController
 			{:aggression=>"Fue Agresion"},
 			{:shooting_between_criminals_and_authorities=>"Fue Enfrentamiento entre DO y Aut"},
 			{:car_chase=>"Hubo Persecución"},
-			{:shooting_among_criminals=>"Fue Entrentamiento entre delincuentes"}
+			{:shooting_among_criminals=>"Fue Entrentamiento entre delincuentes"},
+			{:shooting=>"Fue Entrentamiento"}
 		]
         CSV.foreach(myFile, :headers => true) do |row|
         	if Killing.where(:legacy_id=>row["ID"]).length == 0
@@ -531,15 +535,16 @@ class VictimsController < ApplicationController
 					else
 						killing[:type_of_place] = row["Lugar en que fue Ejecutado_Recat"]
 					end
-					# boolean_killing_dictionary.each{|variable|
-					# 	myString = variable.values[0]
-					# 	myKey = variable.keys[0]
-					# 	if row[myString] == "VERDADERO"
-					# 		killing[myKey] = true
-					# 	else
-					# 		killing[myKey] = false
-					# 	end
-					# }
+
+					boolean_killing_dictionary.each{|variable|
+						myString = variable.values[0]
+						myKey = variable.keys[0]
+						if row[myString] == "VERDADERO" || row[myString] == "Sí"
+							killing[myKey] = true
+						else
+							killing[myKey] = false
+						end
+					}
 					Killing.create(killing)
 
 					# CREATE VICTIMS

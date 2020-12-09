@@ -63,23 +63,26 @@
 			];
 			var data = [
 				<% @my_freq_table[1..-2].each do |place| %>
-					{
-						name: '<%= place[:name] %>',
-						lat: <%= County.find(City.where(:name=>place[:name]).last.core_county_id).towns.where(:name=>"Sin definir").last.latitude %>,
-						lon: <%= County.find(City.where(:name=>place[:name]).last.core_county_id).towns.where(:name=>"Sin definir").last.longitude %>,
-						value: <%= place[:place_total] %>,
-						<% if place[:place_total] < 1 %>
-							color: '#e0e0e0'
-						<% elsif place[:place_total] <  @dataClasses[0] %>
-							color: '#ffa0a0'
-						<% elsif place[:place_total] <  @dataClasses[1] %>
-							color: "#ef4e50"
-						<% elsif place[:place_total] <  @dataClasses[2] %>
-							color: "#ad1111"
-						<% else %>
-							color: '#610000'
-						<% end %>
-					},
+					<% unless place[:name] == "Nacional" %>
+						{
+							code: '<%= place[:code]%>',
+							name: '<%= place[:name] %>',
+							lat: <%= County.find(City.where(:name=>place[:name]).last.core_county_id).towns.where(:name=>"Sin definir").last.latitude %>,
+							lon: <%= County.find(City.where(:name=>place[:name]).last.core_county_id).towns.where(:name=>"Sin definir").last.longitude %>,
+							value: <%= place[:place_total] %>,
+							<% if place[:place_total] < 1 %>
+								color: '#e0e0e0'
+							<% elsif place[:place_total] <  @dataClasses[0] %>
+								color: '#ffa0a0'
+							<% elsif place[:place_total] <  @dataClasses[1] %>
+								color: "#ef4e50"
+							<% elsif place[:place_total] <  @dataClasses[2] %>
+								color: "#ad1111"
+							<% else %>
+								color: '#610000'
+							<% end %> 
+						},
+					<% end %>
 				<% end %>
 			]
 			Highcharts.getJSON('/maps/mx-all.geojson', function (geojson) {
@@ -141,7 +144,7 @@
 				        	type: 'mappoint',
 				        	data: data,
 				        	marker: {
-				        		radius: 6
+				        		radius: 5
 				        	},
 				            dataLabels: {
 				                enabled: false,
@@ -149,7 +152,22 @@
 				            tooltip: {
 				            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
 				            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
-				            }
+				            },
+			        		point: {
+			        			events: {
+			        				click: function() {
+			        					console.log("WORKING!!!!")
+			        					var myCity = this.code;
+			        					$('.victim-toggle-charts').hide();
+			        					$('.collection-item').hide();
+			        					$('#'+myCity+'-victim-charts').show();
+			        					buildLocalCharts(myCity);
+			        					if ($(window).width() < 600) {
+			        						$("html, body").animate({ scrollTop: 680 }, "slow");
+			        					};
+			        				}
+			        			}
+			        		}
 			            }
 			        ],
 			    }, function (chart) { 
@@ -443,7 +461,7 @@
 							Highcharts.chart(key+'-victims-police-chart', {
 								chart: {
 									type: 'bar',
-									height: 140,
+									height: 134,
 									marginTop: 8,
 									marginLeft: 150,
 								},

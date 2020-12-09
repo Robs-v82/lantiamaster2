@@ -63,7 +63,7 @@
 			</th>
 		<% end %>
 	</tr>
-	<% unless @my_freq_table.length == 3 %>
+	<% unless @my_freq_table.length < 5 %>
 		<tr class="total-tr paletton-translucent-red">
 			<td> <%= @my_freq_table[-1][:name] %></td>
 			<% if @my_freq_table[-1][:county_placer] %>
@@ -81,7 +81,7 @@
 			<% @my_freq_table[-1][:freq].each do |x| %>
 				<td class="right-align"><%= number_with_delimiter(x) %></td>
 			<% end %>
-			<% unless @my_freq_table[-1][:freq].length == 1%>
+			<% unless @my_freq_table[-1][:freq].length == 1  %>
 				<td class="right-align"><%= number_with_delimiter(@my_freq_table[-1][:total_total]) %></td>
 			<% end %>
 		</tr>
@@ -91,7 +91,7 @@
 
 <tbody id="sort-table"> 
 	<% @my_freq_table[1..-2].each do |place| %>
-		<% unless @stateWise && place[:name] == "Nacional" || @countyWise && place[:code == "000"] %>
+		<% unless place[:name] == "Nacional" || place[:full_code] == "00000"  %>
 			<tr>
 				<% if place[:parent_name] %>
 					<td><%= place[:parent_name] %></td>
@@ -109,7 +109,7 @@
 				<% place[:freq].each do |x| %>
 					<td class="right-align"><%= number_with_delimiter(x) %></td>
 				<% end %>
-				<% unless @my_freq_table[-1][:freq].length == 1%>
+				<% unless @my_freq_table[-1][:freq].length == 1 %>
 					<td class="right-align"><%= number_with_delimiter(place[:place_total]) %></td> 
 				<% end %>
 			</tr>

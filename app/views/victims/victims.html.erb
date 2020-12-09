@@ -351,44 +351,38 @@
 										</div>
 											<% unless place[:place_total] == 0 %>
 												<% if @countyWise %>
-													<br>
-													<div id="<%= place[:full_code]%>-victims-trend-chart"></div>
-													<br>
-													<div class="col s5">
-														<p class="center-align">Género*</p>
-														<div id="<%= place[:full_code]%>-victims-gender-chart" class="center">
-														</div>
-													</div>
-													<div class="col s7">
-														<p class="center-align">Edad*</p>
-														<div id="<%= place[:full_code]%>-victims-age-chart" class="center">
-														</div>
-													</div>
-													<div class="col s12">
-														<p class="center-align">Elementos de seguridad asesinados</p>
-														<div id="<%= place[:full_code]%>-victims-police-chart" class="center">
-														</div>
-													</div>
+													<% placeKey = place[:full_code] %>
 												<% else %>
-													<br>
-													<div id="<%= place[:code]%>-victims-trend-chart"></div>
-													<br>
+													<% placeKey = place[:code] %>
+												<% end %>
+												<div id="<%= placeKey %>-victims-trend-chart"></div>
+												<div class="row mid-row">
+													<div cass="col s12">
+														<ul class="tabs paletton-red-tabs">
+															<li class="tab col s6"><a class="paletton-red-text" href="#<%= placeKey%>-profile-tab">VÍCTIMAS</a></li>
+															<li class="tab col s6"><a class="paletton-red-text" href="#<%= placeKey%>-killing-tab">INCIDENTES</a></li>
+														</ul>
+													</div>
+												</div>
+												<div id="<%= placeKey%>-profile-tab">
 													<div class="col s5">
 														<p class="center-align">Género*</p>
-														<div id="<%= place[:code]%>-victims-gender-chart" class="center">
+														<div id="<%= placeKey %>-victims-gender-chart" class="center">
 														</div>
 													</div>
 													<div class="col s7">
 														<p class="center-align">Edad*</p>
-														<div id="<%= place[:code]%>-victims-age-chart" class="center">
+														<div id="<%= placeKey %>-victims-age-chart" class="center">
 														</div>
 													</div>
 													<div class="col s12">
 														<p class="center-align">Elementos de seguridad asesinados</p>
-														<div id="<%= place[:code]%>-victims-police-chart" class="center">
+														<div id="<%= placeKey %>-victims-police-chart" class="center">
 														</div>
 													</div>
-												<% end %>
+												</div>
+												<div id="<%= placeKey%>-killing-tab">
+												</div>
 											<% end %>
 										</div>
 									<% end %>

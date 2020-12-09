@@ -255,6 +255,14 @@ class OrganizationsController < ApplicationController
 
   	end
 
+    def api
+      
+    end
+
+    def organizations_table
+      
+    end
+
   	def show
   		# REPEATED STUFF FOR FILTER-BOX
  		  allCartels = Sector.where(:scian2=>98).last.organizations.uniq
