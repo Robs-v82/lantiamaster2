@@ -143,7 +143,8 @@ class VictimsController < ApplicationController
   			@genderFrames[1][:checked] = true
   		end
 
-		if session[:victim_freq_params][3].length < @years.length ||
+		if session[:victim_freq_params][2] == "genderSplit" ||
+			session[:victim_freq_params][3].length < @years.length ||
 			session[:victim_freq_params][4].length < State.all.length && session[:victim_freq_params][4].length > 1 ||
 			session[:victim_freq_params][5].length < City.all.length ||
 			session[:victim_freq_params][6].length < 3 ||
