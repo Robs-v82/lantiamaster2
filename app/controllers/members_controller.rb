@@ -1,5 +1,7 @@
 class MembersController < ApplicationController
 	
+	after_action :remove_email_message, only: [:detainees]
+
 	require 'pp'
 
 	def detentions
@@ -175,6 +177,7 @@ class MembersController < ApplicationController
 	end
 
 	def detainees
+		@user = User.find(session[:user_id])
 		@key = Rails.application.credentials.google_maps_api_key
 		@chartDisplay = true
 		freq_table_params = session[:detainee_freq_params]
@@ -283,20 +286,26 @@ class MembersController < ApplicationController
 			@checkedRoles = roleOptions
 		end
 
-		if @stateWise
-			if @organizationFrames[0][:checked] && @roleFrames[0][:checked]
-				@maps = true
-			elsif @roleFrames[0][:checked] && @checkedOrganizations.length == 1
-				@maps = true
-			elsif @organizationFrames[0][:checked] && @checkedRoles.length == 1
-				@maps = true
-			elsif @checkedOrganizations.length == 1 && @checkedRoles.length == 1
-				@maps = true
-			end
+		@maps = false
+		if @stateWise && @checkedStates.length == State.all.length
+			@maps = true
 		end
+
+		# if @stateWise
+		# 	if @organizationFrames[0][:checked] && @roleFrames[0][:checked]
+		# 		@maps = true
+		# 	elsif @roleFrames[0][:checked] && @checkedOrganizations.length == 1
+		# 		@maps = true
+		# 	elsif @organizationFrames[0][:checked] && @checkedRoles.length == 1
+		# 		@maps = true
+		# 	elsif @checkedOrganizations.length == 1 && @checkedRoles.length == 1
+		# 		@maps = true
+		# 	end
+		# end
 		@detention_cartels = helpers.detention_cartels
 		@topDetentions = get_top_detentions
 		@topDetentionRoles = helpers.top_detention_roles
+		@fileHash = {:data=>@my_freq_table,:formats=>['xlsx','csv']}
 	end
 
 	def detainees_freq_api
@@ -682,6 +691,20 @@ class MembersController < ApplicationController
 		detentionArr.compact!
 		detentionArr = detentionArr.sort_by{|d| -d.event.event_date.to_i}
 		return detentionArr
+	end
+
+	def send_file
+		recipient = User.find(session[:user_id])
+		current_date = Date.today.strftime
+		records = detainee_freq_table(*session[:detainee_freq_params])
+	 	file_name = "arrestos("+current_date+")."+params[:extension]
+	 	caption = "arrestos"
+	 	records = detainee_freq_table(*session[:detainee_freq_params])
+		file_root = Rails.root.join("private",file_name)
+		myLength = helpers.root_path[:myLength]
+		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], session[:detainee_freq_params][1]).deliver_now
+		session[:email_success] = true
+		redirect_to "/members/detainees"
 	end
 
 	private

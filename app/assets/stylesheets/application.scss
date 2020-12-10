@@ -4,6 +4,14 @@
  *= require jquery-ui
  */
 
+.dropdown-item img {
+	margin-left: 18px !important;
+}
+
+.two-liner-p {
+	min-height: 36px !important;
+	vertical-align: middle;
+}
 
 #victim-charts h6 {
 	margin: 2px 0px 16px !important;

@@ -296,6 +296,7 @@
 								style="display: none;"
 							<% end %>
 						>
+							<%= render "shared/downloadbutton" %>
 							<table class="freq-table striped">	
 								<%= render "shared/sorttable"%>
 							</table>
@@ -316,6 +317,47 @@
 									<% end %>
 									<div id="victim-map">
 									</div>
+									<% @my_freq_table[1..-2].each do |place| %>
+										<% if @countyWise%>
+											<div id="<%= place[:full_code]%>-incident-charts" class="state-victim-charts victim-toggle-charts"
+												<% unless place[:full_code] == "00000" %>
+													style="display:none"
+												<% end %>
+											>
+										<% else %>
+											<div id="<%= place[:code]%>-incident-charts" class="state-victim-charts victim-toggle-charts"
+												<% unless place[:code] == "00" %>
+													style="display:none"
+												<% end %>
+											>
+										<% end %>
+											<% unless place[:place_total] == 0 %>
+												<% if @countyWise %>
+													<% placeKey = place[:full_code] %>
+												<% else %>
+													<% placeKey = place[:code] %>
+												<% end %>
+												<p>Incidentes</p>
+												<br>
+												<div class="col m3 s6">
+													<p class="p12 two-liner-p center-align">Tipo de lugar*</p>
+													<div id="<%= placeKey %>-victims-type-chart" class="center"></div>
+												</div>
+												<div class="col m3 s6">
+													<p class="p12 two-liner-p center-align">Masacre</p>
+													<div id="<%= placeKey %>-massacres-chart" class="center"></div>
+												</div>
+												<div class="col m3 s6">
+													<p class="p12 two-liner-p center-align">Enfrentamiento con autoridad</p>
+													<div id="<%= placeKey %>-shootings_authorities-chart" class="center"></div>
+												</div>
+												<div class="col m3 s6">
+													<p class="p12 two-liner-p center-align">Fosa clandestina</p>
+													<div id="<%= placeKey %>-mass_graves-chart" class="center"></div>
+												</div>
+											<% end %>
+										</div>
+									<% end %>
 								</div>
 								<div class="hide-on-med-and-up col s12 break-for-mobile">
 								</div>
@@ -356,32 +398,19 @@
 													<% placeKey = place[:code] %>
 												<% end %>
 												<div id="<%= placeKey %>-victims-trend-chart"></div>
-												<div class="row mid-row">
-													<div cass="col s12">
-														<ul class="tabs paletton-red-tabs">
-															<li class="tab col s6"><a class="paletton-red-text" href="#<%= placeKey%>-profile-tab">VÍCTIMAS</a></li>
-															<li class="tab col s6"><a class="paletton-red-text" href="#<%= placeKey%>-killing-tab">INCIDENTES</a></li>
-														</ul>
-													</div>
-												</div>
 												<div id="<%= placeKey%>-profile-tab">
 													<div class="col s5">
 														<p class="center-align">Género*</p>
-														<div id="<%= placeKey %>-victims-gender-chart" class="center">
-														</div>
+														<div id="<%= placeKey %>-victims-gender-chart" class="center"></div>
 													</div>
 													<div class="col s7">
 														<p class="center-align">Edad*</p>
-														<div id="<%= placeKey %>-victims-age-chart" class="center">
-														</div>
+														<div id="<%= placeKey %>-victims-age-chart" class="center"></div>
 													</div>
 													<div class="col s12">
 														<p class="center-align">Elementos de seguridad asesinados</p>
-														<div id="<%= placeKey %>-victims-police-chart" class="center">
-														</div>
+														<div id="<%= placeKey %>-victims-police-chart" class="center"></div>
 													</div>
-												</div>
-												<div id="<%= placeKey%>-killing-tab">
 												</div>
 											<% end %>
 										</div>
@@ -411,3 +440,15 @@
 		</div>
 	</div>
 </div>
+<!-- EMAIL MODAL -->
+<% if session[:email_success] %>
+	<div id="email-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">Enviamos el archivo a <span class="cyan-text bold text-darken-2"><%= @user.mail %></span>. El procesamiento del correo puede tardar algunos minutos.</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

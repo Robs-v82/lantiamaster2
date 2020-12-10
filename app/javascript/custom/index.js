@@ -222,6 +222,8 @@ $(document).ready(function(){
 		$('.victim-toggle-charts').hide();
 		$('#00-victim-charts').show();
 		$('#00000-victim-charts').show();
+		$('#00-incident-charts').show();
+		$('#00000-incident-charts').show();
 		$('.collection-item').show();
 		$("html, body").animate({ scrollTop: 0 }, "slow");
 	});

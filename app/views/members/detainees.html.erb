@@ -243,17 +243,18 @@
 					<div class="row card-narrow">
 						<%= render "shared/showfilter"%>					
 						<div id="freq-entry-list" class="freq-entry-display"
-							<% unless @nationWise%>
+							<% if @maps %>
 								style="display: none;"
 							<% end %>
 						>
+							<%= render "shared/downloadbutton" %>
 							<table class="freq-table striped">	
 								<%= render "shared/sorttable"%>
 							</table>
 						</div>
 						<div class="small-inner-padding">
 							<div id="freq-entry-map" class="freq-entry-display col s12"
-								<% if @nationWise%>
+								<% unless @maps %>
 									style="display: none;"
 								<% end %>
 							>
@@ -342,3 +343,15 @@
 		</div>
 	</div>
 </div>
+<!-- EMAIL MODAL -->
+<% if session[:email_success] %>
+	<div id="email-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">Enviamos el archivo a <span class="cyan-text bold text-darken-2"><%= @user.mail %></span>. El procesamiento del correo puede tardar algunos minutos.</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

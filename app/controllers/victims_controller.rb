@@ -1,5 +1,7 @@
 class VictimsController < ApplicationController
 
+	after_action :remove_email_message, only: [:victims]
+	
 	def new_query
 		helpers.clear_session
 		session[:checkedYearsArr] = []
@@ -49,9 +51,14 @@ class VictimsController < ApplicationController
 		end
 		if victim_freq_params[:freq_counties]
 			myArr = victim_freq_params[:freq_counties].map(&:to_i)
-			Cookie.create(:data=>myArr)
-			session[:checkedCounties] = Cookie.last.id
-			session[:victim_freq_params][7] = session[:checkedCounties]
+			if myArr.length < County.find(myArr.first).state.counties.length
+				Cookie.create(:data=>myArr)
+				session[:checkedCounties] = Cookie.last.id
+				session[:victim_freq_params][7] = session[:checkedCounties]
+			else
+				session[:checkedCounties] = "states"
+				session[:victim_freq_params][7] = session[:checkedCounties]			
+			end
 		else
 			session[:checkedCounties] = "states"
 			session[:victim_freq_params][7] = session[:checkedCounties]
@@ -80,6 +87,7 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
+		@user = User.find(session[:user_id])
 		@victims = true
 		@maps = true
 		@years = helpers.get_regular_years
@@ -140,9 +148,11 @@ class VictimsController < ApplicationController
 			session[:victim_freq_params][5].length < City.all.length ||
 			session[:victim_freq_params][6].length < 3 ||
 			session[:checkedCounties] != "states"
+				@maps = false
 				@my_freq_table = victim_freq_table(*session[:victim_freq_params])
-		elsif @countyWise
+		elsif @countyWise && session[:checkedCounties] == "states"
 			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][2]]
+				@maps = true
 		else
 			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
 		end
@@ -180,8 +190,11 @@ class VictimsController < ApplicationController
   			factor*500*@checkedYears.length,
   			factor*1000*@checkedYears.length
   		]
-  		print "*******"
-  		print @my_freq_table
+  		@pieStrings = %w{massacres shootings_authorities mass_graves} 
+
+  		@fileHash = {:data=>@my_freq_table,:formats=>['xlsx','csv']}
+  		print "******"*300
+  		print session[:victim_freq_params]
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
@@ -253,6 +266,13 @@ class VictimsController < ApplicationController
 		ageKeys = helpers.age_keys
 		policeKeys = helpers.police_keys
 
+		typeOfPlaceArr = [
+			{:string=>"Vía pública", :typeArr=>["Vía pública (calle, avenida, banqueta, carretera)","Transporte privado (automóvil, motocicleta, bicileta)"], :color=>"#3EBF3E"},
+			{:string=>"Inmueble habitacional", :typeArr=>["Inmueble habitacional propiedad del ejecutado (dentro o fuera)","Inmueble habitacional privado"], :color=>"#2F8F8F"},
+			{:string=>"Comercio", :typeArr=>["Local comercial (taller, tiendita, farmacia, tortillería)","Inmueble comercial (centro comercial, gasolinera, hotel, bar)"], :color=>"#EF4E50"},
+			{:string=>"Transporte público", :typeArr=>["Transporte público colectivo (autobús, metro, tren)","Transporte público privado (taxi, UBER, mototaxi)"], :color=>"#EF974E"}			
+		]
+
 		if myScope == nil
 			if gender == "noGenderSplit"
 				myTable.push(headerHash)
@@ -309,14 +329,17 @@ class VictimsController < ApplicationController
 						placeName = "Nacional"
 						placeCode = "00"
 						localVictims = Victim.all
+						localKillings = Killing.all
 					elsif place == "Estado"
 						placeName = State.find(states.last).name
 						placeCode = "000"
 						localVictims = State.find(states.last).victims
+						localKillings = State.find(states.last).killings
 					else
 						placeName = place.name
 						placeCode = place.code
 						localVictims = place.victims
+						localKillings = place.killings
 					end
 					placeHash = {}
 					placeHash[:name] = placeName
@@ -348,7 +371,7 @@ class VictimsController < ApplicationController
 					# GENDER
 					genderArr = []
 					genderKeys.each{|k|
-						if k[:name] == "Femenino" || k[:name] == "Masculino"
+						if k[:name].upcase == "FEMENINO" || k[:name].upcase == "MASCULINO"
 							genderHash = {:name=>k[:name], :color=>k[:color]}
 							number_of_victims = localVictims.where(:gender=>k[:name]).length
 							genderHash[:freq] = number_of_victims
@@ -378,6 +401,40 @@ class VictimsController < ApplicationController
 						policeArr.push(policeHash)
 					}
 					placeHash[:agencies] = policeArr
+
+					# BOOLEANS
+					booleans = [
+						{:string=>"massacres", :killings=>localKillings.where("killed_count > ?", 3)},
+						{:string=>"mass_graves", :killings=>localKillings.where(:mass_grave=>true)},
+						{:string=>"shootings_authorities", :killings=>localKillings.where(:shooting_between_criminals_and_authorities=>true)},					
+						{:string=>"criminal_shootings", :killings=>localKillings.where(:shooting_between_criminals_and_authorities=>false).where(:shooting_among_criminals=>true)},	
+						{:string=>"other_shootings", :killings=>localKillings.where(:shooting_between_criminals_and_authorities=>false).where(:shooting=>true)},					
+					]
+					booleans.each{|boolean|
+						counter = 0
+						boolean[:killings].map{|k| counter += k.victims.length}
+						placeHash[boolean[:string]] = {:freq=>boolean[:killings].length, :share=>counter/localVictims.length.to_f}	
+					}
+
+					# TYPE OF PLACE
+					types = []
+					typeCounter = 0
+					typeOfPlaceArr.each{|type|
+						typeHash = {:name=>type[:string]}
+						typeKillings = localKillings.where(:type_of_place=>type[:typeArr])
+						typeHash[:color] = type[:color]
+						typeHash[:freq] = typeKillings.length
+						typeHash[:share] = typeHash[:freq]/localKillings.where.not(:type_of_place=>nil).length.to_f
+						types.push(typeHash)
+						typeCounter += typeHash[:share]
+					}
+					nilTypeHash = {
+						:name=>"Otro",
+						:color=>'#e0e0e0',
+						:share=> 1 - typeCounter,
+					}
+					types.push(nilTypeHash)
+					placeHash[:types] = types
 
 					myTable.push(placeHash)
 				}
@@ -446,6 +503,7 @@ class VictimsController < ApplicationController
 				myArr[1].each{|genderframe|
 					stateParams = [timeframe, "countyWise", genderframe, years, [state.id], session[:checkedCitiesArr], genderOptions, "states"]
 					timeHash[genderframe] = victim_freq_table(*stateParams)
+					print (state.name+"*******")*200
 				}
 				stateHash[timeframe] = timeHash
 			}
@@ -484,7 +542,7 @@ class VictimsController < ApplicationController
 			{:shooting_between_criminals_and_authorities=>"Fue Enfrentamiento entre DO y Aut"},
 			{:car_chase=>"Hubo Persecución"},
 			{:shooting_among_criminals=>"Fue Entrentamiento entre delincuentes"},
-			{:shooting=>"Fue Entrentamiento"}
+			{:shooting=>"Fue Enfrentamiento"}
 		]
         CSV.foreach(myFile, :headers => true) do |row|
         	if Killing.where(:legacy_id=>row["ID"]).length == 0
@@ -545,6 +603,9 @@ class VictimsController < ApplicationController
 							killing[myKey] = false
 						end
 					}
+					if row["Dónde se encontro Cadáver_Recat"] == "Narcofosa o fosa clandestina"
+						killing[:mass_grave] = true
+					end
 					Killing.create(killing)
 
 					# CREATE VICTIMS
@@ -579,6 +640,20 @@ class VictimsController < ApplicationController
 		end
 		(1..row["Total Ejecuciones"].to_i).map{Victim.create(victim)}      	
     end
+
+	def send_file
+		recipient = User.find(session[:user_id])
+		current_date = Date.today.strftime
+		records = victim_freq_table(*session[:victim_freq_params])
+	 	file_name = "victimas("+current_date+")."+params[:extension]
+	 	caption = "víctimas"
+	 	records = victim_freq_table(*session[:victim_freq_params])
+		file_root = Rails.root.join("private",file_name)
+		myLength = helpers.root_path[:myLength]
+		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], session[:victim_freq_params][1]).deliver_now
+		session[:email_success] = true
+		redirect_to "/victims"
+	end
 
 	private
 

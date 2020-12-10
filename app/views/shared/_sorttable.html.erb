@@ -91,7 +91,7 @@
 
 <tbody id="sort-table"> 
 	<% @my_freq_table[1..-2].each do |place| %>
-		<% unless place[:name] == "Nacional" || place[:full_code] == "00000"  %>
+		<% unless @stateWise && place[:name] == "Nacional" || @cityWise && place[:name] == "Nacional" || place[:full_code] == "00000"  %>
 			<tr>
 				<% if place[:parent_name] %>
 					<td><%= place[:parent_name] %></td>

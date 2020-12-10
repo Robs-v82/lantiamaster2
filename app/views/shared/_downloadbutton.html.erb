@@ -1,0 +1,16 @@
+<div class="row short-row right-extra-margin">
+	<div class="right">
+		<a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="small material-icons paletton-red-text right-extra-margin">download</i></a>
+		<ul id='files-dropdown' class='dropdown-content'>
+			<% @fileHash[:formats].each do |format| %>
+				<li class="dropdown-item">
+					<% if @victims %>
+						<a href="/victims/send_file/<%= format %>/<%= session[:victim_freq_params][0] %>"><%= image_tag format+"_icon.png", :class => "center small-icon-size" %></a>
+					<% else %>
+						<a href="/members/send_file/<%= format %>/<%= session[:detainee_freq_params][0] %>"><%= image_tag format+"_icon.png", :class => "center small-icon-size" %></a>
+					<% end %>
+				</li>
+			<% end %>
+		</ul>
+	</div>
+</div>
