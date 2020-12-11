@@ -1,0 +1,4 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Víctimas") di |sheet|
+sheet.add_row ["TEST"]
+end

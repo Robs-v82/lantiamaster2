@@ -45,7 +45,7 @@ class QueryMailer < ApplicationMailer
 		myFile = fileroot
 		mySubject = "Table de frecuencias Lantia Intelligence: "+caption
 		if filename.include? ("csv")
-			@extension = ".CSV"
+			@extension = "CSV"
 			headers = []
 			if 	records[0][:pre_scope]
 				headers.push(records[0][:pre_scope])
@@ -101,11 +101,20 @@ class QueryMailer < ApplicationMailer
 					end
 					writer << row
 				end
-			end
+				attachments[filename] = File.read(myFile)
+			end	
 		end
-		attachments[filename] = File.read(myFile)
+		if filename.include? ("xlsx")
+			@extension = "XLSX"
+			print "******"
+			print "XLSX"
+			xlsx = render_to_string formats: [:xlsx], handlers: [:axlsx], template: ["victims/test_xlsx.xlsx.axlsx"]
+			self.instance_variable_set(:@_lookup_context, nil)
+			# attachment = Base64.encode64(xlsx)
+			attachments[filename] = {mime_type: Mime[:xlsx], content: xlsx, encoding: 'base64'}			
+		end
 		@user = user
-		mail(to: @user.mail, subject: mySubject)	
+		mail(to: @user.mail, subject: mySubject)
 	end
 
 	def file_email(user, fileroot, filename, records, myLength, caption)
@@ -186,7 +195,6 @@ class QueryMailer < ApplicationMailer
 		if filename.include? ("xlsx")
 			print "******"
 			print "XLSX"
-			@records = records
 			xlsx = render_to_string formats: [:xlsx], handlers: [:axlsx], template: ["queries/test_xlsx.xlsx.axlsx"]
 			self.instance_variable_set(:@_lookup_context, nil)
 			# attachment = Base64.encode64(xlsx)

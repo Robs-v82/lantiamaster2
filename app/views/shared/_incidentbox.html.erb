@@ -1,0 +1,41 @@
+<% @my_freq_table[1..-2].each do |place| %>
+	<% if @countyWise%>
+		<div id="s-<%= place[:full_code]%>-incident-charts" class="state-victim-charts victim-toggle-charts"
+			<% unless place[:full_code] == "00000" %>
+				style="display:none"
+			<% end %>
+		>
+	<% else %>
+		<div id="s-<%= place[:code]%>-incident-charts" class="state-victim-charts victim-toggle-charts"
+			<% unless place[:code] == "00" %>
+				style="display:none"
+			<% end %>
+		>
+	<% end %>
+		<% unless place[:place_total] == 0 %>
+			<% if @countyWise %>
+				<% placeKey = place[:full_code] %>
+			<% else %>
+				<% placeKey = place[:code] %>
+			<% end %>
+			<p>Incidentes</p>
+			<br>
+			<div class="col m3 s6">
+				<p class="p12 two-liner-p center-align">Tipo de lugar*</p>
+				<div id="s-<%= placeKey %>-victims-type-chart" class="center"></div>
+			</div>
+			<div class="col m3 s6">
+				<p class="p12 two-liner-p center-align">Masacre</p>
+				<div id="s-<%= placeKey %>-massacres-chart" class="center"></div>
+			</div>
+			<div class="col m3 s6">
+				<p class="p12 two-liner-p center-align">Enfrentamiento con autoridad</p>
+				<div id="s-<%= placeKey %>-shootings_authorities-chart" class="center"></div>
+			</div>
+			<div class="col m3 s6">
+				<p class="p12 two-liner-p center-align">Fosa clandestina</p>
+				<div id="s-<%= placeKey %>-mass_graves-chart" class="center"></div>
+			</div>
+		<% end %>
+	</div>
+<% end %>

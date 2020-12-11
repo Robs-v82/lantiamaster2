@@ -1,7 +1,8 @@
 class VictimsController < ApplicationController
 
+	require 'roo'
 	after_action :remove_email_message, only: [:victims]
-	
+
 	def new_query
 		helpers.clear_session
 		session[:checkedYearsArr] = []
@@ -91,6 +92,7 @@ class VictimsController < ApplicationController
 		@victims = true
 		@maps = true
 		@years = helpers.get_regular_years
+		session[:years] = @years
 		@checkedStates = session[:checkedStatesArr]
 		@stateCode = State.find(session[:checkedStatesArr].last).code
 
@@ -645,7 +647,14 @@ class VictimsController < ApplicationController
 	def send_file
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
-		records = victim_freq_table(*session[:victim_freq_params])
+		if session[:victim_freq_params][2] == "genderSplit" || session[:victim_freq_params][3].length < session[:years].length || session[:victim_freq_params][4].length < State.all.length && session[:victim_freq_params][4].length > 1 || session[:victim_freq_params][5].length < City.all.length || session[:victim_freq_params][6].length < 3 || session[:checkedCounties] != "states"
+			records = victim_freq_table(*session[:victim_freq_params])
+		elsif session[:victim_freq_params][1] == "countyWise" && session[:checkedCounties] == "states"
+			records = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][2]]
+		else
+			records = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
+
+		end
 	 	file_name = "victimas("+current_date+")."+params[:extension]
 	 	caption = "víctimas"
 	 	records = victim_freq_table(*session[:victim_freq_params])

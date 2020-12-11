@@ -30,7 +30,7 @@
 			var mapHeight = 300
         } else {
         	var mapHeight = $(window).height()/2
-        }; 
+        };
 
 	 	// NATIONAL MAP
 	 	<% if @cityWise %>
@@ -370,7 +370,7 @@
 						    chart: {
 						        type: 'pie',
 						        height: 112,
-						        marginTop: 0,
+						        margin: 0,
 						    },
 					        title: false, 
 						    credits: false,
@@ -420,8 +420,8 @@
 						Highcharts.chart(key+'-victims-age-chart', {
 							chart: {
 								type: 'bar',
-								height: 104,
-								marginTop: 8,
+								height: 108,
+								marginTop: 22,
 							},
 					        title: false, 
 						    credits: false,
@@ -522,8 +522,8 @@
 						Highcharts.chart(key+'-victims-type-chart', {
 							chart: {
 						        type: 'pie',
-						        height: 112,
-						        marginTop: 0,
+							    height: 96,
+							    margin: 0,
 							},
 					        title: false, 
 						    credits: false,
@@ -578,8 +578,8 @@
 							Highcharts.chart(key+'-<%= myString %>-chart', {
 								chart: {
 							        type: 'pie',
-							        height: 112,
-							        marginTop: 0,
+							        height: 96,
+							        margin: 0,
 								},
 						        title: false, 
 							    credits: false,

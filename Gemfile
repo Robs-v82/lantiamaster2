@@ -37,8 +37,6 @@ gem 'mini_racer'
 
 # for Excel downloads
 gem 'rubyzip', '>= 1.2.1'
-# gem 'axlsx', git: 'https://github.com/randym/axlsx.git', ref: 'c8ac844'
-# gem 'axlsx_rails'
 
 gem 'poppler'
 gem 'mini_magick'
@@ -62,6 +60,8 @@ gem 'database_cleaner'
 
 # gem 'jquery-ui-rails'
 gem 'sqlite3', '~> 1.4'
+
+gem 'spreadsheet'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

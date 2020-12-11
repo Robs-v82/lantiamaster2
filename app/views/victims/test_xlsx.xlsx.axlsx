@@ -1,0 +1,4 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Localidades") do |sheet|
+	sheet.add_row %w{hello world}
+end
