@@ -2,12 +2,18 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 
+		function tabInit() {
+		    $('ul.tabs').tabs();
+		}
+
 	 	// TRIGGER CARDS IN INDEX
 		$('.pseudo-clickable-row').click(function() {
 			var myState = $(this).attr('id').split('-')[0];
 			$('.index-display').hide();
 			$('#'+myState+'-card-display').show();
-			buildLocalCharts(myState)
+			tabInit();
+			buildLocalCharts(myState);
+
 		});
 
 	 	// NATIONAL MAP
@@ -60,7 +66,8 @@
 		        					var myState = this.code;
 		        					$('.index-display').hide();
 		        					$('#'+myState+'-card-display').show();
-		        					buildLocalCharts(myState)
+		        					tabInit();
+		        					buildLocalCharts(myState);
 		        					$("html, body").animate({ scrollTop: 580 }, "slow");
 		        				}
 		        			}

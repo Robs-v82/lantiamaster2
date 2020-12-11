@@ -190,10 +190,14 @@ $(document).ready(function(){
 		}
 	})
 	
+	function tabInit() {
+	    $('ul.tabs').tabs();
+	}
 
 	$('#show-filter-dashboard').click(function() {
 		$('#filter-dashboard').removeClass('hide-on-med-and-down hide-on-small-only');
 		$("html, body").animate({ scrollTop: 0 }, "slow");
+		tabInit();
 	})
 
 	$('#hide-filter-dashboard').click(function() {

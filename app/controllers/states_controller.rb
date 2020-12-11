@@ -161,6 +161,7 @@ class StatesController < ApplicationController
         @levels = helpers.ircoLevels
         @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
         @icon_table = myCookie.data
+        @icon_table = @icon_table.sort_by{|state| state["rank"].to_i }
         @screens = [
             {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..15,16..31]},
             {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..31]}
@@ -176,7 +177,7 @@ class StatesController < ApplicationController
         }
         @components = [
             {:key=>"cs", :name=>"Conflictividad social", :share=>0.14},
-            {:key=>"gob", :name=>"Gobernabilidad", :share=>0.22},
+            {:key=>"gob", :name=>"Ingobernabilidad", :share=>0.22},
             {:key=>"vd", :name=>"Violencia con daños colaterales", :share=>0.4},
             {:key=>"vis", :name=>"Violencia con impacto social", :share=>0.24}
         ]

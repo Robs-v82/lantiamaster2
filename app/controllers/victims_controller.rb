@@ -195,7 +195,7 @@ class VictimsController < ApplicationController
   		]
   		@pieStrings = %w{massacres shootings_authorities mass_graves} 
 
-  		@fileHash = {:data=>@my_freq_table,:formats=>['xlsx','csv']}
+  		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
   		print "******"*300
   		print session[:victim_freq_params]
 	end
@@ -407,11 +407,9 @@ class VictimsController < ApplicationController
 
 					# BOOLEANS
 					booleans = [
-						{:string=>"massacres", :killings=>localKillings.where("killed_count > ?", 3)},
+						{:string=>"massacres", :killings=>localKillings.where("killed_count > ?", 3).where(:mass_grave=>nil)},
 						{:string=>"mass_graves", :killings=>localKillings.where(:mass_grave=>true)},
-						{:string=>"shootings_authorities", :killings=>localKillings.where(:shooting_between_criminals_and_authorities=>true)},					
-						{:string=>"criminal_shootings", :killings=>localKillings.where(:shooting_between_criminals_and_authorities=>false).where(:shooting_among_criminals=>true)},	
-						{:string=>"other_shootings", :killings=>localKillings.where(:shooting_between_criminals_and_authorities=>false).where(:shooting=>true)},					
+						{:string=>"shootings_authorities", :killings=>localKillings.where(:any_shooting=>true)}					
 					]
 					booleans.each{|boolean|
 						counter = 0
@@ -618,6 +616,16 @@ class VictimsController < ApplicationController
         		end
         	end
         end
+
+		Killing.all.each{|killing|
+			if killing.shooting
+				killing.update(:any_shooting=>true)
+			elsif killing.shooting_between_criminals_and_authorities
+				killing.update(:any_shooting=>true)
+			elsif killing.shooting_among_criminals
+				killing.update(:any_shooting=>true)
+			end
+		}
 
         # SUCCESS AND REDIRECT
 		session[:filename] = load_victims_params[:file].original_filename

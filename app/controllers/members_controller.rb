@@ -305,7 +305,7 @@ class MembersController < ApplicationController
 		@detention_cartels = helpers.detention_cartels
 		@topDetentions = get_top_detentions
 		@topDetentionRoles = helpers.top_detention_roles
-		@fileHash = {:data=>@my_freq_table,:formats=>['xlsx','csv']}
+		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
 	end
 
 	def detainees_freq_api
@@ -702,7 +702,7 @@ class MembersController < ApplicationController
 	 	records = detainee_freq_table(*session[:detainee_freq_params])
 		file_root = Rails.root.join("private",file_name)
 		myLength = helpers.root_path[:myLength]
-		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], session[:detainee_freq_params][1]).deliver_now
+		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], session[:detainee_freq_params][1], params[:extension]).deliver_now
 		session[:email_success] = true
 		redirect_to "/members/detainees"
 	end
