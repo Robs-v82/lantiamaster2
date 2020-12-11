@@ -1,6 +1,5 @@
 class VictimsController < ApplicationController
 
-	require 'roo'
 	after_action :remove_email_message, only: [:victims]
 
 	def new_query
