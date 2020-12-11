@@ -37,82 +37,78 @@ class QueryMailer < ApplicationMailer
 		mail(to: @user.mail, subject: mySubject)	
 	end
 
-	def freq_email(user, fileroot, filename, records, myLength, caption, timeFrame, placeFrame)
+	def freq_email(user, fileroot, filename, records, myLength, caption, timeFrame, placeFrame, extension)
 		@greeting = greeting
 		@caption = caption
 		@timeFrame = timeFrame
 		@number_of_records = records.length
 		myFile = fileroot
-		mySubject = "Table de frecuencias Lantia Intelligence: "+caption
-		if filename.include? ("csv")
-			@extension = "CSV"
-			headers = []
+		mySubject = "Tabulado Lantia Intelligence: "+caption
+		filename += extension
+		@extension = extension.upcase
+		CSV.open(myFile, 'w', write_headers: true, headers: headers) do |writer|
+			writer.to_io.write "\uFEFF"
+			row = []
 			if 	records[0][:pre_scope]
-				headers.push(records[0][:pre_scope])
+				row.push(records[0][:pre_scope])
 			end
-			headers.push(records[0][:pre_scope])
+			row.push(records[0][:pre_scope])
 			[:organization, :role, :gender].each{|header|
 				if 	records[0][header]
-					headers.push(records[0][header])
+					row.push(records[0][header])
 				end
 			}
 			records[0][:period].each{|period|
 				if timeFrame == "annual"
-					headers.push(period.name)
+					row.push(period.name)
 				elsif timeFrame == "quarterly"
-					headers.push("T"+period.name[-1]+"/"+I18n.l(period.first_day, format: '%Y'))
+					row.push("T"+period.name[-1]+"/"+I18n.l(period.first_day, format: '%Y'))
 				else
-					headers.push(I18n.l(period.first_day, format: '%b/%Y'))
+					row.push(I18n.l(period.first_day, format: '%b/%Y'))
 				end
 			}
 			unless records[-1][:freq].length == 1
-				headers.push("TOTAL")
+				row.push("TOTAL")
 			end
-			CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
-				records[1..-2].each do |record|
-					unless placeFrame == "stateWise" && record[:name] == "Nacional" || placeFrame == "cityWise" && record[:name] == "Nacional" || record[:full_code] == "00000"
-						row = []
-						[:paren_name, :name, :organization, :role, :gender].each do |cell|
-							if record[cell]
-								row.push(record[cell])
-							end
-						end
-						record[:freq].each do |figure|
-							row.push(figure)
-						end
-						unless records[-1][:freq].length == 1
-							row.push(record[:place_total])
-						end
-						writer << row
-					end
-				end
-				unless records.length < 5
+			writer << row
+			records[1..-2].each do |record|
+				unless placeFrame == "stateWise" && record[:name] == "Nacional" || placeFrame == "cityWise" && record[:name] == "Nacional" || record[:full_code] == "00000"
 					row = []
-					[:name, :county_placer, :organization_placer, :role_placer, :gender_placer].each do |cell|
-						if records[-1][cell]
-							row.push(records[-1][cell])
+					[:paren_name, :name, :organization, :role, :gender].each do |cell|
+						if record[cell]
+							row.push(record[cell])
 						end
 					end
-					records[-1][:freq].each do |figure|
+					record[:freq].each do |figure|
 						row.push(figure)
 					end
 					unless records[-1][:freq].length == 1
-						row.push(records[-1][:total_total])
+						row.push(record[:place_total])
 					end
 					writer << row
 				end
-				attachments[filename] = File.read(myFile)
-			end	
+			end
+			unless records.length < 5
+				row = []
+				[:name, :county_placer, :organization_placer, :role_placer, :gender_placer].each do |cell|
+					if records[-1][cell]
+						row.push(records[-1][cell])
+					end
+				end
+				records[-1][:freq].each do |figure|
+					row.push(figure)
+				end
+				unless records[-1][:freq].length == 1
+					row.push(records[-1][:total_total])
+				end
+				writer << row
+			end		
 		end
-		if filename.include? ("xlsx")
-			@extension = "XLSX"
-			print "******"
-			print "XLSX"
-			xlsx = render_to_string formats: [:xlsx], handlers: [:axlsx], template: ["victims/test_xlsx.xlsx.axlsx"]
-			self.instance_variable_set(:@_lookup_context, nil)
-			# attachment = Base64.encode64(xlsx)
-			attachments[filename] = {mime_type: Mime[:xlsx], content: xlsx, encoding: 'base64'}			
+		if extension == "xlsx"
+			myFile = csv_to_xlsx myFile
 		end
+
+		attachments[filename] = File.read(myFile)
 		@user = user
 		mail(to: @user.mail, subject: mySubject)
 	end

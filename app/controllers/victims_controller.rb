@@ -87,6 +87,7 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
+		@chartDisplay = true
 		@user = User.find(session[:user_id])
 		@victims = true
 		@maps = true
@@ -652,16 +653,14 @@ class VictimsController < ApplicationController
 			records = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][2]]
 		else
 			records = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
-
 		end
-	 	file_name = "victimas("+current_date+")."+params[:extension]
+	 	file_name = "victimas("+current_date+")."
 	 	caption = "víctimas"
-	 	records = victim_freq_table(*session[:victim_freq_params])
 		file_root = Rails.root.join("private",file_name)
 		myLength = helpers.root_path[:myLength]
-		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], session[:victim_freq_params][1]).deliver_now
+		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], session[:victim_freq_params][1], params[:extension]).deliver_now
 		session[:email_success] = true
-		redirect_to "/victims"
+		redirect_to "/victims"		
 	end
 
 	private
