@@ -35,7 +35,7 @@ class DatasetsController < ApplicationController
 		end
 		@myYears = (2010..2030)
 		@forms = [
-			{caption:"Víctimas", myAction:"/victims/load_victims", timeSearch: nil, myObject:"file", loaded: nil, fileWindow: true},
+			{caption:"Víctimas", myAction:"/victims/load_victims", timeSearch: "shared/monthsearch", myObject:"file", loaded: nil, fileWindow: true},
 			{caption:"ICon", myAction:"/states/load_icon", timeSearch: "shared/quartersearch", myObject:"file", loaded: nil, fileWindow: true},
 			{caption:"Perfil OC", myAction:"/organizations/load_organizations", timeSearch: nil, myObject:"file", loaded: nil, fileWindow: true},
 			{caption:"Referencias-Incidentes OC", myAction:"/organizations/load_organization_events", timeSearch: nil, myObject:"file", loaded: nil, fileWindow: true},

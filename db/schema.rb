@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_11_162756) do
+ActiveRecord::Schema.define(version: 2020_12_15_214312) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -57,7 +57,9 @@ ActiveRecord::Schema.define(version: 2020_12_11_162756) do
     t.text "data"
     t.integer "quarter_id"
     t.string "category"
+    t.integer "year_id"
     t.index ["quarter_id"], name: "index_cookies_on_quarter_id"
+    t.index ["year_id"], name: "index_cookies_on_year_id"
   end
 
   create_table "counties", force: :cascade do |t|
@@ -417,6 +419,7 @@ ActiveRecord::Schema.define(version: 2020_12_11_162756) do
   add_foreign_key "cities", "counties"
   add_foreign_key "cities", "counties", column: "core_county_id"
   add_foreign_key "cookies", "quarters"
+  add_foreign_key "cookies", "years"
   add_foreign_key "counties", "cities"
   add_foreign_key "counties", "states"
   add_foreign_key "detentions", "events"

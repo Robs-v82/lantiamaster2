@@ -9,4 +9,5 @@ class Year < ApplicationRecord
 	has_many :detainees, :through => :detentions
 	has_many :months, :through => :quarters
 	has_many :leads, :through => :events
+	has_many :cookies
 end

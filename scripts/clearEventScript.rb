@@ -6,3 +6,11 @@ Event.all.each{|event|
 		event.destroy
 	end
 }
+
+Cookie.all.each{|cookie|
+	unless cookie.category.nil?
+		if cookie.category.include? "victim"
+			cookie.destroy
+		end
+	end
+}

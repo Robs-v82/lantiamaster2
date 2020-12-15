@@ -44,9 +44,13 @@ class QueryMailer < ApplicationMailer
 		@number_of_records = records.length
 		myFile = fileroot
 		mySubject = "Tabulado Lantia Intelligence: "+caption
-		filename += extension
+		if extension == 'xlsx'
+			filename += 'xls'
+		else
+			filename += extension	
+		end
 		@extension = extension.upcase
-		CSV.open(myFile, 'w', write_headers: true, headers: headers) do |writer|
+		CSV.open(myFile, 'w') do |writer|
 			writer.to_io.write "\uFEFF"
 			row = []
 			if 	records[0][:pre_scope]
@@ -105,7 +109,64 @@ class QueryMailer < ApplicationMailer
 			end		
 		end
 		if extension == "xlsx"
-			myFile = csv_to_xlsx myFile
+			CSV.open(myFile, 'w', col_sep: "\t") do |writer|
+				writer.to_io.write "\uFEFF"
+				row = []
+				if 	records[0][:pre_scope]
+					row.push(records[0][:pre_scope])
+				end
+				row.push(records[0][:pre_scope])
+				[:organization, :role, :gender].each{|header|
+					if 	records[0][header]
+						row.push(records[0][header])
+					end
+				}
+				records[0][:period].each{|period|
+					if timeFrame == "annual"
+						row.push(period.name)
+					elsif timeFrame == "quarterly"
+						row.push("T"+period.name[-1]+"/"+I18n.l(period.first_day, format: '%Y'))
+					else
+						row.push(I18n.l(period.first_day, format: '%b/%Y'))
+					end
+				}
+				unless records[-1][:freq].length == 1
+					row.push("TOTAL")
+				end
+				writer << row
+				records[1..-2].each do |record|
+					unless placeFrame == "stateWise" && record[:name] == "Nacional" || placeFrame == "cityWise" && record[:name] == "Nacional" || record[:full_code] == "00000"
+						row = []
+						[:paren_name, :name, :organization, :role, :gender].each do |cell|
+							if record[cell]
+								row.push(record[cell])
+							end
+						end
+						record[:freq].each do |figure|
+							row.push(figure)
+						end
+						unless records[-1][:freq].length == 1
+							row.push(record[:place_total])
+						end
+						writer << row
+					end
+				end
+				unless records.length < 5
+					row = []
+					[:name, :county_placer, :organization_placer, :role_placer, :gender_placer].each do |cell|
+						if records[-1][cell]
+							row.push(records[-1][cell])
+						end
+					end
+					records[-1][:freq].each do |figure|
+						row.push(figure)
+					end
+					unless records[-1][:freq].length == 1
+						row.push(records[-1][:total_total])
+					end
+					writer << row
+				end		
+			end
 		end
 
 		attachments[filename] = File.read(myFile)
