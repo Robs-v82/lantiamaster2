@@ -15,12 +15,12 @@ class VictimsController < ApplicationController
 		session[:checkedGenderOptions] = genderOptions
 		countiesArr = []
 		session[:checkedCounties] = "states"
-		Cookie.create(:category=>"victim_freq_params", :data=>["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
+		Cookie.create(:category=>"victim_freq_params_"+session[:user_id].to_s, :data=>["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
 		redirect_to '/victims'
 	end
 
 	def query
-		paramsCookie = Cookie.where(:category=>"victim_freq_params").last.data
+		paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		if victim_freq_params[:freq_timeframe]
 			paramsCookie[0] = victim_freq_params[:freq_timeframe]
 		end
@@ -67,31 +67,33 @@ class VictimsController < ApplicationController
 		session[:checkedCitiesArr] = victim_freq_params[:freq_cities]
 		session[:checkedCitiesArr] = session[:checkedCitiesArr].map(&:to_i)
 		paramsCookie[5] = session[:checkedCitiesArr]
-		Cookie.where(:category=>"victim_freq_params").last.update(:data=>paramsCookie)
+		Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
 		redirect_to "/victims"	
 	end
 
 	def county_query
-		paramsCookie = Cookie.where(:category=>"victim_freq_params").last.data
+		paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		paramsCookie[1] = "countyWise"
 		session[:checkedStatesArr] = [State.where(:code=>params[:code]).last.id]
 		paramsCookie[4] = session[:checkedStatesArr]
 		session[:checkedCounties] = "states"
 		paramsCookie[7] = session[:checkedCounties]
-		Cookie.where(:category=>"victim_freq_params").last.update(:data=>paramsCookie)
+		Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
 		redirect_to '/victims'
 	end
 
 	def reset_map
+		paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		session[:checkedStatesArr] = State.pluck(:id)
-		session[:victim_freq_params][1] = "stateWise"
+		paramsCookie[1] = "stateWise"
 		session[:checkedCounties] = "states"
-		session[:victim_freq_params][4] = session[:checkedStatesArr]
+		paramsCookie[4] = session[:checkedStatesArr]
+		Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
 		redirect_to '/victims'
 	end
 
 	def victims
-		@paramsCookie = Cookie.where(:category=>"victim_freq_params").last.data
+		@paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		@chartDisplay = true
 		@user = User.find(session[:user_id])
 		@victims = true
