@@ -602,9 +602,10 @@ class VictimsController < ApplicationController
 		}
 
         # SUCCESS AND REDIRECT
+
+		api(months)
 		session[:filename] = load_victims_params[:file].original_filename
 		session[:load_success] = true
-		api(months)
 		redirect_to "/datasets/load"
 	end
 
@@ -663,7 +664,7 @@ class VictimsController < ApplicationController
 		
 		# CREATE API FOR EACH STATE
 		data = {}
-		myArr = [%w{annual quarterly monthly}, %w{noGenderSplit genderSplit}]
+		myArr = [%w{annual quarterly monthly}, %w{noGenderSplit}]
 		State.all.each{|state|
 			if Cookie.where(:category=>state.code+"_victims").any?
 				myCookie = Cookie.where(:category=>state.code+"_victims").last
@@ -706,7 +707,7 @@ class VictimsController < ApplicationController
 
 		# CREATE NATIONAL API
 		data = {}
-		myArr = [%w{annual quarterly monthly}, %w{nationWise stateWise cityWise}, %w{noGenderSplit genderSplit}]
+		myArr = [%w{annual quarterly monthly}, %w{nationWise stateWise cityWise}, %w{noGenderSplit}]
 		if Cookie.where(:category=>"victims").any?
 			myNationalCookie = Cookie.where(:category=>"victims").last
 			oldNationalData = myNationalCookie.data[0]
