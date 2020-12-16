@@ -109,7 +109,7 @@ class VictimsController < ApplicationController
 			{caption:"Mensual", box_id:"monthly_query_box", name:"monthly"},
   		]
   		@placeFrames = [
-  			{caption:"Nacional", box_id:"nation_query_box", name:"nationWise"},
+  			# {caption:"Nacional", box_id:"nation_query_box", name:"nationWise"},
   			{caption:"Estado", box_id:"state_query_box", name:"stateWise"},
 			{caption:"Z Metro.", box_id:"city_query_box", name:"cityWise"},
 			{caption:"Municipio", box_id:"county_query_box", name:"countyWise"},
@@ -601,9 +601,11 @@ class VictimsController < ApplicationController
 			end
 		}
 
+		Victim.all.each{|v| unless v.gender == "MASCULINO" || v.gender == "FEMENINO"; v.update(:gender=>"NO IDENTIFICADO") end}
+
         # SUCCESS AND REDIRECT
 
-		api(months)
+		# api(months)
 		session[:filename] = load_victims_params[:file].original_filename
 		session[:load_success] = true
 		redirect_to "/datasets/load"
