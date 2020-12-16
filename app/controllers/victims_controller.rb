@@ -14,21 +14,21 @@ class VictimsController < ApplicationController
 		genderOptions = ["Masculino","Femenino","No identificado"]
 		session[:checkedGenderOptions] = genderOptions
 		countiesArr = []
-		session[:victim_freq_params] = ["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr]
 		session[:checkedCounties] = "states"
-		Cookie.create(:data=>["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
+		Cookie.create(:category=>"victim_freq_params", :data=>["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
 		redirect_to '/victims'
 	end
 
 	def query
+		paramsCookie = Cookie.where(:category=>"victim_freq_params").last.data
 		if victim_freq_params[:freq_timeframe]
-			session[:victim_freq_params][0] = victim_freq_params[:freq_timeframe]
+			paramsCookie[0] = victim_freq_params[:freq_timeframe]
 		end
 		if victim_freq_params[:freq_placeframe]
-			session[:victim_freq_params][1] = victim_freq_params[:freq_placeframe]
+			paramsCookie[1] = victim_freq_params[:freq_placeframe]
 		end
 		if victim_freq_params[:freq_genderframe]
-			session[:victim_freq_params][2] = victim_freq_params[:freq_genderframe]
+			paramsCookie[2] = victim_freq_params[:freq_genderframe]
 		end
 		if victim_freq_params[:freq_years]
 			session[:checkedYearsArr] = victim_freq_params[:freq_years].map(&:to_i)
@@ -36,7 +36,7 @@ class VictimsController < ApplicationController
 			victim_freq_params[:freq_years].each{|id|
 				myArr.push(Year.find(id))
 			}
-			session[:victim_freq_params][3] = myArr
+			paramsCookie[3] = myArr
 		end
 		if victim_freq_params[:freq_states]
 			session[:checkedStatesArr] = victim_freq_params[:freq_states].map(&:to_i) 
@@ -44,38 +44,41 @@ class VictimsController < ApplicationController
 			# victim_freq_params[:freq_states].each{|id|
 			# 	myArr.push(id)
 			# }
-			session[:victim_freq_params][4] = session[:checkedStatesArr]
+			paramsCookie[4] = session[:checkedStatesArr]
 		end
 		if victim_freq_params[:freq_gender_options]
 			session[:checkedGenderOptions] = victim_freq_params[:freq_gender_options]
-			session[:victim_freq_params][6] = session[:checkedGenderOptions]
+			paramsCookie[6] = session[:checkedGenderOptions]
 		end
 		if victim_freq_params[:freq_counties]
 			myArr = victim_freq_params[:freq_counties].map(&:to_i)
 			if myArr.length < County.find(myArr.first).state.counties.length
 				Cookie.create(:data=>myArr)
 				session[:checkedCounties] = Cookie.last.id
-				session[:victim_freq_params][7] = session[:checkedCounties]
+				paramsCookie[7] = session[:checkedCounties]
 			else
 				session[:checkedCounties] = "states"
-				session[:victim_freq_params][7] = session[:checkedCounties]			
+				paramsCookie[7] = session[:checkedCounties]			
 			end
 		else
 			session[:checkedCounties] = "states"
-			session[:victim_freq_params][7] = session[:checkedCounties]
+			paramsCookie[7] = session[:checkedCounties]
 		end
 		session[:checkedCitiesArr] = victim_freq_params[:freq_cities]
 		session[:checkedCitiesArr] = session[:checkedCitiesArr].map(&:to_i)
-		session[:victim_freq_params][5] = session[:checkedCitiesArr]
+		paramsCookie[5] = session[:checkedCitiesArr]
+		Cookie.where(:category=>"victim_freq_params").last.update(:data=>paramsCookie)
 		redirect_to "/victims"	
 	end
 
 	def county_query
-		session[:victim_freq_params][1] = "countyWise"
+		paramsCookie = Cookie.where(:category=>"victim_freq_params").last.data
+		paramsCookie[1] = "countyWise"
 		session[:checkedStatesArr] = [State.where(:code=>params[:code]).last.id]
-		session[:victim_freq_params][4] = session[:checkedStatesArr]
+		paramsCookie[4] = session[:checkedStatesArr]
 		session[:checkedCounties] = "states"
-		session[:victim_freq_params][7] = session[:checkedCounties]
+		paramsCookie[7] = session[:checkedCounties]
+		Cookie.where(:category=>"victim_freq_params").last.update(:data=>paramsCookie)
 		redirect_to '/victims'
 	end
 
@@ -88,6 +91,7 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
+		@paramsCookie = Cookie.where(:category=>"victim_freq_params").last.data
 		@chartDisplay = true
 		@user = User.find(session[:user_id])
 		@victims = true
@@ -113,55 +117,53 @@ class VictimsController < ApplicationController
 			{caption:"Desagregar", box_id:"gender_split_query_box", name:"genderSplit"},
   		]
 
-  		print Cookie.where(:category=>"victim_freq_params").last.data
-		print session[:victim_freq_params]
-  		if session[:victim_freq_params][0] == "annual"
+  		if @paramsCookie[0] == "annual"
   			@timeFrames[0][:checked] = true
   			@annual = true
-  		elsif session[:victim_freq_params][0] == "quarterly"
+  		elsif @paramsCookie[0] == "quarterly"
   			@timeFrames[1][:checked] = true
   			@quarterly = true
-  		elsif session[:victim_freq_params][0] == "monthly"
+  		elsif @paramsCookie[0] == "monthly"
   			@timeFrames[2][:checked] = true
   		end
 
-  		if session[:victim_freq_params][1] == "nationWise"
+  		if @paramsCookie[1] == "nationWise"
   			@maps = false
   			@nationWise = true
   			@placeFrames[0][:checked] = true
-  		elsif session[:victim_freq_params][1] == "stateWise"
+  		elsif @paramsCookie[1] == "stateWise"
   			@stateWise = true
   			@placeFrames[1][:checked] = true
-  		elsif session[:victim_freq_params][1] == "cityWise"
+  		elsif @paramsCookie[1] == "cityWise"
   			@cityWise = true
   			@placeFrames[2][:checked] = true
-  		elsif session[:victim_freq_params][1] == "countyWise"
+  		elsif @paramsCookie[1] == "countyWise"
   			@countyWise = true
   			@placeFrames[3][:checked] = true
   			@stateCode = State.find(session[:checkedStatesArr].last).code
   		end
 
-  		if session[:victim_freq_params][2] == "noGenderSplit"
+  		if @paramsCookie[2] == "noGenderSplit"
   			@genderFrames[0][:checked] = true
-  		elsif session[:victim_freq_params][2] == "genderSplit"
+  		elsif @paramsCookie[2] == "genderSplit"
   			@maps = false
   			@genderFrames[1][:checked] = true
   		end
 
-		if session[:victim_freq_params][2] == "genderSplit" ||
-			session[:victim_freq_params][3].length < @years.length ||
-			session[:victim_freq_params][4].length < State.all.length && session[:victim_freq_params][4].length > 1 ||
-			session[:victim_freq_params][4].length == 1 && @stateWise ||
-			session[:victim_freq_params][5].length < City.all.length ||
-			session[:victim_freq_params][6].length < 3 ||
+		if @paramsCookie[2] == "genderSplit" ||
+			@paramsCookie[3].length < @years.length ||
+			@paramsCookie[4].length < State.all.length && @paramsCookie[4].length > 1 ||
+			@paramsCookie[4].length == 1 && @stateWise ||
+			@paramsCookie[5].length < City.all.length ||
+			@paramsCookie[6].length < 3 ||
 			session[:checkedCounties] != "states"
 				@maps = false
-				@my_freq_table = victim_freq_table(*session[:victim_freq_params])
+				@my_freq_table = victim_freq_table(*@paramsCookie)
 		elsif @countyWise && session[:checkedCounties] == "states"
-			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][2]]
+			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
 				@maps = true
 		else
-			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
+			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]]
 		end
 
   		@sortCounter = 0
@@ -201,7 +203,7 @@ class VictimsController < ApplicationController
 
   		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
   		print "******"*300
-  		print session[:victim_freq_params]
+  		print @paramsCookie
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
