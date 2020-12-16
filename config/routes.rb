@@ -96,4 +96,5 @@ Rails.application.routes.draw do
     get 'victims/api'
     get 'victims/reset_map'
     get 'victims/county_query/:code' => 'victims#county_query'
+    get 'victims/green_query'
 end

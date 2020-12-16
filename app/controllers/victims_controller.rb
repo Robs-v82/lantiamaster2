@@ -16,6 +16,7 @@ class VictimsController < ApplicationController
 		countiesArr = []
 		session[:victim_freq_params] = ["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr]
 		session[:checkedCounties] = "states"
+		Cookie.create(:data=>["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
 		redirect_to '/victims'
 	end
 
@@ -94,7 +95,6 @@ class VictimsController < ApplicationController
 		@years = helpers.get_regular_years
 		session[:years] = @years
 		@checkedStates = session[:checkedStatesArr]
-		@stateCode = State.find(session[:checkedStatesArr].last).code
 
 		# FRAMES FOR ANALISYS
 		@timeFrames = [
@@ -113,6 +113,8 @@ class VictimsController < ApplicationController
 			{caption:"Desagregar", box_id:"gender_split_query_box", name:"genderSplit"},
   		]
 
+  		print Cookie.where(:category=>"victim_freq_params").last.data
+		print session[:victim_freq_params]
   		if session[:victim_freq_params][0] == "annual"
   			@timeFrames[0][:checked] = true
   			@annual = true
@@ -136,6 +138,7 @@ class VictimsController < ApplicationController
   		elsif session[:victim_freq_params][1] == "countyWise"
   			@countyWise = true
   			@placeFrames[3][:checked] = true
+  			@stateCode = State.find(session[:checkedStatesArr].last).code
   		end
 
   		if session[:victim_freq_params][2] == "noGenderSplit"
@@ -490,7 +493,7 @@ class VictimsController < ApplicationController
 		else
 			myString = load_victims_params[:year] + "_" + load_victims_params[:month] 
 			months = Month.where(:name=>myString).last
-			validDate = myString
+			validDate = load_victims_params[:year] + "-" + load_victims_params[:month]
 		end
 		linkArr = []
 		(1..10).map{|x| linkArr.push("Link "+x.to_s)}
@@ -740,7 +743,6 @@ class VictimsController < ApplicationController
 	end
 
 	def api_freq_table(period, scope, gender, years, states, cities, genderOptions, counties, months)
-		myYear = months.first.year
 		myTable = []
 		headerHash = {}
 		totalHash = {}
@@ -770,19 +772,14 @@ class VictimsController < ApplicationController
 			headerHash[:pre_scope] = "ESTADO"
 			totalHash[:county_placer] = "--"
 			headerHash[:scope] = "MUNICIPIO"
-			myScope = []
 			if counties == "states"
-				myStates.each{|state|
-					myScope.push(state.counties.select{|county| county.victims.any?})
-				}
+				myScope = [myStates.first.counties]
 			else
 				myCounties = []
 				myKeys = Cookie.find(counties).data
 				myKeys.each {|x|
 					myCounty = County.find(x)
-					if myCounty.victims.any?	
-						myCounties.push(myCounty)
-					end
+					myCounties.push(myCounty)
 				}
 				myScope = myCounties
 			end		

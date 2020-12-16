@@ -116,7 +116,12 @@
 			        	floating: true,
 			        	backgroundColor: 'white',
 			            labelFormatter: function () {
-			                return (this.from || '<') + ' - ' + (this.to || '>');
+			                if (this.to == 0) {
+			                	return 0
+			                } else {
+			               		 return (this.from || '<') + ' - ' + (this.to || '>'); 	
+			                }
+			               
 			            },
 			        },
 		            colors: ['#e0e0e0', "#ffa0a0", "#ef4e50", "#ad1111",'#610000'],
@@ -219,8 +224,11 @@
 			        	floating: true,
 			        	backgroundColor: 'white',
 			            labelFormatter: function () {
-			                return (this.from || '<') + ' - ' + (this.to || '>');
-			            },
+			                if (this.to == 0) {
+			                	return 0
+			                } else {
+			               		 return (this.from || '<') + ' - ' + (this.to || '>'); 	
+			                }			            },
 			        },
 			        title: false, 
 			        credits: false,
