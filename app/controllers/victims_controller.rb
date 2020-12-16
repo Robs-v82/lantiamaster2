@@ -530,7 +530,7 @@ class VictimsController < ApplicationController
 	    				myString = helpers.zero_padded_full_code(row["Municipio"]) + "0000"
 	    				myCounty = County.where(:full_code=>myString[0,5]).last
 	    			end
-	        		if myCounty.killings.where(:legacy_number=>row["No Evento"]).empty && myMonth.killings.where(:legacy_number=>row["No Evento"]).empty?
+	        		if myCounty.killings.where(:legacy_number=>row["No Evento"]).empty? && myMonth.killings.where(:legacy_number=>row["No Evento"]).empty?
 	        			# CREATE EVENT AND ADD SOURCES
 	        			event = {}
 	        			event[:event_date] = dateString
