@@ -204,8 +204,6 @@ class VictimsController < ApplicationController
   		@pieStrings = %w{massacres shootings_authorities mass_graves} 
 
   		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
-  		print "******"*300
-  		print @paramsCookie
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
@@ -464,9 +462,9 @@ class VictimsController < ApplicationController
 						freq = []
 						counter = 0
 						place_total = 0
-						localVictims = place.victims
+						localVictims = place.victims.where(:gender=>gender.upcase)
 						myPeriod.each {|timeUnit|
-							number_of_victims = timeUnit.victims.where(:gender=>gender).merge(localVictims).length
+							number_of_victims = timeUnit.victims.merge(localVictims).length
 							freq.push(number_of_victims)
 							totalFreq[counter] += number_of_victims
 							counter += 1
@@ -632,20 +630,21 @@ class VictimsController < ApplicationController
     end
 
 	def send_file
+		paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
-		if session[:victim_freq_params][2] == "genderSplit" || session[:victim_freq_params][3].length < session[:years].length || session[:victim_freq_params][4].length < State.all.length && session[:victim_freq_params][4].length > 1 || session[:victim_freq_params][5].length < City.all.length || session[:victim_freq_params][6].length < 3 || session[:checkedCounties] != "states"
-			records = victim_freq_table(*session[:victim_freq_params])
-		elsif session[:victim_freq_params][1] == "countyWise" && session[:checkedCounties] == "states"
-			records = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][2]]
+		if paramsCookie[2] == "genderSplit" || paramsCookie[3].length < session[:years].length || paramsCookie[4].length < State.all.length && paramsCookie[4].length > 1 || paramsCookie[5].length < City.all.length || paramsCookie[6].length < 3 || session[:checkedCounties] != "states"
+			records = victim_freq_table(*paramsCookie)
+		elsif paramsCookie[1] == "countyWise" && session[:checkedCounties] == "states"
+			records = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]]
 		else
-			records = Cookie.where(:category=>"victims").last.data[0][session[:victim_freq_params][0]][session[:victim_freq_params][1]][session[:victim_freq_params][2]]
+			records = Cookie.where(:category=>"victims").last.data[0][paramsCookie[0]][paramsCookie[1]][paramsCookie[2]]
 		end
 	 	file_name = "victimas("+current_date+")."
 	 	caption = "víctimas"
 		file_root = Rails.root.join("private",file_name)
 		myLength = helpers.root_path[:myLength]
-		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], session[:victim_freq_params][1], params[:extension]).deliver_now
+		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension]).deliver_now
 		session[:email_success] = true
 		redirect_to "/victims"		
 	end

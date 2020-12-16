@@ -56,7 +56,7 @@ class QueryMailer < ApplicationMailer
 			if 	records[0][:pre_scope]
 				row.push(records[0][:pre_scope])
 			end
-			row.push(records[0][:pre_scope])
+			row.push(records[0][:scope])
 			[:organization, :role, :gender].each{|header|
 				if 	records[0][header]
 					row.push(records[0][header])
@@ -78,7 +78,7 @@ class QueryMailer < ApplicationMailer
 			records[1..-2].each do |record|
 				unless placeFrame == "stateWise" && record[:name] == "Nacional" || placeFrame == "cityWise" && record[:name] == "Nacional" || record[:full_code] == "00000"
 					row = []
-					[:paren_name, :name, :organization, :role, :gender].each do |cell|
+					[:parent_name, :name, :organization, :role, :gender].each do |cell|
 						if record[cell]
 							row.push(record[cell])
 						end
