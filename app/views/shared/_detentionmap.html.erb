@@ -40,7 +40,12 @@
 		        	floating: true,
 		        	backgroundColor: 'white',
 		            labelFormatter: function () {
-		                return (this.from || '<') + ' - ' + (this.to || '>');
+		                if (this.to == 0) {
+		                	return 0
+		                } else {
+		               		 return (this.from || '<') + ' - ' + (this.to || '>'); 	
+		                }
+		               
 		            },
 		        },
 		        title: false, 
@@ -55,7 +60,7 @@
 	            colorAxis: {
 	                dataClassColor: 'category',
 	                dataClasses: [{
-	                	to: 1,
+	                	to: 0,
 	                }, {
 	                    from: 1,
 	                    to: 10
@@ -106,8 +111,9 @@
 		            }
 		        }],
 	            tooltip: {
-	            	enabled: false
-	            }
+	            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+	            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
+	            },
 		    }, function (chart) { 
 				    var originalWidth = chart.chartWidth - 105;
 				    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)

@@ -147,13 +147,13 @@
 				            data: mxStates,
 				            borderColor: 'white',
 				            borderWidth: 1,
-				            nullColor: '#e0e0e0',
-				            cursor: 'pointer', 
+				            nullColor: '#e0e0e0', 
 				            dataLabels: {
 				                enabled: true,
 				                format: '{point.properties.postal}'
 				            }
 				        }, {
+				        	cursor: 'pointer',
 				        	type: 'mappoint',
 				        	data: data,
 				        	marker: {
@@ -183,6 +183,7 @@
 			        		}
 			            }
 			        ],
+
 			    }, function (chart) { 
 					    var originalWidth = chart.chartWidth - 105;
 					    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
@@ -217,10 +218,43 @@
 			        },
 			        legend: {
 			        	layout: 'vertical',
-			        	align: 'left',
-			        	verticalAlign: 'middle',
-			        	x: 14,
-			        	y: 90,
+			        	<% if @countyWise %>
+			        		<% if @stateCode == "01" ||
+			        			@stateCode == "04" ||
+			        			@stateCode == "09" ||
+			        			@stateCode == "13" ||
+			        			@stateCode == "15" ||
+			        			@stateCode == "14" ||
+			        			@stateCode == "17" ||
+			        			@stateCode == "21" ||
+			        			@stateCode == "22" ||
+			        			@stateCode == "23"
+			        		%>
+					        	align: 'left',
+					        	verticalAlign: 'top',
+					        <% elsif @stateCode == "16" ||
+					        	@stateCode == "11" ||
+					        	@stateCode == "07" ||
+					        	@stateCode == "31"
+					        %>
+			        			align: 'right',
+			        			verticalAlign: 'bottom',
+			        		<% elsif @stateCode == "08" ||
+			        			@stateCode == "20" ||
+			        			@stateCode == "24"
+			        		%>
+			        			align: 'right',
+			        			verticalAlign: 'top',
+			        		<% else %>
+			        			align: 'left',
+			        			verticalAlign: 'bottom',
+			        		<% end %>
+			        	<% else %>
+			        		align: 'left',
+			        		verticalAlign: 'middle',
+				        	x: 14,
+				        	y: 90,
+			        	<% end %>
 			        	floating: true,
 			        	backgroundColor: 'white',
 			            labelFormatter: function () {
@@ -306,13 +340,19 @@
 			            }
 			        }],
 		            tooltip: {
-		            	enabled: false
-		            }
-			    }, function (chart) { 
-					    var originalWidth = chart.chartWidth - 105;
-					    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
-	    				.add();
-	        	});		
+		            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+		            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
+		            },
+			    },
+			    	<% unless @countyWise %>
+				    	function (chart) { 
+						    var originalWidth = chart.chartWidth - 105;
+						    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+		    				.add();
+
+	        			}
+	        		<% end %>
+	        	);		
 			});
 		<% end %>
 

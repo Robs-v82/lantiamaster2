@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-    root 'organizations#query'
+    root 'victims#new_query'
     post 'states/load_irco'
     post 'states/load_icon'
     post 'counties/load_irco'
