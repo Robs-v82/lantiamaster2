@@ -585,7 +585,7 @@ class VictimsController < ApplicationController
 						# CREATE VICTIMS
 						create_victims(row, Killing.last.id)
 					else
-						create_victims(row, myCounty.killings.where(:legacy_number=>row["No Evento"]).last.id)
+						create_victims(row, Killing.where(:legacy_number=>row["No Evento"]).last.id)
 	        		end
 	        	end
 	        end
