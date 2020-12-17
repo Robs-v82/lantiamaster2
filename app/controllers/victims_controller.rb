@@ -157,22 +157,24 @@ class VictimsController < ApplicationController
   			@genderFrames[1][:checked] = true
   		end
 
-		if @paramsCookie[1] == "nationWise"
-			@paramsCookie[2] == "genderSplit" ||
-			@paramsCookie[3].length < @years.length ||
-			@paramsCookie[4].length < State.all.length && @paramsCookie[4].length > 1 ||
-			@paramsCookie[4].length == 1 && @stateWise ||
-			@paramsCookie[5].length < City.all.length ||
-			@paramsCookie[6].length < 3 ||
-			session[:checkedCounties] != "states"
-				@maps = false
-				@my_freq_table = victim_freq_table(*@paramsCookie)
-		elsif @countyWise && session[:checkedCounties] == "states"
-			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
-				@maps = true
-		else
-			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]]
-		end
+		@my_freq_table = victim_freq_table(*@paramsCookie)
+
+		# if @paramsCookie[1] == "nationWise"
+		# 	@paramsCookie[2] == "genderSplit" ||
+		# 	@paramsCookie[3].length < @years.length ||
+		# 	@paramsCookie[4].length < State.all.length && @paramsCookie[4].length > 1 ||
+		# 	@paramsCookie[4].length == 1 && @stateWise ||
+		# 	@paramsCookie[5].length < City.all.length ||
+		# 	@paramsCookie[6].length < 3 ||
+		# 	session[:checkedCounties] != "states"
+		# 		@maps = false
+		# 		@my_freq_table = victim_freq_table(*@paramsCookie)
+		# elsif @countyWise && session[:checkedCounties] == "states"
+		# 	@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
+		# 		@maps = true
+		# else
+		# 	@my_freq_table = Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]]
+		# end
 
   		@sortCounter = 0
   		@sortType = "victims"
@@ -330,124 +332,125 @@ class VictimsController < ApplicationController
 				}	
 			end
 		else
-
-			# MAP DATA
-			myTable.push(headerHash)
-			if scope == "stateWise" || scope == "cityWise" 
-				myScope.push("Nacional")
-			elsif scope == "countyWise" && states.length == 1
-				myScope.push("Estado")
-			end
-
-			myScope.each {|place|
-				if place == "Nacional"
-					placeName = "Nacional"
-					placeCode = "00"
-					localVictims = Victim.all
-					localKillings = Killing.all
-				elsif place == "Estado"
-					placeName = State.find(states.last).name
-					placeCode = "000"
-					localVictims = State.find(states.last).victims
-					localKillings = State.find(states.last).killings
-				else
-					placeName = place.name
-					placeCode = place.code
-					localVictims = place.victims
-					localKillings = place.killings
+			if gender == "noGenderSplit" 
+				# MAP DATA
+				myTable.push(headerHash)
+				if scope == "stateWise" || scope == "cityWise" 
+					myScope.push("Nacional")
+				elsif scope == "countyWise" && states.length == 1
+					myScope.push("Estado")
 				end
-				placeHash = {}
-				placeHash[:name] = placeName
-				placeHash[:code] = placeCode
-				if scope == "countyWise"
-					if place == "Estado"
-						placeHash[:parent_name] = placeName
-						placeHash[:full_code] = "00000"	
+
+				myScope.each {|place|
+					if place == "Nacional"
+						placeName = "Nacional"
+						placeCode = "00"
+						localVictims = Victim.all
+						localKillings = Killing.all
+					elsif place == "Estado"
+						placeName = State.find(states.last).name
+						placeCode = "000"
+						localVictims = State.find(states.last).victims
+						localKillings = State.find(states.last).killings
 					else
-						placeHash[:parent_name] = place.state.shortname
-						placeHash[:full_code] = place.full_code
+						placeName = place.name
+						placeCode = place.code
+						localVictims = place.victims
+						localKillings = place.killings
 					end
-				end
-				freq = []
-				counter = 0
-				place_total = 0
-				myPeriod.each {|timeUnit|
-					number_of_victims = localVictims.merge(timeUnit.victims).length
-					freq.push(number_of_victims)
-					unless place == "Nacional" || place =="Estado"
-						totalFreq[counter] += number_of_victims
+					placeHash = {}
+					placeHash[:name] = placeName
+					placeHash[:code] = placeCode
+					if scope == "countyWise"
+						if place == "Estado"
+							placeHash[:parent_name] = placeName
+							placeHash[:full_code] = "00000"	
+						else
+							placeHash[:parent_name] = place.state.shortname
+							placeHash[:full_code] = place.full_code
+						end
 					end
-					counter += 1
-					place_total += number_of_victims	
-				}
-				placeHash[:freq] = freq
-				placeHash[:place_total] = place_total
-
-				# GENDER
-				genderArr = []
-				genderKeys.each{|k|
-					if k[:name] == "Femenino" || k[:name] == "Masculino"
-						genderHash = {:name=>k[:name], :color=>k[:color]}
-						genderHash[:freq] = localVictims.where(:gender=>k[:name].upcase).length
-						genderHash[:share] = genderHash[:freq]/localVictims.where(:gender=>["MASCULINO","FEMENINO"]).length.to_f
-						genderArr.push(genderHash)
-					end
-				}
-				placeHash[:genders] = genderArr
-
-				# AGE
-				ageArr = []
-				ageKeys.each{|k|
-					ageHash = {:name=>k[:name]}
-					number_of_victims = localVictims.where('age >= ?', k[:range][0])
-					number_of_victims = number_of_victims.where('age <= ?', k[:range][1]).length
-					ageHash[:freq] = number_of_victims
-					ageHash[:share] = number_of_victims/localVictims.where.not(:age=>nil).length.to_f
-					ageArr.push(ageHash)
-				}
-				placeHash[:ages] = ageArr
-
-				# POLICE
-				policeArr = []
-				policeKeys.each{|k|
-					policeHash = {:name=>k[:name]}
-					policeHash[:freq] = localVictims.where(:legacy_role_officer=>k[:categories]).length
-					policeArr.push(policeHash)
-				}
-				placeHash[:agencies] = policeArr
-
-				# BOOLEANS
-				booleans = [
-					{:string=>"massacres", :killings=>localKillings.where("killed_count > ?", 3).where(:mass_grave=>nil)},
-					{:string=>"mass_graves", :killings=>localKillings.where(:mass_grave=>true)},
-					{:string=>"shootings_authorities", :killings=>localKillings.where(:any_shooting=>true)}					
-				]
-				booleans.each{|boolean|
+					freq = []
 					counter = 0
-					boolean[:killings].map{|k| counter += k.victims.length}
-					placeHash[boolean[:string]] = {:freq=>boolean[:killings].length, :share=>counter/localVictims.length.to_f}	
-				}
+					place_total = 0
+					myPeriod.each {|timeUnit|
+						number_of_victims = localVictims.merge(timeUnit.victims).length
+						freq.push(number_of_victims)
+						unless place == "Nacional" || place =="Estado"
+							totalFreq[counter] += number_of_victims
+						end
+						counter += 1
+						place_total += number_of_victims	
+					}
+					placeHash[:freq] = freq
+					placeHash[:place_total] = place_total
 
-				# TYPE OF PLACE
-				types = []
-				typeCounter = 0
-				typeOfPlaceArr.each{|type|
-					typeHash = {:name=>type[:string]}
-					typeKillings = localKillings.where(:type_of_place=>type[:typeArr])
-					typeHash[:color] = type[:color]
-					typeHash[:freq] = typeKillings.length
-					typeHash[:share] = typeHash[:freq]/localKillings.where.not(:type_of_place=>nil).length.to_f
-					types.push(typeHash)
-					typeCounter += typeHash[:share]
+					# GENDER
+					genderArr = []
+					genderKeys.each{|k|
+						if k[:name] == "Femenino" || k[:name] == "Masculino"
+							genderHash = {:name=>k[:name], :color=>k[:color]}
+							genderHash[:freq] = localVictims.where(:gender=>k[:name].upcase).length
+							genderHash[:share] = genderHash[:freq]/localVictims.where(:gender=>["MASCULINO","FEMENINO"]).length.to_f
+							genderArr.push(genderHash)
+						end
+					}
+					placeHash[:genders] = genderArr
+
+					# AGE
+					ageArr = []
+					ageKeys.each{|k|
+						ageHash = {:name=>k[:name]}
+						number_of_victims = localVictims.where('age >= ?', k[:range][0])
+						number_of_victims = number_of_victims.where('age <= ?', k[:range][1]).length
+						ageHash[:freq] = number_of_victims
+						ageHash[:share] = number_of_victims/localVictims.where.not(:age=>nil).length.to_f
+						ageArr.push(ageHash)
+					}
+					placeHash[:ages] = ageArr
+
+					# POLICE
+					policeArr = []
+					policeKeys.each{|k|
+						policeHash = {:name=>k[:name]}
+						policeHash[:freq] = localVictims.where(:legacy_role_officer=>k[:categories]).length
+						policeArr.push(policeHash)
+					}
+					placeHash[:agencies] = policeArr
+
+					# BOOLEANS
+					booleans = [
+						{:string=>"massacres", :killings=>localKillings.where("killed_count > ?", 3).where(:mass_grave=>nil)},
+						{:string=>"mass_graves", :killings=>localKillings.where(:mass_grave=>true)},
+						{:string=>"shootings_authorities", :killings=>localKillings.where(:any_shooting=>true)}					
+					]
+					booleans.each{|boolean|
+						counter = 0
+						boolean[:killings].map{|k| counter += k.victims.length}
+						placeHash[boolean[:string]] = {:freq=>boolean[:killings].length, :share=>counter/localVictims.length.to_f}	
+					}
+
+					# TYPE OF PLACE
+					types = []
+					typeCounter = 0
+					typeOfPlaceArr.each{|type|
+						typeHash = {:name=>type[:string]}
+						typeKillings = localKillings.where(:type_of_place=>type[:typeArr])
+						typeHash[:color] = type[:color]
+						typeHash[:freq] = typeKillings.length
+						typeHash[:share] = typeHash[:freq]/localKillings.where.not(:type_of_place=>nil).length.to_f
+						types.push(typeHash)
+						typeCounter += typeHash[:share]
+					}
+					nilTypeHash = {
+						:name=>"Otro",
+						:color=>'#e0e0e0',
+						:share=> 1 - typeCounter,
+					}
+					types.push(nilTypeHash)
+					placeHash[:types] = types
 				}
-				nilTypeHash = {
-					:name=>"Otro",
-					:color=>'#e0e0e0',
-					:share=> 1 - typeCounter,
-				}
-				types.push(nilTypeHash)
-				placeHash[:types] = types
-				# END OF MAP DATA
+			# END OF MAP DATA
 
 			else
 				headerHash[:gender] = "GÉNERO"
