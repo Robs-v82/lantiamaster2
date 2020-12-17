@@ -317,7 +317,7 @@ class VictimsController < ApplicationController
 					counter = 0
 					place_total = 0
 					myPeriod.each {|timeUnit|
-						number_of_victims = timeUnit.victims.where(:gender=>gender).length
+						number_of_victims = timeUnit.victims.where(:gender=>gender.upcase).length
 						freq.push(number_of_victims)
 						totalFreq[counter] += number_of_victims
 						counter += 1
@@ -515,12 +515,12 @@ class VictimsController < ApplicationController
 		]
 		# monthArr = []
         CSV.foreach(myFile, :headers => true) do |row|
-        	dateString = row["Año"]+"-"+row["Mes"]+"-"+row["Día"]
+        	paddedMonth = row["Mes"].to_i
+	        paddedMonth = paddedMonth + 100
+	        paddedMonth = paddedMonth.to_s[1,2]
+        	dateString = row["Año"]+"-"+paddedMonth+"-"+row["Día"]
         	if dateString.include? validDate
 	        	if Killing.where(:legacy_id=>row["ID"], :legacy_number=>row["No Evento"]).empty?
-	        		paddedMonth = row["Mes"].to_i
-	        		paddedMonth = paddedMonth + 100
-	        		paddedMonth = paddedMonth.to_s[1,2]
 	        		monthString = row["Año"]+"_"+paddedMonth
 	        		myMonth = Month.where(:name=>monthString).last
 	        		if row["Estado"] == "Distrito Federal"
