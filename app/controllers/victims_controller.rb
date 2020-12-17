@@ -663,7 +663,7 @@ class VictimsController < ApplicationController
 
 	# def api(months)
 	def api
-		months = helpers.get_regular_months
+		months = helpers.get_regular_months.sort
 		helpers.clear_session
 		checkedYearsArr = []
 		years = helpers.get_regular_years

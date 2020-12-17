@@ -85,7 +85,7 @@ module ApplicationHelper
 
 	def get_regular_months
 		myMonths = []
-		Month.all.each{|month|
+		Month.all.sort.each{|month|
 			unless month.victims.empty?
 				myMonths.push(month)
 			end
