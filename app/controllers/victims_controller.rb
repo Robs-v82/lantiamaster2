@@ -98,6 +98,7 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
+		@paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		@chartDisplay = true
 		@user = User.find(session[:user_id])
 		@victims = true
