@@ -2,6 +2,8 @@ class MembersController < ApplicationController
 	
 	after_action :remove_email_message, only: [:detainees]
 
+	skip_before_action :verify_authenticity_token
+
 	require 'pp'
 
 	def detentions
