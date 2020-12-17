@@ -597,7 +597,12 @@
 					        	data: [
 					        		<% place[:types].each do |type| %>
 					        			{
-					        				name: '<%= type[:name] %>',
+					        				name:
+					        					<% if type[:name] == "Transporte público" %>
+					        						'Transporte de pasajeros',
+					        					<% else %>
+					        						'<%= type[:name] %>',
+					        					<% end %>
 					        				y: <%= number_with_precision(type[:share]*100, precision: 1) %>,
 					        				showInLegend: true,
 					        				color: '<%= type[:color] %>'
