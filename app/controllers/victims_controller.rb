@@ -157,9 +157,7 @@ class VictimsController < ApplicationController
   			@genderFrames[1][:checked] = true
   		end
 
-		@my_freq_table = victim_freq_table(*@paramsCookie)
-
-		if @paramsCookie[1] == "nationWise"
+		if @paramsCookie[1] == "nationWise" ||
 			@paramsCookie[2] == "genderSplit" ||
 			@paramsCookie[3].length < @years.length ||
 			@paramsCookie[4].length < State.all.length && @paramsCookie[4].length > 1 ||
@@ -536,7 +534,8 @@ class VictimsController < ApplicationController
 	    				myString = helpers.zero_padded_full_code(row["Municipio"]) + "0000"
 	    				myCounty = County.where(:full_code=>myString[0,5]).last
 	    			end
-	        		if myCounty.killings.where(:legacy_number=>row["No Evento"]).empty? && myMonth.killings.where(:legacy_number=>row["No Evento"]).empty?
+	    			legacyString = row["No Evento"]+myString[0,5]+row["Año"]+paddedMonth+row["Día"]
+	        		if Killing.where(:legacy_number=>legacyString)
 	        			# CREATE EVENT AND ADD SOURCES
 	        			event = {}
 	        			event[:event_date] = dateString
@@ -565,7 +564,7 @@ class VictimsController < ApplicationController
 						killing[:legacy_id] = row["ID"]
 						killing[:killed_count] = row["Total Ejecuciones"].to_i
 						killing[:arrested_count] = row["No Detenidos"].to_i
-						killing[:legacy_number] = row["No Evento"]
+						killing[:legacy_number] = legacyString
 						killing[:aggresor_count] = row["Cuántos Ejecutadores"]
 						killing[:killer_vehicle_count] = row["Cuántos Vehículos Ejecutadores"]
 						if row["Lugar en que fue Ejecutado_Recat"] == ""
@@ -680,10 +679,10 @@ class VictimsController < ApplicationController
 		data = {}
 		myArr = [%w{annual quarterly monthly}, %w{noGenderSplit}]
 		State.all.each{|state|
-			if Cookie.where(:category=>state.code+"_victims").any?
-				myCookie = Cookie.where(:category=>state.code+"_victims").last
-				oldData = myCookie.data[0]
-			end
+			# if Cookie.where(:category=>state.code+"_victims").any?
+			# 	myCookie = Cookie.where(:category=>state.code+"_victims").last
+			# 	oldData = myCookie.data[0]
+			# end
 			stateHash = {}
 			myArr[0].each{|timeframe|
 				timeHash = {}
@@ -691,41 +690,41 @@ class VictimsController < ApplicationController
 					stateParams = [timeframe, "countyWise", genderframe, years, [state.id], checkedCitiesArr, genderOptions, "states", months]
 					timeHash[genderframe] = api_freq_table(*stateParams)
 					print (state.name+"*******")*200
-					if oldData
-						oldData[timeframe][genderframe][0][:period].append(*timeHash[genderframe][0][:period])
-						t = oldData[timeframe][genderframe].length 
-						(1..t-2).each{|x|
-							print oldData[timeframe][genderframe][x][:freq]
-							print timeHash[genderframe][x][:freq] 
-							oldData[timeframe][genderframe][x][:freq].append(*timeHash[genderframe][x][:freq])
-							[:genders, :ages, :agencies, "massacres", "mass_graves", "shootings_authorities", :types].each{|mySymbol|
-								oldData[timeframe][genderframe][x][mySymbol] =	timeHash[genderframe][x][mySymbol]
-							}
-							oldData[timeframe][genderframe][x][:place_total] += timeHash[genderframe][x][:place_total]
-						}
-						oldData[timeframe][genderframe][-1][:freq].append(*timeHash[genderframe][-1][:freq])
-						totalCounter = 0
-						oldData[timeframe][genderframe][-1][:freq].map{|f| totalCounter += f}
-						oldData[timeframe][genderframe][-1][:total_total] = totalCounter
-					end 
+					# if oldData
+					# 	oldData[timeframe][genderframe][0][:period].append(*timeHash[genderframe][0][:period])
+					# 	t = oldData[timeframe][genderframe].length 
+					# 	(1..t-2).each{|x|
+					# 		print oldData[timeframe][genderframe][x][:freq]
+					# 		print timeHash[genderframe][x][:freq] 
+					# 		oldData[timeframe][genderframe][x][:freq].append(*timeHash[genderframe][x][:freq])
+					# 		[:genders, :ages, :agencies, "massacres", "mass_graves", "shootings_authorities", :types].each{|mySymbol|
+					# 			oldData[timeframe][genderframe][x][mySymbol] =	timeHash[genderframe][x][mySymbol]
+					# 		}
+					# 		oldData[timeframe][genderframe][x][:place_total] += timeHash[genderframe][x][:place_total]
+					# 	}
+					# 	oldData[timeframe][genderframe][-1][:freq].append(*timeHash[genderframe][-1][:freq])
+					# 	totalCounter = 0
+					# 	oldData[timeframe][genderframe][-1][:freq].map{|f| totalCounter += f}
+					# 	oldData[timeframe][genderframe][-1][:total_total] = totalCounter
+					# end 
 				}
 				stateHash[timeframe] = timeHash
 			}
 			data = stateHash
-			if myCookie
-				Cookie.create(:data=>[oldData], :category=>state.code+"_victims")
-			else
+			# if myCookie
+			# 	Cookie.create(:data=>[oldData], :category=>state.code+"_victims")
+			# else
 				Cookie.create(:data=>[data], :category=>state.code+"_victims")
-			end
+			# end
 		}
 
 		# CREATE NATIONAL API
 		data = {}
 		myArr = [%w{annual quarterly monthly}, %w{stateWise cityWise}, %w{noGenderSplit}]
-		if Cookie.where(:category=>"victims").any?
-			myNationalCookie = Cookie.where(:category=>"victims").last
-			oldNationalData = myNationalCookie.data[0]
-		end
+		# if Cookie.where(:category=>"victims").any?
+		# 	myNationalCookie = Cookie.where(:category=>"victims").last
+		# 	oldNationalData = myNationalCookie.data[0]
+		# end
 		myArr[0].each{|timeframe|
 			timeHash = {}
 			myArr[1].each{|placeframe|
@@ -733,31 +732,31 @@ class VictimsController < ApplicationController
 				myArr[2].each{|genderframe|
 					victim_freq_params = [timeframe, placeframe, genderframe, years, checkedStatesArr, checkedCitiesArr, genderOptions, "states", months]
 					placeHash[genderframe] = api_freq_table(*victim_freq_params)
-					if oldNationalData
-						oldNationalData[timeframe][placeframe][genderframe][0][:period].append(*placeHash[genderframe][0][:period])
-						t = oldNationalData[timeframe][placeframe][genderframe].length
-						(1..t-2).each{|x|
-							oldNationalData[timeframe][placeframe][genderframe][x][:freq].append(*placeHash[genderframe][x][:freq])
-							[:genders, :ages, :agencies, "massacres", "mass_graves", "shootings_authorities", :types].each{|mySymbol|
-								oldNationalData[timeframe][placeframe][genderframe][x][mySymbol] = placeHash[genderframe][x][mySymbol]
-							}
-							oldNationalData[timeframe][placeframe][genderframe][x][:place_total] += placeHash[genderframe][x][:place_total]
-						}
-						oldNationalData[timeframe][placeframe][genderframe][-1][:freq].append(*placeHash[genderframe][-1][:freq])
-						totalCounter = 0
-						oldNationalData[timeframe][placeframe][genderframe][-1][:freq].map{|f| totalCounter += f}
-						oldNationalData[timeframe][placeframe][genderframe][-1][:total_total] = totalCounter
-					end 
+					# if oldNationalData
+					# 	oldNationalData[timeframe][placeframe][genderframe][0][:period].append(*placeHash[genderframe][0][:period])
+					# 	t = oldNationalData[timeframe][placeframe][genderframe].length
+					# 	(1..t-2).each{|x|
+					# 		oldNationalData[timeframe][placeframe][genderframe][x][:freq].append(*placeHash[genderframe][x][:freq])
+					# 		[:genders, :ages, :agencies, "massacres", "mass_graves", "shootings_authorities", :types].each{|mySymbol|
+					# 			oldNationalData[timeframe][placeframe][genderframe][x][mySymbol] = placeHash[genderframe][x][mySymbol]
+					# 		}
+					# 		oldNationalData[timeframe][placeframe][genderframe][x][:place_total] += placeHash[genderframe][x][:place_total]
+					# 	}
+					# 	oldNationalData[timeframe][placeframe][genderframe][-1][:freq].append(*placeHash[genderframe][-1][:freq])
+					# 	totalCounter = 0
+					# 	oldNationalData[timeframe][placeframe][genderframe][-1][:freq].map{|f| totalCounter += f}
+					# 	oldNationalData[timeframe][placeframe][genderframe][-1][:total_total] = totalCounter
+					# end 
 				}
 				timeHash[placeframe] = placeHash
 			}
 			data[timeframe] = timeHash
 		}
-		if myNationalCookie
-			Cookie.create(:data=>[oldNationalData], :category=>"victims")
-		else
+		# if myNationalCookie
+		# 	Cookie.create(:data=>[oldNationalData], :category=>"victims")
+		# else
 			Cookie.create(:data=>[data], :category=>"victims")
-		end
+		# end
 		redirect_to '/victims/new_query'
 	end
 
