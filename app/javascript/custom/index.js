@@ -9,13 +9,20 @@ window.addEventListener( "pageshow", function ( event ) {
 });
 
 // BACK BUTTON
+
 $(document).ready(function(){
 	if(performance.navigation.type == 2){
 	   location.reload(true);
 	}
 })
 
+
 $(document).ready(function(){
+	function triggerHelp() {
+		$('#victim-help-modal').modal('open');
+	}
+
+	triggerHelp();
 
 	function myFunction() {
 		var myString = $('#autocomplete-input').val();

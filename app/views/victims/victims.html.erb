@@ -469,3 +469,20 @@
 		</div>
 	</div>
 <% end %>
+<!-- GUIDE MODAL -->
+<% if session[:user_victim_help] %>
+	<div id="victim-help-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p14 slim">Algunas sugerencias para mejorar tu experiencia de navegación.</p>
+			<ol>
+				<li>Puedes dar click en los estados, ciudades y municipios del mapa, para ver más información.</li>
+				<li>Con el ícono de lista <i class="material-icons paletton-red-text small">list</i> puedes abrir un tabulado con las cifras que se visualizan en el mapa.</li>
+				<li>Utiliza el panel de la izquierda para desagregar y filtrar la información (en algunos casos tu consulta sólo se podrá visualizar en tabulado).</li>
+			</ol>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

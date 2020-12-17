@@ -490,7 +490,7 @@ class VictimsController < ApplicationController
 	def load_victims
 		myFile = load_victims_params[:file]
 		if load_victims_params[:month].empty?
-			months = Year.where(:name=>load_victims_params[:year]).last.months
+			months = Year.where(:name=>load_victims_params[:year]).last.months.sort
 			validDate = load_victims_params[:year]
 		else
 			myString = load_victims_params[:year] + "_" + load_victims_params[:month] 
@@ -601,7 +601,11 @@ class VictimsController < ApplicationController
 			end
 		}
 
-		Victim.all.each{|v| unless v.gender == "MASCULINO" || v.gender == "FEMENINO"; v.update(:gender=>"NO IDENTIFICADO") end}
+		Victim.all.each{|v| 
+			unless v.gender == "MASCULINO" || v.gender == "FEMENINO"
+			 v.update(:gender=>"NO IDENTIFICADO") 
+			end
+		}
 
         # SUCCESS AND REDIRECT
 
