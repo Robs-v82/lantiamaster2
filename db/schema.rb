@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_17_042302) do
+ActiveRecord::Schema.define(version: 2020_12_17_124850) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -143,7 +143,7 @@ ActiveRecord::Schema.define(version: 2020_12_17_042302) do
     t.integer "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "legacy_number"
+    t.integer "legacy_number", limit: 8
     t.integer "aggresor_count"
     t.integer "kidnapped_count"
     t.integer "killer_vehicle_count"
