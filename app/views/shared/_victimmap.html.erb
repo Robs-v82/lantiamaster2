@@ -267,13 +267,11 @@
 					exporting: {
 						enabled: false
 					},
-		            colors: ['#e0e0e0', "#ffa0a0", "#ef4e50", "#ad1111",'#610000'],
+		            colors: ["#ffa0a0", "#ef4e50", "#ad1111",'#610000'],
 		            colorAxis: {
 		                dataClassColor: 'category',
 		                dataClasses: [{
-		                	to: 0
-		                }, {
-		                	from: 0,
+		                	from: 5,
 		                	to: <%= @dataClasses[0] %>,
 		                }, {
 		                    from: <%= @dataClasses[0] %>,
