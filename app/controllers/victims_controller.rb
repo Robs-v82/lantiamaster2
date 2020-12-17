@@ -190,7 +190,13 @@ class VictimsController < ApplicationController
   		@checkedGenderOptions = session[:checkedGenderOptions]
   		if @checkedStates.length == 1
   			targetState = State.find(@checkedStates[0])
-  			@counties = targetState.counties.sort_by {|county| county.full_code}
+  			@counties = []
+  			counties = targetState.counties.sort_by {|county| county.full_code}
+  			counties.map{|c| 
+  				if c.victims.length > 4
+  					@counties.push(c)
+  				end
+  			}
   		else
   			@counties = []
   		end
@@ -247,16 +253,17 @@ class VictimsController < ApplicationController
 			myScope = []
 			if counties == "states"
 				myStates.each{|state|
-					myScope.push(state.counties.select{|county| county.victims.any?})
+					myCounties = state.counties.reject { |county| county.victims.length < 5 }
+					myScope.push(myCounties)
 				}
 			else
 				myCounties = []
 				myKeys = Cookie.find(counties).data
 				myKeys.each {|x|
 					myCounty = County.find(x)
-					if myCounty.victims.any?	
+					# if myCounty.victims.length > 4
 						myCounties.push(myCounty)
-					end
+					# end
 				}
 				myScope = myCounties
 			end		
@@ -806,13 +813,16 @@ class VictimsController < ApplicationController
 			totalHash[:county_placer] = "--"
 			headerHash[:scope] = "MUNICIPIO"
 			if counties == "states"
-				myScope = [myStates.first.counties]
+				myCounties = myStates.first.counties.reject { |county| county.victims.length < 5 }
+				myScope = [myCounties]
 			else
 				myCounties = []
 				myKeys = Cookie.find(counties).data
 				myKeys.each {|x|
 					myCounty = County.find(x)
-					myCounties.push(myCounty)
+					if myCounty.victims.length > 4
+						myCounties.push(myCounty)
+					end
 				}
 				myScope = myCounties
 			end		

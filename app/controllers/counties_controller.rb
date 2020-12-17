@@ -15,12 +15,11 @@ class CountiesController < ApplicationController
 
 	def getCheckboxCounties
 		targetState = params[:id]
-	   	targetCounties = State.find(targetState).counties
-	   	undefinedCounty = targetCounties.where(:name=>"Sin definir").last
-	   	targetCounties = targetCounties.where.not(:name=>"Sin definir")
+	   	targetCounties = State.find(targetState).counties.reject { |county| county.victims.length < 5 }
 	   	targetCounties = targetCounties.sort_by{|county|county.name}
-	    targetCounties << undefinedCounty
-	    render json: {counties: targetCounties}	
+	    print "******"*1000
+	    print targetCounties
+	    render json: {counties: targetCounties}
 	end
 
 	def low_risk
