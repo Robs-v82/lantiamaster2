@@ -4,6 +4,8 @@ class OrganizationsController < ApplicationController
   after_action :remove_empty_query_message, only: [:index]
   after_action :remove_empty_request, only: [:query]
 
+  skip_before_action :verify_authenticity_token
+
 	def password
 	    if session[:password_error]
       	@password_error = true
@@ -517,7 +519,7 @@ class OrganizationsController < ApplicationController
 	    if target_user && target_user.authenticate(password_params[:password])
 	      session[:user_id] = target_user[:id]
 	      helpers.clear_session
-        redirect_to '/victims/new_query'
+        redirect_to '/members/new_query'
 	    else
 	    	session[:password_error] = true
 	      redirect_to '/password'

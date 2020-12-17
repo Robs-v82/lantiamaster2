@@ -3,6 +3,14 @@
 		<%= render "shared/victimmap"%>
 	<% end %>
 <% end %>
+<script type="text/javascript">
+$(document).ready(function() {
+	$(document).one('mousemove', function() {
+		$('#victim-help-modal').modal('open');
+	})
+})
+
+</script>
 <div class="row freq-row">
 	<div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-med-and-down">
 		<div class="card paletton-grey">
@@ -22,7 +30,9 @@
 							</div>
 							<div class="row">
 								<div class="col s9">
-									<a href="/victims/new_query" class="reset-values waves-effect waves-light btn-small paletton-grey z-depth-0 p11 bold">Restablecer</a>
+									<div class="tall-row valign-wrapper">
+										<a href="/victims/new_query" class="reset-values waves-effect waves-light btn-small paletton-grey z-depth-0 p11 bold">Restablecer</a>
+									</div>
 								</div>
 								<%= render "shared/sendmagicbutton" %>
 							</div>
@@ -440,6 +450,41 @@
 	</div>
 </div>
 <!-- MODAL SECTION -->
+<% if @user.victim_help %>
+	<div id="victim-help-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<div class="p18">
+				<br>
+				<p>Da click en los estados, ciudades y municipios en el mapa, para ver más información.</p>
+				<br>
+				<p>Usa el ícono de lista (<span><i class="material-icons tiny">list</i></span>) para abrir un tabulado con cifras</p>
+				<br>
+				<p>Utiliza el panel de la izquierda para desagregar y filtrar la información (en algunos casos tu consulta sólo se podrá visualizar en tabulado).</p>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>
+<div id="victim-help-modal-2" class="modal">
+	<div class="modal-content">
+		<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+		<div class="p18">
+			<br>
+			<p>Da click en los estados, ciudades y municipios del mapa, para ver más información.</p>
+			<br>
+			<p>Usa el ícono de lista (<span><i class="material-icons tiny">list</i></span>) para abrir un tabulado con cifras</p>
+			<br>
+			<p>Utiliza el panel de la izquierda para desagregar y filtrar la información (en algunos casos tu consulta sólo se podrá visualizar en tabulado).</p>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+	</div>
+</div>
+
 <div id="victims-info-modal" class="modal large-modal">
 	<div class="modal-content">	
 		<div class="row">
@@ -463,23 +508,6 @@
 		<div class="modal-content">
 			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
 			<p class="p20 slim">Enviamos el archivo a <span class="cyan-text bold text-darken-2"><%= @user.mail %></span>. El procesamiento del correo puede tardar algunos minutos.</p>
-		</div>
-		<div class="modal-footer">
-			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
-		</div>
-	</div>
-<% end %>
-<!-- GUIDE MODAL -->
-<% if session[:user_victim_help] %>
-	<div id="victim-help-modal" class="modal">
-		<div class="modal-content">
-			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
-			<p class="p14 slim">Algunas sugerencias para mejorar tu experiencia de navegación.</p>
-			<ol>
-				<li>Puedes dar click en los estados, ciudades y municipios del mapa, para ver más información.</li>
-				<li>Con el ícono de lista <i class="material-icons paletton-red-text small">list</i> puedes abrir un tabulado con las cifras que se visualizan en el mapa.</li>
-				<li>Utiliza el panel de la izquierda para desagregar y filtrar la información (en algunos casos tu consulta sólo se podrá visualizar en tabulado).</li>
-			</ol>
 		</div>
 		<div class="modal-footer">
 			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>

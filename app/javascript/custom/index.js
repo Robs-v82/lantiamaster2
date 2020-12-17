@@ -1,3 +1,6 @@
+
+
+
 window.addEventListener( "pageshow", function ( event ) {
 	var historyTraversal = event.persisted || 
 	     (typeof window.performance != "undefined" && 
@@ -18,11 +21,6 @@ $(document).ready(function(){
 
 
 $(document).ready(function(){
-	function triggerHelp() {
-		$('#victim-help-modal').modal('open');
-	}
-
-	triggerHelp();
 
 	function myFunction() {
 		var myString = $('#autocomplete-input').val();

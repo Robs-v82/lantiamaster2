@@ -1,6 +1,11 @@
 class VictimsController < ApplicationController
 
 	after_action :remove_email_message, only: [:victims]
+	after_action :stop_help
+
+	def stop_help
+		User.find(session[:user_id]).update(:victim_help=>false)
+	end
 
 	def new_query
 		helpers.clear_session
@@ -109,7 +114,7 @@ class VictimsController < ApplicationController
 			{caption:"Mensual", box_id:"monthly_query_box", name:"monthly"},
   		]
   		@placeFrames = [
-  			# {caption:"Nacional", box_id:"nation_query_box", name:"nationWise"},
+  			{caption:"Nacional", box_id:"nation_query_box", name:"nationWise"},
   			{caption:"Estado", box_id:"state_query_box", name:"stateWise"},
 			{caption:"Z Metro.", box_id:"city_query_box", name:"cityWise"},
 			{caption:"Municipio", box_id:"county_query_box", name:"countyWise"},
@@ -494,7 +499,7 @@ class VictimsController < ApplicationController
 			validDate = load_victims_params[:year]
 		else
 			myString = load_victims_params[:year] + "_" + load_victims_params[:month] 
-			months = Month.where(:name=>myString).last
+			months = [Month.where(:name=>myString).last]
 			validDate = load_victims_params[:year] + "-" + load_victims_params[:month]
 		end
 		linkArr = []
