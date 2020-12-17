@@ -609,7 +609,7 @@ class VictimsController < ApplicationController
 
         # SUCCESS AND REDIRECT
 
-		# api(months)
+		api(months)
 		session[:filename] = load_victims_params[:file].original_filename
 		session[:load_success] = true
 		redirect_to "/datasets/load"
