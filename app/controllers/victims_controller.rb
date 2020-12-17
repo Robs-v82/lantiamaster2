@@ -166,6 +166,8 @@ class VictimsController < ApplicationController
 			@paramsCookie[6].length < 3 ||
 			session[:checkedCounties] != "states"
 				@maps = false
+				print "*******"*1000
+				print @paramsCookie
 				@my_freq_table = victim_freq_table(*@paramsCookie)
 		elsif @countyWise && session[:checkedCounties] == "states"
 			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
@@ -263,12 +265,25 @@ class VictimsController < ApplicationController
 			pp myScope
 		end
 
+		totalMonths = helpers.get_specific_months(years, "victims")
+
 		if period == "annual"
 			myPeriod = helpers.get_specific_years(years, "victims")
+			n = 12
 		elsif period == "quarterly"
 			myPeriod = helpers.get_specific_quarters(years, "victims")
+			n = 3
 		elsif period == "monthly"
-			myPeriod = helpers.get_specific_months(years, "victims")
+			myPeriod = totalMonths
+			n = 1
+		end
+
+
+
+		if myPeriod.length > 1
+			unless (totalMonths.length%n) == 0
+				myPeriod.pop
+			end
 		end
 
 		totalFreq = []
@@ -447,6 +462,7 @@ class VictimsController < ApplicationController
 					}
 					types.push(nilTypeHash)
 					placeHash[:types] = types
+					myTable.push(placeHash)
 				}
 			# END OF MAP DATA
 
@@ -804,15 +820,23 @@ class VictimsController < ApplicationController
 			pp myScope
 		end
 
+		totalMonths = helpers.get_specific_months(years, "victims")
+
 		if period == "annual"
-			myPeriod = []
-			months.map{|month| myPeriod.push(month.quarter.year); myPeriod.uniq!}
+			myPeriod = helpers.get_specific_years(years, "victims")
+			n = 12
 		elsif period == "quarterly"
-			myPeriod = []
-			months.map{|month| myPeriod.push(month.quarter); myPeriod.uniq!}
+			myPeriod = helpers.get_specific_quarters(years, "victims")
+			n = 3
 		elsif period == "monthly"
-			myPeriod = []
-			months.map{|month| myPeriod.push(month); myPeriod.uniq!}
+			myPeriod = totalMonths
+			n = 1
+		end
+
+		if myPeriod.length > 1
+			unless (totalMonths.length%n) == 0
+				myPeriod.pop
+			end
 		end
 
 		totalFreq = []
