@@ -713,7 +713,7 @@ class VictimsController < ApplicationController
 			}
 			data = stateHash
 			if myCookie
-				Cookie.create(:data=>[oldData] :category=>state.code+"_victims")
+				Cookie.create(:data=>[oldData], :category=>state.code+"_victims")
 			else
 				Cookie.create(:data=>[data], :category=>state.code+"_victims")
 			end
