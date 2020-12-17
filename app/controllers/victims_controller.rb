@@ -277,9 +277,6 @@ class VictimsController < ApplicationController
 			myPeriod = totalMonths
 			n = 1
 		end
-
-
-
 		if myPeriod.length > 1
 			unless (totalMonths.length%n) == 0
 				myPeriod.pop
@@ -300,7 +297,7 @@ class VictimsController < ApplicationController
 			{:string=>"Vía pública", :typeArr=>["Vía pública (calle, avenida, banqueta, carretera)","Transporte privado (automóvil, motocicleta, bicileta)"], :color=>"#3EBF3E"},
 			{:string=>"Inmueble habitacional", :typeArr=>["Inmueble habitacional propiedad del ejecutado (dentro o fuera)","Inmueble habitacional privado"], :color=>"#2F8F8F"},
 			{:string=>"Comercio", :typeArr=>["Local comercial (taller, tiendita, farmacia, tortillería)","Inmueble comercial (centro comercial, gasolinera, hotel, bar)"], :color=>"#EF4E50"},
-			{:string=>"Transporte público", :typeArr=>["Transporte público colectivo (autobús, metro, tren)","Transporte público privado (taxi, UBER, mototaxi)"], :color=>"#EF974E"}			
+			{:string=>"Transporte de pasajeros", :typeArr=>["Transporte público colectivo (autobús, metro, tren)","Transporte público privado (taxi, UBER, mototaxi)"], :color=>"#EF974E"}			
 		]
 
 		if myScope == nil
@@ -550,7 +547,11 @@ class VictimsController < ApplicationController
 	    				myString = helpers.zero_padded_full_code(row["Municipio"]) + "0000"
 	    				myCounty = County.where(:full_code=>myString[0,5]).last
 	    			end
-	    			legacyString = row["No Evento"]+myString[0,5]+row["Año"]+paddedMonth+row["Día"]
+	    			if row["No Evento"]
+	    				legacyString = row["No Evento"]+myString[0,5]+row["Año"]+paddedMonth+row["Día"]	
+	    			else
+	    				legacyString = "1234"+myString[0,5]+row["Año"]+paddedMonth+row["Día"]
+	    			end
 	        		if Killing.where(:legacy_number=>legacyString)
 	        			# CREATE EVENT AND ADD SOURCES
 	        			event = {}
@@ -832,7 +833,6 @@ class VictimsController < ApplicationController
 			myPeriod = totalMonths
 			n = 1
 		end
-
 		if myPeriod.length > 1
 			unless (totalMonths.length%n) == 0
 				myPeriod.pop
@@ -853,7 +853,7 @@ class VictimsController < ApplicationController
 			{:string=>"Vía pública", :typeArr=>["Vía pública (calle, avenida, banqueta, carretera)","Transporte privado (automóvil, motocicleta, bicileta)"], :color=>"#3EBF3E"},
 			{:string=>"Inmueble habitacional", :typeArr=>["Inmueble habitacional propiedad del ejecutado (dentro o fuera)","Inmueble habitacional privado"], :color=>"#2F8F8F"},
 			{:string=>"Comercio", :typeArr=>["Local comercial (taller, tiendita, farmacia, tortillería)","Inmueble comercial (centro comercial, gasolinera, hotel, bar)"], :color=>"#EF4E50"},
-			{:string=>"Transporte público", :typeArr=>["Transporte público colectivo (autobús, metro, tren)","Transporte público privado (taxi, UBER, mototaxi)"], :color=>"#EF974E"}			
+			{:string=>"Transporte de pasajeros", :typeArr=>["Transporte público colectivo (autobús, metro, tren)","Transporte público privado (taxi, UBER, mototaxi)"], :color=>"#EF974E"}			
 		]
 
 		# MAP DATA

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_17_124850) do
+ActiveRecord::Schema.define(version: 2020_12_17_160105) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -125,6 +125,15 @@ ActiveRecord::Schema.define(version: 2020_12_17_124850) do
   create_table "events_sources", id: false, force: :cascade do |t|
     t.integer "event_id"
     t.integer "source_id"
+  end
+
+  create_table "keys", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.text "key", limit: 8
+    t.text "integer", limit: 8
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_keys_on_user_id"
   end
 
   create_table "killings", force: :cascade do |t|
@@ -347,14 +356,6 @@ ActiveRecord::Schema.define(version: 2020_12_17_124850) do
     t.index ["member_id"], name: "index_users_on_member_id"
   end
 
-  create_table "users_login_keys", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.text "key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["user_id"], name: "index_users_login_keys_on_user_id"
-  end
-
   create_table "victims", force: :cascade do |t|
     t.string "firstname"
     t.string "lastname1"
@@ -436,6 +437,7 @@ ActiveRecord::Schema.define(version: 2020_12_17_124850) do
   add_foreign_key "events", "months"
   add_foreign_key "events", "organizations"
   add_foreign_key "events", "towns"
+  add_foreign_key "keys", "users"
   add_foreign_key "killings", "events"
   add_foreign_key "leads", "events"
   add_foreign_key "members", "detentions"
@@ -452,7 +454,6 @@ ActiveRecord::Schema.define(version: 2020_12_17_124850) do
   add_foreign_key "states", "counties", column: "capital_id"
   add_foreign_key "towns", "counties"
   add_foreign_key "users", "members"
-  add_foreign_key "users_login_keys", "users"
   add_foreign_key "victims", "killings"
   add_foreign_key "victims", "organizations"
   add_foreign_key "victims", "roles"
