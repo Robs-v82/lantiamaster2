@@ -615,7 +615,7 @@ class VictimsController < ApplicationController
 
         # SUCCESS AND REDIRECT
 
-		api(months)
+		# api(months)
 		session[:filename] = load_victims_params[:file].original_filename
 		session[:load_success] = true
 		redirect_to "/datasets/load"
@@ -737,7 +737,7 @@ class VictimsController < ApplicationController
 						(1..t-2).each{|x|
 							oldNationalData[timeframe][placeframe][genderframe][x][:freq].append(*placeHash[genderframe][x][:freq])
 							[:genders, :ages, :agencies, "massacres", "mass_graves", "shootings_authorities", :types].each{|mySymbol|
-								oldNationalData[timeframe][placeframe][genderframe][x][mySymbol] =	placeHash[genderframe][x][mySymbol]
+								oldNationalData[timeframe][placeframe][genderframe][x][mySymbol] = placeHash[genderframe][x][mySymbol]
 							}
 							oldNationalData[timeframe][placeframe][genderframe][x][:place_total] += placeHash[genderframe][x][:place_total]
 						}
