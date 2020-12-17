@@ -662,7 +662,9 @@ class VictimsController < ApplicationController
 		redirect_to "/victims"		
 	end
 
-	def api(months)
+	# def api(months)
+	def api
+		months = helpers.get_regular_months
 		helpers.clear_session
 		checkedYearsArr = []
 		years = helpers.get_regular_years
@@ -711,7 +713,7 @@ class VictimsController < ApplicationController
 			}
 			data = stateHash
 			if myCookie
-				myCookie.update(:data=>[oldData])
+				Cookie.create(:data=>[oldData] :category=>state.code+"_victims")
 			else
 				Cookie.create(:data=>[data], :category=>state.code+"_victims")
 			end
@@ -752,10 +754,11 @@ class VictimsController < ApplicationController
 			data[timeframe] = timeHash
 		}
 		if myNationalCookie
-			myNationalCookie.update(:data=>[oldNationalData])
+			Cookie.create(:data=>[oldNationalData], :category=>"victims")
 		else
 			Cookie.create(:data=>[data], :category=>"victims")
 		end
+		redirect_to '/victims/new_query'
 	end
 
 	def api_freq_table(period, scope, gender, years, states, cities, genderOptions, counties, months)
