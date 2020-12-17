@@ -98,7 +98,6 @@ class VictimsController < ApplicationController
 	end
 
 	def victims
-		@paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		@chartDisplay = true
 		@user = User.find(session[:user_id])
 		@victims = true
@@ -159,22 +158,22 @@ class VictimsController < ApplicationController
 
 		@my_freq_table = victim_freq_table(*@paramsCookie)
 
-		# if @paramsCookie[1] == "nationWise"
-		# 	@paramsCookie[2] == "genderSplit" ||
-		# 	@paramsCookie[3].length < @years.length ||
-		# 	@paramsCookie[4].length < State.all.length && @paramsCookie[4].length > 1 ||
-		# 	@paramsCookie[4].length == 1 && @stateWise ||
-		# 	@paramsCookie[5].length < City.all.length ||
-		# 	@paramsCookie[6].length < 3 ||
-		# 	session[:checkedCounties] != "states"
-		# 		@maps = false
-		# 		@my_freq_table = victim_freq_table(*@paramsCookie)
-		# elsif @countyWise && session[:checkedCounties] == "states"
-		# 	@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
-		# 		@maps = true
-		# else
-		# 	@my_freq_table = Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]]
-		# end
+		if @paramsCookie[1] == "nationWise"
+			@paramsCookie[2] == "genderSplit" ||
+			@paramsCookie[3].length < @years.length ||
+			@paramsCookie[4].length < State.all.length && @paramsCookie[4].length > 1 ||
+			@paramsCookie[4].length == 1 && @stateWise ||
+			@paramsCookie[5].length < City.all.length ||
+			@paramsCookie[6].length < 3 ||
+			session[:checkedCounties] != "states"
+				@maps = false
+				@my_freq_table = victim_freq_table(*@paramsCookie)
+		elsif @countyWise && session[:checkedCounties] == "states"
+			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
+				@maps = true
+		else
+			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]]
+		end
 
   		@sortCounter = 0
   		@sortType = "victims"
@@ -615,7 +614,7 @@ class VictimsController < ApplicationController
 
         # SUCCESS AND REDIRECT
 
-		# api(months)
+		api(months)
 		session[:filename] = load_victims_params[:file].original_filename
 		session[:load_success] = true
 		redirect_to "/datasets/load"
