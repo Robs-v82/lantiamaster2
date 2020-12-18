@@ -15,4 +15,5 @@ class User < ApplicationRecord
 	# belongs_to :organization, optional: true
 	# belongs_to :role, optional: true
 	belongs_to :member, optional: true
+	has_many :keys
 end
