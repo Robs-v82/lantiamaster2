@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_17_160105) do
+ActiveRecord::Schema.define(version: 2020_12_19_000525) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -128,9 +128,8 @@ ActiveRecord::Schema.define(version: 2020_12_17_160105) do
   end
 
   create_table "keys", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.integer "user_id", limit: 8, null: false
     t.text "key", limit: 8
-    t.text "integer", limit: 8
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_keys_on_user_id"
