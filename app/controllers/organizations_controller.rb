@@ -519,7 +519,7 @@ class OrganizationsController < ApplicationController
 	    if target_user && target_user.authenticate(password_params[:password])
 	      session[:user_id] = target_user[:id]
 	      helpers.clear_session
-        redirect_to '/victims/new_query'
+        redirect_to '/intro'
 	    else
 	    	session[:password_error] = true
 	      redirect_to '/password'

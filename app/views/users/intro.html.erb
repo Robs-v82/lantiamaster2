@@ -36,7 +36,7 @@
 		ready = function(){
 			$(document).ready(function() {
 					setTimeout(function() {
-						window.location.href = '/organizations/main';
+						window.location.href = '/users/index';
 					},3000
 		  			)
 				}
@@ -48,6 +48,7 @@
 	</script>
 </head>
 <body>
+    <div class="left">
 	<div id="intro-background" class="intro-color">
 		<div id="intro-image" class="animate__animated animate__backInUp valign-wrapper">
 			<%= image_tag "optimized_logo.jpg", :id => "intro-logo" %>

@@ -4,6 +4,24 @@
  *= require jquery-ui
  */
 
+.short-item {
+	height: 32px;
+}
+
+.bg {
+  /* The image used */
+  background-image: url("http://lantia.pekxel.com/img/contacto/contacto.jpg");
+
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
 .tall-row {
 	height: 45px;
 }
@@ -534,8 +552,11 @@ body {
 	font-weight: 300;
 	color: #33333C;
 	display: flex;
-	min-height: 100vh;
 	flex-direction: column;
+}
+
+html, body {
+	height: 100%;
 }
 
 .stress-line {

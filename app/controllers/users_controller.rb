@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   
-  layout false, only: [:intro]
+  layout false, only: [:intro, :index]
   # before_action :set_user, only: [:show, :edit, :update, :destroy]
 
   # GET /users
@@ -19,6 +19,11 @@ class UsersController < ApplicationController
   #     print "******PASSWORD ERROR!!!!!*******"
   #   end
   # end
+
+  def index
+    @intro = true
+    
+  end
 
   def intro
   end
