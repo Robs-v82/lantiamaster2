@@ -3,14 +3,6 @@
 		<%= render "shared/victimmap"%>
 	<% end %>
 <% end %>
-<script type="text/javascript">
-$(document).ready(function() {
-	$(document).one('mousemove', function() {
-		$('#victim-help-modal').modal('open');
-	})
-})
-
-</script>
 <div class="row freq-row">
 	<div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-med-and-down">
 		<div class="card paletton-grey">
@@ -451,54 +443,13 @@ $(document).ready(function() {
 </div>
 <!-- MODAL SECTION -->
 <% if @user.victim_help %>
-	<div id="victim-help-modal" class="modal">
-		<div class="modal-content">
-			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
-			<div class="p18">
-			<br>
-			<p class="bold">Guía de navegación</p>
-			<ol>
-				<li>
-					Para ver más información da click en los estados, ciudades y municipios del mapa, o desplaza el cursor sobre las gráficas.
-				</li>
-				<li>
-					Usa el ícono de lista (<span><i class="material-icons paletton-red-text tiny">list</i></span>) para abrir un tabulado con cifras
-				</li>
-				<li>
-					Utiliza el panel de la izquierda (el botón <span><i class="material-icons paletton-red-text tiny">tune</i></span> en pantallas chicas) para desagregar y filtrar la información. En algunos casos tu consulta sólo se podrá visualizar en tabulado.
-				</li>
-			</ol>
-			</div>
-		</div>
-		<div class="modal-footer">
-			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
-		</div>
+	<div id="freq-help-modal" class="modal">
+		<%= render "shared/freqhelp" %>
 	</div>
 <% end %>
-<div id="victim-help-modal-2" class="modal">
-	<div class="modal-content">
-		<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
-		<div class="p18">
-			<br>
-			<p class="bold">Guía de navegación</p>
-			<ol>
-				<li>
-					Para ver más información da click en los estados, ciudades y municipios del mapa, o desplaza el cursor sobre las gráficas.
-				</li>
-				<li>
-					Usa el ícono de lista (<span><i class="material-icons paletton-red-text tiny">list</i></span>) para abrir un tabulado con cifras
-				</li>
-				<li>
-					Utiliza el panel de la izquierda (el botón <span><i class="material-icons paletton-red-text tiny">tune</i></span> en pantallas chicas) para desagregar y filtrar la información. En algunos casos tu consulta sólo se podrá visualizar en tabulado.
-				</li>
-			</ol>
-		</div>
-	</div>
-	<div class="modal-footer">
-		<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
-	</div>
+<div id="freq-help-modal-2" class="modal">
+	<%= render "shared/freqhelp" %>
 </div>
-
 <div id="victims-info-modal" class="modal large-modal">
 	<div class="modal-content">	
 		<div class="row">
@@ -513,6 +464,9 @@ $(document).ready(function() {
 				<p>Se refiere a todas las defunciones ocurridas en incidentes que, de acuerdo a la información reportada, presentan características que corresponden a las que son habituales en los enfrentamientos, agresiones y ejecuciones que involucran al crimen organizado (tales como el tipo de arma o vehículos utilizados, o el mtétodo para ultimar a la víctima).</p>
 				<br>
 			</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
 		</div>
 	</div>
 </div>

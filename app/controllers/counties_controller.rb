@@ -126,64 +126,40 @@ class CountiesController < ApplicationController
 	end
 
 	def irco
-		@key = Rails.application.credentials.google_maps_api_key
-		@countyWise = true
-        myCookie = Cookie.where(:category=>"irco_counties").last
-        myQuarter = myCookie.quarter		
+        myCookie = Cookie.where(:category=>"icon").last
+        myQuarter = myCookie.quarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
-		back_one_quarter = helpers.back_one_q(myQuarter) 
-		@back_one_q_strings = helpers.quarter_strings(back_one_quarter)
-		back_one_year = helpers.back_one_y(myQuarter)
-		@back_one_y_strings = helpers.quarter_strings(back_one_year)
-
-		@selectionFrames = [
-  			{caption: "Mayor riesgo", box_id: "high_risk_query_box", name: "high_risk"},
-			{caption: "Menor riesgo", box_id: "low_risk_query_box", name: "low_risk"},
-			{caption: "Destinos turísticos", box_id: "destinations_query_box", name: "destinations"},
-  		]
-
-  		@states = State.all.sort_by{|state| state.name }
-  		if session[:destinations]
-  			@selectionFrames[2][:checked] = true
-  		elsif session[:descendingIndex]
-  			@selectionFrames[1][:checked] = true
-  		elsif session[:indexCounty] == nil
-  			@selectionFrames[0][:checked] = true
-  		end
-		@levels = helpers.ircoLevels
-		@bigCounties = helpers.bigCounties
-		@tableHeader = ["MUNICIPIO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
-		@sortedTable = myCookie.data
-		if session[:descendingIndex]
-			@sortedTable = @sortedTable.sort_by{|row| -row[:rank]}
-		end
-		@sortedTable.each{|x|
-			if session[:destinations]
-				unless x[:county].destination
-					@sortedTable = @sortedTable -[x]
-				end
-			elsif session[:indexCounty]
-				unless x[:county].state.id == session[:indexCounty]
-					@sortedTable = @sortedTable -[x]
-				end
-				@countyMap = true
-			end
-		}
-		@page_scope = 20
-		unless session[:indexPage]
-			session[:indexPage] = 1
-		end
-		@data_length = @sortedTable.length
-	 	if session[:indexPage] >= (@data_length/@page_scope.to_f).ceil
-	 		@finalPage = true
-	 	end
-	 	if session[:indexPage] > @data_length/@page_scope
-	 		@end = @data_length
-	 	else
-	 		@end = @page_scope * session[:indexPage]
-	 	end
-	 	@beginning = 1+((session[:indexPage]-1)*@page_scope)
- 		@pageQuery = @sortedTable[@beginning - 1, @page_scope]
+        back_one_quarter = helpers.back_one_q(myQuarter) 
+        @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
+        back_one_year = helpers.back_one_y(myQuarter)
+        @back_one_y_strings = helpers.quarter_strings(back_one_year)
+        @levels = helpers.indexLevels
+        @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
+        @icon_table = myCookie.data
+        @icon_table = @icon_table.sort_by{|state| state["rank"].to_i }
+        @screens = [
+            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..15,16..31]},
+            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..31]}
+        ]
+        @evolutionArr = []
+        [7,6,5,4,3,2,1,0].each{|x|
+            t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
+            Quarter.all.each{|q|
+                if (q.first_day.strftime('%m-%Y')) == t
+                    @evolutionArr.push(q)
+                end
+            } 
+        }
+        @components = [
+            {:key=>"cs", :name=>"Conflictividad social", :share=>0.14},
+            {:key=>"gob", :name=>"Ingobernabilidad", :share=>0.22},
+            {:key=>"vd", :name=>"Violencia con daños colaterales", :share=>0.4},
+            {:key=>"vis", :name=>"Violencia con impacto social", :share=>0.24}
+        ]
+        @indexStringHash = {
+            :acronym=>"IRCO",
+            :name=>"Índice de Riesgo por Crimen Organizado",
+        }
 	end
 
   	def ircoOutput(quarter, county)

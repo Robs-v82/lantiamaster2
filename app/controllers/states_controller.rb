@@ -34,7 +34,7 @@ class StatesController < ApplicationController
             row[component+"-1"] =  row[component].to_f - row[component+"-1"].to_f 
             row[component+"-4"] =  row[component].to_f - row[component+"-4"].to_f
           }
-          helpers.ircoLevels.each{|level|
+          helpers.indexLevels.each{|level|
               if row[:score].to_f > level[:floor] && row[:score].to_f < level[:ceiling] 
                   row[:color] = level[:hex]
               end
@@ -135,22 +135,7 @@ class StatesController < ApplicationController
     end
 
     def irco
-        @key = Rails.application.credentials.google_maps_api_key
-        myCookie = Cookie.where(:category=>"irco").last
-        myQuarter = myCookie.quarter
-        @current_quarter_strings = helpers.quarter_strings(myQuarter)
-        back_one_quarter = helpers.back_one_q(myQuarter) 
-        @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
-        back_one_year = helpers.back_one_y(myQuarter)
-        @back_one_y_strings = helpers.quarter_strings(back_one_year)
-
-        @levels = helpers.ircoLevels
-        @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
-
-        @sortedTable = myCookie.data
-    end
-
-    def icon
+        @irco = true
         myCookie = Cookie.where(:category=>"icon").last
         myQuarter = myCookie.quarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
@@ -158,7 +143,7 @@ class StatesController < ApplicationController
         @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
         back_one_year = helpers.back_one_y(myQuarter)
         @back_one_y_strings = helpers.quarter_strings(back_one_year)
-        @levels = helpers.ircoLevels
+        @levels = helpers.indexLevels
         @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
         @icon_table = myCookie.data
         @icon_table = @icon_table.sort_by{|state| state["rank"].to_i }
@@ -181,6 +166,49 @@ class StatesController < ApplicationController
             {:key=>"vd", :name=>"Violencia con daños colaterales", :share=>0.4},
             {:key=>"vis", :name=>"Violencia con impacto social", :share=>0.24}
         ]
+        @indexStringHash = {
+            :acronym=>"IRCO",
+            :name=>"Índice de Riesgo por Crimen Organizado",
+            :placeFrame=>"Estatal",
+        }
+    end
+
+    def icon
+        myCookie = Cookie.where(:category=>"icon").last
+        myQuarter = myCookie.quarter
+        @current_quarter_strings = helpers.quarter_strings(myQuarter)
+        back_one_quarter = helpers.back_one_q(myQuarter) 
+        @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
+        back_one_year = helpers.back_one_y(myQuarter)
+        @back_one_y_strings = helpers.quarter_strings(back_one_year)
+        @levels = helpers.indexLevels
+        @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
+        @icon_table = myCookie.data
+        @icon_table = @icon_table.sort_by{|state| state["rank"].to_i }
+        @screens = [
+            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..15,16..31]},
+            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..31]}
+        ]
+        @evolutionArr = []
+        [7,6,5,4,3,2,1,0].each{|x|
+            t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
+            Quarter.all.each{|q|
+                if (q.first_day.strftime('%m-%Y')) == t
+                    @evolutionArr.push(q)
+                end
+            } 
+        }
+        @components = [
+            {:key=>"cs", :name=>"Conflictividad social", :share=>0.14},
+            {:key=>"gob", :name=>"Ingobernabilidad", :share=>0.22},
+            {:key=>"vd", :name=>"Violencia con daños colaterales", :share=>0.4},
+            {:key=>"vis", :name=>"Violencia con impacto social", :share=>0.24}
+        ]
+        @indexStringHash = {
+            :acronym=>"ICon",
+            :name=>"Índice de Conflictividad",
+            :placeFrame=>"Estatal"
+        }
     end
 
     def ircoOutput(quarter, state)

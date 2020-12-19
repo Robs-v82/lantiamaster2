@@ -329,6 +329,14 @@
 	</div>
 </div>
 <!-- MODAL SECTION -->
+<% if @user.victim_help %>
+	<div id="freq-help-modal" class="modal">
+		<%= render "shared/freqhelp" %>
+	</div>
+<% end %>
+<div id="freq-help-modal-2" class="modal">
+	<%= render "shared/freqhelp" %>
+</div>
 <div id="detainees-info-modal" class="modal large-modal">
 	<div class="modal-content">	
 		<div class="row">

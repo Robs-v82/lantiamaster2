@@ -398,6 +398,11 @@ $(document).ready(function(){
 			return false;
 		})
 
+	// HELP MODALS
+	$(document).one('mousemove', function() {
+		$('#freq-help-modal').modal('open');
+	})
+
 
 	// SELECT ALL BUTTONS	
 		$('.select-all').click(function() {

@@ -1,11 +1,6 @@
 class VictimsController < ApplicationController
 
 	after_action :remove_email_message, only: [:victims]
-	after_action :stop_help, only: [:victims]
-
-	def stop_help
-		User.find(session[:user_id]).update(:victim_help=>false)
-	end
 
 	def new_query
 		helpers.clear_session

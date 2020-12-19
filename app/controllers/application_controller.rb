@@ -7,6 +7,12 @@ class ApplicationController < ActionController::Base
 	before_action :set_variables
 	helper_method :myResouces
 
+	after_action :stop_help, only: [:victims, :detainees]
+
+	def stop_help
+		User.find(session[:user_id]).update(:victim_help=>false)
+	end
+
 	def allow_iframe
     	response.headers['X-Frame-Options'] = 'ALLOWALL'
   	end
