@@ -1,5 +1,9 @@
 <div class="side-icon red-text text-accent-4">
- <ul id="slide-out" class="sidenav paletton-grey"
+ <ul id="slide-out" class="sidenav paletton-grey
+  <% if @intro %>
+    animate__animated animate__slideInLeft animate__delay-1s
+  <% end %>
+ "
     <% if @intro %>
       style="transform: translateX(0%)"
     <% end %>
@@ -30,11 +34,11 @@
   </li>
     <div id="user-links white-text" class="paletton-red">
       <br>
-      <li><a class="grey-text p20 slim" href="/states/irco">IRCO</a></li>
-      <li><a class="white-text p20 slim" href="/states/icon">ICon</a></li>
-      <li><a class="white-text p20 slim" href="/victims/new_query">Víctimas</a></li>
-      <li><a class="white-text p20 slim" href="/members/new_query">Arrestos</a></li>
-      <li><a class="white-text p20 slim" href="/organizations/query">Organizaciones</a></li>
+      <li><a class="left-min-margin grey-text p20 semi-slim" href="/states/irco">IRCO</a></li>
+      <li><a class="left-min-margin white-text p20 semi-slim" href="/states/icon">ICon</a></li>
+      <li><a class="left-min-margin white-text p20 semi-slim" href="/victims/new_query">Víctimas</a></li>
+      <li><a class="left-min-margin white-text p20 semi-slim" href="/members/new_query">Arrestos</a></li>
+      <li><a class="left-min-margin white-text p20 semi-slim" href="/organizations/query">Organizaciones</a></li>
       <br>
 
 <!--       <li><a class="grey-text tooltipped" data-position="right" data-tooltip="A partir de diciembre de 2020">Violencia electoral</a></li> -->

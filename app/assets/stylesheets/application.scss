@@ -4,8 +4,12 @@
  *= require jquery-ui
  */
 
-.short-item {
-	height: 32px;
+.lateral-small-padding {
+	padding: 0px 4px;
+}
+
+.tiny-arrow {
+	width: 9px;
 }
 
 .bg {
@@ -689,8 +693,17 @@ select {
 	margin-right: 10px;
 }
 
+.left-extra-margin {
+	margin-left: 10px;
+}
+
 .right-min-margin {
 	margin-right: 5px;
+}
+
+
+.left-min-margin {
+	margin-left: 5px;
 }
 
 .left-extra-margin {
@@ -939,6 +952,10 @@ input:disabled {
 
 .slim {
 	font-weight: 230 !important;
+}
+
+.semi-slim {
+	font-weight: 300 !important;
 }
 
 .bold {

@@ -1,4 +1,4 @@
-<div class="header-div">
+<div class="header-div animate__animated animate__fadeIn">
 	<div class="row top-row valign-wrapper">
 		<div class="col s12">
 			<div class="col l5 m7 s12">
@@ -9,14 +9,18 @@
 					<h5 class="h5-no-margin"><%= @indexStringHash[:acronym] %></h5>
 					<h6 class="h5-no-margin"> (<%= @indexStringHash[:name] %>)</h6>
 					<h6  class="h5-no-margin">
-						<%= @indexStringHash[:placeFrame] %> - 
 						<%= @current_quarter_strings[:quarterText] %> de <%= I18n.l(@current_quarter_strings[:quarterDate], format: '%Y') %>
 					<div class="col s12 small-break"></div>
 				</div>
 				<div class="card short-card">
 					<div class="card-content">
 						<div class="row card-narrow">
-							<div class="legend-box col s3">
+							<% if @irco %>
+								<div class="col s12 right">
+									<%= render "shared/indexswitch" %>
+								</div>
+							<% end %>
+							<div class="legend-box col s12">
 								<% @levels.each do |level| %>							
 									<div class="bottom-margin-div">
 										<div class="valign-wrapper">
@@ -28,11 +32,6 @@
 									</div>
 								<% end %>
 							</div>
-							<% if @irco %>
-								<div class="col s9">
-									<%= render "shared/indexswitch" %>
-								</div>
-							<% end %>
 							<div class="col s12">
 								<div id="icon-map">
 								</div>
@@ -137,7 +136,7 @@
 															<p class="slim">
 																<% if row["code"] == "09" %>
 																	Jefa de Gobierno:
-																<% elsif State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.gender == "Femenino"
+																<% elsif State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.gender == "FEMENINO"
 																	%>
 																Gobernadora:
 																<% else %>

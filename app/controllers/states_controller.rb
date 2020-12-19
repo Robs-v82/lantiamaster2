@@ -66,7 +66,7 @@ class StatesController < ApplicationController
         back_one_quarter = helpers.back_one_q(myQuarter)
         back_one_year = helpers.back_one_y(myQuarter)
         @states = State.all.sort_by{|state| state.name }
-        @levels = helpers.ircoLevels
+        @levels = helpers.indexLevels
         ircoTable = []
         @states.each{|state|
             stateHash = {}
@@ -91,8 +91,8 @@ class StatesController < ApplicationController
             stateHash[:q1_feel_safe_change] = helpers.variable_change_and_icon(stateHash[:irco][:feel_safe],stateHash[:back_one_quarter_irco][:feel_safe])
             stateHash[:y1_feel_safe_change] = helpers.variable_change_and_icon(stateHash[:irco][:feel_safe],stateHash[:back_one_year_irco][:feel_safe])
 
-            stateHash[:q1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_quarter_irco][:stolen_cars])
-            stateHash[:y1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_year_irco][:stolen_cars])
+            # stateHash[:q1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_quarter_irco][:stolen_cars])
+            # stateHash[:y1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_year_irco][:stolen_cars])
             
             if governorKey
                 stateHash[:governor] = state.organizations.where(:league=>"CONAGO").last.members.where(:role_id=>governorKey).last
@@ -223,18 +223,18 @@ class StatesController < ApplicationController
         current_feel_safe = feel_safe(quarter, state)
         feel_safe_index = 1-(current_feel_safe.to_f/100)
 
-        stolen_cars = car_theft(quarter,state)
-        car_theft_index = stolen_cars/state.population.to_f*100000
-        car_theft_index = Math.log(car_theft_index+1,200).round(2)
-        if car_theft_index > 1
-            car_theft_index = 1
-        end
+        # stolen_cars = car_theft(quarter,state)
+        # car_theft_index = stolen_cars/state.population.to_f*100000
+        # car_theft_index = Math.log(car_theft_index+1,200).round(2)
+        # if car_theft_index > 1
+        #     car_theft_index = 1
+        # end
 
-        score = ((victims_index*4)+(feel_safe_index*3)+(car_theft_index*3)).round(2)
+        score = ((victims_index*5)+(feel_safe_index*5)).round(2)
         ircoHash = {
             :victims=>total_victims,
             :feel_safe=>current_feel_safe,
-            :stolen_cars=>stolen_cars,
+            # :stolen_cars=>stolen_cars,
             :score=>score
         }
         return ircoHash

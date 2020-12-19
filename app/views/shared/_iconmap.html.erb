@@ -16,6 +16,12 @@
 
 		});
 
+		if ($(window).height() < 600) {
+			var mapHeight = 300
+        } else {
+        	var mapHeight = $(window).height()/2
+        }; 
+
 	 	// NATIONAL MAP
 		var data = [
 			<% @icon_table.each do |place| %>
@@ -27,7 +33,7 @@
 		    Highcharts.mapChart('icon-map', {
 		        chart: {
 		            map: geojson,
-		            height: 300,
+		            height: mapHeight,
 		            // backgroundColor: '#041F3A'
 		        },
 		        legend: false,

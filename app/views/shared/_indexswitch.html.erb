@@ -1,15 +1,22 @@
 	<div class="row short-row">
 		<div class="col s12">
 			<div class="switch right right-extra-margin">
-				<label id="index_switch" class="p11 paletton-grey-text">
-					ESTATAL
-					<input type="checkbox"
-						<% if @countyWise %>
-							checked
-						<% end %>
-					>
-					<span class="lever"></span>
-					MUNICIPAL
+				<label id="index_switch" class="p12 bold paletton-grey-text valign-wrapper">
+					<% if @countyWise%>
+						<span class="tiny-arrow"></span>
+						<span class="lateral-small-padding">ESTATAL</span>
+						<span class="tiny-arrow"></span>
+						<%= image_tag "arrow_left.svg", :class => "tiny-arrow left-min-margin" %>
+						<span class="lateral-small-padding">MUNICIPAL</span>
+						<%= image_tag "arrow_right.svg", :class => "tiny-arrow" %>
+					<% else %>
+						<%= image_tag "arrow_left.svg", :class => "tiny-arrow" %>
+						<span class="lateral-small-padding">ESTATAL</span>
+						<%= image_tag "arrow_right.svg", :class => "tiny-arrow" %>
+						<span class="tiny-arrow  left-min-margin"></span>
+						<span class="lateral-small-padding">MUNICIPAL</span>
+						<span class="tiny-arrow"></span>
+					<% end %>
 				</label>
 			</div>
 		</div>
