@@ -4,6 +4,21 @@
  *= require jquery-ui
  */
 
+
+#intro-row {
+	position: relative;
+	top: 200px;
+}
+
+#intro-banner {
+	background-color: rgba(4, 31, 58, 0.2);
+	padding: 16px;
+}
+
+#intro-banner h1, #intro-banner h2 {
+	margin: 0 !important;
+}
+
 .control-box i {
 	padding: 3px;
 }

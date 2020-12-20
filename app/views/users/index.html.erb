@@ -25,13 +25,22 @@
     </head>
     <body>
         <div class="bg animate__animated animate__fadeIn">
-        <br>
-        <div class="row"> 
-            <div class="valign-wrapper">
-                <div class="left">
-                    <% if session[:user_id] %>
-                        <%= render "shared/slidenavbar"%>
-                    <% end %>
+            <br>
+            <div class="row"> 
+                <div class="valign-wrapper">
+                    <div class="left">
+                        <% if session[:user_id] %>
+                            <%= render "shared/slidenavbar"%>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+            <div id="intro-row" class="row">
+                <div class="col l4 offset-l6 m5 offset-m6">
+                    <div id="intro-banner" class="hide-on-small-only">
+                        <h1 class="white-text hide-on-med-only right-align">Plataforma de datos</h1>
+                        <h2 class="white-text hide-on-large-only">Plataforma de datos</h2>
+                    </div>
                 </div>
             </div>
         </div>

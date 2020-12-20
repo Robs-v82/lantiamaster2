@@ -185,8 +185,6 @@ class MembersController < ApplicationController
 		freq_table_params = session[:detainee_freq_params]
 		freq_table_params[5] = session[:checkedStates] 
 		if Cookie.find(session[:checkedStates]).data.length < 32 || session[:detainee_freq_params][2] == "organizationSplit" || session[:detainee_freq_params][3] == "roleSplit"
-			print "*****"*10000
-			print "NOT WORKING"
 			@my_freq_table = detainee_freq_table(
 				freq_table_params[0],
 				freq_table_params[1],
@@ -199,7 +197,6 @@ class MembersController < ApplicationController
 			)
 		else		 
 			if session[:detainee_freq_params][0] == "monthly" && session[:detainee_freq_params][1] == "stateWise"
-				print "WORKING"*10000
 				@my_freq_table = Cookie.where(:category=>"detainees_state_monthly_API").last.data
 			elsif session[:detainee_freq_params][0] == "quarterly" && session[:detainee_freq_params][1] == "stateWise"
 				@my_freq_table = Cookie.where(:category=>"detainees_state_quarterly_API").last.data
@@ -311,6 +308,8 @@ class MembersController < ApplicationController
 		@topDetentions = get_top_detentions
 		@topDetentionRoles = helpers.top_detention_roles
 		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
+		print "*****"*10000
+		print session.to_hash
 	end
 
 	def detainees_freq_api

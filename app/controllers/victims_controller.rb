@@ -213,6 +213,8 @@ class VictimsController < ApplicationController
   		@pieStrings = %w{massacres shootings_authorities mass_graves} 
 
   		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
+  		print "*****"*10000
+		print session.to_hash
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
