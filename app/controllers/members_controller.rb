@@ -133,7 +133,7 @@ class MembersController < ApplicationController
 			roleOptions.push(role.id.to_s)
 		} 
 		myArr = State.pluck(:id)
-		Cookie.create(:data=>myArr)
+		Cookie.create(:data=>myArr, :category=>"detainee_query_cookie")
 		session[:checkedStates] = Cookie.last.id
 		session[:checkedOrganizations] = false
 		session[:checkedRoles] = false
@@ -185,6 +185,8 @@ class MembersController < ApplicationController
 		freq_table_params = session[:detainee_freq_params]
 		freq_table_params[5] = session[:checkedStates] 
 		if Cookie.find(session[:checkedStates]).data.length < 32 || session[:detainee_freq_params][2] == "organizationSplit" || session[:detainee_freq_params][3] == "roleSplit"
+			print "*****"*10000
+			print "NOT WORKING"
 			@my_freq_table = detainee_freq_table(
 				freq_table_params[0],
 				freq_table_params[1],
@@ -197,6 +199,7 @@ class MembersController < ApplicationController
 			)
 		else		 
 			if session[:detainee_freq_params][0] == "monthly" && session[:detainee_freq_params][1] == "stateWise"
+				print "WORKING"*10000
 				@my_freq_table = Cookie.where(:category=>"detainees_state_monthly_API").last.data
 			elsif session[:detainee_freq_params][0] == "quarterly" && session[:detainee_freq_params][1] == "stateWise"
 				@my_freq_table = Cookie.where(:category=>"detainees_state_quarterly_API").last.data

@@ -36,6 +36,7 @@ Rails.application.routes.draw do
     post 'organizations/load_organizations'
     post 'organizations/load_organization_events'
     post 'organizations/load_organization_territory'
+    get 'organizations/api'
     get 'queries/mapOff'
     get 'queries/mapOn'
     get 'password' => 'organizations#password'

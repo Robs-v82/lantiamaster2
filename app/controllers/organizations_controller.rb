@@ -61,7 +61,6 @@ class OrganizationsController < ApplicationController
     end
 
   	def index
- 		@key = Rails.application.credentials.google_maps_api_key
  		@states = State.all.sort
     if session[:checkedStates]
       @checkedStates = Cookie.find(session[:checkedStates]).data

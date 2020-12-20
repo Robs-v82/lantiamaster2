@@ -4,6 +4,15 @@
  *= require jquery-ui
  */
 
+.control-box i {
+	padding: 3px;
+}
+
+.control-box i.active {
+	padding: 2px !important;
+	border: 1px solid #EF4E50;
+}
+
 .lateral-small-padding {
 	padding: 0px 4px;
 }

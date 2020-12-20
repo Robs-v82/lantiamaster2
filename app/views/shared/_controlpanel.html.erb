@@ -1,11 +1,13 @@
-<div class="right col s9">
-	<div class="right">
-		<a href="#freq-help-modal-2" class="modal-trigger"><i class="small material-icons paletton-red-text right-extra-margin">help_outline</i></a>
-		<a id="freq-table-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">list</i></a>
-		<% if @maps %>
-			<a id="freq-map-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">map</i></a>
-		<% else %>
-			<a href=""><i class="small material-icons paletton-light-grey-text right-extra-margin">map</i></a>
-		<% end %>
+<div class="control-box">
+	<div class="right col s9">
+		<div class="right valign-wrapper">
+			<a href="#freq-help-modal-2" class="modal-trigger"><i class=" material-icons paletton-grey-text right-extra-margin">help_outline</i></a>
+			<% if @maps %>
+					<a id="freq-table-trigger" href=""><i class="material-icons paletton-grey-text right-extra-margin">list</i></a>
+					<a id="freq-map-trigger" href=""><i class="active material-icons paletton-grey-text right-extra-margin">map</i></a>
+			<% else %>
+				<a id="freq-table-trigger" href=""><i class="active material-icons paletton-grey-text right-extra-margin">list</i></a>
+			<% end %>
+		</div>
 	</div>
 </div>
