@@ -21,15 +21,15 @@ class StatesController < ApplicationController
         myName = load_icon_params[:year]+"_"+load_icon_params[:quarter]
         myQuarter = Quarter.where(:name=>myName).last
         iconTable = []
-        CSV.foreach(myFile, :headers => true) do |row|
-          row[:score] = row[myQuarter.name]
-          row[:name] = State.where(:code=>row["code"]).last.name
-          components = [
+        components = [
             "cs",
             "gob",
             "vd",
             "vis"
-          ]
+        ]
+        CSV.foreach(myFile, :headers => true) do |row|
+          row[:score] = row[myQuarter.name]
+          row[:name] = State.where(:code=>row["code"]).last.name
           components.each{|component|
             row[component+"-1"] =  row[component].to_f - row[component+"-1"].to_f 
             row[component+"-4"] =  row[component].to_f - row[component+"-4"].to_f
@@ -58,85 +58,122 @@ class StatesController < ApplicationController
     end
 
     def load_irco
-        unless Role.where(:name=>"Gobernador").empty?
-           governorKey = Role.where(:name=>"Gobernador").last.id 
-        end
         myName = load_irco_params[:year]+"_"+load_irco_params[:quarter]
         myQuarter = Quarter.where(:name=>myName).last
         back_one_quarter = helpers.back_one_q(myQuarter)
         back_one_year = helpers.back_one_y(myQuarter)
-        @states = State.all.sort_by{|state| state.name }
-        @levels = helpers.indexLevels
         ircoTable = []
-        @states.each{|state|
+        components = [
+            "victims",
+            "feel_safe"
+        ]
+        State.all.each{|state|
             stateHash = {}
-            stateHash[:state] = state
-            stateHash[:irco] = ircoOutput(myQuarter, state)
-
-            stateHash[:back_one_quarter_irco]  = ircoOutput(back_one_quarter, state) 
-            stateHash[:back_one_year_irco]  = ircoOutput(back_one_year, state)
-            stateHash[:trend] = helpers.quarter_score_trend(stateHash[:irco][:score], stateHash[:back_one_quarter_irco][:score], stateHash[:back_one_year_irco][:score]) 
-            
-            @levels.each {|level|
-                if stateHash[:irco][:score] < level[:score]
-                    stateHash[:level] = level[:name]
-                    stateHash[:color] = level[:color]
-                    stateHash[:hex] = level[:hex]
-                end
+            stateHash["code"] = state.code
+            inputs = ircoOutput(myQuarter, state)
+            inputs_back_one_quarter = ircoOutput(back_one_quarter, state)
+            inputs_back_one_year = ircoOutput(back_one_year, state)
+            stateHash[:score] = inputs[:score]
+            stateHash[:name] = state.name
+            helpers.indexLevels.each{|level|
+              if stateHash[:score].to_f > level[:floor] && stateHash[:score].to_f < level[:ceiling] 
+                  stateHash[:color] = level[:hex]
+              end
             }
-
-            stateHash[:q1_victims_change] = helpers.variable_change_and_icon(stateHash[:irco][:victims],stateHash[:back_one_quarter_irco][:victims])
-            stateHash[:y1_victims_change] = helpers.variable_change_and_icon(stateHash[:irco][:victims],stateHash[:back_one_year_irco][:victims])
-
-            stateHash[:q1_feel_safe_change] = helpers.variable_change_and_icon(stateHash[:irco][:feel_safe],stateHash[:back_one_quarter_irco][:feel_safe])
-            stateHash[:y1_feel_safe_change] = helpers.variable_change_and_icon(stateHash[:irco][:feel_safe],stateHash[:back_one_year_irco][:feel_safe])
-
-            # stateHash[:q1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_quarter_irco][:stolen_cars])
-            # stateHash[:y1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_year_irco][:stolen_cars])
-            
-            if governorKey
-                stateHash[:governor] = state.organizations.where(:league=>"CONAGO").last.members.where(:role_id=>governorKey).last
-            end
-
-            stateHash[:evolution_score] = []
-            [7,6,5,4,3,2,1,0].each{|x|
-                t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
-                Quarter.all.each{|q|
-                    periodHash = {}
-                    if (q.first_day.strftime('%m-%Y')) == t
-                        periodString = helpers.quarter_strings(q)
-                        periodString = periodString[:quarterShort]+"/"+q.name[0..3]
-                        periodHash[:string] = periodString
-                        q_score = ircoOutput(q, state)[:score]
-                        periodHash[:score] = q_score
-                        stateHash[:evolution_score].push(periodHash)
-                    end
-                } 
-            }
-
-            stateHash[:comparisonArr] = []
-            state.comparison.each{|c|
-                comparisonHash = {}
-                comparisonHash[:state] = State.find(c)
-                comparisonHash[:score] = ircoOutput(myQuarter, comparisonHash[:state])[:score]
-                stateHash[:comparisonArr].push(comparisonHash)
-            }
-
+            stateHash["tendencia"] = helpers.quarter_score_trend(stateHash[:score], inputs_back_one_quarter[:score], inputs_back_one_year[:score])
             ircoTable.push(stateHash)
         }
-        @sortedTable = ircoTable.sort_by{|row| -row[:irco][:score]}
+        sortedTable = ircoTable.sort_by{|row| -row[:score]}
         rankCount = 0
-        @sortedTable.each{|x|
+        sortedTable.each{|x|
             rankCount += 1
-            x[:rank] = rankCount
+            x["rank"] = rankCount
         }
-        Cookie.create(:data=>@sortedTable, :quarter_id=>myQuarter.id, :category=>"irco")
+        Cookie.create(:data=>sortedTable, :quarter_id=>myQuarter.id, :category=>"irco")
         redirect_to "/datasets/load"
     end
 
+    # def load_irco
+    #     unless Role.where(:name=>"Gobernador").empty?
+    #        governorKey = Role.where(:name=>"Gobernador").last.id 
+    #     end
+    #     myName = load_irco_params[:year]+"_"+load_irco_params[:quarter]
+    #     myQuarter = Quarter.where(:name=>myName).last
+    #     back_one_quarter = helpers.back_one_q(myQuarter)
+    #     back_one_year = helpers.back_one_y(myQuarter)
+    #     @states = State.all.sort_by{|state| state.name }
+    #     @levels = helpers.indexLevels
+    #     ircoTable = []
+    #     @states.each{|state|
+    #         stateHash = {}
+    #         stateHash[:state] = state
+    #         stateHash[:irco] = ircoOutput(myQuarter, state)
+
+    #         stateHash[:back_one_quarter_irco]  = ircoOutput(back_one_quarter, state) 
+    #         stateHash[:back_one_year_irco]  = ircoOutput(back_one_year, state)
+    #         stateHash[:trend] = helpers.quarter_score_trend(stateHash[:irco][:score], stateHash[:back_one_quarter_irco][:score], stateHash[:back_one_year_irco][:score]) 
+            
+    #         @levels.each {|level|
+    #             if stateHash[:irco][:score] < level[:score]
+    #                 stateHash[:level] = level[:name]
+    #                 stateHash[:color] = level[:color]
+    #                 stateHash[:hex] = level[:hex]
+    #             end
+    #         }
+
+    #         stateHash[:q1_victims_change] = helpers.variable_change_and_icon(stateHash[:irco][:victims],stateHash[:back_one_quarter_irco][:victims])
+    #         stateHash[:y1_victims_change] = helpers.variable_change_and_icon(stateHash[:irco][:victims],stateHash[:back_one_year_irco][:victims])
+
+    #         stateHash[:q1_feel_safe_change] = helpers.variable_change_and_icon(stateHash[:irco][:feel_safe],stateHash[:back_one_quarter_irco][:feel_safe])
+    #         stateHash[:y1_feel_safe_change] = helpers.variable_change_and_icon(stateHash[:irco][:feel_safe],stateHash[:back_one_year_irco][:feel_safe])
+
+    #         # stateHash[:q1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_quarter_irco][:stolen_cars])
+    #         # stateHash[:y1_stolen_cars_change] = helpers.variable_change_and_icon(stateHash[:irco][:stolen_cars],stateHash[:back_one_year_irco][:stolen_cars])
+            
+    #         if governorKey
+    #             stateHash[:governor] = state.organizations.where(:league=>"CONAGO").last.members.where(:role_id=>governorKey).last
+    #         end
+
+    #         stateHash[:evolution_score] = []
+    #         [7,6,5,4,3,2,1,0].each{|x|
+    #             t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
+    #             Quarter.all.each{|q|
+    #                 periodHash = {}
+    #                 if (q.first_day.strftime('%m-%Y')) == t
+    #                     periodString = helpers.quarter_strings(q)
+    #                     periodString = periodString[:quarterShort]+"/"+q.name[0..3]
+    #                     periodHash[:string] = periodString
+    #                     q_score = ircoOutput(q, state)[:score]
+    #                     periodHash[:score] = q_score
+    #                     stateHash[:evolution_score].push(periodHash)
+    #                 end
+    #             } 
+    #         }
+
+    #         stateHash[:comparisonArr] = []
+    #         state.comparison.each{|c|
+    #             comparisonHash = {}
+    #             comparisonHash[:state] = State.find(c)
+    #             comparisonHash[:score] = ircoOutput(myQuarter, comparisonHash[:state])[:score]
+    #             stateHash[:comparisonArr].push(comparisonHash)
+    #         }
+
+    #         ircoTable.push(stateHash)
+    #     }
+    #     @sortedTable = ircoTable.sort_by{|row| -row[:irco][:score]}
+    #     rankCount = 0
+    #     @sortedTable.each{|x|
+    #         rankCount += 1
+    #         x[:rank] = rankCount
+    #     }
+    #     Cookie.create(:data=>@sortedTable, :quarter_id=>myQuarter.id, :category=>"irco")
+    #     redirect_to "/datasets/load"
+    # end
+
     def irco
         @irco = true
-        myCookie = Cookie.where(:category=>"icon").last
+        @indexName = "IRCO"
+        myCookie = Cookie.where(:category=>"irco").last
         myQuarter = myCookie.quarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
         back_one_quarter = helpers.back_one_q(myQuarter) 
@@ -174,6 +211,8 @@ class StatesController < ApplicationController
     end
 
     def icon
+        @icon = true
+        @indexName = "ICon"
         myCookie = Cookie.where(:category=>"icon").last
         myQuarter = myCookie.quarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
@@ -235,7 +274,7 @@ class StatesController < ApplicationController
             :victims=>total_victims,
             :feel_safe=>current_feel_safe,
             # :stolen_cars=>stolen_cars,
-            :score=>score
+            :score=>score*10
         }
         return ircoHash
     end
