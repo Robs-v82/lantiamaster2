@@ -126,7 +126,8 @@ class MembersController < ApplicationController
 
 	def new_query
 		helpers.clear_session
-		organizationOptions = helpers.get_detainees_cartels
+		dataCookie = Cookie.where(:category=>"detainees_state_monthly_API").last.data[0]
+		organizationOptions = dataCookie[:organizations]
 		roleOptions = []
 		myRoles = Role.where(:criminal=>true)
 		myRoles.each{|role|
@@ -179,9 +180,8 @@ class MembersController < ApplicationController
 	end
 
 	def detainees
+		dataCookie = Cookie.where(:category=>"detainees_state_monthly_API").last.data[0]
 		@user = User.find(session[:user_id])
-		@key = Rails.application.credentials.google_maps_api_key
-		@chartDisplay = true
 		freq_table_params = session[:detainee_freq_params]
 		freq_table_params[5] = session[:checkedStates] 
 		if Cookie.find(session[:checkedStates]).data.length < 32 || session[:detainee_freq_params][2] == "organizationSplit" || session[:detainee_freq_params][3] == "roleSplit"
@@ -197,13 +197,13 @@ class MembersController < ApplicationController
 			)
 		else		 
 			if session[:detainee_freq_params][0] == "monthly" && session[:detainee_freq_params][1] == "stateWise"
-				@my_freq_table = Cookie.where(:category=>"detainees_state_monthly_API").last.data
+				@my_freq_table = Cookie.where(:category=>"detainees_state_monthly_API").last.data[0][:table]
 			elsif session[:detainee_freq_params][0] == "quarterly" && session[:detainee_freq_params][1] == "stateWise"
-				@my_freq_table = Cookie.where(:category=>"detainees_state_quarterly_API").last.data
+				@my_freq_table = Cookie.where(:category=>"detainees_state_quarterly_API").last.data[0][:table]
 			elsif session[:detainee_freq_params][0] == "monthly" && session[:detainee_freq_params][1] == "nationWise"
-				@my_freq_table = Cookie.where(:category=>"detainees_national_monthly_API").last.data
+				@my_freq_table = Cookie.where(:category=>"detainees_national_monthly_API").last.data[0][:table]
 			elsif session[:detainee_freq_params][0] == "quarterly" && session[:detainee_freq_params][1] == "nationWise"
-				@my_freq_table = Cookie.where(:category=>"detainees_national_quarterly_API").last.data
+				@my_freq_table = Cookie.where(:category=>"detainees_national_quarterly_API").last.data[0][:table]
 			else
 				@my_freq_table = detainee_freq_table(
 					freq_table_params[0],
@@ -269,11 +269,11 @@ class MembersController < ApplicationController
 			@checkedStates = State.pluck(:id)
 		end
 
-		@organizations = helpers.get_detainees_cartels
+		@organizations = dataCookie[:organizations]
 		if session[:checkedOrganizations]
 			@checkedOrganizations = session[:detainee_freq_params][6]
 		else
-			@checkedOrganizations = helpers.get_detainees_cartels
+			@checkedOrganizations = @organizations
 		end
 
 		@roles = Role.where(:criminal=>true)
@@ -305,11 +305,9 @@ class MembersController < ApplicationController
 		# 	end
 		# end
 		@detention_cartels = helpers.detention_cartels
-		@topDetentions = get_top_detentions
+		@topDetentions = dataCookie[:topDetentions]
 		@topDetentionRoles = helpers.top_detention_roles
 		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
-		print "*****"*10000
-		print session.to_hash
 	end
 
 	def detainees_freq_api
@@ -321,12 +319,15 @@ class MembersController < ApplicationController
 			roleOptions.push(role.id.to_s)
 		} 
 		myArr = State.pluck(:id)
+		dataHash = {}
+		dataHash[:organizations] = helpers.get_detainees_cartels
+		dataHash[:topDetentions] = get_top_detentions
 		Cookie.create(:data=>myArr)
 		session[:checkedStates] = Cookie.last.id
 		session[:checkedOrganizations] = false
 		session[:checkedRoles] = false
 		session[:detainee_freq_params] = ["monthly","stateWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
-		my_freq_table = detainee_freq_table(
+		dataHash[:table] = detainee_freq_table(
 			session[:detainee_freq_params][0],
 			session[:detainee_freq_params][1],
 			session[:detainee_freq_params][2],
@@ -336,10 +337,10 @@ class MembersController < ApplicationController
 			session[:detainee_freq_params][6],
 			session[:detainee_freq_params][7]
 		)
-		Cookie.create(:data=>my_freq_table, :category=>"detainees_state_monthly_API")
+		Cookie.create(:data=>[dataHash], :category=>"detainees_state_monthly_API")
 
 		session[:detainee_freq_params] = ["quarterly","stateWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
-		my_freq_table = detainee_freq_table(
+		dataHash[:table] = detainee_freq_table(
 			session[:detainee_freq_params][0],
 			session[:detainee_freq_params][1],
 			session[:detainee_freq_params][2],
@@ -349,10 +350,10 @@ class MembersController < ApplicationController
 			session[:detainee_freq_params][6],
 			session[:detainee_freq_params][7]
 		)
-		Cookie.create(:data=>my_freq_table, :category=>"detainees_state_quarterly_API")
+		Cookie.create(:data=>[dataHash], :category=>"detainees_state_quarterly_API")
 
 		session[:detainee_freq_params] = ["monthly","nationWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
-		my_freq_table = detainee_freq_table(
+		dataHash[:table] = detainee_freq_table(
 			session[:detainee_freq_params][0],
 			session[:detainee_freq_params][1],
 			session[:detainee_freq_params][2],
@@ -362,10 +363,10 @@ class MembersController < ApplicationController
 			session[:detainee_freq_params][6],
 			session[:detainee_freq_params][7]
 		)
-		Cookie.create(:data=>my_freq_table, :category=>"detainees_national_monthly_API")
+		Cookie.create(:data=>[dataHash], :category=>"detainees_national_monthly_API")
 
 		session[:detainee_freq_params] = ["quarterly","nationWise","noOrganizationSplit", "noRoleSplit", organizationOptions, false, false, roleOptions]
-		my_freq_table = detainee_freq_table(
+		dataHash[:table] = detainee_freq_table(
 			session[:detainee_freq_params][0],
 			session[:detainee_freq_params][1],
 			session[:detainee_freq_params][2],
@@ -375,7 +376,7 @@ class MembersController < ApplicationController
 			session[:detainee_freq_params][6],
 			session[:detainee_freq_params][7]
 		)
-		Cookie.create(:data=>my_freq_table, :category=>"detainees_national_quarterly_API")
+		Cookie.create(:data=>[dataHash], :category=>"detainees_national_quarterly_API")
 
 		redirect_to "/datasets/load"
 	end
