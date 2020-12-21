@@ -265,7 +265,15 @@ class OrganizationsController < ApplicationController
     end
 
   	def show
-  		# REPEATED STUFF FOR FILTER-BOX
+  		if session[:organization_selection].nil?
+        helpers.clear_session
+        cartels = Sector.where(:scian2=>98).last.organizations.uniq
+        cartels = cartels.sort_by{|cartel| cartel.name}
+        coalitionKeys = helpers.coalitionKeys
+        typeKeys = cartels.pluck(:mainleague_id).uniq
+        session[:organization_selection] = [typeKeys, coalitionKeys]
+      end
+      # REPEATED STUFF FOR FILTER-BOX
  		  allCartels = Sector.where(:scian2=>98).last.organizations.uniq
   	  @states = State.all.sort
       if session[:checkedStates]
