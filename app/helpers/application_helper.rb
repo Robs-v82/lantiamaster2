@@ -665,6 +665,9 @@ module ApplicationHelper
 	end
 
 	def clear_session			
+		if session[:years]
+			session.delete(:years)
+		end
 		if session[:victim_freq_params]
 			session.delete(:victim_freq_params)
 		end

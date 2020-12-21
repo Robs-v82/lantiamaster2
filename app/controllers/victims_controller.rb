@@ -99,7 +99,6 @@ class VictimsController < ApplicationController
 		@victims = true
 		@maps = true
 		@years = helpers.get_regular_years
-		session[:years] = @years
 		@checkedStates = session[:checkedStatesArr]
 
 		# FRAMES FOR ANALISYS
@@ -663,10 +662,11 @@ class VictimsController < ApplicationController
     end
 
 	def send_file
+		years = helpers.get_regular_years
 		paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
-		if paramsCookie[2] == "genderSplit" || paramsCookie[3].length < session[:years].length || paramsCookie[4].length < State.all.length && paramsCookie[4].length > 1 || paramsCookie[5].length < City.all.length || paramsCookie[6].length < 3 || session[:checkedCounties] != "states"
+		if paramsCookie[2] == "genderSplit" || paramsCookie[3].length < years.length || paramsCookie[4].length < State.all.length && paramsCookie[4].length > 1 || paramsCookie[5].length < City.all.length || paramsCookie[6].length < 3 || session[:checkedCounties] != "states"
 			records = victim_freq_table(*paramsCookie)
 		elsif paramsCookie[1] == "countyWise" && session[:checkedCounties] == "states"
 			records = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]]

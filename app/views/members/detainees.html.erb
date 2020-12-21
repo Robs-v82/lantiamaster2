@@ -268,10 +268,17 @@
 								<div class="col m7 s12">
 									<div id="detention-map">
 									</div>
-									<div id ="top-detentions">
-										<p>Arrestos de alto perfil</p>
-										<%= render "shared/detaineescollection"%>
+									<div class="row no-down-row">
+										<div class="valign-wrapper">
+											<div class="left-medium-margin info-box inline-block">
+												<a id="top-detentions-modal-trigger" class="modal-trigger valign" href="#top-detentions-modal"><i class="tiny material-icons paletton-red-text right-min-margin">info</i></a>
+											</div>
+											<div class="info-box inline-block">
+												<p>Arrestos de alto perfil</p>
+											</div>
+										</div>
 									</div>
+									<%= render "shared/detaineescollection" %>
 								</div>
 								<div class="hide-on-med-and-up col s12 break-for-mobile">
 								</div>
@@ -354,6 +361,22 @@
 						<li class="padding-left">- <a class="paletton-red-text" href="/organizations/show/<%= cartel.id %>"><%= cartel.name %></a></li>
 					<% end %>
 				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- TOP DETENTIONS MODAL -->
+<div id="top-detentions-modal" class="modal large-modal">
+	<div class="modal-content">	
+		<div class="row">
+			<div class="col s12">
+				<div class="right"><%= image_tag "optimized_logo.jpg", :class => "modal-logo"%></div>
+			</div>
+		<div>
+		</div class="row">
+			<div class="col s12">
+				<h6>Arrestos de alto perfil</h6>
+				<p>Se incluyen los casos en los que los arrestados presuntamente tenían una posición clave (líderes, autoridades cooptadas, traficantes a gran escala, jefes regionales o jefes de célula), así como los casos en los que fueron arrestados de forma simultánea diez o más miembros de una misma organización.</p>
 			</div>
 		</div>
 	</div>

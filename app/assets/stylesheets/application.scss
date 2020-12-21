@@ -5,6 +5,10 @@
  */
 
 
+#top-detentions-modal-trigger i {
+	margin: 5px 8px 0px 0px;
+}
+
 #intro-row {
 	position: relative;
 	top: 200px;
@@ -123,6 +127,10 @@ span.highcharts-title {
 
 .top-row {
 	margin-bottom: 10px !important;
+}
+
+.no-down-row {
+	margin-bottom: 0px !important;
 }
 
 .tabs .tab a {
@@ -728,6 +736,10 @@ select {
 
 .left-min-margin {
 	margin-left: 5px;
+}
+
+.left-medium-margin {
+	margin-left: 12px;
 }
 
 .left-extra-margin {
