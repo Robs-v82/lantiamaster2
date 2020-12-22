@@ -1,6 +1,6 @@
 <% provide :head_tags do %>
 	<%= render "shared/freqcharts"%>
-	<% unless session[:detainee_freq_params][1] == "nationWise" %>
+	<% unless @paramsCookie[1] == "nationWise" %>
 		<%= render "shared/detentionmap"%>
 	<% end %>
 <% end %>
@@ -120,7 +120,7 @@
 									<div class="col s12">
 										<ul class="collapsible z-depth-0">
 											<li id="state-collapsible-tab"
-												<% if session[:detainee_freq_params][1] == "nationWise" %>
+												<% if @paramsCookie[1] == "nationWise" %>
 													class="collapsible-disabled"
 												<% end %>
 											>
@@ -153,7 +153,7 @@
 												</div>
 											</li>
 											<li id="organization-collapsible-tab"
-												<% if session[:detainee_freq_params][2] == "noOrganizationSplit" %>
+												<% if @paramsCookie[2] == "noOrganizationSplit" %>
 													class="collapsible-disabled"
 												<% end %>
 											>
@@ -186,7 +186,7 @@
 												</div>
 											</li>
 											<li id="role-collapsible-tab"
-												<% if session[:detainee_freq_params][3] == "noRoleSplit" %>
+												<% if @paramsCookie[3] == "noRoleSplit" %>
 													class="collapsible-disabled"
 												<% end %>
 											>
