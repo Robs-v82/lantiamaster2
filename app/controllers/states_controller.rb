@@ -62,11 +62,26 @@ class StatesController < ApplicationController
         myQuarter = Quarter.where(:name=>myName).last
         back_one_quarter = helpers.back_one_q(myQuarter)
         back_one_year = helpers.back_one_y(myQuarter)
+        @evolutionArr = []
+        [7,6,5,4,3,2,1,0].each{|x|
+            t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
+            Quarter.all.each{|q|
+                if (q.first_day.strftime('%m-%Y')) == t
+                    @evolutionArr.push(q)
+                end
+            } 
+        }
         ircoTable = []
         components = [
             "victims",
             "feel_safe"
         ]
+        comparisonValues = {}
+        State.all.each{|state|
+            comparisonHash = {:name=>state.shortname}
+            comparisonHash[:score] = ircoOutput(myQuarter, state)[:score]
+            comparisonValues[state[:code]] = comparisonHash
+        }
         State.all.each{|state|
             stateHash = {}
             stateHash["code"] = state.code
@@ -81,6 +96,15 @@ class StatesController < ApplicationController
               end
             }
             stateHash["tendencia"] = helpers.quarter_score_trend(stateHash[:score], inputs_back_one_quarter[:score], inputs_back_one_year[:score])
+            @evolutionArr.each{|q|
+                stateHash[q.name] = ircoOutput(q, state)[:score]
+            }
+            comparisonArr = []
+            state.comparison.each{|key|
+                comparisonArr.push(comparisonValues[State.find(key).code])
+            }
+            stateHash[:comparison] = comparisonArr
+            stateHash[:max] = comparisonArr.max_by{|k| k[:score] }[:score]
             ircoTable.push(stateHash)
         }
         sortedTable = ircoTable.sort_by{|row| -row[:score]}
@@ -208,6 +232,8 @@ class StatesController < ApplicationController
             :name=>"Índice de Riesgo por Crimen Organizado",
             :placeFrame=>"Estatal",
         }
+        print "*****"*1000
+        print @icon_table
     end
 
     def icon
