@@ -6,11 +6,21 @@ class OrganizationsController < ApplicationController
 
   skip_before_action :verify_authenticity_token
 
-	def password
-	    if session[:password_error]
+	def password    
+    if params["key"]
+      if Key.where(:key=>params["key"]).any?
+        target_user = Key.where(:key=>params["key"]).last.user
+        session[:user_id] = target_user[:id]
+        helpers.clear_session
+        redirect_to '/intro'
+      else
+       session[:password_error] = true 
+      end
+    end
+    if session[:password_error]
       	@password_error = true
     end 
-  	end
+  end
 
   	def query
   		if session[:empty_request]
