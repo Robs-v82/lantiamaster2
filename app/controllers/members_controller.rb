@@ -714,7 +714,7 @@ class MembersController < ApplicationController
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
 		records = api_or_table
-	 	file_name = "arrestos("+current_date+")."+params[:extension]
+	 	file_name = "arrestos("+current_date+")."
 	 	caption = "arrestos"
 		file_root = Rails.root.join("private",file_name)
 		myLength = helpers.root_path[:myLength]

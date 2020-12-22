@@ -159,7 +159,7 @@
 					<%= render "shared/showfilter"%>
 					<div class="legend-box col l7 m12 s12">
 						<div class="bottom-margin-div">
-						<span class="header-tag bold">COALICIÓN</span>
+							<span class="header-tag bold">COALICIÓN</span>
 						</div>
 						<% if @checkedCoalitions.pluck("name").include? "Cártel de Sinaloa" %>
 							<div class="bottom-margin-div">
@@ -202,11 +202,11 @@
 							</div>
 						<% end %>
 						<% if @checkedStates.length == 1 %>
-							<div>
-								<a href="/organizations/query">
-									<img src="/assets//mexico-icon.png" class="mexico-icon">
-								</a>
-							</div>
+						<div>
+							<a href="/organizations/query">
+								<img src="/assets//mx-icon.png" class="mexico-icon">
+							</a>
+						</div>
 						<% end %>
 						<div id="org-entry-map" class="org-entry-display">
 						</div>

@@ -24,10 +24,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,300&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
     </head>
-    <body>
+    <body
+        <% if @icon || @irco %>
+            class="texture"
+        <% end %>
+    >
         <div class="b-container">
             <br>
-            <div class="row white"> 
+            <div class="row"> 
                 <div class="valign-wrapper">
                     <div class="left">
                         <% if session[:user_id] %>

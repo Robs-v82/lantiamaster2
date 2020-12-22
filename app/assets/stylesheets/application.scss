@@ -200,9 +200,12 @@ span.highcharts-title {
 }
 
 .mexico-icon {
-	width: 48px;
+	background-color: #EF4E50;
+	width: 28px;
 	display: inline-block;
-	padding-top: 6px;
+	margin-top: 6px;
+	border-radius: 50%;
+	padding: 3px;
 }
 
 .btn-floating:hover, .btn-floating:focus, .active-page:hover, .reset-values:hover {
@@ -588,10 +591,13 @@ body {
 	color: #33333C;
 	display: flex;
 	flex-direction: column;
-	background-image: url("https://aws-lantia-dash.pekxel.com/assets/texture_blanca.jpg");
+}
+
+.texture {
+	background-image: url("https://aws-lantia-dash.pekxel.com/assets/textura_blanca.jpg");
 	background-position: center;
 	background-repeat: no-repeat;
-	background-size: cover;
+	background-size: cover;	
 }
 
 html, body {

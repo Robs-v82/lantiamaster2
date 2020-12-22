@@ -92,7 +92,7 @@ class QueryMailer < ApplicationMailer
 					writer << row
 				end
 			end
-			unless records.length < 5
+			unless records.length < 4
 				row = []
 				[:name, :county_placer, :organization_placer, :role_placer, :gender_placer].each do |cell|
 					if records[-1][cell]

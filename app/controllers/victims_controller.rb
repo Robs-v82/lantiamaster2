@@ -52,14 +52,15 @@ class VictimsController < ApplicationController
 		end
 		if victim_freq_params[:freq_counties]
 			myArr = victim_freq_params[:freq_counties].map(&:to_i)
-			if myArr.length < County.find(myArr.first).state.counties.length
+			validCounties = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][paramsCookie[0]]["noGenderSplit"].length - 3
+			if myArr.length < validCounties
 				Cookie.create(:data=>myArr)
 				session[:checkedCounties] = Cookie.last.id
 				paramsCookie[7] = session[:checkedCounties]
 			else
 				session[:checkedCounties] = "states"
 				paramsCookie[7] = session[:checkedCounties]			
-			end
+			end	
 		else
 			session[:checkedCounties] = "states"
 			paramsCookie[7] = session[:checkedCounties]
@@ -97,7 +98,7 @@ class VictimsController < ApplicationController
 		@chartDisplay = true
 		@user = User.find(session[:user_id])
 		@victims = true
-		@maps = true
+		@maps = false
 		@years = helpers.get_regular_years
 		@checkedStates = session[:checkedStatesArr]
 
@@ -151,23 +152,19 @@ class VictimsController < ApplicationController
   			@genderFrames[1][:checked] = true
   		end
 
-		if @paramsCookie[1] == "nationWise" ||
-			@paramsCookie[2] == "genderSplit" ||
-			@paramsCookie[3].length < @years.length ||
-			@paramsCookie[4].length < State.all.length && @paramsCookie[4].length > 1 ||
-			@paramsCookie[4].length == 1 && @stateWise ||
+  		# DEFINE TABLE
+		if @paramsCookie[2] == "genderSplit"
+			@my_freq_table = victim_freq_table(*@paramsCookie)
+		elsif @stateWise && @paramsCookie[4].length < State.all.length || 
 			@paramsCookie[5].length < City.all.length ||
-			@paramsCookie[6].length < 3 ||
-			session[:checkedCounties] != "states"
-				@maps = false
-				print "*******"*1000
-				print @paramsCookie
-				@my_freq_table = victim_freq_table(*@paramsCookie)
+			session[:checkedCounties] != "states"			
+			@my_freq_table = partial_table
 		elsif @countyWise && session[:checkedCounties] == "states"
 			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
 				@maps = true
 		else
 			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]]
+			@maps = true
 		end
 
   		@sortCounter = 0
@@ -212,8 +209,71 @@ class VictimsController < ApplicationController
   		@pieStrings = %w{massacres shootings_authorities mass_graves} 
 
   		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
-  		print "*****"*10000
-		print session.to_hash
+	end
+
+	def partial_table
+		paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
+		if paramsCookie[1] == "countyWise"
+			table = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]]
+		else
+			table = Cookie.where(:category=>"victims").last.data[0][paramsCookie[0]][paramsCookie[1]][paramsCookie[2]]
+		end
+		if paramsCookie[1] == "stateWise"
+			partialHash = {:model=>State, :keys=>paramsCookie[4]}
+		elsif paramsCookie[1] == "cityWise"
+			partialHash = {:model=>City, :keys=>paramsCookie[5]}
+		else
+			data = Cookie.find(paramsCookie[7]).data
+			partialHash = {:model=>County, :keys=>data}
+		end
+		codeArr = []
+		partialHash[:keys].each{|key|
+			code = partialHash[:model].find(key).code
+			codeArr.push(code)
+		}
+		newTable = [table[0]]
+		table[1..-2].map{|row| if codeArr.include? row[:code]; newTable.push(row); end }
+		totalHash = {}
+		totalHash[:name] = "Total"
+		if paramsCookie[1] == "countyWise"
+			totalHash[:county_placer] = "--"
+		end
+
+		totalMonths = helpers.get_specific_months(paramsCookie[3], "victims")
+		if paramsCookie[0] == "annual"
+			myPeriod = helpers.get_specific_years(paramsCookie[3], "victims")
+			n = 12
+		elsif paramsCookie[0] == "quarterly"
+			myPeriod = helpers.get_specific_quarters(paramsCookie[3], "victims")
+			n = 3
+		elsif paramsCookie[0] == "monthly"
+			myPeriod = totalMonths
+			n = 1
+		end
+		if myPeriod.length > 1
+			unless (totalMonths.length%n) == 0
+				myPeriod.pop
+			end
+		end
+
+		totalFreq = []
+		(1..myPeriod.length).each {
+			totalFreq.push(0)
+		}
+		newTable[1..-1].each{|row|
+			(0..myPeriod.length-1).each {|x|
+				totalFreq[x] += row[:freq][x] 
+			}
+		}
+
+		totalHash[:freq] = totalFreq
+		total_total = 0
+		totalFreq.each{|q|
+			total_total += q
+		}
+		totalHash[:total_total] = total_total
+		newTable.push(totalHash)
+		return newTable
 	end
 
 	def victim_freq_table(period, scope, gender, years, states, cities, genderOptions, counties)
@@ -666,13 +726,21 @@ class VictimsController < ApplicationController
 		paramsCookie = Cookie.where(:category=>"victim_freq_params_"+session[:user_id].to_s).last.data
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
-		if paramsCookie[2] == "genderSplit" || paramsCookie[3].length < years.length || paramsCookie[4].length < State.all.length && paramsCookie[4].length > 1 || paramsCookie[5].length < City.all.length || paramsCookie[6].length < 3 || session[:checkedCounties] != "states"
+
+		# DEFINE TABLE
+		if paramsCookie[2] == "genderSplit"
 			records = victim_freq_table(*paramsCookie)
+		elsif paramsCookie[1] == "stateWise" && paramsCookie[4].length < State.all.length || 
+			paramsCookie[5].length < City.all.length ||
+			session[:checkedCounties] != "states"			
+			records = partial_table
 		elsif paramsCookie[1] == "countyWise" && session[:checkedCounties] == "states"
 			records = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]]
 		else
 			records = Cookie.where(:category=>"victims").last.data[0][paramsCookie[0]][paramsCookie[1]][paramsCookie[2]]
 		end
+
+		# OTHER MAIL PARAMS
 	 	file_name = "victimas("+current_date+")."
 	 	caption = "víctimas"
 		file_root = Rails.root.join("private",file_name)
@@ -710,13 +778,10 @@ class VictimsController < ApplicationController
 				myArr[1].each{|genderframe|
 					stateParams = [timeframe, "countyWise", genderframe, years, [state.id], checkedCitiesArr, genderOptions, "states", months]
 					timeHash[genderframe] = api_freq_table(*stateParams)
-					print (state.name+"*******")*200
 					# if oldData
 					# 	oldData[timeframe][genderframe][0][:period].append(*timeHash[genderframe][0][:period])
 					# 	t = oldData[timeframe][genderframe].length 
 					# 	(1..t-2).each{|x|
-					# 		print oldData[timeframe][genderframe][x][:freq]
-					# 		print timeHash[genderframe][x][:freq] 
 					# 		oldData[timeframe][genderframe][x][:freq].append(*timeHash[genderframe][x][:freq])
 					# 		[:genders, :ages, :agencies, "massacres", "mass_graves", "shootings_authorities", :types].each{|mySymbol|
 					# 			oldData[timeframe][genderframe][x][mySymbol] =	timeHash[genderframe][x][mySymbol]
