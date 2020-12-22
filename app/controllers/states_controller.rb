@@ -91,8 +91,9 @@ class StatesController < ApplicationController
             stateHash[:score] = inputs[:score]
             stateHash[:name] = state.name
             helpers.indexLevels.each{|level|
-              if stateHash[:score].to_f > level[:floor] && stateHash[:score].to_f < level[:ceiling] 
+              if stateHash[:score].to_f >= level[:floor] && stateHash[:score].to_f < level[:ceiling] 
                   stateHash[:color] = level[:hex]
+                  stateHash["nivel"] = level[:name]
               end
             }
             stateHash["tendencia"] = helpers.quarter_score_trend(stateHash[:score], inputs_back_one_quarter[:score], inputs_back_one_year[:score])
@@ -114,12 +115,13 @@ class StatesController < ApplicationController
             x["rank"] = rankCount
         }
         Cookie.create(:data=>sortedTable, :quarter_id=>myQuarter.id, :category=>"irco")
-        redirect_to "/datasets/load"
+        redirect_to "/states/irco"
     end
 
     def irco
         @irco = true
         @indexName = "IRCO"
+        @myModel = State
         myCookie = Cookie.where(:category=>"irco").last
         myQuarter = myCookie.quarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
@@ -154,6 +156,8 @@ class StatesController < ApplicationController
             :acronym=>"IRCO",
             :name=>"Índice de Riesgo por Crimen Organizado",
             :placeFrame=>"Estatal",
+            :placeNoun=>"estado",
+            :noun=>"riesgo"
         }
         print "*****"*1000
         print @icon_table
@@ -162,6 +166,7 @@ class StatesController < ApplicationController
     def icon
         @icon = true
         @indexName = "ICon"
+        @myModel = State
         myCookie = Cookie.where(:category=>"icon").last
         myQuarter = myCookie.quarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
@@ -195,7 +200,9 @@ class StatesController < ApplicationController
         @indexStringHash = {
             :acronym=>"ICon",
             :name=>"Índice de Conflictividad",
-            :placeFrame=>"Estatal"
+            :placeFrame=>"Estatal",
+            :placeNoun=>"estado",
+            :noun=>"conflictividad"
         }
     end
 

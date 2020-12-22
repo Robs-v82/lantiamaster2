@@ -23,92 +23,216 @@
         }; 
 
 	 	// NATIONAL MAP
-		var data = [
-			<% @icon_table.each do |place| %>
-				{name:'<%= place[:name] %>', value:<%= place[:score] %>, code:'<%= place["code"] %>'},
-			<% end %>
-		];
+		<% if @countyWise %>
+			var mxStates = [
+			    ['mx-3622', null],
+			    ['mx-bc', null],
+			    ['mx-bs', null],
+			    ['mx-so', null],
+			    ['mx-cl', null],
+			    ['mx-na', null],
+			    ['mx-cm', null],
+			    ['mx-qr', null],
+			    ['mx-mx', null],
+			    ['mx-mo', null],
+			    ['mx-df', null],
+			    ['mx-qt', null],
+			    ['mx-tb', null],
+			    ['mx-cs', null],
+			    ['mx-nl', null],
+			    ['mx-si', null],
+			    ['mx-ch', null],
+			    ['mx-ve', null],
+			    ['mx-za', null],
+			    ['mx-ag', null],
+			    ['mx-ja', null],
+			    ['mx-mi', null],
+			    ['mx-oa', null],
+			    ['mx-pu', null],
+			    ['mx-gr', null],
+			    ['mx-tl', null],
+			    ['mx-tm', null],
+			    ['mx-co', null],
+			    ['mx-yu', null],
+			    ['mx-dg', null],
+			    ['mx-gj', null],
+			    ['mx-sl', null],
+			    ['mx-hg', null]
+			];
+			var data = [
+				<% @icon_table.each do |place| %>
+					<% unless place[:name] == "Nacional" %>
+						{
+							code: '<%= place["code"]%>',
+							name: '<%= place[:name] %>',
+							lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
+							lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
+							value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
+							color: '<%= place[:color] %>',
+						},
+					<% end %>
+				<% end %>
+			]
+			Highcharts.getJSON('/maps/mx-all.geojson', function (geojson) {
+				Highcharts.mapChart('icon-map', {
+			        chart: {
+			            map: geojson,
+			            height: mapHeight,
+			        },
+			        title: false, 
+			        credits: false,
+			        mapNavigation: {
+			            enabled: true,
+			        },
+					exporting: {
+						enabled: false
+					},
+			        
+			        legend: false,
+			        title: false, 
+			        credits: false,
+			        mapNavigation: {
+			            enabled: false,
+			        },
+					exporting: {
+						enabled: false
+					},
+			        series: [
+				        {
+				            data: mxStates,
+				            borderColor: 'white',
+				            borderWidth: 1,
+				            nullColor: '#e0e0e0', 
+				            dataLabels: {
+				                enabled: true,
+				                format: '{point.properties.postal}'
+				            }
+				        }, {
+				        	cursor: 'pointer',
+				        	type: 'mappoint',
+				        	data: data,
+				        	marker: {
+				        		radius: 4
+				        	},
+				            dataLabels: {
+				                enabled: false,
+				            },
+				            tooltip: {
+				            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+				            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
+				            },
+			        		point: {
+			        			events: {
+			        				click: function() {
+			        					var myCounty = this.code;
+			        					$('.index-display').hide();
+			        					$('#'+myCounty+'-card-display').show();
+			        					tabInit();
+			        					buildLocalCharts(myCounty);
+			        					if ($(window).width() < 600) {
+			        						$("html, body").animate({ scrollTop: 680 }, "slow");
+			        					};
+			        				}
+			        			}
+			        		}
+			            }
+			        ],
 
-		Highcharts.getJSON('/maps/national_map.json', function (geojson) {
-		    Highcharts.mapChart('icon-map', {
-		        chart: {
-		            map: geojson,
-		            height: mapHeight,
-		            // backgroundColor: '#041F3A'
-		        },
-		        legend: false,
-		        title: false, 
-		        credits: false,
-		        mapNavigation: {
-		            enabled: false,
-		        },
-				exporting: {
-					enabled: false
-				},
-	            colors: [
-	            	<% @levels.reverse.each do |level| %>
-	            		'<%= level[:light_color] %>',
-	            	<% end %>
-	            ],
-	            colorAxis: {
-	                dataClassColor: 'category',
-	                dataClasses: [{
-	                	to: 25,
-	                }, {
-	                    from: 25,
-	                    to: 45
-	                }, {
-	                    from: 45,
-	                    to: 65
-	                }, {
-	                    from: 65
-	                }]
-	            },
-		        plotOptions: {
-		        	series: {
-		        		point: {
-		        			events: {
-		        				click: function() {
-		        					var myState = this.code;
-		        					$('.index-display').hide();
-		        					$('#'+myState+'-card-display').show();
-		        					tabInit();
-		        					buildLocalCharts(myState);
-		        					$("html, body").animate({ scrollTop: 580 }, "slow");
-		        				}
-		        			}
-		        		}
-		        	}
-		        },
-		        series: [{
-		            data: data,
-		            joinBy: 'name',
-	            	name: 'Arrestos',
-		            borderColor: 'white',
-		            borderWidth: 1,
-		            nullColor: '#e0e0e0',
-		            states: {
-		                hover: {
-		                    color: '#ffffff',
-			                borderColor: '#424242'
-		                }
+			    }, function (chart) { 
+					    var originalWidth = chart.chartWidth - 105;
+					    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+	    				.add();
+	        	});	
+	        });	
+		<% else %>
+			var data = [
+				<% @icon_table.each do |place| %>
+					{name:'<%= place[:name] %>', value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>, code:'<%= place["code"] %>'},
+				<% end %>
+			];
+			Highcharts.getJSON('/maps/national_map.json', function (geojson) {
+			    Highcharts.mapChart('icon-map', {
+			        chart: {
+			            map: geojson,
+			            height: mapHeight,
+			            // backgroundColor: '#041F3A'
+			        },
+			        legend: false,
+			        title: false, 
+			        credits: false,
+			        mapNavigation: {
+			            enabled: false,
+			        },
+					exporting: {
+						enabled: false
+					},
+		            colors: [
+		            	<% @levels.reverse.each do |level| %>
+		            		'<%= level[:light_color] %>',
+		            	<% end %>
+		            ],
+		            colorAxis: {
+		                dataClassColor: 'category',
+		                dataClasses: [{
+		                	to: 25,
+		                }, {
+		                    from: 25,
+		                    to: 45
+		                }, {
+		                    from: 45,
+		                    to: 65
+		                }, {
+		                    from: 65
+		                }]
 		            },
-		            cursor: 'pointer', 
-		            dataLabels: {
-		                enabled: true,
-		                format: '{point.properties.postal}'
+			        plotOptions: {
+			        	series: {
+			        		point: {
+			        			events: {
+			        				click: function() {
+			        					var myState = this.code;
+			        					$('.index-display').hide();
+			        					$('#'+myState+'-card-display').show();
+			        					tabInit();
+			        					buildLocalCharts(myState);
+			        					if ($(window).width() < 600) {
+			        						$("html, body").animate({ scrollTop: 680 }, "slow");
+			        					};
+			        				}
+			        			}
+			        		}
+			        	}
+			        },
+			        series: [{
+			            data: data,
+			            joinBy: 'name',
+		            	name: 'Arrestos',
+			            borderColor: 'white',
+			            borderWidth: 1,
+			            nullColor: '#e0e0e0',
+			            states: {
+			                hover: {
+			                    color: '#ffffff',
+				                borderColor: '#424242'
+			                }
+			            },
+			            cursor: 'pointer', 
+			            dataLabels: {
+			                enabled: true,
+			                format: '{point.properties.postal}'
+			            }
+			        }],
+		            tooltip: {
+		            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+		            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
 		            }
-		        }],
-	            tooltip: {
-	            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
-	            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
-	            }
-		    }, function (chart) { 
-				    var originalWidth = chart.chartWidth - 105;
-				    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
-    				.add();
-        	});		
-		});
+			    }, function (chart) { 
+					    var originalWidth = chart.chartWidth - 105;
+					    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+	    				.add();
+	        	});		
+			});
+		<% end %>
 		<% if @icon %>
 			function buildLocalCharts(state) {
 				<% @icon_table.each do |place| %>
@@ -170,9 +294,9 @@
 			        },
 			        xAxis: {
 			        	categories: [
-			        		'<%= State.where(:code=>place["code"]).last.shortname %>',
-			        		<% State.where(:code=>place["code"]).last.comparison.each do |stateKey| %>
-			        			'<%= State.find(stateKey).shortname %>',
+			        		'<%= @myModel.where(:code=>place["code"]).last.shortname %>',
+			        		<% @myModel.where(:code=>place["code"]).last.comparison.each do |stateKey| %>
+			        			'<%= @myModel.find(stateKey).shortname %>',
 			        		<% end %>
 			        	]
 			        },
@@ -188,7 +312,7 @@
 			        series: [{
 			        	data: [
 							{
-		        				name: '<%= State.where(:code=>place["code"]).last.shortname %>',
+		        				name: '<%= @myModel.where(:code=>place["code"]).last.shortname %>',
 		        				y: <%= place[:score]%>,
 		        				color: '<%= place[:color] %>'
 	        				},
@@ -280,9 +404,9 @@
 
 			}
 		<% elsif @irco%>
-			function buildLocalCharts(state) {
+			function buildLocalCharts(place) {
 				<% @icon_table.each do |place| %>
-					if (state == '<%= place["code"] %>') {
+					if (place == '<%= place["code"] %>') {
 						Highcharts.chart('<%= place["code"]%>-icon-trend-chart', {
 						    chart: {
 						        type: 'line',
@@ -323,59 +447,65 @@
 								}
 					        }]
 						});
-						Highcharts.chart('<%= place["code"]%>-icon-bar-chart', {
-							chart: {
-								type: 'column',
-								height: 120,
-								marginTop: 0,
-								backgroundColor: 'rgba(0,0,0,0)',
-							},
-					        title: false, 
-						    credits: false,
-							exporting: {
-								enabled: false
-							},
-					        legend: {
-					        	enabled: false
-					        },
-					        xAxis: {
-					        	categories: [
-					        		'<%= State.where(:code=>place["code"]).last.shortname %>',
-					        		<% State.where(:code=>place["code"]).last.comparison.each do |stateKey| %>
-					        			'<%= State.find(stateKey).shortname %>',
-					        		<% end %>
-					        	]
-					        },
-					        yAxis: {
-					        	max: <%= place[:max].to_i %>,
-					        	title: {
-					        		text: null
-					        	},
-					        	labels: {
-					        		enabled: false
-					        	},
-					        },
-					        series: [{
-					        	data: [
-									{
-				        				name: '<%= State.where(:code=>place["code"]).last.shortname %>',
-				        				y: <%= place[:score]%>,
-				        				color: '<%= place[:color] %>'
-			        				},
-					        		<% place[:comparison].each do |stateKey| %>
-					        			{
-					        				name: '<%= stateKey[:name] %>',
-					        				y: <%= stateKey[:score].to_f %>,
-					        				color: '#e0e0e0',
-					        			},
-					        		<% end %>
-					        	],
-								tooltip: {
-									headerFormat: '<span style="font-size:12px; color:#454157">{point.y}</span><br>',
-									pointFormat: false,
-								}
-					        }]
-						});
+						<% unless @countyWise %>
+							Highcharts.chart('<%= place["code"]%>-icon-bar-chart', {
+								chart: {
+									type: 'column',
+									height: 120,
+									marginTop: 0,
+									backgroundColor: 'rgba(0,0,0,0)',
+								},
+						        title: false, 
+							    credits: false,
+								exporting: {
+									enabled: false
+								},
+						        legend: {
+						        	enabled: false
+						        },
+						        xAxis: {
+						        	categories: [
+						        		<% if @countyWise %>
+						        			'<%= @myModel.where(:full_code=>place["code"]).last.shortname %>',
+						        		<% else %>
+						        			'<%= @myModel.where(:code=>place["code"]).last.shortname %>',
+						        		<% end %>
+						        		<% @myModel.where(:code=>place["code"]).last.comparison.each do |placeKey| %>
+						        			'<%= @myModel.find(placeKey).shortname %>',
+						        		<% end %>
+						        	]
+						        },
+						        yAxis: {
+						        	max: <%= place[:max].to_i %>,
+						        	title: {
+						        		text: null
+						        	},
+						        	labels: {
+						        		enabled: false
+						        	},
+						        },
+						        series: [{
+						        	data: [
+										{
+					        				name: '<%= @myModel.where(:code=>place["code"]).last.shortname %>',
+					        				y: <%= place[:score]%>,
+					        				color: '<%= place[:color] %>'
+				        				},
+						        		<% place[:comparison].each do |placeKey| %>
+						        			{
+						        				name: '<%= placeKey[:name] %>',
+						        				y: <%= placeKey[:score].to_f %>,
+						        				color: '#e0e0e0',
+						        			},
+						        		<% end %>
+						        	],
+									tooltip: {
+										headerFormat: '<span style="font-size:12px; color:#454157">{point.y}</span><br>',
+										pointFormat: false,
+									}
+						        }]
+							});
+						<% end %>
 					};
 				<% end %>
 			}

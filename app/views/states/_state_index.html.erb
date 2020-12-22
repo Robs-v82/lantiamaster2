@@ -118,7 +118,7 @@
 												<div class="divider"></div>
 												<div class="stress-line valign-wrapper">
 													<p><%= row["rank"] %><% if row["rank"] == "1" %><sup>er</sup><% elsif row["rank"] == "3" %><sup>er</sup><% else %><sup>o</sup><% end %>
-													estado con mayor conflictividad</p>
+													<%= @indexStringHash[:placeNoun] %> con mayor <%= @indexStringHash[:noun] %></p>
 												</div>
 												<div class="divider"></div>
 												<br>

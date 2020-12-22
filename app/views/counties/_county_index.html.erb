@@ -43,43 +43,96 @@
 			<div class="col l7 m5 s12">
 				<div class="card white index-card">
 					<div class="card-content">
-						<div id="icon-table-display" class="index-display">
-							<% @screens.each do |screen| %>
-								<div class="<%= screen[:style] %>">
-									<div class="row">
-										<% screen[:scopes].each do |scope| %>
-											<div class="col <%= screen[:width] %>">
-												<table id="icon_table" class="highlight center-align">
-													<thead>
-														<tr>
-															<% @tableHeader.each do |head| %>
-																<th class="center-align p11"><%= head %></th>
-															<% end %>
-														</tr>
-													</thead>
-													<tbody>
-														<% @icon_table[scope].each do |row| %>
-															<tr id="<%= row["code"] %>-index-trigger" class="pseudo-clickable-row p12">
-																<td class="valign-wrapper">
-																	<div class="pseudo-button valign-wrapper">
-																		<i class="material-icons tiny right-extra-margin z-depth-1" style="background-color: <%= row[:color] %>; color: <%= row[:color] %>">brightness_1</i>
-																	</div>
-																	<div class="county-tag">
-																		<p><%= State.where(:code=>row["code"]).last.shortname %></p>
-																	</div>
-																</td>
-																<td class="right-align"><%= row["rank"] %> </td>
-																<td class="right-align"><%= number_with_precision(row[:score], :precision=>1) %></td>
-																<td class="center-align"><%= row["tendencia"] %></td>
-															</tr>
-														<% end %>
-													</tbody>
-												</table>
-											</div>
-										<% end %>
-									</div>
+						<div id="icon-table-display" class="index-display">	
+							<div class="row">
+								<div class="col s12">
+									<ul class="tabs paletton-red-tabs">
+										<li class="tab col s5">
+											<a class="paletton-red-text" href="#index-top-10-tab">ALTO RIESGO</a>
+										</li>
+										<li class="tab col s5"><a  class="right-tab paletton-red-text" href="#destinations-tab">TURÍSTICOS</a></li>
+										<li class="tab col s2"><a  class="right-tab paletton-red-text" href="#county-search-tab"><i id="autocomplete-icon" class="material-icons paletton-red-text">search</i></a></li>
+									</ul>
 								</div>
-							<% end %>
+							</div>	
+							<div id="index-top-10-tab">	
+								<% @screens.each do |screen| %>
+									<div class="<%= screen[:style] %>">
+										<div class="row">
+											<% screen[:scopes].each do |scope| %>
+												<div class="col <%= screen[:width] %>">
+													<table id="icon_table" class="highlight center-align">
+														<thead>
+															<tr>
+																<% @tableHeader.each do |head| %>
+																	<th class="center-align p11"><%= head %></th>
+																<% end %>
+															</tr>
+														</thead>
+														<tbody>
+															<% @icon_table[scope].each do |row| %>
+																<tr id="<%= row["code"] %>-index-trigger" class="pseudo-clickable-row p12">
+																	<td class="valign-wrapper">
+																		<div class="pseudo-button valign-wrapper">
+																			<i class="material-icons tiny right-extra-margin z-depth-1" style="background-color: <%= row[:color] %>; color: <%= row[:color] %>">brightness_1</i>
+																		</div>
+																		<div class="county-tag">
+																			<p><%= County.where(:full_code=>row["code"]).last.shortname %>, <%= County.where(:full_code=>row["code"]).last.state.shortname %></p>
+																		</div>
+																	</td>
+																	<td class="right-align"><%= row["rank"] %> </td>
+																	<td class="right-align"><%= number_with_precision(row[:score], :precision=>1) %></td>
+																	<td class="center-align"><%= row["tendencia"] %></td>
+																</tr>
+															<% end %>
+														</tbody>
+													</table>
+												</div>
+											<% end %>
+										</div>
+									</div>
+								<% end %>
+							</div>
+							<div id="destinations-tab">
+								<% @destinationScreens.each do |screen| %>
+									<div class="<%= screen[:style] %>">
+										<div class="row">
+											<% screen[:scopes].each do |scope| %>
+												<div class="col <%= screen[:width] %>">
+													<table id="icon_table" class="highlight center-align">
+														<thead>
+															<tr>
+																<% @tableHeader.each do |head| %>
+																	<th class="center-align p11"><%= head %></th>
+																<% end %>
+															</tr>
+														</thead>
+														<tbody>
+															<% @destination_table[scope].each do |row| %>
+																<tr id="<%= row["code"] %>-index-trigger" class="pseudo-clickable-row p12">
+																	<td class="valign-wrapper">
+																		<div class="pseudo-button valign-wrapper">
+																			<i class="material-icons tiny right-extra-margin z-depth-1" style="background-color: <%= row[:color] %>; color: <%= row[:color] %>">brightness_1</i>
+																		</div>
+																		<div class="county-tag">
+																			<p><%= County.where(:full_code=>row["code"]).last.shortname %>, <%= County.where(:full_code=>row["code"]).last.state.shortname %></p>
+																		</div>
+																	</td>
+																	<td class="right-align"><%= row["rank"] %> </td>
+																	<td class="right-align"><%= number_with_precision(row[:score], :precision=>1) %></td>
+																	<td class="center-align"><%= row["tendencia"] %></td>
+																</tr>
+															<% end %>
+														</tbody>
+													</table>
+												</div>
+											<% end %>
+										</div>
+									</div>
+								<% end %>
+							</div>
+							<div id="county-search-tab">
+							</div>
 						</div>
 						<% @icon_table.each do |row| %>
 							<div id="<%= row["code"] %>-card-display" class="index-display p14" style="display: none">
@@ -90,7 +143,7 @@
 												<div class="pseudo-button valign-wrapper">
 													<i class="material-icons right-extra-margin z-depth-1" style="background-color: <%= row[:color] %>; color: <%= row[:color] %>">brightness_1</i>
 												</div>
-												<h5> <%= row[:name] %><span class="slim"></span></h5>
+												<h5> <%= row[:name] %>, <%= County.where(:full_code=>row["code"]).last.state.shortname %></h5>
 											</div>
 										</div>
 										<div class="col s3">
@@ -101,12 +154,12 @@
 								<br>
 								<div class="row short-row">
 									<div class="row">
-									<div class="col l6 m12 s12">
-										<ul class="tabs paletton-red-tabs">
-											<li class="tab col s6"><a class="paletton-red-text" href="#<%= row["code"] %>-overview-tab">RESUMEN</a></li>
-											<li class="tab col s6"><a id="<%= row["code"] %>-component-tab-trigger" class="right-tab paletton-red-text" href="#<%= row["code"] %>-component-tab">INDICADORES</a></li>
-										</ul>
-									</div>
+										<div class="col l6 m12 s12">
+											<ul class="tabs paletton-red-tabs">
+												<li class="tab col s6"><a class="paletton-red-text" href="#<%= row["code"] %>-overview-tab">RESUMEN</a></li>
+												<li class="tab col s6"><a id="<%= row["code"] %>-component-tab-trigger" class="right-tab paletton-red-text" href="#<%= row["code"] %>-component-tab">INDICADORES</a></li>
+											</ul>
+										</div>
 									</div>
 									<div id="<%= row["code"] %>-overview-tab" class="overview-tab">
 										<div class="col l6 m12">
@@ -118,35 +171,13 @@
 												<div class="divider"></div>
 												<div class="stress-line valign-wrapper">
 													<p><%= row["rank"] %><% if row["rank"] == "1" %><sup>er</sup><% elsif row["rank"] == "3" %><sup>er</sup><% else %><sup>o</sup><% end %>
-													estado con mayor conflictividad</p>
+													<%= @indexStringHash[:placeNoun] %> con mayor <%= @indexStringHash[:noun] %></p>
 												</div>
 												<div class="divider"></div>
 												<br>
 											</div>
 											<div class="col l12 m12 s6">
-												<div class="left-large-margin"><span class="slim">Población: </span><%= number_with_delimiter(State.where(:code=>row["code"]).last.population) %></div>
-												<% if State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.any? %>
-													<div class="valign-wrapper">
-														<div class="governor-box right-extra-margin">
-															<div id="avatar-circle" class="tiny-thumb z-depth-1 circle">
-															<%= image_tag(State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.avatar, :class=> "avatar-image") %>
-															</div>
-														</div>
-														<div>
-															<p class="slim">
-																<% if row["code"] == "09" %>
-																	Jefa de Gobierno:
-																<% elsif State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.gender == "FEMENINO"
-																	%>
-																Gobernadora:
-																<% else %>
-																	Gobernador:
-																<% end %>
-															</p>
-															<p><span class="slim"></span><%= State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.firstname+" "+State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.lastname1+" "+State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.lastname2 %></p>
-														</div>
-													</div>
-												<% end %>	
+												<div class="left-large-margin"><span class="slim">Población: </span><%= number_with_delimiter(County.where(:full_code=>row["code"]).last.population) %></div>
 												<br>
 											</div>
 										</div>

@@ -96,10 +96,11 @@ class CountiesController < ApplicationController
             inputs_back_one_quarter = ircoOutput(back_one_quarter, place)
             inputs_back_one_year = ircoOutput(back_one_year, place)
             placeHash[:score] = inputs[:score]
-            placeHash[:name] = place.name
+            placeHash[:name] = place.shortname
             helpers.indexLevels.each{|level|
-              if placeHash[:score].to_f > level[:floor] && placeHash[:score].to_f < level[:ceiling] 
+              if placeHash[:score].to_f >= level[:floor] && placeHash[:score].to_f < level[:ceiling] 
                   placeHash[:color] = level[:hex]
+                  placeHash["nivel"] = level[:name]
               end
             }
             placeHash["tendencia"] = helpers.quarter_score_trend(placeHash[:score], inputs_back_one_quarter[:score], inputs_back_one_year[:score])
@@ -121,12 +122,14 @@ class CountiesController < ApplicationController
             x["rank"] = rankCount
         }
         Cookie.create(:data=>sortedTable, :quarter_id=>myQuarter.id, :category=>"irco_counties")
-        redirect_to "/datasets/load"
+        redirect_to "/counties/irco"
     end
 
     def irco
         @irco = true
         @indexName = "IRCO"
+        @countyWise = true
+        @myModel = County
         myQuarter = Cookie.where(:category=>"irco_counties").last.quarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
         back_one_quarter = helpers.back_one_q(myQuarter) 
@@ -138,8 +141,12 @@ class CountiesController < ApplicationController
         @icon_table = Cookie.where(:category=>"irco_counties").last.data
         @icon_table = @icon_table.sort_by{|state| state["rank"].to_i }
         @screens = [
-            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..15,16..31]},
-            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..31]}
+            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..9,10..19]},
+            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..9]}
+        ]
+        @destinationScreens = [
+            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..7,8..14]},
+            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..14]}
         ]
         @evolutionArr = []
         [7,6,5,4,3,2,1,0].each{|x|
@@ -157,6 +164,14 @@ class CountiesController < ApplicationController
             :acronym=>"IRCO",
             :name=>"Índice de Riesgo por Crimen Organizado",
             :placeFrame=>"Estatal",
+            :placeNoun=>"municipio",
+            :noun=>"riesgo"
+        }
+        @destination_table = []
+        @icon_table.map{|row|
+        	if County.where(:full_code=>row["code"]).last.destination == true
+        		@destination_table.push(row)
+        	end
         }
     end
 
@@ -172,7 +187,7 @@ class CountiesController < ApplicationController
   		score = ((victims_index*10)).round(2)
   		ircoHash = {
   			:victims=>total_victims,
-  			:score=>score
+  			:score=>score*10
   		}
   		return ircoHash
   	end
