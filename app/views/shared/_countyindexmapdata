@@ -1,0 +1,10 @@
+<% unless place[:name] == "Nacional" %>
+	{
+		code: '<%= place["code"]%>',
+		name: '<%= place[:name] %>',
+		lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
+		lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
+		value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
+		color: '<%= place[:color] %>',
+	},
+<% end %>

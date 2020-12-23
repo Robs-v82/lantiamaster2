@@ -99,4 +99,5 @@ Rails.application.routes.draw do
     get 'victims/reset_map'
     get 'victims/county_query/:code' => 'victims#county_query'
     get 'victims/green_query'
+    get 'counties/autocomplete/:myString' => 'counties#autocomplete'
 end

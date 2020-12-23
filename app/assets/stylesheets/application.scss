@@ -143,13 +143,13 @@ span.highcharts-title {
  	margin-top: 5px;
  }
 
- #autocomplete-input {
+ #autocomplete-input, #county-autocomplete-input {
  	border: 1px solid #EF4E50 !important;
  	border-radius: 2px;
  	height: 26px !important;
  }
 
- #autocomplete-input:focus {
+ #autocomplete-input:focus, #county-autocomplete-input:focus {
  	box-shadow: none !important;
  	font-family: 'Poppins', sans-serif;
  	font-weight: 300;
@@ -741,6 +741,9 @@ select {
 	margin-right: 5px;
 }
 
+.top-min-margin {
+	margin-top: 5px;
+}
 
 .left-min-margin {
 	margin-left: 5px;

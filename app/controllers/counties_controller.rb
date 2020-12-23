@@ -97,6 +97,7 @@ class CountiesController < ApplicationController
             inputs_back_one_year = ircoOutput(back_one_year, place)
             placeHash[:score] = inputs[:score]
             placeHash[:name] = place.shortname
+            placeHash[:state] = place.state.shortname
             helpers.indexLevels.each{|level|
               if placeHash[:score].to_f >= level[:floor] && placeHash[:score].to_f < level[:ceiling] 
                   placeHash[:color] = level[:hex]
@@ -113,6 +114,7 @@ class CountiesController < ApplicationController
             # }
             # placeHash[:comparison] = comparisonArr
             # placeHash[:max] = comparisonArr.max_by{|k| k[:score] }[:score]
+            placeHash[:femaleViolence] = female_victims(myQuarter, place)
             ircoTable.push(placeHash)
         }
         sortedTable = ircoTable.sort_by{|row| -row[:score]}
@@ -137,17 +139,10 @@ class CountiesController < ApplicationController
         back_one_year = helpers.back_one_y(myQuarter)
         @back_one_y_strings = helpers.quarter_strings(back_one_year)
         @levels = helpers.indexLevels
-        @tableHeader = ["ESTADO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
+        @tableHeader = ["MUNICIPIO", "POSICIÓN", "PUNTAJE", "TENDENCIA"]
         @icon_table = Cookie.where(:category=>"irco_counties").last.data
         @icon_table = @icon_table.sort_by{|state| state["rank"].to_i }
-        @screens = [
-            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..9,10..19]},
-            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..9]}
-        ]
-        @destinationScreens = [
-            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..7,8..14]},
-            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..14]}
-        ]
+
         @evolutionArr = []
         [7,6,5,4,3,2,1,0].each{|x|
             t = (myQuarter.first_day - (x*90).days).strftime('%m-%Y')
@@ -167,12 +162,27 @@ class CountiesController < ApplicationController
             :placeNoun=>"municipio",
             :noun=>"riesgo"
         }
+        @critical_table = []
+        @icon_table.map{|row|
+        	if row["nivel"] == "Crítico"
+        		@critical_table.push(row)
+        	end
+        }
+        @criticalScreens = [
+            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..@critical_table.length/2,@critical_table.length/2+1..@critical_table.length]},
+            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..@critical_table.length]}
+        ]
+
         @destination_table = []
         @icon_table.map{|row|
         	if County.where(:full_code=>row["code"]).last.destination == true
         		@destination_table.push(row)
         	end
         }
+        @destinationScreens = [
+            {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..@destination_table.length/2,@destination_table.length/2+1..@destination_table.length]},
+            {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..@destination_table.length]}
+        ]
     end
 
   	def ircoOutput(quarter, county)
@@ -191,6 +201,35 @@ class CountiesController < ApplicationController
   		}
   		return ircoHash
   	end
+
+    def female_victims(quarter, place)
+        localVictims = place.victims
+        quarterVictims = quarter.victims
+        femaleQuarterVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
+        previousYear = []
+        [3,2,1].each{|x|
+            t = (quarter.first_day - (x*90).days).strftime('%m-%Y')
+            Quarter.all.each{|q|
+                if (q.first_day.strftime('%m-%Y')) == t
+                   previousYear.push(q)
+                end
+            } 
+        }
+        femaleYearVictims = femaleQuarterVictims
+        previousYear.each{|q|
+            quarterVictims = q.victims
+            thisQuarteFemaleVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
+            femaleYearVictims += thisQuarteFemaleVictims
+        }
+        femaleViolence = false
+        print femaleQuarterVictims 
+        if (femaleQuarterVictims/place.population.to_f)*100000 > 1
+            femaleViolence = true 
+        elsif (femaleYearVictims/place.population.to_f)*100000 > 4
+            femaleViolence = true                     
+        end
+        return femaleViolence
+    end
 
 	def car_theft(quarter, county)
   		myYear = quarter.year.name
@@ -215,6 +254,35 @@ class CountiesController < ApplicationController
   		}
   		return car_count
   	end
+
+	def autocomplete
+	    myCounties = helpers.bigCounties
+	    matches = []
+	    nameMatches = myCounties.select{|county| helpers.bob_decode(county.name).downcase.include? helpers.bob_decode(params[:myString]).downcase}
+	    matches.append(*nameMatches)
+	    stateMatches = myCounties.select{|county| helpers.bob_decode(county.state.name).downcase.include? helpers.bob_decode(params[:myString]).downcase}
+	    matches.append(*stateMatches)
+	    acronymMatches = myCounties.select{|county| helpers.bob_decode(county.state.shortname).downcase.include? helpers.bob_decode(params[:myString]).downcase}
+	    matches.append(*acronymMatches)
+	    shortnameMatches = myCounties.select{|county| helpers.bob_decode(county.shortname).downcase.include? helpers.bob_decode(params[:myString]).downcase}
+	    matches.append(*shortnameMatches)
+	    matches.uniq!
+	 	if params[:myString] == 'Xp987jy' || params[:myString].length < 3
+	 		matchTable = nil
+	 	elsif matches.empty?
+	 		matchTable = ["none"]
+	 	elsif matches.length >= 1 && matches.length <= 10
+		    matches = matches.pluck(:full_code)
+		    icon_table = Cookie.where(:category=>"irco_counties").last.data
+		    matchTable = []
+	        icon_table.map{|row|
+	        	if matches.include? row["code"]
+	        		matchTable.push(row)
+	        	end
+	        }
+	    end
+	    render json: matchTable
+	end
 
 	private
 

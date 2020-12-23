@@ -16,6 +16,60 @@
 
 		});
 
+		$('#index-search-trigger').click(function() {
+			var critical = [
+				<% @icon_table.each do |place| %>
+					<% unless place[:name] == "Nacional" %>
+						{
+							code: '<%= place["code"]%>',
+							name: '<%= place[:name] %>',
+							lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
+							lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
+							value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
+							color: '<%= place[:color] %>',
+						},
+					<% end %>
+				<% end %>
+			]
+			drawMap(critical);
+		})
+
+		$('#index-top-10-trigger').click(function() {
+			var critical = [
+				<% @critical_table.each do |place| %>
+					<% unless place[:name] == "Nacional" %>
+						{
+							code: '<%= place["code"]%>',
+							name: '<%= place[:name] %>',
+							lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
+							lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
+							value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
+							color: '<%= place[:color] %>',
+						},
+					<% end %>
+				<% end %>
+			]
+			drawMap(critical);
+		})
+
+		$('#index-destination-trigger').click(function() {
+			var critical = [
+				<% @destination_table.each do |place| %>
+					<% unless place[:name] == "Nacional" %>
+						{
+							code: '<%= place["code"]%>',
+							name: '<%= place[:name] %>',
+							lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
+							lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
+							value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
+							color: '<%= place[:color] %>',
+						},
+					<% end %>
+				<% end %>
+			]
+			drawMap(critical);
+		})
+
 		if ($(window).height() < 600) {
 			var mapHeight = 300
         } else {
@@ -59,7 +113,7 @@
 			    ['mx-sl', null],
 			    ['mx-hg', null]
 			];
-			var data = [
+			var allCounties = [
 				<% @icon_table.each do |place| %>
 					<% unless place[:name] == "Nacional" %>
 						{
@@ -73,77 +127,81 @@
 					<% end %>
 				<% end %>
 			]
-			Highcharts.getJSON('/maps/mx-all.geojson', function (geojson) {
-				Highcharts.mapChart('icon-map', {
-			        chart: {
-			            map: geojson,
-			            height: mapHeight,
-			        },
-			        title: false, 
-			        credits: false,
-			        mapNavigation: {
-			            enabled: true,
-			        },
-					exporting: {
-						enabled: false
-					},
-			        
-			        legend: false,
-			        title: false, 
-			        credits: false,
-			        mapNavigation: {
-			            enabled: false,
-			        },
-					exporting: {
-						enabled: false
-					},
-			        series: [
-				        {
-				            data: mxStates,
-				            borderColor: 'white',
-				            borderWidth: 1,
-				            nullColor: '#e0e0e0', 
-				            dataLabels: {
-				                enabled: true,
-				                format: '{point.properties.postal}'
+			function drawMap(data) {
+								Highcharts.getJSON('/maps/mx-all.geojson', function (geojson) {
+					Highcharts.mapChart('icon-map', {
+				        chart: {
+				            map: geojson,
+				            height: mapHeight,
+				        },
+				        title: false, 
+				        credits: false,
+				        mapNavigation: {
+				            enabled: true,
+				        },
+						exporting: {
+							enabled: false
+						},
+				        
+				        legend: false,
+				        title: false, 
+				        credits: false,
+				        mapNavigation: {
+				            enabled: false,
+				        },
+						exporting: {
+							enabled: false
+						},
+				        series: [
+					        {
+					            data: mxStates,
+					            borderColor: 'white',
+					            borderWidth: 1,
+					            nullColor: '#e0e0e0', 
+					            dataLabels: {
+					                enabled: true,
+					                format: '{point.properties.postal}'
+					            }
+					        }, {
+					        	cursor: 'pointer',
+					        	type: 'mappoint',
+					        	data: data,
+					        	marker: {
+					        		radius: 4
+					        	},
+					            dataLabels: {
+					                enabled: false,
+					            },
+					            tooltip: {
+					            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+					            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
+					            },
+				        		point: {
+				        			events: {
+				        				click: function() {
+				        					var myCounty = this.code;
+				        					$('.index-display').hide();
+				        					$('#'+myCounty+'-card-display').show();
+				        					tabInit();
+				        					buildLocalCharts(myCounty);
+				        					if ($(window).width() < 600) {
+				        						$("html, body").animate({ scrollTop: 680 }, "slow");
+				        					};
+				        				}
+				        			}
+				        		}
 				            }
-				        }, {
-				        	cursor: 'pointer',
-				        	type: 'mappoint',
-				        	data: data,
-				        	marker: {
-				        		radius: 4
-				        	},
-				            dataLabels: {
-				                enabled: false,
-				            },
-				            tooltip: {
-				            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
-				            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
-				            },
-			        		point: {
-			        			events: {
-			        				click: function() {
-			        					var myCounty = this.code;
-			        					$('.index-display').hide();
-			        					$('#'+myCounty+'-card-display').show();
-			        					tabInit();
-			        					buildLocalCharts(myCounty);
-			        					if ($(window).width() < 600) {
-			        						$("html, body").animate({ scrollTop: 680 }, "slow");
-			        					};
-			        				}
-			        			}
-			        		}
-			            }
-			        ],
+				        ],
 
-			    }, function (chart) { 
-					    var originalWidth = chart.chartWidth - 105;
-					    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
-	    				.add();
-	        	});	
-	        });	
+				    }, function (chart) { 
+						    var originalWidth = chart.chartWidth - 105;
+						    chart.renderer.image('/assets/mini_logo.png', originalWidth, 50, 60, 52)
+		    				.add();
+		        	});	
+		        });		
+			}
+			drawMap(allCounties)
+	
 		<% else %>
 			var data = [
 				<% @icon_table.each do |place| %>

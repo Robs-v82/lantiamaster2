@@ -47,16 +47,31 @@
 							<div class="row">
 								<div class="col s12">
 									<ul class="tabs paletton-red-tabs">
+										<li id="index-search-trigger" class="tab col s2"><a  class="right-tab paletton-red-text" href="#county-search-tab"><i id="autocomplete-icon" class="material-icons paletton-red-text">search</i></a></li>
 										<li class="tab col s5">
-											<a class="paletton-red-text" href="#index-top-10-tab">ALTO RIESGO</a>
+											<a id="index-top-10-trigger" class="paletton-red-text" href="#index-top-10-tab">CRÍTICOS</a>
 										</li>
-										<li class="tab col s5"><a  class="right-tab paletton-red-text" href="#destinations-tab">TURÍSTICOS</a></li>
-										<li class="tab col s2"><a  class="right-tab paletton-red-text" href="#county-search-tab"><i id="autocomplete-icon" class="material-icons paletton-red-text">search</i></a></li>
+										<li id="index-destination-trigger" class="tab col s5"><a  class="right-tab paletton-red-text" href="#destinations-tab">TURÍSTICOS</a></li>
 									</ul>
+								</div>
+							</div>
+							<div id="county-search-tab">
+								<div class="col l5 m8 s8">
+									<input id="county-autocomplete-input" type="text">
+									<div id="list-guide" class="left-min-margin top-min-margin">
+										<p class="p12">Ingrese el nombre del municipio</p>
+									</div>
+									<div id="failure-guide" class="left-min-margin top-min-margin" style="display:none">
+										<p class="p12 paletton-red-text">Sin resultados (considere que el IRCO tiene cobertura sólo en municipios de más de 100 mil habitantes)</p>
+									</div>
+								</div>
+								<div class="col s12">
+									<div id="county-entry-list">
+									</div>
 								</div>
 							</div>	
 							<div id="index-top-10-tab">	
-								<% @screens.each do |screen| %>
+								<% @criticalScreens.each do |screen| %>
 									<div class="<%= screen[:style] %>">
 										<div class="row">
 											<% screen[:scopes].each do |scope| %>
@@ -70,7 +85,7 @@
 															</tr>
 														</thead>
 														<tbody>
-															<% @icon_table[scope].each do |row| %>
+															<% @critical_table[scope].each do |row| %>
 																<tr id="<%= row["code"] %>-index-trigger" class="pseudo-clickable-row p12">
 																	<td class="valign-wrapper">
 																		<div class="pseudo-button valign-wrapper">
@@ -130,8 +145,6 @@
 										</div>
 									</div>
 								<% end %>
-							</div>
-							<div id="county-search-tab">
 							</div>
 						</div>
 						<% @icon_table.each do |row| %>
