@@ -16,60 +16,6 @@
 
 		});
 
-		$('#index-search-trigger').click(function() {
-			var critical = [
-				<% @icon_table.each do |place| %>
-					<% unless place[:name] == "Nacional" %>
-						{
-							code: '<%= place["code"]%>',
-							name: '<%= place[:name] %>',
-							lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
-							lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
-							value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
-							color: '<%= place[:color] %>',
-						},
-					<% end %>
-				<% end %>
-			]
-			drawMap(critical);
-		})
-
-		$('#index-top-10-trigger').click(function() {
-			var critical = [
-				<% @critical_table.each do |place| %>
-					<% unless place[:name] == "Nacional" %>
-						{
-							code: '<%= place["code"]%>',
-							name: '<%= place[:name] %>',
-							lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
-							lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
-							value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
-							color: '<%= place[:color] %>',
-						},
-					<% end %>
-				<% end %>
-			]
-			drawMap(critical);
-		})
-
-		$('#index-destination-trigger').click(function() {
-			var critical = [
-				<% @destination_table.each do |place| %>
-					<% unless place[:name] == "Nacional" %>
-						{
-							code: '<%= place["code"]%>',
-							name: '<%= place[:name] %>',
-							lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
-							lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
-							value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
-							color: '<%= place[:color] %>',
-						},
-					<% end %>
-				<% end %>
-			]
-			drawMap(critical);
-		})
-
 		if ($(window).height() < 600) {
 			var mapHeight = 300
         } else {
@@ -78,6 +24,59 @@
 
 	 	// NATIONAL MAP
 		<% if @countyWise %>
+			$('#index-search-trigger').click(function() {
+				var critical = [
+					<% @icon_table.each do |place| %>
+						<% unless place[:name] == "Nacional" %>
+							{
+								code: '<%= place["code"]%>',
+								name: '<%= place[:name] %>',
+								lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
+								lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
+								value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
+								color: '<%= place[:color] %>',
+							},
+						<% end %>
+					<% end %>
+				]
+				drawMap(critical);
+			})
+
+			$('#index-top-10-trigger').click(function() {
+				var critical = [
+					<% @critical_table.each do |place| %>
+						<% unless place[:name] == "Nacional" %>
+							{
+								code: '<%= place["code"]%>',
+								name: '<%= place[:name] %>',
+								lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
+								lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
+								value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
+								color: '<%= place[:color] %>',
+							},
+						<% end %>
+					<% end %>
+				]
+				drawMap(critical);
+			})
+
+			$('#index-destination-trigger').click(function() {
+				var critical = [
+					<% @destination_table.each do |place| %>
+						<% unless place[:name] == "Nacional" %>
+							{
+								code: '<%= place["code"]%>',
+								name: '<%= place[:name] %>',
+								lat: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.latitude %>,
+								lon: <%= County.where(:full_code=>place["code"]).last.towns.where(:name=>"Sin definir").last.longitude %>,
+								value: <%= number_with_precision(place[:score].to_f, :precision => 1) %>,
+								color: '<%= place[:color] %>',
+							},
+						<% end %>
+					<% end %>
+				]
+				drawMap(critical);
+			})
 			var mxStates = [
 			    ['mx-3622', null],
 			    ['mx-bc', null],
