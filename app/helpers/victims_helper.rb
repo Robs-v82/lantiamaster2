@@ -32,4 +32,65 @@ module VictimsHelper
 		return keys
 	end
 
+    def female_victims(quarter, place, localVictims)
+        quarterVictims = quarter.victims
+        femaleQuarterVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
+        previousYear = previousYearQuarters(quarter)
+        femaleYearVictims = femaleQuarterVictims
+        previousYear.each{|q|
+            quarterVictims = q.victims
+            thisQuarteFemaleVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
+            femaleYearVictims += thisQuarteFemaleVictims
+        }
+        femaleViolence = false
+        if (femaleQuarterVictims/place.population.to_f)*100000 > 1
+            femaleViolence = true 
+        elsif (femaleYearVictims/place.population.to_f)*100000 > 7
+            femaleViolence = true                     
+        end
+        return femaleViolence
+    end
+
+    def passenger_killings(quarter, place)
+    	passengerQuarterKillings = quarter.killings.merge(place.killings).where(:type_of_place=>typeOfPlaces[3][:typeArr]).length
+    	previousYear = previousYearQuarters(quarter)
+    	passengerYearKillings = passengerQuarterKillings
+        previousYear.each{|q|
+            quarterKillings = q.killings
+            thisQuartePassengerKillings = q.killings.merge(place.killings).where(:type_of_place=>typeOfPlaces[3][:typeArr]).length
+            passengerYearKillings += thisQuartePassengerKillings
+        }
+    	passengerViolence = false
+    	if passengerQuarterKillings > 0 || passengerYearKillings > 1
+    		passengerViolence = true
+    	end
+    	return passengerViolence
+    end
+
+    def commercial_killings(quarter, place)
+    	commercialQuarterKillings = quarter.killings.merge(place.killings).where(:type_of_place=>typeOfPlaces[2][:typeArr]).length
+    	previousYear = previousYearQuarters(quarter)
+    	commercialYearKillings = commercialQuarterKillings
+        previousYear.each{|q|
+            quarterKillings = q.killings
+            thisQuartePassengerKillings = q.killings.merge(place.killings).where(:type_of_place=>typeOfPlaces[2][:typeArr]).length
+            commercialYearKillings += thisQuartePassengerKillings
+        }
+    	commercialViolence = false
+    	if (commercialQuarterKillings/place.population.to_f)*200000 > 0 || (commercialYearKillings/place.population.to_f)*200000 > 3
+    		commercialViolence = true
+    	end
+    	return commercialViolence
+    end
+
+    def typeOfPlaces
+    	myArr = [
+			{:string=>"Vía pública", :typeArr=>["Vía pública (calle, avenida, banqueta, carretera)","Transporte privado (automóvil, motocicleta, bicileta)"], :color=>"#3EBF3E"},
+			{:string=>"Inmueble habitacional", :typeArr=>["Inmueble habitacional propiedad del ejecutado (dentro o fuera)","Inmueble habitacional privado"], :color=>"#2F8F8F"},
+			{:string=>"Comercio", :typeArr=>["Local comercial (taller, tiendita, farmacia, tortillería)","Inmueble comercial (centro comercial, gasolinera, hotel, bar)"], :color=>"#EF4E50"},
+			{:string=>"Transporte de pasajeros", :typeArr=>["Transporte público colectivo (autobús, metro, tren)","Transporte público privado (taxi, UBER, mototaxi)"], :color=>"#EF974E"}			
+		]
+    	return myArr
+    end
+
 end

@@ -456,8 +456,8 @@
 				        }]
 				    });
 				<% end %>
-					};
-				<% end %>
+				};
+			<% end %>
 
 			}
 		<% elsif @irco%>
@@ -562,6 +562,75 @@
 									}
 						        }]
 							});
+						<% end %>
+						<% @components.each do |component| %>
+							Highcharts.chart('<%= component[:key] %>-<%= place["code"] %>-component-pie-chart', {
+							    chart: {
+							        type: 'pie',
+							        height: 60,
+							        width: 110,
+							        margin: [0,55,0,0],
+							    },
+						        title: {
+						        	align: "right",
+						        	verticalAlign: 'middle',
+						        	useHTML: '<span class="p16"><%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%</span>',
+						        	text: '<%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%', 
+						        }, 
+							    credits: false,
+								exporting: {
+									enabled: false
+								},
+						        legend: {
+						        	 enabled: false,
+						        },
+						        tooltip: false,
+							    plotOptions: {
+							        pie: {
+							            allowPointSelect: true,
+							            dataLabels: {
+							                enabled: false
+							            },
+							            showInLegend: true,
+							            innerSize: '40%',
+										states: {
+											inactive: {
+												opacity: 1
+											},
+										},
+
+							        },
+							        series: {
+							            states: {
+							                hover: {
+							                    halo: null,
+							                }
+							            }
+							        },
+							    },
+						        series: [{
+						        	data: [
+					        			{
+					        				name: '<%= place[component[:name]] %>',
+					        				y: <%= place[component[:key]].to_f/component[:share] %>,
+					        				<% if place[component[:key]].to_f/component[:share] > 65 %>
+					        					color: "#f44336",
+					        				<% elsif place[component[:key]].to_f/component[:share] > 45 %>
+					        					color: "#ff9800",
+					        				<% elsif place[component[:key]].to_f/component[:share] > 25 %>
+					        					color: "#ffeb3b",
+					        				<% else %>
+						        				color: "#8bc34a",
+					        				<% end %>
+					        			},
+					        			{
+					        				name: null,
+					        				y: 100-<%= place[component[:key]].to_f/component[:share] %>,
+					        				color: '#e0e0e0',        				
+					        			}
+							        ],
+						        }]
+						    });
 						<% end %>
 					};
 				<% end %>

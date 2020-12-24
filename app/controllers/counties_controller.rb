@@ -114,7 +114,10 @@ class CountiesController < ApplicationController
             # }
             # placeHash[:comparison] = comparisonArr
             # placeHash[:max] = comparisonArr.max_by{|k| k[:score] }[:score]
-            placeHash[:femaleViolence] = female_victims(myQuarter, place)
+            placeHash[:generalViolence] = inputs[:victims_index]
+            placeHash[:femaleViolence] = inputs[:female_victims]
+            placeHash[:passengerViolence] = inputs[:passenger_killings]
+       		placeHash[:commercialViolence] = inputs[:commercial_killings]
             ircoTable.push(placeHash)
         }
         sortedTable = ircoTable.sort_by{|row| -row[:score]}
@@ -185,51 +188,44 @@ class CountiesController < ApplicationController
         ]
     end
 
-  	def ircoOutput(quarter, county)
-  		localVictims = county.victims
+  	def ircoOutput(quarter, place)
+  		localVictims = place.victims
   		total_victims = helpers.get_quarter_victims(quarter, localVictims)
- 		victims_index = total_victims/county.population.to_f*100000
+ 		victims_index = total_victims/place.population.to_f*100000
 		victims_index = Math.log(victims_index+1,100).round(2)
 		if victims_index > 1
 			victims_index =  1
 		end
 
-  		score = ((victims_index*10)).round(2)
+		female_victims = helpers.female_victims(quarter, place, localVictims)
+  		female_index = 0
+  		if female_victims
+  			female_index += 1
+  		end
+
+  		passenger_killings = helpers.passenger_killings(quarter, place)
+  		passenger_index = 0
+  		if passenger_killings
+  			passenger_index += 1
+  		end
+
+  		commercial_killings = helpers.commercial_killings(quarter, place)
+  		commercial_index = 0
+  		if commercial_killings
+  			commercial_index += 1
+  		end
+
+  		score = ((victims_index*7)+(female_index*1)+(passenger_index*1)+(commercial_index*1)).round(2)
   		ircoHash = {
+  			:victims_index=>victims_index*100,
+  			:female_victims=>female_victims,
   			:victims=>total_victims,
+  			:passenger_killings=>passenger_killings,
+  			:commercial_killings=>commercial_killings,
   			:score=>score*10
   		}
   		return ircoHash
   	end
-
-    def female_victims(quarter, place)
-        localVictims = place.victims
-        quarterVictims = quarter.victims
-        femaleQuarterVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
-        previousYear = []
-        [3,2,1].each{|x|
-            t = (quarter.first_day - (x*90).days).strftime('%m-%Y')
-            Quarter.all.each{|q|
-                if (q.first_day.strftime('%m-%Y')) == t
-                   previousYear.push(q)
-                end
-            } 
-        }
-        femaleYearVictims = femaleQuarterVictims
-        previousYear.each{|q|
-            quarterVictims = q.victims
-            thisQuarteFemaleVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
-            femaleYearVictims += thisQuarteFemaleVictims
-        }
-        femaleViolence = false
-        print femaleQuarterVictims 
-        if (femaleQuarterVictims/place.population.to_f)*100000 > 1
-            femaleViolence = true 
-        elsif (femaleYearVictims/place.population.to_f)*100000 > 4
-            femaleViolence = true                     
-        end
-        return femaleViolence
-    end
 
 	def car_theft(quarter, county)
   		myYear = quarter.year.name

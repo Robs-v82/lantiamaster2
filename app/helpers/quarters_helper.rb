@@ -55,4 +55,18 @@ module QuartersHelper
 		end	
 		return trend
  	end	
+
+ 	def previousYearQuarters(quarter)
+ 	 	myArr = []
+        [3,2,1].each{|x|
+            t = (quarter.first_day - (x*90).days).strftime('%m-%Y')
+            Quarter.all.each{|q|
+                if (q.first_day.strftime('%m-%Y')) == t
+                   myArr.push(q)
+                end
+            } 
+        }
+        return myArr
+ 	end
+
 end

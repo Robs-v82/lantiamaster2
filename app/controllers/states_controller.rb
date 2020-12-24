@@ -83,31 +83,34 @@ class StatesController < ApplicationController
             comparisonValues[state[:code]] = comparisonHash
         }
         State.all.each{|state|
-            stateHash = {}
-            stateHash["code"] = state.code
+            placeHash = {}
+            placeHash["code"] = state.code
             inputs = ircoOutput(myQuarter, state)
             inputs_back_one_quarter = ircoOutput(back_one_quarter, state)
             inputs_back_one_year = ircoOutput(back_one_year, state)
-            stateHash[:score] = inputs[:score]
-            stateHash[:name] = state.name
+            placeHash[:score] = inputs[:score]
+            placeHash[:name] = state.name
             helpers.indexLevels.each{|level|
-              if stateHash[:score].to_f >= level[:floor] && stateHash[:score].to_f < level[:ceiling] 
-                  stateHash[:color] = level[:hex]
-                  stateHash["nivel"] = level[:name]
+              if placeHash[:score].to_f >= level[:floor] && placeHash[:score].to_f < level[:ceiling] 
+                  placeHash[:color] = level[:hex]
+                  placeHash["nivel"] = level[:name]
               end
             }
-            stateHash["tendencia"] = helpers.quarter_score_trend(stateHash[:score], inputs_back_one_quarter[:score], inputs_back_one_year[:score])
+            placeHash["tendencia"] = helpers.quarter_score_trend(placeHash[:score], inputs_back_one_quarter[:score], inputs_back_one_year[:score])
             @evolutionArr.each{|q|
-                stateHash[q.name] = ircoOutput(q, state)[:score]
+                placeHash[q.name] = ircoOutput(q, state)[:score]
             }
             comparisonArr = []
             state.comparison.each{|key|
                 comparisonArr.push(comparisonValues[State.find(key).code])
             }
-            stateHash[:comparison] = comparisonArr
-            stateHash[:max] = comparisonArr.max_by{|k| k[:score] }[:score]
-            stateHash[:femaleViolence] = female_victims(myQuarter, state)
-            ircoTable.push(stateHash)
+            placeHash[:comparison] = comparisonArr
+            placeHash[:max] = comparisonArr.max_by{|k| k[:score] }[:score]
+            placeHash["gv"] = inputs[:victims_index]
+            placeHash["pc"] = inputs[:conflict_index]
+            placeHash[:femaleViolence] = inputs[:female_victims]
+            placeHash[:commercialViolence] = inputs[:commercial_killings]
+            ircoTable.push(placeHash)
         }
         sortedTable = ircoTable.sort_by{|row| -row[:score]}
         rankCount = 0
@@ -148,10 +151,8 @@ class StatesController < ApplicationController
             } 
         }
         @components = [
-            {:key=>"cs", :name=>"Conflictividad social", :share=>0.14},
-            {:key=>"gob", :name=>"Ingobernabilidad", :share=>0.22},
-            {:key=>"vd", :name=>"Violencia con daños colaterales", :share=>0.4},
-            {:key=>"vis", :name=>"Violencia con impacto social", :share=>0.24}
+            {:key=>"gv", :name=>"Violencia general", :share=>0.14},
+            {:key=>"pc", :name=>"Conflicto potencial", :share=>0.14}
         ]
         @indexStringHash = {
             :acronym=>"IRCO",
@@ -207,17 +208,29 @@ class StatesController < ApplicationController
         }
     end
 
-    def ircoOutput(quarter, state)
-        localVictims = state.victims
+    def ircoOutput(quarter, place)
+        localVictims = place.victims
         total_victims = helpers.get_quarter_victims(quarter, localVictims)
-        victims_index = total_victims/state.population.to_f*100000
+        victims_index = total_victims/place.population.to_f*100000
         victims_index = Math.log(victims_index+1,100).round(2)
         if victims_index > 1
             victims_index =  1
         end
-
-        current_feel_safe = feel_safe(quarter, state)
+        current_feel_safe = feel_safe(quarter, place)
         feel_safe_index = 1-(current_feel_safe.to_f/100)
+        female_victims = helpers.female_victims(quarter, place, localVictims)
+        female_index = 0
+        if female_victims
+            female_index += 1
+        end
+
+        commercial_killings = helpers.commercial_killings(quarter, place)
+        commercial_index = 0
+
+        conflict_index = helpers.stateCriminalConflict(place)
+        if commercial_killings
+            commercial_index += 1
+        end
 
         # stolen_cars = car_theft(quarter,state)
         # car_theft_index = stolen_cars/state.population.to_f*100000
@@ -225,14 +238,18 @@ class StatesController < ApplicationController
         # if car_theft_index > 1
         #     car_theft_index = 1
         # end
-
-        score = ((victims_index*5)+(feel_safe_index*5)).round(2)
         ircoHash = {
-            :victims=>total_victims,
+            :victims_index=>victims_index*20,
             :feel_safe=>current_feel_safe,
+            :female_victims=>female_victims,
             # :stolen_cars=>stolen_cars,
-            :score=>score*10
+            :commercial_killings=>commercial_killings,
+            :conflict_index=>conflict_index*10,
         }
+
+        score = ((victims_index*4)+(feel_safe_index*2)+(conflict_index*2)+(female_index*1)+(commercial_index*1)).round(2)
+        ircoHash[:score] = score*10
+
         return ircoHash
     end
 
@@ -264,35 +281,6 @@ class StatesController < ApplicationController
             feel_safe += myPoints
         }
         return feel_safe
-    end
-
-    def female_victims(quarter, place)
-        localVictims = place.victims
-        quarterVictims = quarter.victims
-        femaleQuarterVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
-        previousYear = []
-        [3,2,1].each{|x|
-            t = (quarter.first_day - (x*90).days).strftime('%m-%Y')
-            Quarter.all.each{|q|
-                if (q.first_day.strftime('%m-%Y')) == t
-                   previousYear.push(q)
-                end
-            } 
-        }
-        femaleYearVictims = femaleQuarterVictims
-        previousYear.each{|q|
-            quarterVictims = q.victims
-            thisQuarteFemaleVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
-            femaleYearVictims += thisQuarteFemaleVictims
-        }
-        femaleViolence = false
-        print femaleQuarterVictims 
-        if (femaleQuarterVictims/place.population.to_f)*100000 > 1
-            femaleViolence = true 
-        elsif (femaleYearVictims/place.population.to_f)*100000 > 4
-            femaleViolence = true                     
-        end
-        return femaleViolence
     end
 
     def car_theft(quarter, state)
