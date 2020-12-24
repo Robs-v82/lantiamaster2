@@ -152,7 +152,7 @@ class VictimsController < ApplicationController
   		end
 
   		# DEFINE TABLE
-		if @paramsCookie[2] == "genderSplit"
+		if @paramsCookie[2] == "genderSplit" || @paramsCookie[1] == "nationWise"
 			@my_freq_table = victim_freq_table(*@paramsCookie)
 		elsif @stateWise && @paramsCookie[4].length < State.all.length || 
 			@paramsCookie[5].length < City.all.length ||
@@ -324,7 +324,6 @@ class VictimsController < ApplicationController
 			end		
 			myScope = myScope.flatten
 			myScope = myScope.sort_by {|county| county.full_code}
-			pp myScope
 		end
 
 		totalMonths = helpers.get_specific_months(years, "victims")
@@ -355,7 +354,7 @@ class VictimsController < ApplicationController
 		ageKeys = helpers.age_keys
 		policeKeys = helpers.police_keys
 
-		typeOfPlaceArr = helpers.typerOfPlaces
+		typeOfPlaceArr = helpers.typeOfPlaces
 
 		if myScope == nil
 			if gender == "noGenderSplit"
@@ -524,19 +523,33 @@ class VictimsController < ApplicationController
 				headerHash[:gender] = "GÉNERO"
 				totalHash[:gender_placer] = "--"
 				myTable.push(headerHash)
-				myScope.each {|place|
-					genderOptions.each{|gender|
+				genderOptions.each{|gender|
+					if scope == "countyWise"
+						stateVictims = myStates[0].victims.where(:gender=>gender.upcase)
+					end
+					myScope.each {|place|
 						placeHash = {}
-						placeHash[:name] = place.name
-						if scope == "countyWise"
-							placeHash[:parent_name] = place.state.shortname
-							placeHash[:full_code] = place.full_code
+						placeHash[:parent_name] = place.state.shortname
+						if place != "Otros"
+							placeHash[:name] = place.name
+							if scope == "countyWise"
+								placeHash[:full_code] = place.full_code
+							end
+						else
+							placeHash[:name] = "Otros"
 						end
 						placeHash[:gender] = gender
 						freq = []
 						counter = 0
 						place_total = 0
-						localVictims = place.victims.where(:gender=>gender.upcase)
+						if place != "Otros"
+							localVictims = place.victims.where(:gender=>gender.upcase)
+							if stateVictims
+								stateVictims -= localVictims
+							end
+						else
+							localVictims = stateVictims
+						end
 						myPeriod.each {|timeUnit|
 							number_of_victims = timeUnit.victims.merge(localVictims).length
 							freq.push(number_of_victims)
@@ -545,7 +558,7 @@ class VictimsController < ApplicationController
 							place_total += number_of_victims
 						}
 						placeHash[:freq] = freq
-						placeHash[:place_total] = place_total 
+						placeHash[:place_total] = place_total
 						myTable.push(placeHash)
 					}
 				}
@@ -722,7 +735,7 @@ class VictimsController < ApplicationController
 		current_date = Date.today.strftime
 
 		# DEFINE TABLE
-		if paramsCookie[2] == "genderSplit"
+		if paramsCookie[2] == "genderSplit" || paramsCookie[1] == "nationWise"
 			records = victim_freq_table(*paramsCookie)
 		elsif paramsCookie[1] == "stateWise" && paramsCookie[4].length < State.all.length || 
 			paramsCookie[5].length < City.all.length ||

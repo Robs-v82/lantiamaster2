@@ -299,6 +299,37 @@ class StatesController < ApplicationController
         return car_count
     end
 
+    def conflict_analysis
+        stateHash = {}
+        State.all.each{|state|
+            myFloat = 0.0
+            state.counties.where.not(:name=>"Sin definir").each{|county|
+                unless county.population.nil?
+                    conflictScore = 0.0
+                    county.rackets.each{|racket|
+                        racket.rivals.each{|x|
+                            rival = Organization.find(x)
+                            if county.rackets.include? rival
+                                conflictScore += 0.25
+                            end
+                        }
+                    }
+                    if conflictScore > 1.0
+                        conflictScore = 1.0
+                    end
+                    countyPop = county.population
+                    statePop = state.population
+                    share = countyPop/statePop.to_f
+                    addition = share*conflictScore
+                    myFloat += addition
+                end
+            }
+            stateHash[state.code]= myFloat
+        }
+        Cookie.create(:data=>[stateHash], :category=>"conflict_analysis")
+        redirect_to '/organizations/index'        
+    end
+
     private
 
     # Use callbacks to share common setup or constraints between actions.
