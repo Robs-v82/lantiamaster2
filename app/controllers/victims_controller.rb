@@ -280,6 +280,7 @@ class VictimsController < ApplicationController
 		headerHash = {}
 		totalHash = {}
 		totalHash[:name] = "Total"
+		otherCounties = false
 		
 		myStates = []
 		states.each {|x|
@@ -523,33 +524,19 @@ class VictimsController < ApplicationController
 				headerHash[:gender] = "GÉNERO"
 				totalHash[:gender_placer] = "--"
 				myTable.push(headerHash)
-				genderOptions.each{|gender|
-					if scope == "countyWise"
-						stateVictims = myStates[0].victims.where(:gender=>gender.upcase)
-					end
-					myScope.each {|place|
+				myScope.each {|place|
+					genderOptions.each{|gender|
 						placeHash = {}
-						placeHash[:parent_name] = place.state.shortname
-						if place != "Otros"
-							placeHash[:name] = place.name
-							if scope == "countyWise"
-								placeHash[:full_code] = place.full_code
-							end
-						else
-							placeHash[:name] = "Otros"
+						placeHash[:name] = place.name
+						if scope == "countyWise"
+							placeHash[:parent_name] = place.state.shortname
+							placeHash[:full_code] = place.full_code
 						end
 						placeHash[:gender] = gender
 						freq = []
 						counter = 0
 						place_total = 0
-						if place != "Otros"
-							localVictims = place.victims.where(:gender=>gender.upcase)
-							if stateVictims
-								stateVictims -= localVictims
-							end
-						else
-							localVictims = stateVictims
-						end
+						localVictims = place.victims.where(:gender=>gender.upcase)
 						myPeriod.each {|timeUnit|
 							number_of_victims = timeUnit.victims.merge(localVictims).length
 							freq.push(number_of_victims)
