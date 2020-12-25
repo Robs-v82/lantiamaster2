@@ -192,15 +192,17 @@
 	 	<% else %>
 			var data = [
 				<% @my_freq_table[1..-2].each do |place| %>
-					{
-						<% if @countyWise%>
-							code: '<%= place[:code] %>',
-							full_code:'<%= place[:full_code] %>',
-						<% else %>
-							code:'<%= place[:code] %>',
-						<% end %>
-						value:<%= place[:place_total] %>
-					},
+					<% unless place[:name] == "Otros" %>
+						{
+							<% if @countyWise%>
+								code: '<%= place[:code] %>',
+								full_code:'<%= place[:full_code] %>',
+							<% else %>
+								code:'<%= place[:code] %>',
+							<% end %>
+							value:<%= place[:place_total] %>
+						},
+					<% end %>
 				<% end %>
 			];
 			Highcharts.getJSON(
@@ -356,280 +358,219 @@
 		// TREND CHART
 		function buildLocalCharts(key) {
 			<% @my_freq_table[1..-2].each do |place| %>
-				<% unless place[:place_total] == 0 %>
-				<% if @countyWise %>		
-					if (key == "<%= place[:full_code] %>") {
-						
-				<% else %>
-					if (key == "<%= place[:code] %>") {
-				<% end %>
-						Highcharts.chart(key+'-victims-trend-chart', {
-						    chart: {
-						        type: 'line',
-						        height: 124,
-						        marginTop: 6,
-						        marginBottom: 58,
-						    },
-					        title: false, 
-						       credits: false,
-							exporting: {
-								enabled: false
-							},
-					        legend: {
-					        	enabled: false
-					        },
-					        xAxis: [{
-					        	categories: [
-					        		<% @my_freq_table[0][:period].each do |period| %>
-										<% if @annual %>
-											"<%= period.name %>"
-										<% elsif @quarterly %>
-											"T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y')[2,2] %>"
-										<% else %>
-											"<%= I18n.l(period.first_day, format: '%b/%Y') %>"
-										<% end %>,
-					        		<% end %>
-					        	], 
-					        }],
-					        yAxis: [{
-					        	title: {
-					        		text: null
-					        	},
-					        }],
-					        series: [{
-					        	data: [
-					        		<% (0..place[:freq].length-1).each do |x| %>
-					        			["a<%=x%>",<%= place[:freq][x] %>],
-					        		<% end %>
-					        	],
-					        	color: "#0A6868",
-								tooltip: {
-									headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
-									pointFormat: false,
-								}
-					        }]
-						});
-
-						// GENDER PIE CHART
-						Highcharts.chart(key+'-victims-gender-chart', {
-						    chart: {
-						        type: 'pie',
-						        height: 112,
-						        margin: 0,
-						    },
-					        title: false, 
-						    credits: false,
-							exporting: {
-								enabled: false
-							},
-					        legend: {
-					        	enabled: false
-					        },
-						    plotOptions: {
-						        pie: {
-						            allowPointSelect: true,
-						            cursor: 'pointer',
-						            dataLabels: {
-						                enabled: false
-						            },
-						            showInLegend: true,
-						            innerSize: '40%',
-									states: {
-										inactive: {
-											opacity: 1
-										},
-									},
-
-						        }
-						    },
-					        series: [{
-					        	data: [
-					        		<% place[:genders].each do |gender| %>
-					        			{
-					        				name: '<%= gender[:name] %>',
-					        				y: <%= number_with_precision(gender[:share]*100, precision: 1) %>,
-					        				showInLegend: true,
-					        				color: '<%= gender[:color] %>'
-					        			},
-					        		<% end %>
-						        ],
-								tooltip: {
-									headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}%</span><br>',
-									pointFormat: false,
-								}
-
-					        }]
-						});
-
-						// AGE BAR CHART
-						Highcharts.chart(key+'-victims-age-chart', {
-							chart: {
-								type: 'bar',
-								height: 108,
-								marginTop: 22,
-							},
-					        title: false, 
-						    credits: false,
-							exporting: {
-								enabled: false
-							},
-					        legend: {
-					        	enabled: false
-					        },
-					        xAxis: {
-					        	categories: [
-					        		<% place[:ages].each do |group| %>
-					        			'<%= group[:name]%>',
-					        		<% end %>
-					        	]
-					        },
-					        yAxis: {
-					        	title: {
-					        		text: null
-					        	},
-					        	labels: {
-					        		enabled: false
-					        	},
-					        },
-					        series: [{
-					        	data: [
-					        		<% place[:ages].each do |group| %>
-					        			{
-					        				name: '<%= group[:name]%>',
-					        				y: <%= number_with_precision(group[:share]*100, precision: 1) %>,
-					        				color: '#EF974E',
-					        				showInLegend: true,
-					        			},
-					        		<% end %>
-					        	],
-								tooltip: {
-									headerFormat: '<span style="font-size:12px; color:#454157">{point.y}%</span><br>',
-									pointFormat: false,
-								}
-					        }]
-						});
-
-						// POLICE BAR CHART
-						Highcharts.chart(key+'-victims-police-chart', {
-							chart: {
-								type: 'bar',
-								height: 120,
-								marginTop: 8,
-								marginLeft: 150,
-							},
-					        title: false, 
-						    credits: false,
-							exporting: {
-								enabled: false
-							},
-					        legend: {
-					        	enabled: false
-					        },	
-					        xAxis: {
-					        	categories: [
-					        		<% place[:agencies].each do |agency| %>
-					        			'<%= agency[:name]%>',
-					        		<% end %>
-					        	],
-							    labels: {
-							        style: {
-							            textOverflow: 'none'
-							        }					        
+				<% unless place[:name] == "Otros*" %>
+					<% unless place[:place_total] == 0 %>
+					<% if @countyWise %>		
+						if (key == "<%= place[:full_code] %>") {	
+					<% else %>
+						if (key == "<%= place[:code] %>") {
+					<% end %>
+							Highcharts.chart(key+'-victims-trend-chart', {
+							    chart: {
+							        type: 'line',
+							        height: 124,
+							        marginTop: 6,
+							        marginBottom: 58,
 							    },
-							},
-					        yAxis: {
-					        	title: {
-					        		text: null
-					        	},
-					        	labels: {
-					        		enabled: false
-					        	},
-					        },
-					        series: [{
-					        	data: [
-					        		<% place[:agencies].each do |agency| %>
-					        			{
-					        				name: '<%= agency[:name]%>',
-					        				y: <%= agency[:freq] %>,
-					        				color: '#4DA7A7',
-					        				showInLegend: true,
-					        			},
-					        		<% end %>
-					        	],
-								tooltip: {
-									headerFormat: '<span style="font-size:12px; color:#454157">{point.y}</span><br>',
-									pointFormat: false,
-								}
-					        }]
-						});
+						        title: false, 
+							       credits: false,
+								exporting: {
+									enabled: false
+								},
+						        legend: {
+						        	enabled: false
+						        },
+						        xAxis: [{
+						        	categories: [
+						        		<% @my_freq_table[0][:period].each do |period| %>
+											<% if @annual %>
+												"<%= period.name %>"
+											<% elsif @quarterly %>
+												"T<%= period.name[-1]%>/<%= I18n.l(period.first_day, format: '%Y')[2,2] %>"
+											<% else %>
+												"<%= I18n.l(period.first_day, format: '%b/%Y') %>"
+											<% end %>,
+						        		<% end %>
+						        	], 
+						        }],
+						        yAxis: [{
+						        	title: {
+						        		text: null
+						        	},
+						        }],
+						        series: [{
+						        	data: [
+						        		<% (0..place[:freq].length-1).each do |x| %>
+						        			["a<%=x%>",<%= place[:freq][x] %>],
+						        		<% end %>
+						        	],
+						        	color: "#0A6868",
+									tooltip: {
+										headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
+										pointFormat: false,
+									}
+						        }]
+							});
 
-						// TYPES CHART
-						Highcharts.chart(key+'-victims-type-chart', {
-							chart: {
-						        type: 'pie',
-							    height: 96,
-							    margin: 0,
-							},
-					        title: false, 
-						    credits: false,
-							exporting: {
-								enabled: false
-							},
-					        legend: {
-					        	enabled: false
-					        },
-						    plotOptions: {
-						        pie: {
-						            allowPointSelect: true,
-						            cursor: 'pointer',
-						            dataLabels: {
-						                enabled: false
-						            },
-						            showInLegend: true,
-						            innerSize: '40%',
-									states: {
-										inactive: {
-											opacity: 1
+							// GENDER PIE CHART
+							Highcharts.chart(key+'-victims-gender-chart', {
+							    chart: {
+							        type: 'pie',
+							        height: 112,
+							        margin: 0,
+							    },
+						        title: false, 
+							    credits: false,
+								exporting: {
+									enabled: false
+								},
+						        legend: {
+						        	enabled: false
+						        },
+							    plotOptions: {
+							        pie: {
+							            allowPointSelect: true,
+							            cursor: 'pointer',
+							            dataLabels: {
+							                enabled: false
+							            },
+							            showInLegend: true,
+							            innerSize: '40%',
+										states: {
+											inactive: {
+												opacity: 1
+											},
 										},
-									},
 
-						        }
-						    },
-					        series: [{
-					        	data: [
-					        		<% place[:types].each do |type| %>
-					        			{
-					        				name:
-					        					<% if type[:name] == "Transporte público" %>
-					        						'Transporte de pasajeros',
-					        					<% else %>
-					        						'<%= type[:name] %>',
-					        					<% end %>
-					        				y: <%= number_with_precision(type[:share]*100, precision: 1) %>,
-					        				showInLegend: true,
-					        				color: '<%= type[:color] %>'
-					        			},
-					        		<% end %>
-					        		// {
-				        			// 	y: <%= number_with_precision(*100, precision: 1) %>,
-				        			// 	showInLegend: true,
-					        		// }
-						        ],
-								tooltip: {
-									headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}%</span><br>',
-									pointFormat: false,
-								}
+							        }
+							    },
+						        series: [{
+						        	data: [
+						        		<% place[:genders].each do |gender| %>
+						        			{
+						        				name: '<%= gender[:name] %>',
+						        				y: <%= number_with_precision(gender[:share]*100, precision: 1) %>,
+						        				showInLegend: true,
+						        				color: '<%= gender[:color] %>'
+						        			},
+						        		<% end %>
+							        ],
+									tooltip: {
+										headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}%</span><br>',
+										pointFormat: false,
+									}
 
-					        }]
-						});
-						
-						// MASSACRE CHART
-						<% @pieStrings.each do |myString| %>
-							Highcharts.chart(key+'-<%= myString %>-chart', {
+						        }]
+							});
+
+							// AGE BAR CHART
+							Highcharts.chart(key+'-victims-age-chart', {
+								chart: {
+									type: 'bar',
+									height: 108,
+									marginTop: 22,
+								},
+						        title: false, 
+							    credits: false,
+								exporting: {
+									enabled: false
+								},
+						        legend: {
+						        	enabled: false
+						        },
+						        xAxis: {
+						        	categories: [
+						        		<% place[:ages].each do |group| %>
+						        			'<%= group[:name]%>',
+						        		<% end %>
+						        	]
+						        },
+						        yAxis: {
+						        	title: {
+						        		text: null
+						        	},
+						        	labels: {
+						        		enabled: false
+						        	},
+						        },
+						        series: [{
+						        	data: [
+						        		<% place[:ages].each do |group| %>
+						        			{
+						        				name: '<%= group[:name]%>',
+						        				y: <%= number_with_precision(group[:share]*100, precision: 1) %>,
+						        				color: '#EF974E',
+						        				showInLegend: true,
+						        			},
+						        		<% end %>
+						        	],
+									tooltip: {
+										headerFormat: '<span style="font-size:12px; color:#454157">{point.y}%</span><br>',
+										pointFormat: false,
+									}
+						        }]
+							});
+
+							// POLICE BAR CHART
+							Highcharts.chart(key+'-victims-police-chart', {
+								chart: {
+									type: 'bar',
+									height: 120,
+									marginTop: 8,
+									marginLeft: 150,
+								},
+						        title: false, 
+							    credits: false,
+								exporting: {
+									enabled: false
+								},
+						        legend: {
+						        	enabled: false
+						        },	
+						        xAxis: {
+						        	categories: [
+						        		<% place[:agencies].each do |agency| %>
+						        			'<%= agency[:name]%>',
+						        		<% end %>
+						        	],
+								    labels: {
+								        style: {
+								            textOverflow: 'none'
+								        }					        
+								    },
+								},
+						        yAxis: {
+						        	title: {
+						        		text: null
+						        	},
+						        	labels: {
+						        		enabled: false
+						        	},
+						        },
+						        series: [{
+						        	data: [
+						        		<% place[:agencies].each do |agency| %>
+						        			{
+						        				name: '<%= agency[:name]%>',
+						        				y: <%= agency[:freq] %>,
+						        				color: '#4DA7A7',
+						        				showInLegend: true,
+						        			},
+						        		<% end %>
+						        	],
+									tooltip: {
+										headerFormat: '<span style="font-size:12px; color:#454157">{point.y}</span><br>',
+										pointFormat: false,
+									}
+						        }]
+							});
+
+							// TYPES CHART
+							Highcharts.chart(key+'-victims-type-chart', {
 								chart: {
 							        type: 'pie',
-							        height: 96,
-							        margin: 0,
+								    height: 96,
+								    margin: 0,
 								},
 						        title: false, 
 							    credits: false,
@@ -658,31 +599,92 @@
 							    },
 						        series: [{
 						        	data: [
-					        			{
-					        				name: '<%= place[myString][:freq]%>',
-					        				y: <%= number_with_precision(place[myString][:share]*100, precision: 1) %>,
-					        				color: '#EF4E50',
-					        			},{
-					        				name: "Otros",
-					        				y: 100 - <%= number_with_precision(place[myString][:share]*100, precision: 1) %>,
-					        				color: '#e0e0e0',
-					        				noTooltip: true
-					        			}
-
+						        		<% place[:types].each do |type| %>
+						        			{
+						        				name:
+						        					<% if type[:name] == "Transporte público" %>
+						        						'Transporte de pasajeros',
+						        					<% else %>
+						        						'<%= type[:name] %>',
+						        					<% end %>
+						        				y: <%= number_with_precision(type[:share]*100, precision: 1) %>,
+						        				showInLegend: true,
+						        				color: '<%= type[:color] %>'
+						        			},
+						        		<% end %>
+						        		// {
+					        			// 	y: <%= number_with_precision(*100, precision: 1) %>,
+					        			// 	showInLegend: true,
+						        		// }
 							        ],
-						        }],
 									tooltip: {
-									    formatter: function() {
-									        if(!this.point.noTooltip) {
-									            return "<div class='p11'>"+this.point.name+" incidentes <br>"+this.point.y+"% de las víctimas</div>";
-									        }
-									        return false;
-									    }
+										headerFormat: '<span style="font-size:12px; color:#454157">{point.key}: {point.y}%</span><br>',
+										pointFormat: false,
 									}
-								})	
-						<% end %>
 
-					}
+						        }]
+							});
+							
+							// MASSACRE CHART
+							<% @pieStrings.each do |myString| %>
+								Highcharts.chart(key+'-<%= myString %>-chart', {
+									chart: {
+								        type: 'pie',
+								        height: 96,
+								        margin: 0,
+									},
+							        title: false, 
+								    credits: false,
+									exporting: {
+										enabled: false
+									},
+							        legend: {
+							        	enabled: false
+							        },
+								    plotOptions: {
+								        pie: {
+								            allowPointSelect: true,
+								            cursor: 'pointer',
+								            dataLabels: {
+								                enabled: false
+								            },
+								            showInLegend: true,
+								            innerSize: '40%',
+											states: {
+												inactive: {
+													opacity: 1
+												},
+											},
+
+								        }
+								    },
+							        series: [{
+							        	data: [
+						        			{
+						        				name: '<%= place[myString][:freq]%>',
+						        				y: <%= number_with_precision(place[myString][:share]*100, precision: 1) %>,
+						        				color: '#EF4E50',
+						        			},{
+						        				name: "Otros",
+						        				y: 100 - <%= number_with_precision(place[myString][:share]*100, precision: 1) %>,
+						        				color: '#e0e0e0',
+						        				noTooltip: true
+						        			}
+
+								        ],
+							        }],
+										tooltip: {
+										    formatter: function() {
+										        if(!this.point.noTooltip) {
+										            return "<div class='p11'>"+this.point.name+" incidentes <br>"+this.point.y+"% de las víctimas</div>";
+										        }
+										        return false;
+										    }
+										}
+									})	
+							<% end %>
+						}
+					<% end %>
 				<% end %>
 			<% end %>
 		// };

@@ -306,6 +306,11 @@
 							<table class="freq-table striped">	
 								<%= render "shared/sorttable"%>
 							</table>
+							<% if @countyWise && session[:checkedCounties] == "states" %>
+								<div class="left-medium-margin top-min-margin">
+									<p class="p12">*Incluye los municipios en los que se registraron menos de cinco víctimas durante el periodo de cobertura.</p>
+								</div>
+							<% end %>
 						</div>
 						<div class="small-inner-padding">
 							<div id="freq-entry-map" class="freq-entry-display col s12"

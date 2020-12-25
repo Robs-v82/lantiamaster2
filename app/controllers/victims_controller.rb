@@ -159,8 +159,26 @@ class VictimsController < ApplicationController
 			session[:checkedCounties] != "states"			
 			@my_freq_table = partial_table
 		elsif @countyWise && session[:checkedCounties] == "states"
-			@my_freq_table = Cookie.where(:category=>State.find(@checkedStates.last).code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
-				@maps = true
+			thisState = State.find(@checkedStates.last)
+			@my_freq_table = Cookie.where(:category=>thisState.code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]]
+			freqArr = Cookie.where(:category=>thisState.code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]][-2][:freq]
+			freqTotal = Cookie.where(:category=>thisState.code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]][-2][:place_total]
+			remainder = {
+				:name=>"Otros*",
+				:parent_name=>thisState.shortname,
+				:freq=>freqArr,
+				:place_total=>freqTotal
+			}
+			@my_freq_table[1..-3].each{|row|
+				(0..@my_freq_table[-1][:freq].length-1).each {|x|
+					remainder[:freq][x] -= row[:freq][x] 
+				}
+				remainder[:place_total] -= row[:place_total]
+			}
+			@my_freq_table.insert(-2, remainder)
+			@my_freq_table[-1][:freq] = Cookie.where(:category=>thisState.code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]][-2][:freq] 
+			@my_freq_table[-1][:total_total] = Cookie.where(:category=>thisState.code+"_victims").last.data[0][@paramsCookie[0]][@paramsCookie[2]][-2][:place_total] 
+			@maps = true
 		else
 			@my_freq_table = Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]]
 			@maps = true
@@ -729,7 +747,26 @@ class VictimsController < ApplicationController
 			session[:checkedCounties] != "states"			
 			records = partial_table
 		elsif paramsCookie[1] == "countyWise" && session[:checkedCounties] == "states"
-			records = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]]
+			thisState = State.find(session[:checkedStatesArr].last)
+			records = Cookie.where(:category=>thisState.code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]]
+			records = Cookie.where(:category=>thisState.code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]]
+			freqArr = Cookie.where(:category=>thisState.code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]][-2][:freq]
+			freqTotal = Cookie.where(:category=>thisState.code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]][-2][:place_total]
+			remainder = {
+				:name=>"Otros",
+				:parent_name=>thisState.shortname,
+				:freq=>freqArr,
+				:place_total=>freqTotal
+			}
+			records[1..-3].each{|row|
+				(0..records[-1][:freq].length-1).each {|x|
+					remainder[:freq][x] -= row[:freq][x] 
+				}
+				remainder[:place_total] -= row[:place_total]
+			}
+			records.insert(-2, remainder)
+			records[-1][:freq] = Cookie.where(:category=>thisState.code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]][-2][:freq] 
+			records[-1][:total_total] = Cookie.where(:category=>thisState.code+"_victims").last.data[0][paramsCookie[0]][paramsCookie[2]][-2][:place_total] 
 		else
 			records = Cookie.where(:category=>"victims").last.data[0][paramsCookie[0]][paramsCookie[1]][paramsCookie[2]]
 		end
