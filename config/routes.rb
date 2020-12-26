@@ -101,4 +101,5 @@ Rails.application.routes.draw do
     get 'victims/green_query'
     get 'counties/autocomplete/:myString' => 'counties#autocomplete'
     get 'states/conflict_analysis'
+    post 'states/stateIndexHash'
 end

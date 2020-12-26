@@ -11,6 +11,7 @@ class County < ApplicationRecord
 	has_many :victims, :through => :killings
 	has_many :detainees, :through => :detentions
 	has_many :sources, :through => :events
+	serialize :comparison, Array
 end
 
 

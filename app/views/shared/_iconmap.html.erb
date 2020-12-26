@@ -16,6 +16,74 @@
 
 		});
 
+		function makeClickable() {
+			$('.clickable-row, .pseudo-clickable-row').hover(
+				function () {
+		    		if ($(this).find("th").length > 0) return;
+		    		$(this).addClass("gridRowHover");
+				},
+				function () {
+					$(this).removeClass("gridRowHover");
+				}
+			);
+			$('.pseudo-clickable-row').click(function() {
+				var myState = $(this).attr('id').split('-')[0];
+				$('.index-display').hide();
+				$('#'+myState+'-card-display').show();
+				tabInit();
+				buildLocalCharts(myState);
+
+			});
+		}
+
+		// COUNTY AUTOCOMPLETE
+		$('#county-autocomplete-input').keyup(function() {
+			countyAutocomplete();
+		})	
+
+		function countyAutocomplete() {
+			var myString = $('#county-autocomplete-input').val();
+			if (myString) {
+				myString = myString;
+			} else {
+				myString = 'Xp987jy';
+			};
+			$.ajax({
+				type: 'GET',
+				dataType: 'json',
+				url: '/counties/autocomplete/'+myString,
+				data: $(this).serialize(),
+				success: function(response) {
+					console.log(response)
+					if (response == "none") {
+						$('#list-guide').hide();
+						$('#county-entry-list').html('');
+						$('#failure-guide').show();
+					} else {
+						if (response !== null) {
+							$('#list-guide').hide();
+							$('#failure-guide').hide();
+							var startHTML = '<table id="icon_table" class="highlight center-align"><thead><tr><th class="center-align p11">MUNICIPIO</th><th class="center-align p11">POSICIÓN</th><th class="center-align p11">PUNTAJE</th><th class="center-align p11">TENDENCIA</th></tr></thead><tbody>';
+							var myRows = '';
+							for (i = 0; i < response.length; i++) {
+								myRows += '<tr id="'+response[i].code+'-index-trigger" class="pseudo-clickable-row p12"><td class="valign-wrapper"><div class="pseudo-button valign-wrapper"><i class="material-icons tiny right-extra-margin z-depth-1" style="background-color: '+response[i].color+'; color: '+response[i].color+'">brightness_1</i></div><div class="county-tag"><p>'+response[i].name+', '+response[i].state+'</p></div></td><td class="right-align">'+response[i].rank+'</td><td class="right-align">'+response[i].score+'</td><td class="center-align">'+response[i].tendencia+'</td></tr>'
+							}
+							var endHTML = '</tbody></table>';
+							var newHTML = startHTML + myRows + endHTML;
+							$('#county-entry-list').html(newHTML);
+						} else {
+							$('#county-entry-list').html('');
+							$('#failure-guide').hide();
+							$('#list-guide').show();
+						}
+						makeClickable();
+					}
+				}
+			});
+		}	
+
+
+
 		if ($(window).height() < 600) {
 			var mapHeight = 300
         } else {
@@ -504,134 +572,79 @@
 								}
 					        }]
 						});
-						<% unless @countyWise %>
-							Highcharts.chart('<%= place["code"]%>-icon-bar-chart', {
-								chart: {
-									type: 'column',
-									height: 120,
-									marginTop: 0,
-									backgroundColor: 'rgba(0,0,0,0)',
-								},
-						        title: false, 
-							    credits: false,
-								exporting: {
-									enabled: false
-								},
-						        legend: {
-						        	enabled: false
-						        },
-						        xAxis: {
-						        	categories: [
-						        		<% if @countyWise %>
-						        			'<%= @myModel.where(:full_code=>place["code"]).last.shortname %>',
-						        		<% else %>
-						        			'<%= @myModel.where(:code=>place["code"]).last.shortname %>',
+						Highcharts.chart('<%= place["code"]%>-icon-bar-chart', {
+							chart: {
+								type: 'column',
+								height: 120,
+								marginTop: 0,
+								backgroundColor: 'rgba(0,0,0,0)',
+							},
+					        title: false, 
+						    credits: false,
+							exporting: {
+								enabled: false
+							},
+					        legend: {
+					        	enabled: false
+					        },
+					        xAxis: {
+					        	categories: [
+					        		<% if @countyWise %>
+					        			'<%= @myModel.where(:full_code=>place["code"]).last.shortname %>',
+					        			<% @myModel.where(:full_code=>place["code"]).last.comparison.each do |placeKey| %>
+						        			'<%= @myModel.find(placeKey).shortname %>',
 						        		<% end %>
+					        		<% else %>
+					        			'<%= @myModel.where(:code=>place["code"]).last.shortname %>',
 						        		<% @myModel.where(:code=>place["code"]).last.comparison.each do |placeKey| %>
 						        			'<%= @myModel.find(placeKey).shortname %>',
 						        		<% end %>
-						        	]
-						        },
-						        yAxis: {
-						        	max: <%= place[:max].to_i %>,
-						        	title: {
-						        		text: null
-						        	},
-						        	labels: {
-						        		enabled: false
-						        	},
-						        },
-						        series: [{
-						        	data: [
-										{
-					        				name: '<%= @myModel.where(:code=>place["code"]).last.shortname %>',
-					        				y: <%= place[:score]%>,
-					        				color: '<%= place[:color] %>'
-				        				},
-						        		<% place[:comparison].each do |placeKey| %>
-						        			{
-						        				name: '<%= placeKey[:name] %>',
-						        				y: <%= placeKey[:score].to_f %>,
-						        				color: '#e0e0e0',
-						        			},
-						        		<% end %>
-						        	],
-									tooltip: {
-										headerFormat: '<span style="font-size:12px; color:#454157">{point.y}</span><br>',
-										pointFormat: false,
-									}
-						        }]
-							});
-						<% end %>
-						<% @components.each do |component| %>
-							Highcharts.chart('<%= component[:key] %>-<%= place["code"] %>-component-pie-chart', {
-							    chart: {
-							        type: 'pie',
-							        height: 60,
-							        width: 110,
-							        margin: [0,55,0,0],
-							    },
-						        title: {
-						        	align: "right",
-						        	verticalAlign: 'middle',
-						        	useHTML: '<span class="p16"><%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%</span>',
-						        	text: '<%= number_with_precision(place[component[:key]].to_f/component[:share], :precision=>1) %>%', 
-						        }, 
-							    credits: false,
-								exporting: {
-									enabled: false
-								},
-						        legend: {
-						        	 enabled: false,
-						        },
-						        tooltip: false,
-							    plotOptions: {
-							        pie: {
-							            allowPointSelect: true,
-							            dataLabels: {
-							                enabled: false
-							            },
-							            showInLegend: true,
-							            innerSize: '40%',
-										states: {
-											inactive: {
-												opacity: 1
-											},
-										},
-
-							        },
-							        series: {
-							            states: {
-							                hover: {
-							                    halo: null,
-							                }
-							            }
-							        },
-							    },
-						        series: [{
-						        	data: [
+					        		<% end %>
+					        	],
+					        	<% if @countyWise %>
+					        		labels: {
+							            enabled: false
+							        }
+					        	<% end %>
+					        },
+					        yAxis: {
+					        	max: <%= place[:max].to_i %>,
+					        	title: {
+					        		text: null
+					        	},
+					        	labels: {
+					        		enabled: false
+					        	},
+					        },
+					        series: [{
+					        	data: [
+									{
+				        				<% if @countyWise %>
+				        					name: '<%= @myModel.where(:full_code=>place["code"]).last.shortname %>',
+				        				<% else %>
+				        					name: '<%= @myModel.where(:code=>place["code"]).last.shortname %>',
+				        				<% end %>
+				        				y: <%= place[:score]%>,
+				        				color: '<%= place[:color] %>'
+			        				},
+					        		<% place[:comparison].each do |placeKey| %>
 					        			{
-					        				name: '<%= place[component[:name]] %>',
-					        				y: <%= place[component[:key]].to_f/component[:share] %>,
-					        				<% if place[component[:key]].to_f/component[:share] > 65 %>
-					        					color: "#f44336",
-					        				<% elsif place[component[:key]].to_f/component[:share] > 45 %>
-					        					color: "#ff9800",
-					        				<% elsif place[component[:key]].to_f/component[:share] > 25 %>
-					        					color: "#ffeb3b",
-					        				<% else %>
-						        				color: "#8bc34a",
-					        				<% end %>
+					        				name: '<%= placeKey[:name] %>',
+					        				y: <%= placeKey[:score].to_f %>,
+					        				color: '#e0e0e0',
 					        			},
-					        			{
-					        				name: null,
-					        				y: 100-<%= place[component[:key]].to_f/component[:share] %>,
-					        				color: '#e0e0e0',        				
-					        			}
-							        ],
-						        }]
-						    });
-						<% end %>
+					        		<% end %>
+					        	],
+								tooltip: {
+									headerFormat: '<span style="font-size:12px; color:#454157">{point.y}</span><br>',
+									<% if @countyWise %>
+										pointFormat: '<span style="font-size:12px; color:#454157">{point.name}</span><br>'
+									<% else %>
+										pointFormat: false,
+									<% end %>
+								}
+					        }]
+						});
 					};
 				<% end %>
 			}

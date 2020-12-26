@@ -54,47 +54,6 @@ $(document).ready(function(){
 		});
 	}	
 
-	function countyAutocomplete() {
-		var myString = $('#county-autocomplete-input').val();
-		if (myString) {
-			myString = myString;
-		} else {
-			myString = 'Xp987jy';
-		};
-		$.ajax({
-			type: 'GET',
-			dataType: 'json',
-			url: '/counties/autocomplete/'+myString,
-			data: $(this).serialize(),
-			success: function(response) {
-				console.log(response)
-				if (response == "none") {
-					$('#list-guide').hide();
-					$('#county-entry-list').html('');
-					$('#failure-guide').show();
-				} else {
-					if (response !== null) {
-						$('#list-guide').hide();
-						$('#failure-guide').hide();
-						var startHTML = '<table id="icon_table" class="highlight center-align"><thead><tr><th class="center-align p11">MUNICIPIO</th><th class="center-align p11">POSICIÓN</th><th class="center-align p11">PUNTAJE</th><th class="center-align p11">TENDENCIA</th></tr></thead><tbody>';
-						var myRows = '';
-						for (i = 0; i < response.length; i++) {
-							myRows += '<tr id="'+response[i].code+'-index-trigger" class="pseudo-clickable-row p12"><td class="valign-wrapper"><div class="pseudo-button valign-wrapper"><i class="material-icons tiny right-extra-margin z-depth-1" style="background-color: '+response[i].color+'; color: '+response[i].color+'">brightness_1</i></div><div class="county-tag"><p>'+response[i].name+', '+response[i].state+'</p></div></td><td class="right-align">'+response[i].rank+'</td><td class="right-align">'+response[i].score+'</td><td class="center-align">'+response[i].tendencia+'</td></tr>'
-						}
-						var endHTML = '</tbody></table>';
-						var newHTML = startHTML + myRows + endHTML;
-						$('#county-entry-list').html(newHTML);
-					} else {
-						$('#county-entry-list').html('');
-						$('#failure-guide').hide();
-						$('#list-guide').show();
-					}
-					makeClickable();
-				}
-			}
-		});
-	}	
-
 	// TEST JQUERY	
 	$("#jquery-test").click(function(){
 	  $(this).hide();
@@ -226,26 +185,6 @@ $(document).ready(function(){
 		}
 	);
 
-	function makeClickable() {
-		$('.clickable-row, .pseudo-clickable-row').hover(
-			function () {
-	    		if ($(this).find("th").length > 0) return;
-	    		$(this).addClass("gridRowHover");
-			},
-			function () {
-				$(this).removeClass("gridRowHover");
-			}
-		);
-		$('.pseudo-clickable-row').click(function() {
-			var myState = $(this).attr('id').split('-')[0];
-			$('.index-display').hide();
-			$('#'+myState+'-card-display').show();
-			tabInit();
-			buildLocalCharts(myState);
-
-		});
-	}	
-
 
 	$('#index-order-selector').change(function() {
 		if($('#low_risk_query_box').is(':checked')){
@@ -308,11 +247,6 @@ $(document).ready(function(){
 	// ORGANIZATION AUTOCOMPLETE
 	$('#autocomplete-input').keyup(function() {
 		myFunction();
-	})
-
-	// COUNTY AUTOCOMPLETE
-	$('#county-autocomplete-input').keyup(function() {
-		countyAutocomplete();
 	})
 
 	// PAGES

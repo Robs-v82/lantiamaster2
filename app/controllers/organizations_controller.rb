@@ -599,7 +599,6 @@ class OrganizationsController < ApplicationController
 	end
 
 	def load_organizations
-
 		divisions = [
 			{:slot=>11,:scian3=>981,:name=>"Narcotráfico"},
 			{:slot=>12,:scian3=>982,:name=>"Narcomenudeo"},
@@ -880,8 +879,7 @@ class OrganizationsController < ApplicationController
 
 		session[:filename] = load_organization_territory_params[:file].original_filename
 		session[:load_success] = true
-
-		redirect_to "/datasets/load"		
+		redirect_to "/states/conflict_analysi"		
 	end
 
   def new_name

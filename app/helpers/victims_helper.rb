@@ -73,14 +73,30 @@ module VictimsHelper
     	commercialYearKillings = commercialQuarterKillings
         previousYear.each{|q|
             quarterKillings = q.killings
-            thisQuartePassengerKillings = q.killings.merge(place.killings).where(:type_of_place=>typeOfPlaces[2][:typeArr]).length
-            commercialYearKillings += thisQuartePassengerKillings
+            thisQuarteCommercialKillings = q.killings.merge(place.killings).where(:type_of_place=>typeOfPlaces[2][:typeArr]).length
+            commercialYearKillings += thisQuarteCommercialKillings
         }
     	commercialViolence = false
     	if (commercialQuarterKillings/place.population.to_f)*200000 > 0 || (commercialYearKillings/place.population.to_f)*200000 > 3
     		commercialViolence = true
     	end
     	return commercialViolence
+    end
+
+    def police_victims(quarter, place, localVictims)
+        policeQuarterVictims = localVictims.merge(quarter.victims).where.not(:legacy_role_officer=>[nil, "Civil deliberadamente ejecutado", "Civil aparentemente involucrado con el crimen organizado", "Civil accidentalmente ejecutado", "Civil no especificado", "Interno penitenciario", "No especificado"]).length
+        previousYear = previousYearQuarters(quarter)
+        policeYearVictims = policeQuarterVictims
+        previousYear.each{|q|
+            quarterVictims = q.victims
+            thisQuartePoliceVictims = q.victims.merge(place.victims).where.not(:legacy_role_officer=>[nil, "Civil deliberadamente ejecutado", "Civil aparentemente involucrado con el crimen organizado", "Civil accidentalmente ejecutado", "Civil no especificado", "Interno penitenciario", "No especificado"]).length
+            policeYearVictims += thisQuartePoliceVictims
+        }
+        policeViolence = false
+        if policeQuarterVictims/place.population.to_f*10000 > 0.01 || policeYearVictims/place.population.to_f*10000 > 0.04
+            policeViolence = true
+        end
+        return policeViolence    
     end
 
     def typeOfPlaces

@@ -106,10 +106,25 @@ class StatesController < ApplicationController
             }
             placeHash[:comparison] = comparisonArr
             placeHash[:max] = comparisonArr.max_by{|k| k[:score] }[:score]
-            placeHash["gv"] = inputs[:victims_index]
-            placeHash["pc"] = inputs[:conflict_index]
-            placeHash[:femaleViolence] = inputs[:female_victims]
-            placeHash[:commercialViolence] = inputs[:commercial_killings]
+            placeHash[:warnings] = []
+            if inputs[:general_victims] > 0.5
+                placeHash[:warnings].push("Violencia generalizada")
+            end
+            if inputs[:conflict] > inputs[:general_victims]
+                placeHash[:warnings].push("Conflicto criminal inminente")
+            end
+            if inputs[:female_victims] == 1
+               placeHash[:warnings].push("Agresiones a mujeres") 
+            end
+            if inputs[:commercial_killings] == 1
+                placeHash[:warnings].push("Agresiones a comercios")
+            end
+            if inputs[:police_victims] == 1
+                placeHash[:warnings].push("Agresiones a autoridades")
+            end
+            if inputs[:feel_safe] > 0.5
+                placeHash[:warnings].push("Percepción de inseguridad")
+            end
             ircoTable.push(placeHash)
         }
         sortedTable = ircoTable.sort_by{|row| -row[:score]}
@@ -150,10 +165,7 @@ class StatesController < ApplicationController
                 end
             } 
         }
-        @components = [
-            {:key=>"gv", :name=>"Violencia general", :share=>0.14},
-            {:key=>"pc", :name=>"Conflicto potencial", :share=>0.14}
-        ]
+
         @indexStringHash = {
             :acronym=>"IRCO",
             :name=>"Índice de Riesgo por Crimen Organizado",
@@ -210,47 +222,101 @@ class StatesController < ApplicationController
 
     def ircoOutput(quarter, place)
         localVictims = place.victims
+
+        # VICTIMS
         total_victims = helpers.get_quarter_victims(quarter, localVictims)
         victims_index = total_victims/place.population.to_f*100000
         victims_index = Math.log(victims_index+1,100).round(2)
         if victims_index > 1
             victims_index =  1
         end
-        current_feel_safe = feel_safe(quarter, place)
-        feel_safe_index = 1-(current_feel_safe.to_f/100)
+
+        # FEMALE
         female_victims = helpers.female_victims(quarter, place, localVictims)
         female_index = 0
         if female_victims
             female_index += 1
         end
 
+        #COMMERCIAL
         commercial_killings = helpers.commercial_killings(quarter, place)
         commercial_index = 0
-
-        conflict_index = helpers.stateCriminalConflict(place)
         if commercial_killings
             commercial_index += 1
         end
 
-        # stolen_cars = car_theft(quarter,state)
-        # car_theft_index = stolen_cars/state.population.to_f*100000
-        # car_theft_index = Math.log(car_theft_index+1,200).round(2)
-        # if car_theft_index > 1
-        #     car_theft_index = 1
-        # end
-        ircoHash = {
-            :victims_index=>victims_index*20,
-            :feel_safe=>current_feel_safe,
-            :female_victims=>female_victims,
-            # :stolen_cars=>stolen_cars,
-            :commercial_killings=>commercial_killings,
-            :conflict_index=>conflict_index*10,
+        # POLICE
+        police_victims = helpers.police_victims(quarter, place, localVictims)
+        police_index = 0
+        if police_victims
+           police_index += 1 
+        end
+
+        placeHash = {
+            :state=>place.name,
+            :general_victims=>victims_index.round(2),
+            :female_victims=>female_index.round, 
+            :police_victims=>police_index,
+            :commercial_killings=>commercial_index,
+            :conflict=>Cookie.where(:category=>"conflict_analysis").last.data[0][place.code].round(2),
+            :feel_safe=>(1-(feel_safe(quarter, place)/100)).round(2)
         }
+        stateScore = (placeHash[:general_victims]*30)+(placeHash[:female_victims]*10)+(placeHash[:police_victims]*10)+(placeHash[:commercial_killings]*10)+(placeHash[:conflict]*20)+(placeHash[:feel_safe]*20)
+        placeHash[:score] = stateScore.round(1)
+        return placeHash
+    end
 
-        score = ((victims_index*4)+(feel_safe_index*2)+(conflict_index*2)+(female_index*1)+(commercial_index*1)).round(2)
-        ircoHash[:score] = score*10
+    def stateIndexHash
+        myName = stateIndexHash_params[:year]+"_"+stateIndexHash_params[:quarter]
+        myQuarter = Quarter.where(:name=>myName).last
+        indexHash = {}
+        State.all.each{|place|
+            localVictims = place.victims
 
-        return ircoHash
+            # VICTIMS
+            total_victims = helpers.get_quarter_victims(myQuarter, localVictims)
+            victims_index = total_victims/place.population.to_f*100000
+            victims_index = Math.log(victims_index+1,100).round(2)
+            if victims_index > 1
+                victims_index =  1
+            end
+
+            # FEMALE
+            female_victims = helpers.female_victims(myQuarter, place, localVictims)
+            female_index = 0
+            if female_victims
+                female_index += 1
+            end
+
+            #COMMERCIAL
+            commercial_killings = helpers.commercial_killings(myQuarter, place)
+            commercial_index = 0
+            if commercial_killings
+                commercial_index += 1
+            end
+
+            # POLICE
+            police_victims = helpers.police_victims(myQuarter, place, localVictims)
+            police_index = 0
+            if police_victims
+               police_index += 1 
+            end
+
+            placeHash = {
+                :state=>place.name,
+                :general_victims=>victims_index.round(2),
+                :female_victims=>female_index.round, 
+                :police_victims=>police_index,
+                :commercial_killings=>commercial_index,
+                :conflict=>Cookie.where(:category=>"conflict_analysis").last.data[0][place.code].round(2),
+                :feel_safe=>(1-(feel_safe(myQuarter, place)/100)).round(2)
+            }
+            stateScore = (placeHash[:general_victims]*30)+(placeHash[:female_victims]*10)+(placeHash[:police_victims]*10)+(placeHash[:commercial_killings]*10)+(placeHash[:conflict]*20)+(placeHash[:feel_safe]*20)
+            placeHash[:score] = stateScore.round(1)
+            indexHash[place.code] = placeHash
+        }
+        Cookie.create(:category=>"stateIRCOIndex", :data=>[indexHash], :quarter=>params[:quarter])
+        return Cookie.last.data[0]
     end
 
     def feel_safe(quarter, state)
@@ -327,7 +393,7 @@ class StatesController < ApplicationController
             stateHash[state.code]= myFloat
         }
         Cookie.create(:data=>[stateHash], :category=>"conflict_analysis")
-        redirect_to '/organizations/index'        
+        redirect_to '/datasets/load'        
     end
 
     private
@@ -347,6 +413,10 @@ class StatesController < ApplicationController
     end
 
     def load_irco_params
+        params.require(:query).permit(:year, :quarter)
+    end
+
+    def stateIndexHash_params
         params.require(:query).permit(:year, :quarter)
     end
 end
