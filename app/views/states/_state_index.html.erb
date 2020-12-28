@@ -145,15 +145,18 @@
 																	Gobernador:
 																<% end %>
 															</p>
-															<p><span class="slim"></span><%= State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.firstname+" "+State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.lastname1+" "+State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.lastname2 %></p>
+															<p><span class="slim"></span><%= State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.firstname+" "+State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.lastname1+" "+State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.lastname2 %>
+															</p>
 														</div>
 													</div>
 												<% end %>
-												<br>
+												<br>	
+											</div>
+											<div class="col s12">
 												<% if @irco %>
-													<div class="waring-box">
+													<div id="<%= row["code"] %>-warning-box" class="warning-box">
 														<% if row[:warnings].empty?%>
-															<p>¡Sin alertas de riesgo!</p>
+															<p class="bold">¡Sin alertas de riesgo!</p>
 														<% elsif row[:warnings].length == 1 %>
 															<p>Alerta de riesgo por:</p>
 														<% else %>
@@ -170,7 +173,7 @@
 															</div>
 														<% end %>
 													</div>
-												<%end %>	
+												<%end %>
 											</div>
 										</div>
 										<div class="col l6 m12 s12">

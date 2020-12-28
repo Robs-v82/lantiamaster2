@@ -184,25 +184,27 @@
 											<div class="col l12 m12 s6">
 												<div><span class="slim">Población: </span><%= number_with_delimiter(County.where(:full_code=>row["code"]).last.population) %></div>
 												<br>
-												<div class="waring-box">
-													<% if row[:warnings].empty?%>
-														<p class="bold">Sin alertas de riesgo</p>
-													<% elsif row[:warnings].length == 1 %>
-														<p>Alerta de riesgo por:</p>
-													<% else %>
-														<p>Alertas de riesgo por:</p>
-													<% end %>
-													<% row[:warnings].each do |warning| %>
-														<div class="bottom-margin-div top-min-margin">
-															<div class="valign-wrapper">
-																<div class="pseudo-button valign-wrapper">
-																	<i class="material-icons right-min-margin paletton-red-text z-depth-0">warning</i>
-																</div>
-																<span class="header-tag bold"><%= warning %></span>
+											</div>
+										</div>
+										<div clss="col s12">
+											<div id="<%= row["code"] %>-warning-box" class="warning-box">
+												<% if row[:warnings].empty?%>
+													<p class="bold">Sin alertas de riesgo</p>
+												<% elsif row[:warnings].length == 1 %>
+													<p>Alerta de riesgo por:</p>
+												<% else %>
+													<p>Alertas de riesgo por:</p>
+												<% end %>
+												<% row[:warnings].each do |warning| %>
+													<div class="bottom-margin-div top-min-margin">
+														<div class="valign-wrapper">
+															<div class="pseudo-button valign-wrapper">
+																<i class="material-icons right-min-margin paletton-red-text z-depth-0">warning</i>
 															</div>
+															<span class="header-tag bold"><%= warning %></span>
 														</div>
-													<% end %>
-												</div>
+													</div>
+												<% end %>
 											</div>
 										</div>
 										<div class="col l6 m12 s12">

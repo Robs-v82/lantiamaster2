@@ -11,6 +11,7 @@
 			var myState = $(this).attr('id').split('-')[0];
 			$('.index-display').hide();
 			$('#'+myState+'-card-display').show();
+			$('#'+myState+'-warning-box').addClass('animate__animated animate__pulse')
 			tabInit();
 			buildLocalCharts(myState);
 
@@ -30,6 +31,7 @@
 				var myState = $(this).attr('id').split('-')[0];
 				$('.index-display').hide();
 				$('#'+myState+'-card-display').show();
+				$('#'+myState+'-warning-box').addClass('animate__animated animate__pulse')
 				tabInit();
 				buildLocalCharts(myState);
 
@@ -249,6 +251,7 @@
 				        					var myCounty = this.code;
 				        					$('.index-display').hide();
 				        					$('#'+myCounty+'-card-display').show();
+				        					$('#'+myCounty+'-warning-box').addClass('animate__animated animate__pulse');
 				        					tabInit();
 				        					buildLocalCharts(myCounty);
 				        					if ($(window).width() < 600) {
@@ -318,6 +321,7 @@
 			        					var myState = this.code;
 			        					$('.index-display').hide();
 			        					$('#'+myState+'-card-display').show();
+			        					$('#'+myState+'-warning-box').addClass('animate__animated animate__pulse');
 			        					tabInit();
 			        					buildLocalCharts(myState);
 			        					if ($(window).width() < 600) {
