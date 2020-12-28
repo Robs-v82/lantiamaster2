@@ -122,9 +122,9 @@ class StatesController < ApplicationController
             if inputs[:police_victims] == 1
                 placeHash[:warnings].push("Agresiones a autoridades")
             end
-            if inputs[:feel_safe] > 0.5
-                placeHash[:warnings].push("Percepción de inseguridad")
-            end
+            # if inputs[:feel_safe] > 0.5
+            #     placeHash[:warnings].push("Percepción de inseguridad")
+            # end
             ircoTable.push(placeHash)
         }
         sortedTable = ircoTable.sort_by{|row| -row[:score]}
@@ -165,7 +165,6 @@ class StatesController < ApplicationController
                 end
             } 
         }
-
         @indexStringHash = {
             :acronym=>"IRCO",
             :name=>"Índice de Riesgo por Crimen Organizado",
@@ -173,8 +172,14 @@ class StatesController < ApplicationController
             :placeNoun=>"estado",
             :noun=>"riesgo"
         }
-        print "*****"*1000
-        print @icon_table
+        @warningStrings = [
+            "Violencia generalizada",
+            "Agresiones a mujeres",
+            "Agresiones a comercios",
+            "Agresiones a autoridades",
+            "Conflicto criminal inminente (IRCO estatal)",
+            "Agresiones en el transporte de pasajeros (IRCO municipal)"
+        ]
     end
 
     def icon
@@ -218,6 +223,12 @@ class StatesController < ApplicationController
             :placeNoun=>"estado",
             :noun=>"conflictividad"
         }
+        @defStrings = [
+            {:name=>"Conflictividad social", :definition=>""},
+            {:name=>"Ingobernabilidad", :definition=>""},
+            {:name=>"Violencia con daños colaterales", :definition=>""},
+            {:name=>"Violencia con impacto social", :definition=>""}
+        ]
     end
 
     def ircoOutput(quarter, place)

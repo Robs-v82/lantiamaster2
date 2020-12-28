@@ -3,7 +3,13 @@
 		<div class="col s12">
 			<div class="col l5 m7 s12">
 				<div class="info-box inline-block">
-					<a id="icon-info-modal-trigger" class="modal-trigger" href="#icon-info-modal"><i class="small material-icons paletton-red-text right-min-margin">info</i></a>
+					<a id="icon-info-modal-trigger" class="modal-trigger" 
+						<% if @icon %>
+							href="#icon-info-modal"
+						<% else %>
+							href="#irco-info-modal"
+						<% end %>
+					><i class="small material-icons paletton-red-text right-min-margin">info</i></a>
 				</div>
 				<div class="info-box inline-block">
 					<h5 class="h5-no-margin"><%= @indexStringHash[:acronym] %></h5>
@@ -268,3 +274,9 @@
 		</div>
 	</div>
 </div>
+<!-- MODAL SECTION -->
+<% if @irco %>
+	<%= render "shared/ircoinfo" %>
+<% else %>
+	<%= render "shared/iconinfo" %>
+<% end %>

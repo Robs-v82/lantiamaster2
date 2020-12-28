@@ -200,6 +200,14 @@ class CountiesController < ApplicationController
             {:style=>"hide-on-med-and-down", :width=>"l6", :scopes=>[0..@destination_table.length/2,@destination_table.length/2+1..@destination_table.length]},
             {:style=>"hide-on-large-only", :width=>"s12", :scopes=>[0..@destination_table.length]}
         ]
+        @warningStrings = [
+            "Violencia generalizada",
+            "Agresiones a mujeres",
+            "Agresiones a comercios",
+            "Agresiones a autoridades",
+            "Conflicto criminal inminente (IRCO estatal)",
+            "Agresiones en el transporte de pasajeros (IRCO municipal)"
+        ]
     end
 
   	def ircoOutput(quarter, place)
