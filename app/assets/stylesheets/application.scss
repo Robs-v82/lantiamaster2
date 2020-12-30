@@ -4,6 +4,10 @@
  *= require jquery-ui
  */
 
+.modal .modal-footer {
+	background-color: white !important;
+}
+
 #top-detentions-modal-trigger i {
 	margin: 5px 8px 0px 0px;
 }

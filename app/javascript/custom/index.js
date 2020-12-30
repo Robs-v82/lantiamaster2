@@ -75,6 +75,8 @@ $(document).ready(function(){
 	    $('.tooltipped').tooltip();
 	  })
 
+	 $('.tooltipped').tooltip({enterDelay: 200});
+
 	// ADD DISCOVERYFEATURE
 	$(document).ready(function(){
 	    $('.tap-target').tapTarget();
