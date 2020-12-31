@@ -197,7 +197,7 @@
 				<% end %>
 			]
 			function drawMap(data) {
-								Highcharts.getJSON('/maps/mx-all.geojson', function (geojson) {
+				Highcharts.getJSON('/maps/mx-all.geojson', function (geojson) {
 					Highcharts.mapChart('icon-map', {
 				        chart: {
 				            map: geojson,

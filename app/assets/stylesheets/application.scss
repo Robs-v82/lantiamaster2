@@ -4,6 +4,10 @@
  *= require jquery-ui
  */
 
+ .chartArea {
+ 	height: 100%;
+ }
+
 .modal .modal-footer {
 	background-color: white !important;
 }

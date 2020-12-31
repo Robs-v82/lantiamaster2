@@ -1,0 +1,156 @@
+<html>
+<head>
+	<title></title>
+    <meta charset="UTF-8">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css">
+
+    <%= wicked_pdf_stylesheet_link_tag "application" %>
+    <%= javascript_include_tag 'https://maps.googleapis.com/maps/api/js?key='+"AIzaSyBWd0Mv-5p6ARfMQTRyC3pmNPuMucGL2i4" %>
+    <%= yield(:head_tags) %>
+    <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/data.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/data.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.3/proj4.js"></script>      
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,300&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+    	$(document).ready(function() {
+
+			var mxStates = [
+			    ['mx-3622', null],
+			    ['mx-bc', null],
+			    ['mx-bs', null],
+			    ['mx-so', null],
+			    ['mx-cl', null],
+			    ['mx-na', null],
+			    ['mx-cm', null],
+			    ['mx-qr', null],
+			    ['mx-mx', null],
+			    ['mx-mo', null],
+			    ['mx-df', null],
+			    ['mx-qt', null],
+			    ['mx-tb', null],
+			    ['mx-cs', null],
+			    ['mx-nl', null],
+			    ['mx-si', null],
+			    ['mx-ch', null],
+			    ['mx-ve', null],
+			    ['mx-za', null],
+			    ['mx-ag', null],
+			    ['mx-ja', null],
+			    ['mx-mi', null],
+			    ['mx-oa', null],
+			    ['mx-pu', null],
+			    ['mx-gr', null],
+			    ['mx-tl', null],
+			    ['mx-tm', null],
+			    ['mx-co', null],
+			    ['mx-yu', null],
+			    ['mx-dg', null],
+			    ['mx-gj', null],
+			    ['mx-sl', null],
+			    ['mx-hg', null]
+			];
+
+			var countyData = [
+				<% @mapData.each do |place| %>					
+					{
+						code: '<%= place[:code]%>',
+						name: '<%= place[:shortname] %>',
+						lat: <%= place[:latitude] %>,
+						lon: <%= place[:longitude] %>,
+						value: '<%= place[:victimLevel] %>',
+						<% if place[:victimLevel] == "1 a 10" %>
+							color: '#ffeb3b',
+						<% elsif place[:victimLevel] == "11 a 20" %>
+							color: '#ff9800',
+						<% elsif place[:victimLevel] == "21 en adelante" %>
+							color: '#f44336',
+						<% else %>
+							color: '#8bc34a',
+						<% end %>
+					},
+				<% end %>
+			];
+
+    		var mapHeight = $('.chartArea').height();
+			function drawMap(data) {
+				Highcharts.getJSON('/maps/mx-all.geojson', function(geojson) {
+					Highcharts.mapChart('county-victims-map', {
+				        chart: {
+				            map: geojson,
+				            height: mapHeight,
+				            backgroundColor: '#041f3a',
+				        },
+				        title: false, 
+				        credits: false,
+				        mapNavigation: {
+				            enabled: true,
+				        },
+						exporting: {
+							enabled: false
+						},
+				        
+				        legend: false,
+				        title: false, 
+				        credits: false,
+				        mapNavigation: {
+				            enabled: true,
+				        },
+						exporting: {
+							enabled: false
+						},
+				        series: [
+					        {
+					            data: mxStates,
+					            borderColor: 'white',
+					            borderWidth: 1,
+					            nullColor: '#274b6e', 
+					            dataLabels: {
+					                enabled: true,
+					                format: '{point.properties.postal}'
+					            }
+					        },
+					        {
+					        	cursor: 'pointer',
+					        	type: 'mappoint',
+					        	data: data,
+					        	marker: {
+					        		radius: 5
+					        	},
+					            dataLabels: {
+					                enabled: false,
+					            },
+					            tooltip: {
+					            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+					            	pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
+					            },
+				            }
+				        ],
+
+				    }, function (chart) { 
+						    var originalWidth = chart.chartWidth - 105;
+						    chart.renderer.image('/assets/icono_negativo.png', originalWidth, 50, 60, 52)
+		    				.add();
+		        	});	
+		        });		
+			}
+			drawMap(countyData)
+    	});
+    </script>
+</head>
+<body>
+	<div class="chartArea">
+		<div id="county-victims-map"></div>
+	</div>
+</body>
+</html>

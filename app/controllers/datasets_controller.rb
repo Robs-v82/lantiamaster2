@@ -2,6 +2,7 @@ class DatasetsController < ApplicationController
 	
 	require 'csv'
 	require 'pp'
+	layout false, only: [:year_victims, :county_victims_map]
 	after_action :remove_load_message, only: [:load]
 
 	def show
@@ -605,23 +606,39 @@ class DatasetsController < ApplicationController
 		            }
 		            topCountiesArr.push(countyHash)
 		            if county.population
-			            if county.population > 100000
-				            if countyHash[:months][11][:victims] > 0
-				            	positiveCountyHash = {}
-				            	positiveCountyHash[:code] = county.full_code
-				            	positiveCountyHash[:name] = county.name
-				            	positiveCountyHash[:shortname] = county.shortname
-				            	positiveCountyHash[:latitude] = county.towns.where(:code=>"0000").last.latitude
-				            	positiveCountyHash[:longitude] = county.towns.where(:code=>"0000").last.latitude
-					            if countyHash[:months][11][:victims] > 20
-					            	positiveCountyHash[:victimLevel] = "21 en adelante"
-					            elsif countyHash[:months][11][:victims] > 10
-					            	positiveCountyHash[:victimLevel] = "11 a 20"
-					            else
-					            	positiveCountyHash[:victimLevel] = "1 a 10"
-					            end
-					            allCountiesArr.push(positiveCountyHash)
-				            end
+			            if county.population > 200000
+				            # if countyHash[:months][11][:victims] > 0
+				            # 	positiveCountyHash = {}
+				            # 	positiveCountyHash[:code] = county.full_code
+				            # 	positiveCountyHash[:name] = county.name
+				            # 	positiveCountyHash[:shortname] = county.shortname
+				            # 	positiveCountyHash[:latitude] = county.towns.where(:code=>"0000").last.latitude
+				            # 	positiveCountyHash[:longitude] = county.towns.where(:code=>"0000").last.longitude
+					           #  if countyHash[:months][11][:victims] > 20
+					           #  	positiveCountyHash[:victimLevel] = "21 en adelante"
+					           #  elsif countyHash[:months][11][:victims] > 10
+					           #  	positiveCountyHash[:victimLevel] = "11 a 20"
+					           #  else
+					           #  	positiveCountyHash[:victimLevel] = "1 a 10"
+					           #  end
+					           #  allCountiesArr.push(positiveCountyHash)
+				            # end
+			            	positiveCountyHash = {}
+			            	positiveCountyHash[:code] = county.full_code
+			            	positiveCountyHash[:name] = county.name
+			            	positiveCountyHash[:shortname] = county.shortname
+			            	positiveCountyHash[:latitude] = county.towns.where(:code=>"0000").last.latitude
+			            	positiveCountyHash[:longitude] = county.towns.where(:code=>"0000").last.longitude
+				        	if countyHash[:totalVictims] > 240
+				        		positiveCountyHash[:victimLevel] = "21 en adelante"
+				        	elsif countyHash[:totalVictims] > 120
+				        		positiveCountyHash[:victimLevel] = "11 a 20"
+				        	elsif countyHash[:totalVictims] > 12
+				        		positiveCountyHash[:victimLevel] = "1 a 10"
+				        	else
+				        		positiveCountyHash[:victimLevel] = "menos de 1"	
+				        	end
+				        	allCountiesArr.push(positiveCountyHash)
 			        	end
 			        end
 		        end
@@ -714,6 +731,37 @@ class DatasetsController < ApplicationController
         render json: myHash 
     end
 
+    def year_victims
+        myYears = helpers.get_regular_years
+        thisYear = Year.where(:name=>Time.now.year.to_s).last
+        victimYearsArr = []
+        myYears.each{|year|
+            yearHash = {}
+            yearHash[:year] = year.name.to_i
+            genderHash = {}
+            if year != thisYear
+                yearHash[:victims] = year.victims.length
+                # genderHash[:maleVictims] = year.victims.where(:gender=>"MASCULINO").length
+                # genderHash[:femaleVictims] = year.victims.where(:gender=>"FEMENINO").length
+                # genderHash[:undefined] = year.victims.where(:gender=>"NO IDENTIFICADO").length
+                yearHash[:estimate] = false
+            else
+                n = helpers.get_specific_months([thisYear], "victims").length
+                unless n == 0
+                    yearHash[:victims] = year.victims.length*(12/n)
+                    if n == 12
+                        yearHash[:estimate] = false        
+                    else
+                        yearHash[:estimate] = true
+                    end
+                end
+            end
+            # yearHash[:victimsGender] = genderHash
+            victimYearsArr.push(yearHash)
+        }	
+        @yearData = victimYearsArr
+    end
+
     def state_victims_api
         myData = Cookie.where(:category=>"api").last.data[0]
         myHash = {:lastUpdate=>myData[:lastUpdate], :data=>myData[:topStates]}
@@ -730,6 +778,10 @@ class DatasetsController < ApplicationController
         myData = Cookie.where(:category=>"api").last.data[0]
         myHash = {:lastUpdate=>myData[:lastUpdate], :data=>myData[:countyVictimsMap]}
         render json: myHash 
+    end
+
+    def county_victims_map
+    	@mapData = Cookie.where(:category=>"api").last.data[0][:countyVictimsMap]
     end
 
     def featured_state_api
