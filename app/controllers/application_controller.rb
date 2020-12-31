@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
 # ERROR CON BCRYPT! Valladares/Users/Bobsled/.rvm/gems/ruby-2.7.1/gems/bcrypt-3.1.13/lib/bcrypt/password.rb:50: warning: deprecated Object#=~ is called on Integer; it always returns nil Completed 500 Internal Server Error in 76ms (ActiveRecord: 3.2ms | Allocations: 9495) BCrypt::Errors::InvalidHash (invalid hash):
 
 	before_action :allow_iframe
-	before_action :require_login, except: [:password, :login, :states_and_counties_api, :year_victims_api, :state_victims_api, :county_victims_api, :county_victims_map_api, :featured_state_api, :featured_county_api]
+	before_action :require_login, except: [:password, :login, :states_and_counties_api, :year_victims_api, :state_victims_api, :county_victims_api, :county_victims_map_api, :county_victims_map, :featured_state_api, :featured_county_api]
 	before_action :set_variables
 	helper_method :myResouces
 
