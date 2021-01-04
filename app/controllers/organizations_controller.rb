@@ -276,9 +276,20 @@ class OrganizationsController < ApplicationController
   	end
 
     def api
+      byType = [[],[],[]]
+      Sector.where(:scian2=>98).last.organizations.uniq.each{|cartel|
+        if cartel.league == "Cártel"
+          byType[0].push(cartel)
+        elsif cartel.league == "Mafia"
+          byType[1].push(cartel)
+        else
+          byType[2].push(cartel)
+        end
+      }
+      cartels = byType.flatten
       @colorArr = []
       @alliedCartels = []
-      Sector.where(:scian2=>98).last.organizations.uniq.each {|cartel|
+      cartels.each {|cartel|
         cartelIn = false
         helpers.coalitionKeys.each{|coalition|
           leader = Organization.where(:name=>coalition["name"]).last
