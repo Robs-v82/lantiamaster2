@@ -1,0 +1,94 @@
+<html>
+<head>
+	<title></title>
+    <meta charset="UTF-8">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css">
+
+    <%= wicked_pdf_stylesheet_link_tag "application" %>
+    <%= javascript_include_tag 'https://maps.googleapis.com/maps/api/js?key='+"AIzaSyBWd0Mv-5p6ARfMQTRyC3pmNPuMucGL2i4" %>
+    <%= yield(:head_tags) %>
+    <script src="https://code.highcharts.com/maps/highmaps.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/data.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/data.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.3/proj4.js"></script>      
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,300&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+    	$(document).ready(function() {
+    		var chartHeight = $(window).height()
+
+    		Highcharts.chart('state-victims', {
+				chart: {
+					type: 'line',
+					height: chartHeight,
+					margin: [20,20,60,40],
+					backgroundColor: 'rgba(0,0,0,0)',
+				},
+		        title: false, 
+			    credits: false,
+				exporting: {
+					enabled: false
+				},
+		        legend: {
+		        	enabled: false
+		        },
+		        xAxis: {
+		        	categories: [
+		        		<% @placeData[0][:months].each do |period| %>
+		        			'<%= period[:month] %>',
+		        		<% end %>
+		        	],
+		        	labels: {
+		        		style: {
+		        			fontSize: "14px",
+		        		}
+		        	}
+		        },
+		        yAxis: {
+		        	title: {
+		        		text: null
+		        	},
+		        	labels: {
+		        		enabled: false
+		        	},
+		        },
+		        series: [
+		        	<% @placeData.each do |place| %>
+		        		{
+		        			name: '<%= place[:name] %>',
+		        			color: '<%= place[:color] %>',
+		        			lineWidth: 3,
+		        			marker: {
+		        				radius: 6,
+								lineColor: '<%= place[:color] %>', 
+								lineWidth: 2,
+		        				fillColor: "white",
+		        			},
+		        			data: [
+		        				<% place[:months].each do |month| %>
+		        					{y: <%= month[:victims] %>},
+		        				<% end %>
+		        			]
+		        		},
+		        	<% end %>
+		        ],
+				tooltip: {
+	            	headerFormat: '<span style="font-size:12px >{point.key}</span><br>',
+	            },
+    		})
+    	});
+    </script>
+</head>
+<body>
+	<div id="state-victims"></div>
+</body>
+</html>

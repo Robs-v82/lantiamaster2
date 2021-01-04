@@ -2,7 +2,7 @@ class DatasetsController < ApplicationController
 	
 	require 'csv'
 	require 'pp'
-	layout false, only: [:year_victims, :county_victims_map]
+	layout false, only: [:year_victims, :state_victims, :county_victims, :county_victims_map]
 	after_action :remove_load_message, only: [:load]
 
 	def show
@@ -587,7 +587,7 @@ class DatasetsController < ApplicationController
             topStatesArr.push(stateHash)
         }
         topStatesArr = topStatesArr.sort_by{|state| -state[:totalVictims]}
-        myHash[:topStates] = topStatesArr[0..4]
+        myHash[:topStates] = topStatesArr[0..3]
 
         topCountiesArr = []
         allCountiesArr = []
@@ -612,22 +612,6 @@ class DatasetsController < ApplicationController
 		            topCountiesArr.push(countyHash)
 		            if county.population
 			            if county.population > 200000
-				            # if countyHash[:months][11][:victims] > 0
-				            # 	positiveCountyHash = {}
-				            # 	positiveCountyHash[:code] = county.full_code
-				            # 	positiveCountyHash[:name] = county.name
-				            # 	positiveCountyHash[:shortname] = county.shortname
-				            # 	positiveCountyHash[:latitude] = county.towns.where(:code=>"0000").last.latitude
-				            # 	positiveCountyHash[:longitude] = county.towns.where(:code=>"0000").last.longitude
-					           #  if countyHash[:months][11][:victims] > 20
-					           #  	positiveCountyHash[:victimLevel] = "21 en adelante"
-					           #  elsif countyHash[:months][11][:victims] > 10
-					           #  	positiveCountyHash[:victimLevel] = "11 a 20"
-					           #  else
-					           #  	positiveCountyHash[:victimLevel] = "1 a 10"
-					           #  end
-					           #  allCountiesArr.push(positiveCountyHash)
-				            # end
 			            	positiveCountyHash = {}
 			            	positiveCountyHash[:code] = county.full_code
 			            	positiveCountyHash[:name] = county.name
@@ -652,10 +636,7 @@ class DatasetsController < ApplicationController
 
         topCountiesArr = topCountiesArr.sort_by{|county| -county[:totalVictims]}
         myHash[:countyVictimsMap] = allCountiesArr.sort_by{|county| county[:full_code]}
-        myHash[:topCounties] = topCountiesArr[0..4]
-
-        print "********"*1000
-        print myHash[:years]
+        myHash[:topCounties] = topCountiesArr[0..3]
         Cookie.create(:data=>[myHash], :category=>"api")
         redirect_to "/datasets/api_control"
     end
@@ -767,10 +748,26 @@ class DatasetsController < ApplicationController
         render json: myHash 
     end
 
+    def state_victims
+    	colorAxis = ["#2f8f8f", "#ef974e", "#3ebf3e", "#757575"]
+    	@placeData = Cookie.where(:category=>"api").last.data[0][:topStates]
+    	(0..3).each{|x|
+    		@placeData[x][:color] = colorAxis[x]
+    	}
+    end
+
     def county_victims_api
         myData = Cookie.where(:category=>"api").last.data[0]
         myHash = {:lastUpdate=>myData[:lastUpdate], :data=>myData[:topCounties]}
         render json: myHash 
+    end
+
+    def county_victims
+    	colorAxis = ["#2f8f8f", "#ef974e", "#3ebf3e", "#757575"]
+    	@placeData = Cookie.where(:category=>"api").last.data[0][:topCounties]
+    	(0..3).each{|x|
+    		@placeData[x][:color] = colorAxis[x]
+    	}
     end
 
     def county_victims_map_api
