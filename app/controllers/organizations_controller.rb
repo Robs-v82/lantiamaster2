@@ -146,28 +146,33 @@ class OrganizationsController < ApplicationController
         end
       }
       @cartels = byType.flatten
-  		@colorArr = []
-  		@alliedCartels = []
-  		@cartels.each {|cartel|
-  			cartelIn = false
-  			@checkedCoalitions.each{|coalition|
-  				leader = Organization.where(:name=>coalition["name"]).last
-  				if leader
-  					if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
-	  					@colorArr.push(coalition["material_color"])
-	  					cartelIn = true	
-  					end
-  				else
-  					unless cartelIn
-	  					@colorArr.push(coalition["material_color"])
-	  					cartelIn = true					
-  					end
-  				end
-  			}
-  			if cartelIn
-  				@alliedCartels.push(cartel)
-  			end
-  		}
+      if @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
+        @colorArr = Cookie.where(:category=>"organizations").last.data[0][:colorData]
+        @alliedCartels = Cookie.where(:category=>"organizations").last.data[0][:alliedCartels]
+      else
+    		@colorArr = []
+    		@alliedCartels = []
+    		@cartels.each {|cartel|
+    			cartelIn = false
+    			@checkedCoalitions.each{|coalition|
+    				leader = Organization.where(:name=>coalition["name"]).last
+    				if leader
+    					if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
+  	  					@colorArr.push(coalition["material_color"])
+  	  					cartelIn = true	
+    					end
+    				else
+    					unless cartelIn
+  	  					@colorArr.push(coalition["material_color"])
+  	  					cartelIn = true					
+    					end
+    				end
+    			}
+    			if cartelIn
+    				@alliedCartels.push(cartel)
+    			end
+    		}
+      end
 
   		if @alliedCartels.empty?
         session[:empty_request] = true
@@ -182,55 +187,59 @@ class OrganizationsController < ApplicationController
         myPlaces = myStates
       end
 
-      @placeArr = []
-      myPlaces.each{|place|
-        placeRackets = place.rackets.merge(@alliedCartels)
-        myRackets = []
-        myLeaders = []
-        placeRackets.each{|racket|
-          racketHash = {}
-          if @alliedCartels.include? racket
-            racketHash[:name] = racket.name
-          end
-          cartelIn = false
-          @checkedCoalitions.each{|coalition|
-            leader = Organization.where(:name=>coalition["name"]).last
-            if leader
-              if racket.name == leader.name or leader.subordinates.include? racket or leader.allies.include? racket.id
-                myLeaders.push(leader.name)
-                cartelIn = true
-                racketHash[:color] = coalition["dark_color"]
-              end
+     
+      if myPlaces == State.all && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
+        @placeArr = Cookie.where(:category=>"organizations").last.data[0][:placeData]
+      else
+        @placeArr = []
+        myPlaces.each{|place|
+          placeRackets = place.rackets.merge(@alliedCartels)
+          myRackets = []
+          myLeaders = []
+          placeRackets.each{|racket|
+            racketHash = {}
+            if @alliedCartels.include? racket
+              racketHash[:name] = racket.name
             end
+            cartelIn = false
+            @checkedCoalitions.each{|coalition|
+              leader = Organization.where(:name=>coalition["name"]).last
+              if leader
+                if racket.name == leader.name or leader.subordinates.include? racket or leader.allies.include? racket.id
+                  myLeaders.push(leader.name)
+                  cartelIn = true
+                  racketHash[:color] = coalition["dark_color"]
+                end
+              end
+            }
+            unless cartelIn
+              racketHash[:color] = '#A09EAB'         
+            end
+            myRackets.push(racketHash)
           }
-          unless cartelIn
-            racketHash[:color] = '#A09EAB'         
-          end
-          myRackets.push(racketHash)
-        }
-        myLeaders = myLeaders.uniq
-        if myLeaders.length == 2
-          placeCoalition = 0
-        elsif myLeaders.length == 0
-          placeCoalition = 3
-        else
-          if myLeaders.last == "Cártel de Sinaloa"
-            placeCoalition = 1 
+          myLeaders = myLeaders.uniq
+          if myLeaders.length == 2
+            placeCoalition = 0
+          elsif myLeaders.length == 0
+            placeCoalition = 3
           else
-            placeCoalition = 2
-          end     
-        end
-        if @checkedStates.length == 1
-          placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
-        else
-          placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
-        end
-        unless placeHash[:freq] == 0
-          @placeArr.push(placeHash)
-        end
-      }
+            if myLeaders.last == "Cártel de Sinaloa"
+              placeCoalition = 1 
+            else
+              placeCoalition = 2
+            end     
+          end
+          if @checkedStates.length == 1
+            placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+          else
+            placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+          end
+          unless placeHash[:freq] == 0
+            @placeArr.push(placeHash)
+          end
+        }
+      end
 
-      @stateArr = []
   		State.all.each{|state|
   			stateRackets = state.rackets.uniq
   			myRackets = []
@@ -267,7 +276,79 @@ class OrganizationsController < ApplicationController
   	end
 
     def api
-      
+      @colorArr = []
+      @alliedCartels = []
+      Sector.where(:scian2=>98).last.organizations.uniq.each {|cartel|
+        cartelIn = false
+        helpers.coalitionKeys.each{|coalition|
+          leader = Organization.where(:name=>coalition["name"]).last
+          if leader
+            if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
+              @colorArr.push(coalition["material_color"])
+              cartelIn = true 
+            end
+          else
+            unless cartelIn
+              @colorArr.push(coalition["material_color"])
+              cartelIn = true         
+            end
+          end
+        }
+        if cartelIn
+          @alliedCartels.push(cartel)
+        end
+      }
+
+
+      @placeArr = []
+      State.all.each{|place|
+        placeRackets = place.rackets
+        myRackets = []
+        myLeaders = []
+        placeRackets.each{|racket|
+          racketHash = {:name=> racket.name}
+          cartelIn = false
+          helpers.coalitionKeys.each{|coalition|
+            leader = Organization.where(:name=>coalition["name"]).last
+            if leader
+              if racket.name == leader.name or leader.subordinates.include? racket or leader.allies.include? racket.id
+                myLeaders.push(leader.name)
+                cartelIn = true
+                racketHash[:color] = coalition["dark_color"]
+              end
+            end
+          }
+          unless cartelIn
+            racketHash[:color] = '#A09EAB'         
+          end
+          myRackets.push(racketHash)
+        }
+        myLeaders = myLeaders.uniq
+        if myLeaders.length == 2
+          placeCoalition = 0
+        elsif myLeaders.length == 0
+          placeCoalition = 3
+        else
+          if myLeaders.last == "Cártel de Sinaloa"
+            placeCoalition = 1 
+          else
+            placeCoalition = 2
+          end     
+        end
+        placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+        unless placeHash[:freq] == 0
+          @placeArr.push(placeHash)
+        end
+      }
+      dataArr = [
+        {
+          :placeData=>@placeArr,
+          :colorData=>@colorArr,
+          :alliedCartels=>@alliedCartels
+        }
+      ]
+      Cookie.create(:category=>"organizations", :data=>dataArr)
+      redirect_to '/organizations/query'
     end
 
     def organizations_table
