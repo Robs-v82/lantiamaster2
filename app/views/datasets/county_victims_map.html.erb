@@ -93,9 +93,6 @@
 				        },
 				        title: false, 
 				        credits: false,
-				        mapNavigation: {
-				            enabled: true,
-				        },
 						exporting: {
 							enabled: false
 						},
@@ -105,6 +102,35 @@
 				        credits: false,
 				        mapNavigation: {
 				            enabled: true,
+				            buttonOptions: {
+				                theme: {
+				                    fill: 'white',
+				                    'stroke-width': 1,
+				                    stroke: 'white',
+				                    r: 0,
+				                    states: {
+				                        hover: {
+				                            fill: '#EF4E50',
+				                            stroke: 'white',
+				                            color: 'white',
+				                        },
+				                        select: {
+				                            stroke: '#039',
+				                            fill: '#a4edba'
+				                        }
+				                    }
+				                },
+				                x: 20,
+				                verticalAlign: 'bottom'
+				            },
+				            buttons: {
+				            	zoomIn: {
+				            		y: -30,
+				            	},
+				            	zoomOut: {
+				            		y: 10,
+				            	}
+				            }
 				        },
 						exporting: {
 							enabled: false

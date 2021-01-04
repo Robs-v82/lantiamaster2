@@ -30,7 +30,7 @@
 				chart: {
 					type: 'column',
 					height: chartHeight,
-					marginTop: 0,
+					margin: [20,20,60,20],
 					backgroundColor: 'rgba(0,0,0,0)',
 				},
 		        title: false, 
@@ -44,9 +44,18 @@
 		        xAxis: {
 		        	categories: [
 		        		<% @yearData.each do |n| %>
-		        			'<%= n[:year] %>',
+							<% if n[:estimate] %>
+		        				"<%= n[:year] %>*",
+		        			<% else %>
+		        				"<%= n[:year] %>",
+		        			<% end %>
 		        		<% end %>
-		        	]
+		        	],
+		        	labels: {
+		        		style: {
+		        			fontSize: "14px",
+		        		}
+		        	}
 		        },
 		        yAxis: {
 		        	title: {
@@ -60,12 +69,20 @@
 		        	data: [
 		        		<% @yearData.each do |n| %>
 			        		{
-			        			name: "<%= n[:year] %>",
-			        			y: <%= n[:victims] %>
-			        		},
+			        			<% if n[:estimate] %>
+			        				name: "<%= n[:year] %>*",
+			        			<% else %>
+			        				name: "<%= n[:year] %>",
+			        			<% end %>
+			        			y: <%= n[:victims] %>,			        		},
 		        		<% end %>
-		        	]
+		        	],
+		        	color: "#EF4E50",
 		        }],
+				tooltip: {
+	            	headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+	            	pointFormat: '<span style="font-size:16px; color:#454157">{point.y}</span><br>'
+	            },
     		})
     	});
     </script>

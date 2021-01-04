@@ -533,7 +533,9 @@ class DatasetsController < ApplicationController
 
         # TOTAL VICTIMS PER YEAR (WITH ESTIMATE FOR CURRENT YEAR)
         myYears = helpers.get_regular_years
-        thisYear = Year.where(:name=>Time.now.year.to_s).last
+        # CHANGE THIS IN JANUARY!!!
+        # thisYear = Year.where(:name=>Time.now.year.to_s).last
+        thisYear = Year.where(:name=>"2020").last
         victimYearsArr = []
         myYears.each{|year|
             yearHash = {}
@@ -548,7 +550,10 @@ class DatasetsController < ApplicationController
             else
                 n = helpers.get_specific_months([thisYear], "victims").length
                 unless n == 0
-                    yearHash[:victims] = year.victims.length*(12/n)
+                    yearHash[:victims] = year.victims.length*(12/n.to_f)
+                    print "OOoo"*100
+                    print yearHash[:victims]
+                    yearHash[:victims] = yearHash[:victims].round(0)
                     if n == 12
                         yearHash[:estimate] = false        
                     else
@@ -649,6 +654,8 @@ class DatasetsController < ApplicationController
         myHash[:countyVictimsMap] = allCountiesArr.sort_by{|county| county[:full_code]}
         myHash[:topCounties] = topCountiesArr[0..4]
 
+        print "********"*1000
+        print myHash[:years]
         Cookie.create(:data=>[myHash], :category=>"api")
         redirect_to "/datasets/api_control"
     end
@@ -732,34 +739,26 @@ class DatasetsController < ApplicationController
     end
 
     def year_victims
-        myYears = helpers.get_regular_years
-        thisYear = Year.where(:name=>Time.now.year.to_s).last
-        victimYearsArr = []
-        myYears.each{|year|
-            yearHash = {}
-            yearHash[:year] = year.name.to_i
-            genderHash = {}
-            if year != thisYear
-                yearHash[:victims] = year.victims.length
-                # genderHash[:maleVictims] = year.victims.where(:gender=>"MASCULINO").length
-                # genderHash[:femaleVictims] = year.victims.where(:gender=>"FEMENINO").length
-                # genderHash[:undefined] = year.victims.where(:gender=>"NO IDENTIFICADO").length
-                yearHash[:estimate] = false
-            else
-                n = helpers.get_specific_months([thisYear], "victims").length
-                unless n == 0
-                    yearHash[:victims] = year.victims.length*(12/n)
-                    if n == 12
-                        yearHash[:estimate] = false        
-                    else
-                        yearHash[:estimate] = true
-                    end
-                end
-            end
-            # yearHash[:victimsGender] = genderHash
-            victimYearsArr.push(yearHash)
-        }	
-        @yearData = victimYearsArr
+        previousYears = [
+        	{:year=>"2007",:victims=>2826},
+        	{:year=>"2008",:victims=>6837},
+        	{:year=>"2009",:victims=>9614},
+        	{:year=>"2010",:victims=>15266},
+        	{:year=>"2011",:victims=>15768},
+        	{:year=>"2012",:victims=>13675},
+        	{:year=>"2013",:victims=>11269},
+        	{:year=>"2014",:victims=>8004},
+        	{:year=>"2015",:victims=>8122},
+        	{:year=>"2016",:victims=>12224},
+        	{:year=>"2017",:victims=>18946}
+        ]
+        victimYearsArr = Cookie.where(:category=>"api").last.data[0][:years]
+        @yearData = previousYears.append(*victimYearsArr)
+        @yearData[0][:change] = "--"
+        (1..@yearData.length-1).each{|x|
+        	change = @yearData[x][:victims]/@yearData[x-1][:victims].to_f
+        	@yearData[x][:change] = ((change - 1)*100).round(1)
+        }
     end
 
     def state_victims_api

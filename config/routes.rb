@@ -12,7 +12,7 @@ Rails.application.routes.draw do
     get 'states/icon'
     get 'states_and_counties_api' => 'datasets#states_and_counties_api'
     get 'year_victims_api' => 'datasets#year_victims_api'
-    get 'datasets/year_victims'
+    get 'year_victims' => 'datasets#year_victims'
     get 'state_victims_api' => 'datasets#state_victims_api'
     get 'county_victims_api' => 'datasets#county_victims_api'
     get 'county_victims_map_api' => 'datasets#county_victims_map_api'
