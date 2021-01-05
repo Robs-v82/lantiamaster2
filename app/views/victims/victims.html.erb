@@ -5,275 +5,277 @@
 <% end %>
 <div class="row freq-row">
 	<div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-med-and-down">
-		<div class="card paletton-grey">
-			<div class="full-height">
-				<form id="victim_freq_table" class="freq_filer_form" action="/victims/query" method="post">
-				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
-					<div class="card-narrow">
-						<div class="card-content white-text">
-							<%= render "shared/hidefilter"%>
-							<div class="row">
-								<div cass="col s12">
-									<ul class="tabs paletton-red-tabs">
-										<li class="tab col s6"><a class="paletton-red-text" href="#victim_freq_params">ANÁLISIS</a></li>
-										<li class="tab col s6"><a class="paletton-red-text" href="#victim_freq_filters">FILTROS</a></li>
-									</ul>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col s9">
-									<div class="tall-row valign-wrapper">
-										<a href="/victims/new_query" class="reset-values waves-effect waves-light btn-small paletton-grey z-depth-0 p11 bold">Restablecer</a>
-									</div>
-								</div>
-								<%= render "shared/sendmagicbutton" %>
-							</div>
-							<div id="victim_freq_params">
+		<% if session[:membership] > 3 %>
+			<div class="card paletton-grey">
+				<div class="full-height">
+					<form id="victim_freq_table" class="freq_filer_form" action="/victims/query" method="post">
+					<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+						<div class="card-narrow">
+							<div class="card-content white-text">
+								<%= render "shared/hidefilter"%>
 								<div class="row">
-									<div class="col s12">
-										<div class="query-header-box valign-wrapper white-text">
-											<i class="material-icons small">today</i><p5 class="query-header">Temporal</p5>
-										</div>
-										<div id="victim_freq_timeframe_selector">
-									    	<% @timeFrames.each do |query| %>
-												<p class="input-padding">
-													<label>
-														<input  id="<%= query[:box_id] %>" name="query[freq_timeframe]" value="<%= query[:name] %>" type="radio"
-															<% if query[:checked]%>
-																checked
-															<% end %>
-														/>
-														<span class="white-text p12"><%= query[:caption] %></span>
-													</label>
-												</p>
-									    	<% end %>
-									    </div>
+									<div cass="col s12">
+										<ul class="tabs paletton-red-tabs">
+											<li class="tab col s6"><a class="paletton-red-text" href="#victim_freq_params">ANÁLISIS</a></li>
+											<li class="tab col s6"><a class="paletton-red-text" href="#victim_freq_filters">FILTROS</a></li>
+										</ul>
 									</div>
 								</div>
-								<div id="geo_query_box" class="row">
-									<div class="col s12">
-									    <div class="query-header-box valign-wrapper white-text">
-											<i class="material-icons small">map</i><p5 class="query-header">Geográfico</p5>
-										</div>
-										<div id="victim_freq_placeframe_selector">
-									    	<% @placeFrames.each do |query| %>
-												<p class="input-padding">
-													<label>
-														<input  id="<%= query[:box_id] %>" name="query[freq_placeframe]" value="<%= query[:name] %>" type="radio"
-															<% if query[:checked]%>
-																checked
-															<% end %>
-															<% if query[:box_id] == "county_query_box" %>
-																onclick="M.toast({html: '<%= @county_toast_message %>'})"
-															<% end %>
-														/>
-														<span class="white-text p12"><%= query[:caption] %></span>
-													</label>
-												</p>
-									    	<% end %>
-									    </div>
-									</div>
-							    </div>
-								<div id="gender_query_box" class="row">
-									<div class="col s12">
-									    <div class="query-header-box valign-wrapper white-text">
-											<i class="material-icons small">wc</i><p5 class="query-header">Género</p5>
-										</div>
-										<div id="victim_freq_genderframe_selector">
-									    	<% @genderFrames.each do |query| %>
-												<p class="input-padding">
-													<label>
-														<input  id="<%= query[:box_id] %>" name="query[freq_genderframe]" value="<%= query[:name] %>" type="radio"
-															<% if query[:checked]%>
-																checked
-															<% end %>
-														/>
-														<span class="white-text p12"><%= query[:caption] %></span>
-													</label>
-												</p>
-									    	<% end %>
-									    </div>
-									</div>
-							    </div>
-							</div>
-							<div id="victim_freq_filters" class="filter-box">
 								<div class="row">
-									<div class="col s12">
-										<ul class="collapsible z-depth-0">
-											<li class="hide">
-												<div class="collapsible-header paletton-grey white-text">
-													<i class="material-icons tiny">today</i>
-													AÑOS
-												</div>
-												<div id="year_filter_box" class="collapsible-body paletton-grey">
-													<div class="row">
-														<div class="col s3">
-															<%= render "shared/filterbuttons"%>
-														</div>
-														<div class="col s9 checkbox-scroll">
-															<% @years.each do |year|%>
-																<div class="col s6">	
-																	<p>
-																		<label>
-																			<input type="checkbox" name="query[freq_years][]" value="<%= year["id"] %>" 
-																				<% if @checkedYears.include? year["id"] %>	
-																					checked
-																				<% end %>
-																			/>
-																			<span class="white-text"><%= year["name"] %></span>
-																		</label>
-																	</p>
-																</div>
-															<% end %>
-														</div>
+									<div class="col s9">
+										<div class="tall-row valign-wrapper">
+											<a href="/victims/new_query" class="reset-values waves-effect waves-light btn-small paletton-grey z-depth-0 p11 bold">Restablecer</a>
+										</div>
+									</div>
+									<%= render "shared/sendmagicbutton" %>
+								</div>
+								<div id="victim_freq_params">
+									<div class="row">
+										<div class="col s12">
+											<div class="query-header-box valign-wrapper white-text">
+												<i class="material-icons small">today</i><p5 class="query-header">Temporal</p5>
+											</div>
+											<div id="victim_freq_timeframe_selector">
+										    	<% @timeFrames.each do |query| %>
+													<p class="input-padding">
+														<label>
+															<input  id="<%= query[:box_id] %>" name="query[freq_timeframe]" value="<%= query[:name] %>" type="radio"
+																<% if query[:checked]%>
+																	checked
+																<% end %>
+															/>
+															<span class="white-text p12"><%= query[:caption] %></span>
+														</label>
+													</p>
+										    	<% end %>
+										    </div>
+										</div>
+									</div>
+									<div id="geo_query_box" class="row">
+										<div class="col s12">
+										    <div class="query-header-box valign-wrapper white-text">
+												<i class="material-icons small">map</i><p5 class="query-header">Geográfico</p5>
+											</div>
+											<div id="victim_freq_placeframe_selector">
+										    	<% @placeFrames.each do |query| %>
+													<p class="input-padding">
+														<label>
+															<input  id="<%= query[:box_id] %>" name="query[freq_placeframe]" value="<%= query[:name] %>" type="radio"
+																<% if query[:checked]%>
+																	checked
+																<% end %>
+																<% if query[:box_id] == "county_query_box" %>
+																	onclick="M.toast({html: '<%= @county_toast_message %>'})"
+																<% end %>
+															/>
+															<span class="white-text p12"><%= query[:caption] %></span>
+														</label>
+													</p>
+										    	<% end %>
+										    </div>
+										</div>
+								    </div>
+									<div id="gender_query_box" class="row">
+										<div class="col s12">
+										    <div class="query-header-box valign-wrapper white-text">
+												<i class="material-icons small">wc</i><p5 class="query-header">Género</p5>
+											</div>
+											<div id="victim_freq_genderframe_selector">
+										    	<% @genderFrames.each do |query| %>
+													<p class="input-padding">
+														<label>
+															<input  id="<%= query[:box_id] %>" name="query[freq_genderframe]" value="<%= query[:name] %>" type="radio"
+																<% if query[:checked]%>
+																	checked
+																<% end %>
+															/>
+															<span class="white-text p12"><%= query[:caption] %></span>
+														</label>
+													</p>
+										    	<% end %>
+										    </div>
+										</div>
+								    </div>
+								</div>
+								<div id="victim_freq_filters" class="filter-box">
+									<div class="row">
+										<div class="col s12">
+											<ul class="collapsible z-depth-0">
+												<li class="hide">
+													<div class="collapsible-header paletton-grey white-text">
+														<i class="material-icons tiny">today</i>
+														AÑOS
 													</div>
-												</div>
-											</li>
-											<li id="state-collapsible-tab"
-												<% if @paramsCookie[1] == "cityWise" %>
-													class="collapsible-disabled"
-												<% end %>
-											>
-												<div class="collapsible-header paletton-grey white-text">
-													<i class="material-icons tiny">map</i>
-													ESTADOS
-												</div>
-												<div id="state_filter_box" class="collapsible-body paletton-grey">
-													<div class="row">
-															<div id="state-select-and-clear-box" class="col s3">
-																<% if @paramsCookie[1] == "countyWise" %>
-																	<%= render "shared/disabledfilterbuttons"%>
-																<% else %>
-																	<%= render "shared/filterbuttons"%>
+													<div id="year_filter_box" class="collapsible-body paletton-grey">
+														<div class="row">
+															<div class="col s3">
+																<%= render "shared/filterbuttons"%>
+															</div>
+															<div class="col s9 checkbox-scroll">
+																<% @years.each do |year|%>
+																	<div class="col s6">	
+																		<p>
+																			<label>
+																				<input type="checkbox" name="query[freq_years][]" value="<%= year["id"] %>" 
+																					<% if @checkedYears.include? year["id"] %>	
+																						checked
+																					<% end %>
+																				/>
+																				<span class="white-text"><%= year["name"] %></span>
+																			</label>
+																		</p>
+																	</div>
 																<% end %>
 															</div>
-														<div class="col s9 checkbox-scroll">
-															<% @states.each do |state|%>
-																<div class="col s6">	
-																	<p>
-																		<label>
-																			<input type="checkbox" name="query[freq_states][]" value="<%= state["id"] %>" 
-																				<% if @checkedStates.include? state["id"] %>	
-																					checked
-																				<% end %>
-																			/>
-																			<span class="white-text"><%= state["shortname"] %></span>
-																		</label>
-																	</p>
-																</div>
-															<% end %>
 														</div>
 													</div>
-												</div>
-											</li>
-											<li id="city-collapsible-tab"
-												<% unless @paramsCookie[1] == "cityWise" %>
-													class="collapsible-disabled"
-												<% end %>
-											>
-												<div class="collapsible-header paletton-grey white-text">
-													<i class="material-icons tiny">map</i>
-													Z. METRO.
-												</div>
-												<div id="city_filter_box" class="collapsible-body paletton-grey">
-													<div class="row">
-														<div class="col s3">
-															<%= render "shared/filterbuttons"%>
-														</div>
-														<div class="col s9 checkbox-scroll">
-															<% @cities.each do |city|%>
-																<div class="col s12">	
-																	<p>
-																		<label>
-																			<input type="checkbox" name="query[freq_cities][]" value="<%= city["id"] %>" 
-																				<% if @checkedCities.include? city["id"] %>	
-																					checked
-																				<% end %>
-																			/>
-																			<span class="white-text"><%= city["name"] %></span>
-																		</label>
-																	</p>
+												</li>
+												<li id="state-collapsible-tab"
+													<% if @paramsCookie[1] == "cityWise" %>
+														class="collapsible-disabled"
+													<% end %>
+												>
+													<div class="collapsible-header paletton-grey white-text">
+														<i class="material-icons tiny">map</i>
+														ESTADOS
+													</div>
+													<div id="state_filter_box" class="collapsible-body paletton-grey">
+														<div class="row">
+																<div id="state-select-and-clear-box" class="col s3">
+																	<% if @paramsCookie[1] == "countyWise" %>
+																		<%= render "shared/disabledfilterbuttons"%>
+																	<% else %>
+																		<%= render "shared/filterbuttons"%>
+																	<% end %>
 																</div>
-															<% end %>
+															<div class="col s9 checkbox-scroll">
+																<% @states.each do |state|%>
+																	<div class="col s6">	
+																		<p>
+																			<label>
+																				<input type="checkbox" name="query[freq_states][]" value="<%= state["id"] %>" 
+																					<% if @checkedStates.include? state["id"] %>	
+																						checked
+																					<% end %>
+																				/>
+																				<span class="white-text"><%= state["shortname"] %></span>
+																			</label>
+																		</p>
+																	</div>
+																<% end %>
+															</div>
 														</div>
 													</div>
-												</div>
-											</li>
-											<li id="county-collapsible-tab"
- 												<% unless @paramsCookie[1] == "countyWise" %>
-													class="collapsible-disabled"
-												<% end %>
-											>
-												<div class="collapsible-header paletton-grey white-text">
-													<i class="material-icons tiny">map</i>
-													MUNICIPIOS
-												</div>	
-												<div id="county_filter_box" class="collapsible-body paletton-grey">
-													<div class="row">
-														<div class="col s3">
-															<%= render "shared/filterbuttons"%>
-														</div>
-														<div id="county_checkboxes_box" class="col s9 checkbox-scroll">
-															<% @counties.each do |county| %>
-																<div class="col s12">	
-																	<p>
-																		<label>
-																			<input type="checkbox" name="query[freq_counties][]" value="<%= county["id"] %>" 
-																				<% if @checkedCounties.include? county["id"] %>	
-																					checked
-																				<% end %>
-																			/>
-																			<span class="white-text"><%= county["name"] %></span>
-																		</label>
-																	</p>
-																</div>
-															<% end %>
+												</li>
+												<li id="city-collapsible-tab"
+													<% unless @paramsCookie[1] == "cityWise" %>
+														class="collapsible-disabled"
+													<% end %>
+												>
+													<div class="collapsible-header paletton-grey white-text">
+														<i class="material-icons tiny">map</i>
+														Z. METRO.
+													</div>
+													<div id="city_filter_box" class="collapsible-body paletton-grey">
+														<div class="row">
+															<div class="col s3">
+																<%= render "shared/filterbuttons"%>
+															</div>
+															<div class="col s9 checkbox-scroll">
+																<% @cities.each do |city|%>
+																	<div class="col s12">	
+																		<p>
+																			<label>
+																				<input type="checkbox" name="query[freq_cities][]" value="<%= city["id"] %>" 
+																					<% if @checkedCities.include? city["id"] %>	
+																						checked
+																					<% end %>
+																				/>
+																				<span class="white-text"><%= city["name"] %></span>
+																			</label>
+																		</p>
+																	</div>
+																<% end %>
+															</div>
 														</div>
 													</div>
-												</div>	
-											</li>
-											<li  id="gender-collapsible-tab" 
-												<% if @paramsCookie[2] == "noGenderSplit" %>
-													class="collapsible-disabled"
-												<% end %>
-											>
-												<div class="collapsible-header paletton-grey white-text">
-													<i class="material-icons tiny">wc</i>
-													GÉNERO
-												</div>	
-												<div id="city_filter_box" class="collapsible-body paletton-grey">
-													<div class="row">
-														<div class="col s3">
-															<%= render "shared/filterbuttons"%>
+												</li>
+												<li id="county-collapsible-tab"
+	 												<% unless @paramsCookie[1] == "countyWise" %>
+														class="collapsible-disabled"
+													<% end %>
+												>
+													<div class="collapsible-header paletton-grey white-text">
+														<i class="material-icons tiny">map</i>
+														MUNICIPIOS
+													</div>	
+													<div id="county_filter_box" class="collapsible-body paletton-grey">
+														<div class="row">
+															<div class="col s3">
+																<%= render "shared/filterbuttons"%>
+															</div>
+															<div id="county_checkboxes_box" class="col s9 checkbox-scroll">
+																<% @counties.each do |county| %>
+																	<div class="col s12">	
+																		<p>
+																			<label>
+																				<input type="checkbox" name="query[freq_counties][]" value="<%= county["id"] %>" 
+																					<% if @checkedCounties.include? county["id"] %>	
+																						checked
+																					<% end %>
+																				/>
+																				<span class="white-text"><%= county["name"] %></span>
+																			</label>
+																		</p>
+																	</div>
+																<% end %>
+															</div>
 														</div>
-														<div class="col s9 checkbox-scroll">
-															<% @genderOptions.each do |option| %>
-																<div class="col s12">	
-																	<p>
-																		<label>
-																			<input type="checkbox" name="query[freq_gender_options][]" value="<%= option["value"] %>" 
-																				<% if @checkedGenderOptions.include? option["value"] %>	
-																					checked
-																				<% end %>
-																			/>
-																			<span class="white-text"><%= option["caption"] %></span>
-																		</label>
-																	</p>
-																</div>
-															<% end %>
-														</div>
-													</div>				
-												</div>	
-											</li>
-										</ul>
+													</div>	
+												</li>
+												<li  id="gender-collapsible-tab" 
+													<% if @paramsCookie[2] == "noGenderSplit" %>
+														class="collapsible-disabled"
+													<% end %>
+												>
+													<div class="collapsible-header paletton-grey white-text">
+														<i class="material-icons tiny">wc</i>
+														GÉNERO
+													</div>	
+													<div id="city_filter_box" class="collapsible-body paletton-grey">
+														<div class="row">
+															<div class="col s3">
+																<%= render "shared/filterbuttons"%>
+															</div>
+															<div class="col s9 checkbox-scroll">
+																<% @genderOptions.each do |option| %>
+																	<div class="col s12">	
+																		<p>
+																			<label>
+																				<input type="checkbox" name="query[freq_gender_options][]" value="<%= option["value"] %>" 
+																					<% if @checkedGenderOptions.include? option["value"] %>	
+																						checked
+																					<% end %>
+																				/>
+																				<span class="white-text"><%= option["caption"] %></span>
+																			</label>
+																		</p>
+																	</div>
+																<% end %>
+															</div>
+														</div>				
+													</div>	
+												</li>
+											</ul>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				</form>
-			</div>	
-		</div>
+					</form>
+				</div>	
+			</div>
+		<% end %>
 	</div>
 	<div class="col l9 m12 s12 short-row">
 		<div class="header-div">
@@ -296,13 +298,17 @@
 			<div class="">
 				<div class="card-content">
 					<div class="row card-narrow">
-						<%= render "shared/showfilter"%>					
+						<% if session[:membership] > 3 %>
+							<%= render "shared/showfilter"%>
+						<% end %>					
 						<div id="freq-entry-list" class="freq-entry-display"
 							<% if @maps %>
 								style="display: none;"
 							<% end %>
 						>
-							<%= render "shared/downloadbutton" %>
+							<% if session[:membership] > 3 %>
+								<%= render "shared/downloadbutton" %>
+							<% end %>
 							<table class="freq-table striped">	
 								<%= render "shared/sorttable"%>
 							</table>

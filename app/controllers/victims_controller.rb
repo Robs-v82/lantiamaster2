@@ -1,6 +1,7 @@
 class VictimsController < ApplicationController
 
 	after_action :remove_email_message, only: [:victims]
+	before_action :require_pro, only: [:query, :county_query]
 
 	def new_query
 		helpers.clear_session
@@ -15,7 +16,7 @@ class VictimsController < ApplicationController
 		session[:checkedGenderOptions] = genderOptions
 		countiesArr = []
 		session[:checkedCounties] = "states"
-		Cookie.create(:category=>"victim_freq_params_"+session[:user_id].to_s, :data=>["quarterly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
+		Cookie.create(:category=>"victim_freq_params_"+session[:user_id].to_s, :data=>["monthly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
 		redirect_to '/victims'
 	end
 

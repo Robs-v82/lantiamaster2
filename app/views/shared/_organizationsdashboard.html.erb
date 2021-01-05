@@ -1,133 +1,135 @@
 <div id="filter-dashboard" class="col l3 m5 s12 short-row hide-on-small-only">
-	<div class="card paletton-grey">
-		<div class="full-height">
-			<form class="freq_filer_form" action="/organizations/organizations_query" method="post">
-				<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
-				<div class="card-content">
-				<%= render "shared/hidefilter"%>
-					<div class="filter-header paletton-red-text">
-						<p class="center-align">FILTROS</p>
-					</div>
-					<div class="row">
-						<div class="col s9">
-							<div class="tall-row valign-wrapper">
-								<a href="/organizations/query" class="reset-values waves-effect waves-light btn-small paletton-grey z-depth-0 p11 bold">Restablecer</a>
-							</div>
+	<% if session[:membership] > 3 %>
+		<div class="card paletton-grey">
+			<div class="full-height">
+				<form class="freq_filer_form" action="/organizations/organizations_query" method="post">
+					<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+					<div class="card-content">
+					<%= render "shared/hidefilter"%>
+						<div class="filter-header paletton-red-text">
+							<p class="center-align">FILTROS</p>
 						</div>
-						<%= render "shared/sendmagicbutton" %>
-					</div>
-					<ul class="collapsible z-depth-0">
-						<li>
-							<div class="collapsible-header valign-wrapper paletton-grey white-text">
-								<i class="material-icons small">map</i><p class="query-header">Estado</p>
-							</div>
-							<div id="org_state_filter_box" class="collapsible-body paletton-grey">
-								<div class="row">
-									<div class="col s3 filter-buttons-col">
-										<%= render "shared/filterbuttons"%>
-									</div>
-									<div class="col s9 checkbox-scroll">
-										<% @states.each do |state|%>
-											<div class="col s6">	
-												<p>
-													<label>
-														<input type="checkbox" name="query[freq_states][]" value="<%= state["id"] %>" 
-															<% if @checkedStates.include? state["id"] %>	
-																checked
-															<% end %>
-														/>
-														<span class="white-text"><%= state["shortname"] %></span>
-													</label>
-												</p>
-											</div>
-										<% end %>	
-									</div>
-								</div>
-								
-							</div>
-						</li>
-						<li>
-							<div class="collapsible-header valign-wrapper paletton-grey white-text">
-								<i class="material-icons small">dns</i><p class="query-header">Tipo</p>
-							</div>
-							<div id="type_filter_box" class="collapsible-body paletton-grey">
-								<div class="row">
-									<div class="col s3 filter-buttons-col">
-										<%= render "shared/filterbuttons"%>
-									</div>
-									<div class="col s9 checkbox-scroll">
-										<% @allTypes.each do |type|%>
-											<div class="col s11 offset-s1">	
-												<p>
-													<label>
-														<input type="checkbox" name="query[types][]" value="<%= type["id"] %>"
-															<% if @checkedTypes.include? type %>
-																checked
-															<% end %>
-														/>
-														<span class="white-text"><%= type["name"] %></span>
-													</label>
-												</p>
-											</div>
-										<% end %>
-									</div>
+						<div class="row">
+							<div class="col s9">
+								<div class="tall-row valign-wrapper">
+									<a href="/organizations/query" class="reset-values waves-effect waves-light btn-small paletton-grey z-depth-0 p11 bold">Restablecer</a>
 								</div>
 							</div>
-						</li>
-						<li>
-							<div class="collapsible-header valign-wrapper paletton-grey white-text">
-								<i class="material-icons small">extension</i><p class="query-header">Coalición</p>
-							</div>
-							<div id="type_filter_box" class="collapsible-body paletton-grey">
-								<div class="row">
-									<div class="col s3 filter-buttons-col">
-										<%= render "shared/filterbuttons"%>
-									</div>
-									<div class="col s9 checkbox-scroll">
-										<% @allCoalitions.each do |coalition|%>
-											<div class="col s11 offset-s1">	
-												<p>
-													<label>
-														<input type="checkbox" name="query[coalitions][]" value="<%= coalition["name"] %>"
-															<% if @checkedCoalitions.include? coalition %>
-																checked
-															<% end %>
-														/>
-														<span class="white-text"><%= coalition["name"] %></span>
-													</label>
-												</p>
-											</div>
-										<% end %>
-									</div>
-								</div>			
-							</div>	
-						</li>
-<!-- 						<li>
-							<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
-								<i class="material-icons small">report</i><p class="query-header">Giros delictivos</p>
-							</div>					
-						</li> -->
-					</ul>
-	<!-- 				<div class="filter-header white-text">
-						<p class="center-align">BÚSQUEDA</p>
-					</div>
-					<div class="row">
-						<div class="col s12">
-							<div id="operation-organization-shell" class="input-field">
-								<select id="operation-organization-selector" class="browser-default" name="query[organization_id]">
-									<option></option>
-									<% @cartels.each do |cartel|%>
-										<option value="<%= cartel.id %>"><%= cartel.name%></option>
-									<% end %>
-								</select>
-								<div class="right label-row">
-									<label for="operation-organization-selector" class="white-text">ORGANIZACIÓN</label>
-								</div>
-							</div>
+							<%= render "shared/sendmagicbutton" %>
 						</div>
-					</div> -->
+						<ul class="collapsible z-depth-0">
+							<li>
+								<div class="collapsible-header valign-wrapper paletton-grey white-text">
+									<i class="material-icons small">map</i><p class="query-header">Estado</p>
+								</div>
+								<div id="org_state_filter_box" class="collapsible-body paletton-grey">
+									<div class="row">
+										<div class="col s3 filter-buttons-col">
+											<%= render "shared/filterbuttons"%>
+										</div>
+										<div class="col s9 checkbox-scroll">
+											<% @states.each do |state|%>
+												<div class="col s6">	
+													<p>
+														<label>
+															<input type="checkbox" name="query[freq_states][]" value="<%= state["id"] %>" 
+																<% if @checkedStates.include? state["id"] %>	
+																	checked
+																<% end %>
+															/>
+															<span class="white-text"><%= state["shortname"] %></span>
+														</label>
+													</p>
+												</div>
+											<% end %>	
+										</div>
+									</div>
+									
+								</div>
+							</li>
+							<li>
+								<div class="collapsible-header valign-wrapper paletton-grey white-text">
+									<i class="material-icons small">dns</i><p class="query-header">Tipo</p>
+								</div>
+								<div id="type_filter_box" class="collapsible-body paletton-grey">
+									<div class="row">
+										<div class="col s3 filter-buttons-col">
+											<%= render "shared/filterbuttons"%>
+										</div>
+										<div class="col s9 checkbox-scroll">
+											<% @allTypes.each do |type|%>
+												<div class="col s11 offset-s1">	
+													<p>
+														<label>
+															<input type="checkbox" name="query[types][]" value="<%= type["id"] %>"
+																<% if @checkedTypes.include? type %>
+																	checked
+																<% end %>
+															/>
+															<span class="white-text"><%= type["name"] %></span>
+														</label>
+													</p>
+												</div>
+											<% end %>
+										</div>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="collapsible-header valign-wrapper paletton-grey white-text">
+									<i class="material-icons small">extension</i><p class="query-header">Coalición</p>
+								</div>
+								<div id="type_filter_box" class="collapsible-body paletton-grey">
+									<div class="row">
+										<div class="col s3 filter-buttons-col">
+											<%= render "shared/filterbuttons"%>
+										</div>
+										<div class="col s9 checkbox-scroll">
+											<% @allCoalitions.each do |coalition|%>
+												<div class="col s11 offset-s1">	
+													<p>
+														<label>
+															<input type="checkbox" name="query[coalitions][]" value="<%= coalition["name"] %>"
+																<% if @checkedCoalitions.include? coalition %>
+																	checked
+																<% end %>
+															/>
+															<span class="white-text"><%= coalition["name"] %></span>
+														</label>
+													</p>
+												</div>
+											<% end %>
+										</div>
+									</div>			
+								</div>	
+							</li>
+	<!-- 						<li>
+								<div class="collapsible-header valign-wrapper cyan darken-1 cyan-text text-accent-2">
+									<i class="material-icons small">report</i><p class="query-header">Giros delictivos</p>
+								</div>					
+							</li> -->
+						</ul>
+		<!-- 				<div class="filter-header white-text">
+							<p class="center-align">BÚSQUEDA</p>
+						</div>
+						<div class="row">
+							<div class="col s12">
+								<div id="operation-organization-shell" class="input-field">
+									<select id="operation-organization-selector" class="browser-default" name="query[organization_id]">
+										<option></option>
+										<% @cartels.each do |cartel|%>
+											<option value="<%= cartel.id %>"><%= cartel.name%></option>
+										<% end %>
+									</select>
+									<div class="right label-row">
+										<label for="operation-organization-selector" class="white-text">ORGANIZACIÓN</label>
+									</div>
+								</div>
+							</div>
+						</div> -->
+				</div>
+				</form>
 			</div>
-			</form>
 		</div>
-	</div>
+	<% end %>
 </div>

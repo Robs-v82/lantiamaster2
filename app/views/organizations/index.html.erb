@@ -90,10 +90,12 @@
 					        	series: {
 					        		point: {
 					        			events: {
-					        				click: function() {
-					        					var urlString = 'organizations_query/'+this.code;
-					        					window.location = urlString;
-					        				}
+					        				<% if session[:membership] > 3 %>
+						        				click: function() {
+						        					var urlString = 'organizations_query/'+this.code;
+						        					window.location = urlString;
+						        				}
+					        				<% end %>
 					        			}
 					        		}
 					        	}
@@ -116,7 +118,7 @@
 					                borderColor: '#424242'
 				                }
 				            },
-				            <% if @checkedStates.length != 1 %>
+				            <% if @checkedStates.length != 1 && session[:membership] > 3 %>
 				            	cursor: 'pointer',
 				            <% end %>
 				            tooltip: {
@@ -149,177 +151,182 @@
 					T<%= @quarters.first.name[-1]%>/<%= I18n.l(@quarters.first.first_day, format: '%Y') %><% if @quarters.length > 1 %> - T<%= @quarters.last.name[-1]%>/<%= I18n.l(@quarters.last.first_day, format: '%Y') %><% end %>
 					</h6>
 				</div>
-			</div>
-		</div>	
-	</div>
-	<div class="col l9 m7 s12">
-		<div class="card
-			<% if @checkedStates.length < 32 %> 
-				flex-card
-			<% else %>
-				long-card
-			<% end %>
-		">
-			<div class="card-content">
-				<div class="row card-narrow">
-					<div class="hide-on-med-and-up">
-						<%= render "shared/showfilter"%>
-					</div>
-					<div class="legend-box col l7 m12 s12">
-						<div class="bottom-margin-div">
-							<div class="info-box inline-block">
-								<a id="top-detentions-modal-trigger" class="modal-trigger valign" href="#coalition-info-modal"><i class="tiny material-icons paletton-red-text right-min-margin">info</i></a>
-							</div>
-							<span class="header-tag bold">COALICIÓN</span>
-						</div>
-						<% if @checkedCoalitions.pluck("name").include? "Cártel de Sinaloa" %>
-							<div class="bottom-margin-div">
-								<div class="valign-wrapper">
-									<div class="pseudo-button valign-wrapper">
-										<i class="material-icons tiny right-min-margin teal lighten-3 teal-text text-lighten-3 z-depth-1">brightness_1</i>
+				<div class="top-extra-margin">
+					<div class="card
+						<% if @checkedStates.length < 32 %> 
+							flex-card
+						<% else %>
+							long-card
+						<% end %>
+					">
+						<div class="card-content">
+							<div class="row card-narrow">
+								<% if session[:membership] > 3 %>
+									<div class="hide-on-med-and-up">
+										<%= render "shared/showfilter"%>
 									</div>
-									<span class="header-tag">Cártel de Sinaloa</span>
-								</div>
-							</div>
-						<% end %>
-						<% if @checkedCoalitions.pluck("name").include? "Cártel Jalisco Nueva Generación" %>
-							<div class="bottom-margin-div">
-								<div class="valign-wrapper">
-									<div class="pseudo-button valign-wrapper">
-										<i class="material-icons tiny right-min-margin orange lighten-3 orange-text text-lighten-3 z-depth-1">brightness_1</i>
+								<% end %>
+								<div class="legend-box col l7 m12 s12">
+									<div class="bottom-margin-div">
+										<div class="info-box inline-block">
+											<a id="top-detentions-modal-trigger" class="modal-trigger valign" href="#coalition-info-modal"><i class="tiny material-icons paletton-red-text right-min-margin">info</i></a>
+										</div>
+										<span class="header-tag bold">COALICIÓN</span>
 									</div>
-									<span class="header-tag">Cártel Jalisco Nueva Generación</span>
-								</div>
-							</div>
-						<% end %>
-						<% if @checkedCoalitions.length > 1 %>
-							<div id="multicoalition-label" class="bottom-margin-div">
-								<div class="valign-wrapper">
-									<div class="pseudo-button valign-wrapper">
-										<i class="material-icons tiny right-min-margin paletton-light-red paletton-light-red-text z-depth-1">brightness_1</i>
-									</div>
-									<span class="header-tag">Ambas coaliciones</span>
-								</div>
-							</div>
-						<% end %>
-						<% if @checkedCoalitions.pluck("name").include? "Sin coalición" %>
-							<div class="bottom-margin-div">
-								<div class="valign-wrapper">
-									<div class="pseudo-button valign-wrapper">
-										<i class="material-icons tiny right-min-margin paletton-grey paletton-grey-text z-depth-1">brightness_1</i>
-									</div>
-									<span class="header-tag">Sin coalición</span>
-								</div>
-							</div>
-						<% end %>
-						<% if @checkedStates.length == 1 %>
-						<div>
-							<a href="/organizations/query">
-								<img src="/assets//mx-icon.png" class="mexico-icon">
-							</a>
-						</div>
-						<% end %>
-						<div id="org-entry-map" class="org-entry-display">
-						</div>
-					</div>
-					<div class="col l5 m12">
-						<div id="autocomplete-box" class="col s12">
-							<div class="col s1">
-								<i id="autocomplete-icon" class="material-icons paletton-red-text">search</i>
-							</div>
-							<div class="col s9">
-								<input id="autocomplete-input" type="text">
-							</div>
-						</div>
-						<div id="new-entry-list">
-						</div>
-						<div id="org-entry-list" class="org-entry-display">
-							<table id="org-table" class="highlight">
-								<thead>
-									<tr class="center-align">
-										<th class="center-align" style="width:80%">NOMBRE</th>
-										<th class="center-align" style="width:20%">TIPO</th>
-									</tr>
-								</thead>
-								<tbody>
-									<% (1..@numberOfPages).each do |x| %>
-										<% ((x-1)*@page_scope..(x-1)*@page_scope+(@page_scope-1)).each do |n| %>
-											<tr class="clickable-row org-row-<%= x %>"
-												<% unless x == 1 %>
-													style="display:none"
-												<% end %>
-													data-href="/organizations/show/<%= @alliedCartels[n].id %>">
-												<td>
-													<div class="valign-wrapper">
-														<div class="pseudo-button valign-wrapper">
-															<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
-														</div>
-														<span class="valign-wrapper">
-															<%= @alliedCartels[n].name %><% if @checkedStates.length == 1 %><% if @undefined.include? @alliedCartels[n] %>*<% end %><% end %>
-														</span>
-													</div>		
-												</td>
-												<td><%= @alliedCartels[n].league %></td>
-											</tr>
-										<% end %>
+									<% if @checkedCoalitions.pluck("name").include? "Cártel de Sinaloa" %>
+										<div class="bottom-margin-div">
+											<div class="valign-wrapper">
+												<div class="pseudo-button valign-wrapper">
+													<i class="material-icons tiny right-min-margin teal lighten-3 teal-text text-lighten-3 z-depth-1">brightness_1</i>
+												</div>
+												<span class="header-tag">Cártel de Sinaloa</span>
+											</div>
+										</div>
 									<% end %>
-									<% (@numberOfPages*@page_scope..@n).each do |n| %>
-										<% x = @numberOfPages+1 %>
-										<tr class="clickable-row org-row-<%= x %>"
-											<% unless x == 1 %>
-												style="display:none"
-											<% end %>
-												data-href="/organizations/show/<%= @alliedCartels[n].id %>">
-											<td>
-												<div class="valign-wrapper">
-													<div class="pseudo-button valign-wrapper">
-														<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
-													</div>
-													<span class="valign-wrapper">
-														<%= @alliedCartels[n].name %><% if @checkedStates.length == 1 %><% if @undefined.include? @alliedCartels[n] %>*<% end %><% end %>
-													</span>
-												</div>		
-											</td>
-											<td><%= @alliedCartels[n].league %></td>
-										</tr>
+									<% if @checkedCoalitions.pluck("name").include? "Cártel Jalisco Nueva Generación" %>
+										<div class="bottom-margin-div">
+											<div class="valign-wrapper">
+												<div class="pseudo-button valign-wrapper">
+													<i class="material-icons tiny right-min-margin orange lighten-3 orange-text text-lighten-3 z-depth-1">brightness_1</i>
+												</div>
+												<span class="header-tag">Cártel Jalisco Nueva Generación</span>
+											</div>
+										</div>
+									<% end %>
+									<% if @checkedCoalitions.length > 1 %>
+										<div id="multicoalition-label" class="bottom-margin-div">
+											<div class="valign-wrapper">
+												<div class="pseudo-button valign-wrapper">
+													<i class="material-icons tiny right-min-margin paletton-light-red paletton-light-red-text z-depth-1">brightness_1</i>
+												</div>
+												<span class="header-tag">Ambas coaliciones</span>
+											</div>
+										</div>
+									<% end %>
+									<% if @checkedCoalitions.pluck("name").include? "Sin coalición" %>
+										<div class="bottom-margin-div">
+											<div class="valign-wrapper">
+												<div class="pseudo-button valign-wrapper">
+													<i class="material-icons tiny right-min-margin paletton-grey paletton-grey-text z-depth-1">brightness_1</i>
+												</div>
+												<span class="header-tag">Sin coalición</span>
+											</div>
+										</div>
 									<% end %>
 									<% if @checkedStates.length == 1 %>
-										<% unless @undefined.empty? %>
-											<tr>
-												<td>*Información de presencia por municipio todavía no disponible para <%= State.find(@checkedStates.last).name %>.</td>
-											</tr>
-										<% end %>
+									<div>
+										<a href="/organizations/query">
+											<img src="/assets//mx-icon.png" class="mexico-icon">
+										</a>
+									</div>
 									<% end %>
-								</tbody>
-							</table>
-							<br>
-							<% unless @n <= @page_scope %>
-								<div id="org-paginator" class="center">
-									<a id="back-two-pages" class="btn-small page-btn bold center-align white paletton-grey-text p18" style="display:none"><</a>
-									<% (1..@numberOfPages+1).each do |x| %>
-										<a id="page-<%= x%>-marker" class="btn-small page-btn page-number-button bold center-align
-											<% if x == 1 %>
-												active-page  paletton-red white-text
-											<% else %> 
-												white paletton-grey-text 
-											<% end %>
-										" 
-											<% if x > 2 %>
-												style="display:none"
-											<% end %>
-										data="<%= x %>" dataPlus="<%= @numberOfPages+1 %>" ><%= x %></a>
-									<% end %>
-									<% unless @numberOfPages < 2 %>
-										<a id="forward-two-pages" class="btn-small white page-btn bold center-align paletton-grey-text p18">></a>
-									<% end %>
+									<div id="org-entry-map" class="org-entry-display">
+									</div>
 								</div>
-							<% end %>
+								<div class="col l5 m12">
+									<div id="autocomplete-box" class="col s12">
+										<div class="col s1">
+											<i id="autocomplete-icon" class="material-icons paletton-red-text">search</i>
+										</div>
+										<div class="col s9">
+											<input id="autocomplete-input" type="text">
+										</div>
+									</div>
+									<div id="new-entry-list">
+									</div>
+									<div id="org-entry-list" class="org-entry-display">
+										<table id="org-table" class="highlight">
+											<thead>
+												<tr class="center-align">
+													<th class="center-align" style="width:80%">NOMBRE</th>
+													<th class="center-align" style="width:20%">TIPO</th>
+												</tr>
+											</thead>
+											<tbody>
+												<% (1..@numberOfPages).each do |x| %>
+													<% ((x-1)*@page_scope..(x-1)*@page_scope+(@page_scope-1)).each do |n| %>
+														<tr class="clickable-row org-row-<%= x %>"
+															<% unless x == 1 %>
+																style="display:none"
+															<% end %>
+																data-href="/organizations/show/<%= @alliedCartels[n].id %>">
+															<td>
+																<div class="valign-wrapper">
+																	<div class="pseudo-button valign-wrapper">
+																		<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
+																	</div>
+																	<span class="valign-wrapper">
+																		<%= @alliedCartels[n].name %><% if @checkedStates.length == 1 %><% if @undefined.include? @alliedCartels[n] %>*<% end %><% end %>
+																	</span>
+																</div>		
+															</td>
+															<td><%= @alliedCartels[n].league %></td>
+														</tr>
+													<% end %>
+												<% end %>
+												<% (@numberOfPages*@page_scope..@n).each do |n| %>
+													<% x = @numberOfPages+1 %>
+													<tr class="clickable-row org-row-<%= x %>"
+														<% unless x == 1 %>
+															style="display:none"
+														<% end %>
+															data-href="/organizations/show/<%= @alliedCartels[n].id %>">
+														<td>
+															<div class="valign-wrapper">
+																<div class="pseudo-button valign-wrapper">
+																	<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
+																</div>
+																<span class="valign-wrapper">
+																	<%= @alliedCartels[n].name %><% if @checkedStates.length == 1 %><% if @undefined.include? @alliedCartels[n] %>*<% end %><% end %>
+																</span>
+															</div>		
+														</td>
+														<td><%= @alliedCartels[n].league %></td>
+													</tr>
+												<% end %>
+												<% if @checkedStates.length == 1 %>
+													<% unless @undefined.empty? %>
+														<tr>
+															<td>*Información de presencia por municipio todavía no disponible para <%= State.find(@checkedStates.last).name %>.</td>
+														</tr>
+													<% end %>
+												<% end %>
+											</tbody>
+										</table>
+										<br>
+										<% unless @n <= @page_scope %>
+											<div id="org-paginator" class="center">
+												<a id="back-two-pages" class="btn-small page-btn bold center-align white paletton-grey-text p18" style="display:none"><</a>
+												<% (1..@numberOfPages+1).each do |x| %>
+													<a id="page-<%= x%>-marker" class="btn-small page-btn page-number-button bold center-align
+														<% if x == 1 %>
+															active-page  paletton-red white-text
+														<% else %> 
+															white paletton-grey-text 
+														<% end %>
+													" 
+														<% if x > 2 %>
+															style="display:none"
+														<% end %>
+													data="<%= x %>" dataPlus="<%= @numberOfPages+1 %>" ><%= x %></a>
+												<% end %>
+												<% unless @numberOfPages < 2 %>
+													<a id="forward-two-pages" class="btn-small white page-btn bold center-align paletton-grey-text p18">></a>
+												<% end %>
+											</div>
+										<% end %>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
+		</div>	
+<!-- 		<div class="col l9 m7 s12">-->			
+
+<!-- 		</div>
+ -->	</div>
 </div>
 <!-- MODAL SECTION -->
 <% if session[:empty_query]	%>

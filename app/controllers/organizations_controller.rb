@@ -6,6 +6,7 @@ class OrganizationsController < ApplicationController
   after_action :stop_organization_help, only: [:index]
 
   skip_before_action :verify_authenticity_token
+  before_action :require_pro, only: [:post_query, :get_query]
 
   def stop_organization_help
     User.find(session[:user_id]).update(:organization_help=>false)
@@ -16,6 +17,11 @@ class OrganizationsController < ApplicationController
       if Key.where(:key=>params["key"]).any?
         target_user = Key.where(:key=>params["key"]).last.user
         session[:user_id] = target_user[:id]
+        if target_user.membership_type
+          session[:membership] = target_user.membership_type 
+        else
+          session[:membership] = 0
+        end
         helpers.clear_session
         redirect_to '/intro'
       else
@@ -659,6 +665,11 @@ class OrganizationsController < ApplicationController
 	  	target_user = User.find_by_mail(password_params[:mail])
 	    if target_user && target_user.authenticate(password_params[:password])
 	      session[:user_id] = target_user[:id]
+        if target_user.membership_type
+          session[:membership] = target_user.membership_type 
+        else
+          session[:membership] = 0
+        end
 	      helpers.clear_session
         redirect_to '/intro'
 	    else

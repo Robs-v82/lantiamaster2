@@ -6,7 +6,6 @@ class ApplicationController < ActionController::Base
 	before_action :require_login, except: [:password, :login, :states_and_counties_api, :year_victims_api, :state_victims, :state_victims_api, :county_victims, :county_victims_api, :county_victims_map_api, :county_victims_map, :year_victims, :featured_state_api, :featured_county_api]
 	before_action :set_variables
 	helper_method :myResouces
-
 	after_action :stop_freq_help, only: [:victims, :detainees]
 
 	def stop_freq_help
@@ -25,6 +24,10 @@ class ApplicationController < ActionController::Base
 
 	def require_login
 		redirect_to "/password" if session[:user_id] == nil
+	end
+
+	def require_pro
+		redirect_to "/users/index" unless session[:membership] > 3
 	end
 
 	def form_header(icon,title)

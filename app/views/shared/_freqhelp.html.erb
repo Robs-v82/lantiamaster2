@@ -5,14 +5,16 @@
 	<p class="bold">Guía de navegación</p>
 	<ol>
 		<li>
-			Para ver más información da click en los estados<% if @victims %>, ciudades o municipios<% end %> del mapa, o desplaza el cursor sobre las gráficas.
+			Para ver más información da click en los estados<% if @victims && session[:membership] > 3 %>, ciudades o municipios<% end %> del mapa, o desplaza el cursor sobre las gráficas.
 		</li>
 		<li>
 			Usa el ícono de lista <span><i class="material-icons paletton-red-text tiny">list</i></span> para abrir un tabulado con cifras
 		</li>
-		<li>
-			Utiliza <span class="hide-on-med-and-down">el panel de la izquierda</span><span class="hide-on-large-only">el botón <button class="btn-floating btn-tiny paletton-red lighten-2 z-depth-index-0"><i class="material-icons white-text right-extra-margin">tune</i></button></span> para desagregar y filtrar la información (en algunos casos la consulta sólo se podrá visualizar como tabulado).
-		</li>
+		<% if session[:membership] > 3 %>
+			<li>
+				Utiliza <span class="hide-on-med-and-down">el panel de la izquierda</span><span class="hide-on-large-only">el botón <button class="btn-floating btn-tiny paletton-red lighten-2 z-depth-index-0"><i class="material-icons white-text right-extra-margin">tune</i></button></span> para desagregar y filtrar la información (en algunos casos la consulta sólo se podrá visualizar como tabulado).
+			</li>
+		<% end %>
 	</ol>
 	</div>
 </div>

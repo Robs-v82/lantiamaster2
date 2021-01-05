@@ -307,8 +307,20 @@
 				        				}
 				        			<% else %>
 				        				click: function() {
-				        					var urlString = '/victims/county_query/'+this.code;
-				        					window.location = urlString;
+				        					<% if session[:membership] > 3 %>
+					        					var urlString = '/victims/county_query/'+this.code;
+					        					window.location = urlString;
+					        				<% else %>
+					        					var myState = this.code;
+					        					$('.victim-toggle-charts').hide();
+					        					$('.collection-item').hide();
+					        					$('#'+myState+'-victim-charts').show();
+					        					$('#'+myState+'-incident-charts').show();
+					        					buildLocalCharts(myState);
+					        					if ($(window).width() < 600) {
+					        						$("html, body").animate({ scrollTop: 680 }, "slow");
+					        					};
+					        				<% end %>
 				        				}
 				        			<% end %>
 			        			}
