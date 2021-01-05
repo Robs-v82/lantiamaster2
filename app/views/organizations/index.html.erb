@@ -162,7 +162,9 @@
 		">
 			<div class="card-content">
 				<div class="row card-narrow">
-					<%= render "shared/showfilter"%>
+					<div class="hide-on-med-and-up">
+						<%= render "shared/showfilter"%>
+					</div>
 					<div class="legend-box col l7 m12 s12">
 						<div class="bottom-margin-div">
 							<div class="info-box inline-block">
@@ -334,11 +336,11 @@
 <!-- HELP MODAL -->
 <% if @user.organization_help %>
 	<div id="organization-help-modal" class="modal">
-		<%= render "shared/freqhelp" %>
+		<%= render "shared/organizationshelp" %>
 	</div>
 <% end %>
 <div id="organization-help-modal-2" class="modal">
-	<%= render "shared/freqhelp" %>
+	<%= render "shared/organizationshelp" %>
 </div>
 <!-- INFO MODAL -->
 <div id="organizations-info-modal" class="modal large-modal">

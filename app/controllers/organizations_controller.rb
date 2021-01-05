@@ -3,8 +3,15 @@ class OrganizationsController < ApplicationController
 	after_action :remove_password_error_message, only: [:password]
   after_action :remove_empty_query_message, only: [:index]
   after_action :remove_empty_request, only: [:query]
+  after_action :stop_organization_help, only: [:index]
 
   skip_before_action :verify_authenticity_token
+
+  def stop_organization_help
+    User.find(session[:user_id]).update(:organization_help=>false)
+    print "******"*1000
+    print "FALSE"
+  end
 
 	def password    
     if params["key"]

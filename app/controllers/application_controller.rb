@@ -7,9 +7,9 @@ class ApplicationController < ActionController::Base
 	before_action :set_variables
 	helper_method :myResouces
 
-	after_action :stop_help, only: [:victims, :detainees]
+	after_action :stop_freq_help, only: [:victims, :detainees]
 
-	def stop_help
+	def stop_freq_help
 		User.find(session[:user_id]).update(:victim_help=>false)
 	end
 

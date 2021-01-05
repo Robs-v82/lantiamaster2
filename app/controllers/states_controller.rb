@@ -1,6 +1,13 @@
 class StatesController < ApplicationController
     before_action :set_state, only: [:show, :edit, :update, :destroy]
+    after_action :stop_index_help, only: [:irco, :icon]
+
+
     require 'pp'
+
+    def stop_index_help
+        User.find(session[:user_id]).update(:index_help=>false)
+    end
 
     def getStates
         states = State.all

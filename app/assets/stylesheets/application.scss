@@ -4,6 +4,13 @@
  *= require jquery-ui
  */
 
+ .btn-tiny, .btn-tiny i {
+ 	width: 18px !important;
+ 	height: 18px !important;
+ 	line-height: 18px !important;
+ 	font-size: 0.8rem;
+ }
+
  .chartArea {
  	height: 100%;
  }

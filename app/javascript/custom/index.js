@@ -1,6 +1,3 @@
-
-
-
 window.addEventListener( "pageshow", function ( event ) {
 	var historyTraversal = event.persisted || 
 	     (typeof window.performance != "undefined" && 
@@ -405,6 +402,8 @@ $(document).ready(function(){
 	// HELP MODALS
 	$(document).one('mousemove', function() {
 		$('#freq-help-modal').modal('open');
+		$('#organization-help-modal').modal('open');
+		$('#index-help-modal').modal('open');
 	})
 
 
