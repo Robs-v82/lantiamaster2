@@ -9,8 +9,6 @@ class OrganizationsController < ApplicationController
 
   def stop_organization_help
     User.find(session[:user_id]).update(:organization_help=>false)
-    print "******"*1000
-    print "FALSE"
   end
 
 	def password    
@@ -287,19 +285,18 @@ class OrganizationsController < ApplicationController
 
       # UNDEFINED COUNTIES FOR SINGLE STATE MAP
       if @checkedStates.length == 1
-        @undefined = @alliedCartels.clone       
-        State.find(@checkedStates.last).counties.where.not(:name=>"Sin definir").each{|county|
-           @undefined.each{|cartel|
+        # @undefined = @alliedCartels.clone
+        @undefined = []      
+        @alliedCartels.each{|cartel|
+            cartelUndefined = true
+            State.find(@checkedStates.last).counties.where.not(:name=>"Sin definir").each{|county| 
             if county.rackets.include? cartel
-              print "****"*200
-              print county.name
-              print "***: "
-              print county.rackets.pluck(:name)
-              @undefined.delete(cartel)
-              print "***UNDEFINED: "
-              print @undefined.pluck(:name)
+              cartelUndefined = false
             end
           }
+          if cartelUndefined
+            @undefined.push(cartel)
+          end
         }       
       end 
 
