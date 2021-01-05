@@ -709,24 +709,6 @@ $(document).ready(function(){
 		return false
 	})
 
-	// GET QUARTERS
-	// $('#operation-quarter-year-selector').change(function() {
-	// 	$('#operation-quarter-selector').removeAttr('disabled')
-	// 	$('#operation-quarter-selector').html('')
-	// 	$.post(
-	// 		'/queries/get_quarters',
-	// 		$(this).serialize(),
-	// 		function(data) {
-	// 			var quarterOptions = "<option value='' selected>Todos</option>"
-	// 			for (i=0; i<data.quarters.length; i++) {
-	// 				quarterOptions += "<option name='query[quarter]' value='"+data.quarters[i]+"'>"+data.quarters[i]+"</option>"
-	// 			}
-	// 		$('#operation-quarter-selector').append(quarterOptions)
-	// 		}
-	// 	)
-	// 	return false
-	// })
-
 	// GET ORGANIZATION1 MEMBERS
 	$('#operation-organization1-selector').change(function() {
 
@@ -795,6 +777,14 @@ $(document).ready(function(){
 	$('.tap-target-trigger').mouseenter(function() {
 		$('.tap-target').tapTarget('open')
 	})
+
+	// ALLOW ONLY ONE OR ALL STATES IN ORGANIZATIONS
+	$('#org_state_filter_box input').click(function() {
+		console.log("working!!!");
+		$('#org_state_filter_box input').prop('checked', false);
+		$(this).prop('checked', true);
+	})
+
 
 	// DEFINE FREQ TABLE TIMEFRAME
 	$('.freq_filer_form input').change(function() {

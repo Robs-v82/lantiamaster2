@@ -27,13 +27,18 @@
     <body>
         <div class="b-container">
             <br>
-            <div class="row"> 
-                <div class="valign-wrapper">
+            <div class="row short-row"> 
+                <div class="">
                     <div class="left">
                         <% if session[:user_id] %>
                             <%= render "shared/slidenavbar"%>
                         <% end %>
                     </div>
+                    <% if @organizations%>
+                        <div class="right">
+                            <a href="#organiation-help-modal-2" class="modal-trigger"><i class=" material-icons paletton-grey-text right-extra-margin">help_outline</i></a>
+                        </div>
+                    <% end %>
 <!--                     <% if session[:user_id] %>
                         <div class="col s2 right">
                             <a href="/organizations/logout" class="right tooltipped" data-position="bottom" data-tooltip="Cerrar sesión">
@@ -42,25 +47,10 @@
                         </div>
                     <% end %> -->
                 </div>
+            </div>
+            <div class="row">
                 <%= yield %>
             </div>
         </div>
-<!--         <footer class="page-footer cyan lighten-3 black-text">
-            <div class="container">
-                <div class="row footer-row">
-                    <div class="valign-wrapper">
-                        <div class="col l4 m6">
-                            <a href="https://twitter.com/LantiaIntel"><%= image_tag "twitter_icon", :class => "footer-icon" %></a> 
-                            <a href="https://www.linkedin.com/company/lantia-consultores/"><%= image_tag "linkedin_icon", :class => "footer-icon" %></a> 
-                        </div>
-                        <div class="col l8 l6">
-                            <p class="small-text right-align">ESTRATEGIA, DECISIONES Y MEJORES PRÁCTICAS S.C.
-                            PASEO DE LA REFORMA 389, PISO 12, CDMX, CP. 06500.</p>
-                            <p class="small-text"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer> -->
     </body>
 </html>

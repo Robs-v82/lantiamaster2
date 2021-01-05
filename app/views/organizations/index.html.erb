@@ -282,9 +282,11 @@
 										</tr>
 									<% end %>
 									<% if @checkedStates.length == 1 %>
-										<tr>
-											<td>*Información de presencia por municipio todavía no disponible para <%= State.find(@checkedStates.last).name %>.</td>
-										</tr>
+										<% unless @undefined.empty? %>
+											<tr>
+												<td>*Información de presencia por municipio todavía no disponible para <%= State.find(@checkedStates.last).name %>.</td>
+											</tr>
+										<% end %>
 									<% end %>
 								</tbody>
 							</table>
@@ -329,6 +331,15 @@
 		</div>
 	</div>
 <% end %>
+<!-- HELP MODAL -->
+<% if @user.organization_help %>
+	<div id="organization-help-modal" class="modal">
+		<%= render "shared/freqhelp" %>
+	</div>
+<% end %>
+<div id="organization-help-modal-2" class="modal">
+	<%= render "shared/freqhelp" %>
+</div>
 <!-- INFO MODAL -->
 <div id="organizations-info-modal" class="modal large-modal">
 	<div class="modal-content">	
@@ -374,7 +385,7 @@
 			<div class="col s12">
 				<h6>Coaliciones</h6>
 				<br>
-				<p>Las organizaciones criminales identificadas por Lantia Intelligence se clasificaron en dos grandes coaliciones, correspondientes a los dos cárteles con presencia territorial nacional que actualmente existen en México: el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel de Sinaloa").last.id %>">Cártel de Sinaloa</a> y el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel Jalisco Nueva Generación").last.id %>">Cártel Jalisco Nueva Generación</a>. Dentro de cada coalición se incluyen a todas las mafias y bandas que tienen una relación de alianza o subordinación , directa o indirecta, con el cártel correspondiente.</p>
+				<p>Las organizaciones criminales identificadas por Lantia Intelligence se clasificaron en dos grandes coaliciones, correspondientes a los dos cárteles con presencia territorial nacional que actualmente existen en México: el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel de Sinaloa").last.id %>">Cártel de Sinaloa</a> y el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel Jalisco Nueva Generación").last.id %>">Cártel Jalisco Nueva Generación</a>. Dentro de cada coalición se incluyen a todas las mafias y bandas que tienen una relación de alianza o subordinación, directa o indirecta, con el cártel correspondiente.</p>
 				<br>
 				<p>Las organizaciones que no forman parte de inguna de las dos coaliciones se identifican como "Sin coalición".</p>
 				<br>
