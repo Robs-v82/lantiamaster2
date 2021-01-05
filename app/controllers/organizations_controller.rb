@@ -405,6 +405,7 @@ class OrganizationsController < ApplicationController
     end
 
   	def show
+      @organizations = true
   		if session[:organization_selection].nil?
         helpers.clear_session
         cartels = Sector.where(:scian2=>98).last.organizations.uniq

@@ -11,7 +11,6 @@
 				'/queries/mapOff/'
 				)
 				return false
-
 			})
 
 		$("#entry-map-trigger").click(function() {
@@ -21,7 +20,6 @@
 				'/queries/mapOn/'
 				)
 				return false
-
 			})
 
 		<% if session[:map] == true %>
@@ -132,10 +130,12 @@
 				        	series: {
 				        		point: {
 				        			events: {
-				        				click: function() {
-				        					$('.geo-distribution-display').hide();
-				        					$('#'+this.code+'-org-map').show();
+				        				<% if session[:membership] > 3 %>
+					        				click: function() {
+					        					$('.geo-distribution-display').hide();
+					        					$('#'+this.code+'-org-map').show();
 				        				}
+				        			<% end %>
 				        			}
 				        		}
 				        	}
@@ -159,7 +159,9 @@
 			                }
 			            },
 			            <% if @racketStates.length != 1 %>
+			            	<% if session[:membership] > 3 %>
 			            	cursor: 'pointer',
+			            	<% end %>
 			            <% end %>
 			            tooltip: {
 			            	borderWidth: 0,
@@ -376,32 +378,34 @@
 						<div class="tabs-padding">
 							<ul class="tabs">
 								<li class="tab col s6"><a href="#geo-distribution" class="paletton-red-text">Presencia</a></li>
-								<li class="tab col s6"><a href="#reported-activities" class="paletton-red-text">Actividades</a></li>
+								<li class="tab col s6"><a href="#reported-activities" class="paletton-red-text">Reportes</a></li>
 							</ul>
 						</div>
 					</div>	
 					<div class="col s12">
 						<div id="geo-distribution">
-							<% unless @racketStates.length == 1 %>
-								<div class="col s2">
-									<a id="back-to-general-map" href="#">
-										<img src="/assets//mx-icon.png" class="mexico-icon">
-									</a>
-								</div>
-								<% if @racketStates.length < 5 %>
-									<div class="col s10">
-										<div class="row state-selector-row">
-											<% @racketStates.each do |state| %>
-												<div class="col s3 center">
-													<div class="">
-													<a id="state-map-<%= state.code %>" class="go-to-state-map" href="#">
-														<span class="p12 bold"><%= state.shortname.upcase %></span>
-													</a>
-													</div>
-												</div>
-											<% end %>
-										</div>
+							<% if session[:membership] > 3 %>
+								<% unless @racketStates.length == 1 %>
+									<div class="col s2">
+										<a id="back-to-general-map" href="#">
+											<img src="/assets//mx-icon.png" class="mexico-icon">
+										</a>
 									</div>
+									<% if @racketStates.length < 5 %>
+										<div class="col s10">
+											<div class="row state-selector-row">
+												<% @racketStates.each do |state| %>
+													<div class="col s3 center">
+														<div class="">
+														<a id="state-map-<%= state.code %>" class="go-to-state-map" href="#">
+															<span class="p12 bold"><%= state.shortname.upcase %></span>
+														</a>
+														</div>
+													</div>
+												<% end %>
+											</div>
+										</div>
+									<% end %>
 								<% end %>
 							<% end %>
 							<div class="col s12">
@@ -430,16 +434,17 @@
 					</div>
 					<div class="col s12">
 						<div id="reported-activities">
-							<div class="right col s9">
+<!-- 							<div class="right col s9">
 								<div class="right">
 									<a id="entry-grid-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">list</i></a>
 									<a id="entry-map-trigger" href=""><i class="small material-icons paletton-red-text right-extra-margin">map</i></a>	
 								</div>
-							</div>
+							</div> -->
 							<div id="entry-grid" class="geo-entry-display">
 								<div id="grid-collection" class="card-content">
 									<% @leads.each do |lead| %>				
 										<p class="collection-item">
+											<span><%= lead.category%></span><br>
 											<%= I18n.l(lead.event.event_date, :format=> "%-d de %B de %Y") %>,<br>
 											<% if lead.event.town.name != "Sin definir" %>
 												<%= lead.event.town.name %>, <%= lead.event.town.county.shortname %>, <%= lead.event.town.county.state.shortname %>:
@@ -450,15 +455,13 @@
 													<%= lead.event.town.county.state.name %>:
 												<% end %>
 											<%end%>	 
-											<br>
-											<span><%= lead.category%></span>	
 										</p>	
 									<% end %>
 								</div>
 							</div>
-							<div id="entry-map" class="geo-entry-display">
+<!-- 							<div id="entry-map" class="geo-entry-display">
 								<div id="map"></div>
-							</div>
+							</div> -->
 						</div>
 					</div>
 				</div>

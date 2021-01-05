@@ -379,7 +379,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 	padding: 8px 9px !important; 
 }
 
-#entry-grid, #freq-entry-chart {
+#freq-entry-chart {
 	display: none;
 }
 
@@ -659,6 +659,10 @@ select {
 
 #ispyv_table td, #irco_table td, #icon_table td, .component-table td {
 	padding: 8px 5px;
+}
+
+.sidenav {
+	width: 266px !important;
 }
 
 .sidenav li > a {
