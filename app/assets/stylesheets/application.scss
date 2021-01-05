@@ -324,7 +324,7 @@ span.highcharts-title {
     cursor: not-allowed !important;
  }
 
-table.highlight>tbody>tr:hover {
+table.highlight>tbody>tr.gridRowHover:hover {
     background-color: rgba(239, 78, 80, 0.09);      
 }
 

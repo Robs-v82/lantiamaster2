@@ -70,8 +70,10 @@ class OrganizationsController < ApplicationController
       end  
     end
 
-  	def index
- 		@states = State.all.sort
+  def index
+    @quarters = helpers.get_specific_quarters(Year.all, "leads")
+    @states = State.all.sort
+    @allActivities = Sector.where(:scian2=>"98").last.divisions
     if session[:checkedStates]
       @checkedStates = Cookie.find(session[:checkedStates]).data
     else
@@ -146,9 +148,10 @@ class OrganizationsController < ApplicationController
         end
       }
       @cartels = byType.flatten
-      if @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
+      if @checkedStates.length == 32 && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
         @colorArr = Cookie.where(:category=>"organizations").last.data[0][:colorData]
         @alliedCartels = Cookie.where(:category=>"organizations").last.data[0][:alliedCartels]
+        @alliedCartels = @alliedCartels.uniq
       else
     		@colorArr = []
     		@alliedCartels = []
@@ -189,7 +192,7 @@ class OrganizationsController < ApplicationController
 
      
       if myPlaces == State.all && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
-        @placeArr = Cookie.where(:category=>"organizations").last.data[0][:placeData]
+        @placeArr = Cookie.where(:category=>"organizations").last.data[0][:placeData].uniq
       else
         @placeArr = []
         myPlaces.each{|place|
@@ -273,6 +276,29 @@ class OrganizationsController < ApplicationController
         @finalPagePlus = true
       end
 
+      # UNDEFINED COUNTIES FOR SINGLE STATE MAP
+      if @checkedStates.length == 1
+        @undefined = @alliedCartels.clone       
+        State.find(@checkedStates.last).counties.where.not(:name=>"Sin definir").each{|county|
+           @undefined.each{|cartel|
+            if county.rackets.include? cartel
+              print "****"*200
+              print county.name
+              print "***: "
+              print county.rackets.pluck(:name)
+              @undefined.delete(cartel)
+              print "***UNDEFINED: "
+              print @undefined.pluck(:name)
+            end
+          }
+        }       
+      end 
+
+      if @undefined
+        print "***"*200
+        print "FINAL: "
+        print @undefined.pluck(:name)
+      end
   	end
 
     def api
@@ -313,7 +339,7 @@ class OrganizationsController < ApplicationController
 
       @placeArr = []
       State.all.each{|place|
-        placeRackets = place.rackets
+        placeRackets = place.rackets.uniq
         myRackets = []
         myLeaders = []
         placeRackets.each{|racket|
@@ -355,7 +381,7 @@ class OrganizationsController < ApplicationController
         {
           :placeData=>@placeArr,
           :colorData=>@colorArr,
-          :alliedCartels=>@alliedCartels
+          :alliedCartels=>@alliedCartels.uniq
         }
       ]
       Cookie.create(:category=>"organizations", :data=>dataArr)
@@ -1006,7 +1032,7 @@ class OrganizationsController < ApplicationController
         myString = "Cárteles y Mafias"
       end 
     else
-      myString = "Organizaciones criminales"
+      myString = "Presencia reportada de organizaciones criminales"
     end
     return myString
   end

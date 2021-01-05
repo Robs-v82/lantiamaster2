@@ -1,13 +1,13 @@
 <% if @checkedStates.length < 2 %>
-	<h6 class="h5-no-margin">con presencia en <%= State.find(@checkedStates.first.to_i).name %></h6>
+	<h6 class="h5-no-margin">en <%= State.find(@checkedStates.first.to_i).name %></h6>
 <% elsif @checkedStates.length < 3 %>
 	<h6 class="h5-no-margin">
-		con presencia en <%= State.find(@checkedStates.first.to_i).name %> 
+		en <%= State.find(@checkedStates.first.to_i).name %> 
 		y <%= State.find(@checkedStates.last.to_i).name %>
 	</h6>
 <% elsif @checkedStates.length < 32 %>
 	<h6 class="h5-no-margin">
-		con presencia en
+		en
 		<span class="tooltipped" data-position="right" data-tooltip="
 			<% @checkedStates.each do |state| %>
 				<%= State.find(state.to_i).name %><br>

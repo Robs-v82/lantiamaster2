@@ -58,6 +58,10 @@ module ApplicationHelper
 				unless quarter.detainees.empty?
 					myQuarters.push(quarter)
 				end
+			elsif unit == "leads"
+				unless quarter.leads.empty?
+					myQuarters.push(quarter)
+				end		
 			end
 			}
 		}

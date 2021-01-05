@@ -139,9 +139,15 @@
 	<div class="header-div">
 		<div class="top-row valign-wrapper">
 			<div class="col s12">
-				<div class="side-padding">
+				<div class="info-box inline-block">
+					<a id="victims-info-modal-trigger" class="modal-trigger" href="#organizations-info-modal"><i class="small material-icons paletton-red-text right-min-margin">info</i></a>
+				</div>
+				<div class="info-box inline-block">
 					<h5 class="h5-no-margin"><%= @type_title %></h5>
 					<%= render "shared/scopetitle" %>
+					<h6  class="">
+					T<%= @quarters.first.name[-1]%>/<%= I18n.l(@quarters.first.first_day, format: '%Y') %><% if @quarters.length > 1 %> - T<%= @quarters.last.name[-1]%>/<%= I18n.l(@quarters.last.first_day, format: '%Y') %><% end %>
+					</h6>
 				</div>
 			</div>
 		</div>	
@@ -159,6 +165,9 @@
 					<%= render "shared/showfilter"%>
 					<div class="legend-box col l7 m12 s12">
 						<div class="bottom-margin-div">
+							<div class="info-box inline-block">
+								<a id="top-detentions-modal-trigger" class="modal-trigger valign" href="#coalition-info-modal"><i class="tiny material-icons paletton-red-text right-min-margin">info</i></a>
+							</div>
 							<span class="header-tag bold">COALICIÓN</span>
 						</div>
 						<% if @checkedCoalitions.pluck("name").include? "Cártel de Sinaloa" %>
@@ -244,7 +253,7 @@
 															<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
 														</div>
 														<span class="valign-wrapper">
-															<%= @alliedCartels[n].name %>
+															<%= @alliedCartels[n].name %><% if @checkedStates.length == 1 %><% if @undefined.include? @alliedCartels[n] %>*<% end %><% end %>
 														</span>
 													</div>		
 												</td>
@@ -265,11 +274,16 @@
 														<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
 													</div>
 													<span class="valign-wrapper">
-														<%= @alliedCartels[n].name %>
+														<%= @alliedCartels[n].name %><% if @checkedStates.length == 1 %><% if @undefined.include? @alliedCartels[n] %>*<% end %><% end %>
 													</span>
 												</div>		
 											</td>
 											<td><%= @alliedCartels[n].league %></td>
+										</tr>
+									<% end %>
+									<% if @checkedStates.length == 1 %>
+										<tr>
+											<td>*Información de presencia por municipio todavía no disponible para <%= State.find(@checkedStates.last).name %>.</td>
 										</tr>
 									<% end %>
 								</tbody>
@@ -315,3 +329,60 @@
 		</div>
 	</div>
 <% end %>
+<!-- INFO MODAL -->
+<div id="organizations-info-modal" class="modal large-modal">
+	<div class="modal-content">	
+		<div class="row">
+			<div class="col s12">
+				<div class="right"><%= image_tag "optimized_logo.jpg", :class => "modal-logo"%></div>
+			</div>
+		<div>
+		</div class="row">
+			<div class="col s12">
+				<h6>Presencia reportada de organizaciones criminales</h6>
+				<br>
+				<p>Se refiere a la presencia territorial reportada de grupos con una idntidad y estructura establecidas, que participen en una o varias de las siguientes actividades:</p>
+				<ul>
+					<% @allActivities.each do |activity| %>
+						<% unless activity[:name] == "General" %>
+							<li class="padding-left">
+								<% if activity[:shortname] %>
+									-<%= activity[:shortname] %>
+								<% else %>
+									-<%= activity[:name] %>
+								<% end %>
+							</li>
+						<% end %>
+					<% end %>
+				</ul>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+</div>
+<!-- COALITION INFO MODAL -->
+<div id="coalition-info-modal" class="modal large-modal">
+	<div class="modal-content">	
+		<div class="row">
+			<div class="col s12">
+				<div class="right"><%= image_tag "optimized_logo.jpg", :class => "modal-logo"%></div>
+			</div>
+		<div>
+		</div class="row">
+			<div class="col s12">
+				<h6>Coaliciones</h6>
+				<br>
+				<p>Las organizaciones criminales identificadas por Lantia Intelligence se clasificaron en dos grandes coaliciones, correspondientes a los dos cárteles con presencia territorial nacional que actualmente existen en México: el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel de Sinaloa").last.id %>">Cártel de Sinaloa</a> y el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel Jalisco Nueva Generación").last.id %>">Cártel Jalisco Nueva Generación</a>. Dentro de cada coalición se incluyen a todas las mafias y bandas que tienen una relación de alianza o subordinación , directa o indirecta, con el cártel correspondiente.</p>
+				<br>
+				<p>Las organizaciones que no forman parte de inguna de las dos coaliciones se identifican como "Sin coalición".</p>
+				<br>
+				<p>Por último, en los mapas se señalan en rojo los estados o municipios en los que hay presencia tanto de alguna organización de la coalición del Cártel de Sinaloa, como de alguna organización de la coalición del Cártel Jalisco Nueva Generación.</p>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+</div>
