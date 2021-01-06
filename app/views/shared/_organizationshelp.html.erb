@@ -5,23 +5,27 @@
 	<p class="bold">Guía de navegación</p>
 	<ol>
 		<li>
-			Al desplazar el cursor por el mapa podrás ver el listado de organizaciones con presencia en cada estado o municipio.
+			Al desplazar el cursor por el mapa podrás ver el listado de organizaciones con presencia en cada estado<% if session[:membership] > 3 %> o municipio<% end %>.
 		</li>
-		<li>
-			Al dar click en un estado del mapa nacional se desplegará el mapa correspondiente, con la presencia de organizaciones criminales por municipio. 
-		</li>
-		<li>
-			Utiliza <span class="hide-on-small-only">el panel de la izquierda</span><span class="hide-on-med-and-up">el botón <button class="btn-floating btn-tiny paletton-red lighten-2 z-depth-index-0"><i class="material-icons white-text right-extra-margin">tune</i></button></span> para filtrar la información.
-		</li>
-<!-- 		<li>
-			Utiliza <span class="hide-on-small-only">el panel de la izquierda</span><span class="hide-on-med-and-up">el botón <i class="material-icons paletton-red-text tiny">tune</i></span> para filtrar la información.
-		</li> -->
-		<li>
-			Da click en el listado <span class="hide-on-med-and-down">de la derecha</span><span class="hide-on-large-only">debajo del mapa</span> para consultar la ficha informativa de cada organización criminal. 
-		</li>
-		<li>
-			Utiliza la herramienta de búsqueda <i class="material-icons paletton-red-text tiny">search</i> para encontrar organizaciones por nombre.
-		</li>
+		<% if session[:membership] > 3 %>
+			<li>
+				Al dar click en un estado del mapa nacional se desplegará el mapa correspondiente, con la presencia de organizaciones criminales por municipio. 
+			</li>
+			<li>
+				Utiliza <span class="hide-on-small-only">el panel de la izquierda</span><span class="hide-on-med-and-up">el botón <button class="btn-floating btn-tiny paletton-red lighten-2 z-depth-index-0"><i class="material-icons white-text right-extra-margin">tune</i></button></span> para filtrar la información.
+			</li>
+		<% end %>
+		<% if session[:membership] > 2 %>
+			<li>
+				Da click en el listado <span class="hide-on-med-and-down">de la derecha</span><span class="hide-on-large-only">debajo del mapa</span> para consultar la ficha informativa de cada organización criminal. 
+			</li>
+			<li>
+				Utiliza la herramienta de búsqueda <i class="material-icons paletton-red-text tiny">search</i> para encontrar organizaciones por nombre.
+			</li>
+			<li>
+				Dentro de la ficha de cada organización selecciona "presencia" para consultar un mapa y "reportes" para desplegar un listado de los incidentes reportados a partir del 1 de enero de 2020. 
+			</li>
+		<% end %>
 	</ol>
 	</div>
 </div>

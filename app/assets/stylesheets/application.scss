@@ -4,6 +4,14 @@
  *= require jquery-ui
  */
 
+#org-entry-map {
+	overflow: visible !important;
+}
+
+#org-entry-map * {
+    overflow: visible !important;
+}
+
  .btn-tiny, .btn-tiny i {
  	width: 18px !important;
  	height: 18px !important;

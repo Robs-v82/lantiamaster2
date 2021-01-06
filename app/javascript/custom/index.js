@@ -252,7 +252,7 @@ $(document).ready(function(){
 	var movePage = function(data) {
 		var nextPage = Number(data[0])+1
 		var previousPage = data[0]-1
-		$('.clickable-row').hide();
+		$('.magic-row').hide();
 		$('.org-row-'+data[0]).show();
 		$('.page-number-button').hide();
 		$('#page-'+nextPage+'-marker').show();

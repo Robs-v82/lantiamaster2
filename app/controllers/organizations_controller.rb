@@ -7,6 +7,7 @@ class OrganizationsController < ApplicationController
 
   skip_before_action :verify_authenticity_token
   before_action :require_pro, only: [:post_query, :get_query]
+  before_action :require_premium, only: [:show]
 
   def stop_organization_help
     User.find(session[:user_id]).update(:organization_help=>false)
@@ -84,6 +85,11 @@ class OrganizationsController < ApplicationController
   def index
     @user = User.find(session[:user_id])
     @organizations = true
+    if session[:membership] > 2
+      @racketLimit = 15
+    else
+      @racketLimit = 40
+    end
     @quarters = helpers.get_specific_quarters(Year.all, "leads")
     @states = State.all.sort
     @allActivities = Sector.where(:scian2=>"98").last.divisions

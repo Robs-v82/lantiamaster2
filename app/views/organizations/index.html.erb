@@ -27,7 +27,7 @@
 							<% else %>
 								full_code:'<%= place[:full_code] %>',
 							<% end %>
-							value:<%= place[:coalition] %>, rackets:'<% place[:rackets][0..15].each do |racket|%><span style="color:<%= racket[:color]%>; font-size:10px">- <%= racket[:name][0..32] %><% if racket[:name].length > 33 %>...<% end %><span><br><% end %><% if place[:rackets].length > 16 %><span style="font-size:10px">...</span><% end %>',
+							value:<%= place[:coalition] %>, rackets:'<% place[:rackets][0..@racketLimit].each do |racket|%><span style="color:<%= racket[:color]%>; font-size:10px">- <%= racket[:name][0..32] %><% if racket[:name].length > 33 %>...<% end %><span><br><% end %><% if place[:rackets].length > @racketLimit %><span style="font-size:10px">...</span><% end %>',
 							freq:<%= place[:freq]%>, 
 							<% if place[:freq] == 1 %>
 								string:'organización'
@@ -127,6 +127,16 @@
 				            	style: {
 				            		pointerEvents: 'auto'
 				            	},
+							    useHTML: true, // HTML for overflow
+							    positioner: function (labelWidth, labelHeight, point) {
+							        // repositioning tooltip
+							        var chart = this.chart,
+							            posX = (chart.plotLeft + point.plotX - (labelWidth / 2)),
+							            posY = chart.plotHeight;
+
+							        return { x: 0, y: 0};
+
+							    }
 				            }
 				        }],
 				    },
@@ -223,14 +233,16 @@
 									</div>
 								</div>
 								<div class="col l5 m12">
-									<div id="autocomplete-box" class="col s12">
-										<div class="col s1">
-											<i id="autocomplete-icon" class="material-icons paletton-red-text">search</i>
+									<% if session[:membership] > 2 %>
+										<div id="autocomplete-box" class="col s12">
+											<div class="col s1">
+												<i id="autocomplete-icon" class="material-icons paletton-red-text">search</i>
+											</div>
+											<div class="col s9">
+												<input id="autocomplete-input" type="text">
+											</div>
 										</div>
-										<div class="col s9">
-											<input id="autocomplete-input" type="text">
-										</div>
-									</div>
+									<% end %>
 									<div id="new-entry-list">
 									</div>
 									<div id="org-entry-list" class="org-entry-display">
@@ -244,7 +256,11 @@
 											<tbody>
 												<% (1..@numberOfPages).each do |x| %>
 													<% ((x-1)*@page_scope..(x-1)*@page_scope+(@page_scope-1)).each do |n| %>
-														<tr class="clickable-row org-row-<%= x %>"
+														<tr class="magic-row
+															<% if session[:membership] > 2 %>
+																clickable-row
+															<% end %>
+															org-row-<%= x %>"
 															<% unless x == 1 %>
 																style="display:none"
 															<% end %>
@@ -265,7 +281,11 @@
 												<% end %>
 												<% (@numberOfPages*@page_scope..@n).each do |n| %>
 													<% x = @numberOfPages+1 %>
-													<tr class="clickable-row org-row-<%= x %>"
+													<tr class="magic-row
+														<% if session[:membership] > 2 %>
+															clickable-row
+														<% end %>
+														org-row-<%= x %>"
 														<% unless x == 1 %>
 															style="display:none"
 														<% end %>
@@ -393,7 +413,7 @@
 			<div class="col s12">
 				<h6>Coaliciones</h6>
 				<br>
-				<p>Las organizaciones criminales identificadas por Lantia Intelligence se clasificaron en dos grandes coaliciones, correspondientes a los dos cárteles con presencia territorial nacional que actualmente existen en México: el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel de Sinaloa").last.id %>">Cártel de Sinaloa</a> y el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel Jalisco Nueva Generación").last.id %>">Cártel Jalisco Nueva Generación</a>. Dentro de cada coalición se incluyen a todas las mafias y bandas que tienen una relación de alianza o subordinación, directa o indirecta, con el cártel correspondiente.</p>
+				<p>Las organizaciones criminales identificadas por Lantia Intelligence se clasificaron en dos grandes coaliciones, correspondientes a los dos cárteles con presencia territorial nacional que actualmente existen en México: el <% if session[:membership] > 2 %><a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel de Sinaloa").last.id %>">Cártel de Sinaloa</a> y el <a class="paletton-red-text" href="/organizations/show/<%= Organization.where(:name=>"Cártel Jalisco Nueva Generación").last.id %>">Cártel Jalisco Nueva Generación</a><% else %>Cártel de Sinaloa y el Cártel Jalisco Nueva Generación<% end %>. Dentro de cada coalición se incluyen a todas las mafias y bandas que tienen una relación de alianza o subordinación, directa o indirecta, con el cártel correspondiente.</p>
 				<br>
 				<p>Las organizaciones que no forman parte de inguna de las dos coaliciones se identifican como "Sin coalición".</p>
 				<br>

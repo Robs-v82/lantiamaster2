@@ -16,7 +16,12 @@ class VictimsController < ApplicationController
 		session[:checkedGenderOptions] = genderOptions
 		countiesArr = []
 		session[:checkedCounties] = "states"
-		Cookie.create(:category=>"victim_freq_params_"+session[:user_id].to_s, :data=>["monthly","stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
+		if session[:membership] == 3
+			timeframe = "monthly"
+		else
+			timeframe = "quarterly"
+		end
+		Cookie.create(:category=>"victim_freq_params_"+session[:user_id].to_s, :data=>[timeframe,"stateWise","noGenderSplit", years, session[:checkedStatesArr], session[:checkedCitiesArr], genderOptions, countiesArr])
 		redirect_to '/victims'
 	end
 
