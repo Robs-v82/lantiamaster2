@@ -8,7 +8,11 @@ class VictimsController < ApplicationController
 		session[:checkedYearsArr] = []
 		years = helpers.get_regular_years
 		session[:checkedYearsArr] = years.pluck(:id)
-		states = State.all.sort_by {|state| state.code}
+		if session[:membership] < 2
+			states = helpers.demo_states
+		else
+			states = State.all.sort_by {|state| state.code}	
+		end
 		session[:checkedStatesArr] = states.pluck(:id)
 		cities = City.all.sort_by {|city| city.name}
 		session[:checkedCitiesArr] = cities.pluck(:id)
@@ -104,6 +108,9 @@ class VictimsController < ApplicationController
 		@user = User.find(session[:user_id])
 		@victims = true
 		@maps = false
+		if session[:membership] < 2
+			@maps = true
+		end
 		@years = helpers.get_regular_years
 		@checkedStates = session[:checkedStatesArr]
 
@@ -190,6 +197,10 @@ class VictimsController < ApplicationController
 			@maps = true
 		end
 
+		if session[:membership] < 2
+			@my_freq_table.insert(-2, Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]][-2])
+		end
+
   		@sortCounter = 0
   		@sortType = "victims"
   		@checkedYears = session[:checkedYearsArr]
@@ -232,6 +243,9 @@ class VictimsController < ApplicationController
   		@pieStrings = %w{massacres shootings_authorities mass_graves} 
 
   		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
+
+  		print "******"*10000
+  		print @my_freq_table
 	end
 
 	def partial_table

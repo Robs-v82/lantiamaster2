@@ -1,6 +1,7 @@
 class StatesController < ApplicationController
     before_action :set_state, only: [:show, :edit, :update, :destroy]
     after_action :stop_index_help, only: [:irco, :icon]
+    before_action :require_basic, only: [:icon]
 
 
     require 'pp'

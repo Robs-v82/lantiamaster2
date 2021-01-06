@@ -21,26 +21,6 @@
  >
   <li>
     <div class="user-view background paletton-grey">
-<!--       <div class="row no-margin-bottom">
-        <div class="valign-wrapper">
-          <div class="col s8 valign-wrapper">
-            <a href="#name"><span class="white-text name p18 slim right-align">
-              <% if @member.firstname %>
-                <%= @member.firstname %>
-              <% end %>
-              <% if @member.lastname1 %>
-                <%= @member.lastname1 %>
-              <% end %>
-              <% if @member.lastname2%>
-                <%= @member.lastname2 %>
-              <% end %>
-            </span></a>
-          </div>
-          <div class="col s4 valign-wrapper left">
-            <%= image_tag "mini_logo.png", :class => "circle" %>
-          </div>
-        </div>
-      </div> --> 
     </div>
   </li>
     <div id="user-links white-text" class="paletton-red">
@@ -54,21 +34,11 @@
       <div class="divider"></div>
       <br>
       <li><a class="left-min-margin white-text p20 semi-slim tooltipped" data-tooltip="Índice de Riesgo por Crimen Organizado" href="/states/irco">IRCO</a></li>
-      <li><a class="left-min-margin white-text p20 semi-slim tooltipped" data-tooltip="Índice de Conflictividad" href="/states/icon">ICON</a></li>
+      <% if session[:membership] > 1 %>
+        <li><a class="left-min-margin white-text p20 semi-slim tooltipped" data-tooltip="Índice de Conflictividad" href="/states/icon">ICON</a></li>
+      <% end %>
       <br>
-
-<!--       <li><a class="grey-text tooltipped" data-position="right" data-tooltip="A partir de diciembre de 2020">Violencia electoral</a></li> -->
-<!--       <li><a><i class="material-icons small">assignment</i><p class="p20 slim grey-text text-darken-1">Reportes</p></a></li>
-      <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/months/reports">Reporte mensual de violencia criminal</a></li> -->
     </div>
-<!--     <div id="staff-links" class="cyan lighten-5">
-      <li><a><i class="material-icons small">view_list</i><p class="p20 slim grey-text text-darken-1">Formularios</p></a></li>
-      <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/organizations/new">Organizaciones</a></li>
-      <li><a class="waves-effect waves-cyan cyan-text text-darken-2" href="/events/killings">Ejecuciones</a></li>
-      <li><a href="/queries/files"><i class="material-icons small">cloud_download</i><p class="p20 slim grey-text text-darken-1">Catálogos</p></a></li>
-      <li><a href="/datasets/load"><i class="material-icons small">cloud_upload</i><p class="p20 slim grey-text text-darken-1">Cargar datos</p></a></li>
-      <li><a href="/datasets/api_control"><i class="material-icons small">code</i><p class="p20 slim grey-text text-darken-1">API</p></a></li>
-    </div> -->
   </ul>
   <div class="col s2">
     <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons small paletton-red-text class">menu</i></a>

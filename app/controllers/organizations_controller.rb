@@ -95,6 +95,8 @@ class OrganizationsController < ApplicationController
     @allActivities = Sector.where(:scian2=>"98").last.divisions
     if session[:checkedStates]
       @checkedStates = Cookie.find(session[:checkedStates]).data
+    elsif session[:membership] < 2
+      @checkedStates = helpers.demo_states.pluck(:id)
     else
       @checkedStates = State.pluck(:id)
     end

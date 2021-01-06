@@ -21,7 +21,7 @@
 				<div class="card short-card">
 					<div class="card-content">
 						<div class="row card-narrow">
-							<% if @irco %>
+							<% if @irco && session[:membership] > 2 %>
 								<div class="col s12 right">
 									<%= render "shared/indexswitch" %>
 								</div>

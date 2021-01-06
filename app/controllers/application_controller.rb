@@ -34,6 +34,10 @@ class ApplicationController < ActionController::Base
 		redirect_to "/users/index" unless session[:membership] > 2
 	end
 
+	def require_basic
+		redirect_to "/users/index" unless session[:membership] > 1
+	end
+
 	def form_header(icon,title)
 		myHeader = {
 			icon: icon,

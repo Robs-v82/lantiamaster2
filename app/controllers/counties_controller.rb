@@ -1,6 +1,7 @@
 class CountiesController < ApplicationController
 
-	require 'csv'
+	before_action :require_premium, only: [:irco]
+  require 'csv'
 
 	def getCounties
 	    targetState = getCounties_params[:state_id].to_i

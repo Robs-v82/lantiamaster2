@@ -24,4 +24,10 @@ module StatesHelper
 		}
 		return myFloat
 	end
+
+	def demo_states
+		stateArr = ["Campeche", "Durango", "Morelos", "Sonora"]
+		demoStates = State.where(:name=>stateArr)
+		return demoStates
+	end
 end
