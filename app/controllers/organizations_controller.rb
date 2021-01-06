@@ -85,11 +85,7 @@ class OrganizationsController < ApplicationController
   def index
     @user = User.find(session[:user_id])
     @organizations = true
-    if session[:membership] > 2
-      @racketLimit = 15
-    else
-      @racketLimit = 40
-    end
+    @racketLimit = 40
     @quarters = helpers.get_specific_quarters(Year.all, "leads")
     @states = State.all.sort
     @allActivities = Sector.where(:scian2=>"98").last.divisions
