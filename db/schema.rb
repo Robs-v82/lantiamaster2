@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_07_231106) do
+ActiveRecord::Schema.define(version: 2021_01_07_231836) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -356,7 +356,7 @@ ActiveRecord::Schema.define(version: 2021_01_07_231106) do
     t.boolean "index_help"
     t.integer "membership_type"
     t.string "country"
-    t.integer "active"
+    t.integer "active", default: 1
     t.index ["member_id"], name: "index_users_on_member_id"
   end
 
