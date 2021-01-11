@@ -850,7 +850,7 @@ class VictimsController < ApplicationController
 		
 		# CREATE NATIONAL API
 		data = {}
-		myArr = [%w{annual quarterly monthly}, %w{stateWise cityWise}, %w{noGenderSplit genderSplit}]
+		myArr = [%w{annual quarterly monthly}, %w{stateWise cityWise}, %w{noGenderSplit}]
 		myArr[0].each{|timeframe|
 			timeHash = {}
 			myArr[1].each{|placeframe|
@@ -943,7 +943,7 @@ class VictimsController < ApplicationController
 		ageKeys = helpers.age_keys
 		policeKeys = helpers.police_keys
 
-		typeOfPlaceArr = helpers.typerOfPlaces
+		typeOfPlaceArr = helpers.typeOfPlaces
 
 		# MAP DATA
 		myTable.push(headerHash)
