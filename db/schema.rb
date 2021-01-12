@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_07_231836) do
+ActiveRecord::Schema.define(version: 2021_01_12_220638) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -351,9 +351,9 @@ ActiveRecord::Schema.define(version: 2021_01_07_231836) do
     t.string "remember_token"
     t.datetime "email_verified_at"
     t.integer "role_id", default: 2
-    t.boolean "victim_help"
-    t.boolean "organization_help"
-    t.boolean "index_help"
+    t.boolean "victim_help", default: true
+    t.boolean "organization_help", default: true
+    t.boolean "index_help", default: true
     t.integer "membership_type"
     t.string "country"
     t.integer "active", default: 1
