@@ -233,7 +233,7 @@ class OrganizationsController < ApplicationController
               end
             }
             unless cartelIn
-              racketHash[:color] = '#A09EAB'         
+              racketHash[:color] = '#454157'         
             end
             myRackets.push(racketHash)
           }
@@ -311,9 +311,6 @@ class OrganizationsController < ApplicationController
       end 
 
       if @undefined
-        print "***"*200
-        print "FINAL: "
-        print @undefined.pluck(:name)
       end
   	end
 
@@ -372,7 +369,7 @@ class OrganizationsController < ApplicationController
             end
           }
           unless cartelIn
-            racketHash[:color] = '#A09EAB'         
+            racketHash[:color] = '#454157'         
           end
           myRackets.push(racketHash)
         }
