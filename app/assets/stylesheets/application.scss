@@ -37,7 +37,7 @@
 }
 
 #intro-banner {
-	background-color: rgba(4, 31, 58, 0.2);
+	background-color: rgba(4, 31, 58, 0.36);
 	padding: 16px;
 }
 
@@ -65,6 +65,19 @@
 .bg {
   /* The image used */
   background-image: url("https://dashboard.lantiaintelligence.com/assets/compass.jpg?v=1234");
+
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.lantia-place-holder {
+  /* The image used */
+  background-image: url("https://dashboard.lantiaintelligence.com/assets/textura_blanca.jpg");
 
   /* Full height */
   height: 100%;
