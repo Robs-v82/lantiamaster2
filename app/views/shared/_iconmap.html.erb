@@ -580,7 +580,12 @@
 						});
 						Highcharts.chart('<%= place["code"]%>-icon-bar-chart', {
 							chart: {
-								type: 'column',
+								<% if @countyWise %>
+									type: 'bar',
+									marginLeft: 126,
+								<% else %>
+									type: 'column',
+								<% end %>
 								height: 120,
 								marginTop: 0,
 								backgroundColor: 'rgba(0,0,0,0)',
@@ -608,9 +613,9 @@
 					        		<% end %>
 					        	],
 					        	<% if @countyWise %>
-					        		labels: {
-							            enabled: false
-							        }
+					        		// labels: {
+							        //     enabled: false
+							        // }
 					        	<% end %>
 					        },
 					        yAxis: {
