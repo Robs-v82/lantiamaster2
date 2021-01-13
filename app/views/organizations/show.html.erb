@@ -450,9 +450,9 @@
 												<%= lead.event.town.name %>, <%= lead.event.town.county.shortname %>, <%= lead.event.town.county.state.shortname %>:
 											<% else %>
 												<% if lead.event.town.county.name != "Sin definir" %>
-													<%= lead.event.town.county.shortname %>, <%= lead.event.town.county.state.shortname %>:
+													<%= lead.event.town.county.shortname %>, <%= lead.event.town.county.state.shortname %>.
 												<% else %>
-													<%= lead.event.town.county.state.name %>:
+													<%= lead.event.town.county.state.name %>.
 												<% end %>
 											<%end%>	 
 										</p>	
@@ -493,6 +493,9 @@
 		</div>
 	</div>
 <% end %>
+<div id="organization-help-modal-2" class="modal">
+	<%= render "shared/organizationshelp" %>
+</div>
 
 
 
