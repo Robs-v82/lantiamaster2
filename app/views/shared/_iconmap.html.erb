@@ -430,7 +430,9 @@
 			        	]
 			        },
 			        yAxis: {
-			        	max: <%= place[:max].to_i %>,
+			        	<% if place[:max].to_i > 10 %>
+			        		max: <%= place[:max].to_i %>,
+			        	<% end %>
 			        	title: {
 			        		text: null
 			        	},
