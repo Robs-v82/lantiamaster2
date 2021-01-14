@@ -16,8 +16,30 @@ $(document).ready(function(){
 	}
 })
 
-
 $(document).ready(function(){
+
+	var loader = document.getElementById("preloader");
+	function vanish() {
+		loader.classList.add('preloader-disappear');
+	}
+
+	// window.addEventListener('load', vanish)
+	vanish()
+
+	function unvanish() {
+		$('#preloader').removeClass('preloader-disappear')
+	}
+
+	function slideVanish() {
+
+		$('.preloader-trigger').click(function(){
+			unvanish()
+			console.log("UNVANISH!!!")
+		})
+
+	}
+
+	slideVanish()
 
 	// AUTOCOMPLETE
 	function myFunction() {

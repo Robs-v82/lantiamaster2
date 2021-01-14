@@ -4,6 +4,37 @@
  *= require jquery-ui
  */
 
+#preloader, #permanent {
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: white;
+	z-index: 999999;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	opacity: 0.85;
+} 
+
+#preloader-image {
+	width: 160px;
+	height: 160px;
+	opacity: 0.85;
+}
+
+.preloader-disappear {
+	animation: vanish 1s forwards;
+}
+
+@keyframes vanish {
+	100% {
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
 #org-entry-map {
 	overflow: visible !important;
 }

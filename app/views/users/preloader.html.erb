@@ -27,35 +27,8 @@
         </script>
     </head>
     <body>
-        <div class="b-container">
-            <br>
-            <div class="row short-row"> 
-                <div class="">
-                    <div class="left">
-                        <% if session[:user_id] %>
-                            <%= render "shared/slidenavbar"%>
-                        <% end %>
-                    </div>
-                    <% if @organizations == true %>
-                        <div class="right">
-                            <a href="#organization-help-modal-2" class="modal-trigger"><i class=" material-icons paletton-grey-text right-extra-margin">help_outline</i></a>
-                        </div>
-                    <% end %>
-<!--                     <% if session[:user_id] %>
-                        <div class="col s2 right">
-                            <a href="/organizations/logout" class="right tooltipped" data-position="bottom" data-tooltip="Cerrar sesión">
-                                <i class="small material-icons paletton-red-text right-extra-margin">exit_to_app</i>
-                            </a>
-                        </div>
-                    <% end %> -->
-                </div>
-            </div>
-            <div id="preloader">
-                <%= image_tag "spin-lantia.gif", :class => "loader-image"%>
-            </div>
-            <div class="row">
-                <%= yield %>
-            </div>
+        <div id="permanent">
+            <%= image_tag "spin-lantia.gif", :class => "loader-image"%>
         </div>
     </body>
 </html>

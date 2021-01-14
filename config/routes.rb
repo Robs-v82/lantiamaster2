@@ -107,4 +107,5 @@ Rails.application.routes.draw do
     get 'counties/autocomplete/:myString' => 'counties#autocomplete'
     get 'states/conflict_analysis'
     post 'states/stateIndexHash'
+    get 'users/preloader'
 end

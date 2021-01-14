@@ -8,6 +8,10 @@ class ApplicationController < ActionController::Base
 	helper_method :myResouces
 	after_action :stop_freq_help, only: [:victims, :detainees]
 
+	def quick_preload
+		render :template => "users/preloader"
+	end
+
 	def stop_freq_help
 		User.find(session[:user_id]).update(:victim_help=>false)
 	end

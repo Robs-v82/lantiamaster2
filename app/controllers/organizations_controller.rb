@@ -8,6 +8,7 @@ class OrganizationsController < ApplicationController
   skip_before_action :verify_authenticity_token
   before_action :require_pro, only: [:post_query, :get_query]
   before_action :require_premium, only: [:show]
+  # before_action :quick_preload, only: [:query]
 
   def stop_organization_help
     User.find(session[:user_id]).update(:organization_help=>false)
@@ -35,7 +36,7 @@ class OrganizationsController < ApplicationController
   end
 
   	def query
-  		if session[:empty_request]
+      if session[:empty_request]
         session[:empty_query] = true
       end
       helpers.clear_session

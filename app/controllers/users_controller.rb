@@ -20,6 +20,10 @@ class UsersController < ApplicationController
   #   end
   # end
 
+  def preloader
+    
+  end
+
   def index
     @intro = true
     
