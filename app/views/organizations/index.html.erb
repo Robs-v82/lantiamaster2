@@ -13,6 +13,14 @@
 				return false
 		 	})
 
+			function triggerState() {
+				$('.highcharts-point').addClass('preloader-trigger')
+			} 
+
+            <% if @checkedStates.length != 1 && session[:membership] > 3 %>
+            	triggerState();
+            <% end %>
+
 
 			if ($(window).height() < 600) {
 				var mapHeight = 300
@@ -87,6 +95,9 @@
 				        },
 				        <% if @checkedStates.length != 1 %>
 					        plotOptions: {
+					        	map: {
+					        		className: 'preloader-disappear'
+					        	},
 					        	series: {
 					        		point: {
 					        			events: {

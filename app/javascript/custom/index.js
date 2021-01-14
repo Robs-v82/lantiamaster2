@@ -18,6 +18,14 @@ $(document).ready(function(){
 
 $(document).ready(function(){
 
+	function mapVanish() {
+		$('.highcharts-point').click(function(){
+			console.log("WORKING!!!")
+		})		
+	}
+
+	mapVanish()
+
 	var loader = document.getElementById("preloader");
 	function vanish() {
 		loader.classList.add('preloader-disappear');
