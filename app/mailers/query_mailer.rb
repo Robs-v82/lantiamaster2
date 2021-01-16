@@ -1,5 +1,6 @@
 class QueryMailer < ApplicationMailer
-	default from: "roberto.valladarespiedras@gmail.com"
+	# default from: "roberto.valladarespiedras@gmail.com"
+	default from: "plataforma@lantiaintelligence.com"
 
 	def greeting
 		current_time = Time.now.to_i
@@ -8,11 +9,11 @@ class QueryMailer < ApplicationMailer
 		five_pm = Time.now.change(:hour => 17 ).to_i
 		eight_pm = Time.now.change(:hour => 20 ).to_i
 		if midnight.upto(noon).include?(current_time)
-			@greeting = "Buenos días"
+			@greeting = "Buenos días,"
 		elsif noon.upto(eight_pm).include?(current_time)
-			@greeting = "Buenas tardes"
+			@greeting = "Buenas tardes,"
 		elsif eight_pm.upto(midnight + 1.day).include?(current_time)
-			@greeting = "Buenas noches"
+			@greeting = "Buenas noches,"
 		end	
 	end
 
