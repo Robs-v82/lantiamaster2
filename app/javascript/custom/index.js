@@ -31,7 +31,6 @@ $(document).ready(function(){
 	function slideVanish() {
 		$('.preloader-trigger').click(function(){
 			$('#preloader').removeClass('preloader-disappear')
-			console.log("UNVANISH!!!")
 		})
 	}
 	slideVanish()
@@ -796,7 +795,6 @@ $(document).ready(function(){
 
 	// ALLOW ONLY ONE OR ALL STATES IN ORGANIZATIONS
 	$('#org_state_filter_box input').click(function() {
-		console.log("working!!!");
 		$('#org_state_filter_box input').prop('checked', false);
 		$(this).prop('checked', true);
 	})
