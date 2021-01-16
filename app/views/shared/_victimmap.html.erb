@@ -308,6 +308,7 @@
 				        			<% else %>
 				        				click: function() {
 				        					<% if session[:membership] > 3 %>
+					        					$('#preloader').removeClass('preloader-disappear');
 					        					var urlString = '/victims/county_query/'+this.code;
 					        					window.location = urlString;
 					        				<% else %>

@@ -13,11 +13,6 @@
 				return false
 		 	})
 
-            // <% if @checkedStates.length != 1 && session[:membership] > 3 %>
-            // 	triggerState();
-            // <% end %>
-
-
 			if ($(window).height() < 600) {
 				var mapHeight = 300
 	        } else {
@@ -92,17 +87,12 @@
 				        <% if @checkedStates.length != 1 %>
 					        plotOptions: {
 					        	series: {
+					        		className: "preloader-trigger",
 					        		point: {
 					        			events: {
 					        				<% if session[:membership] > 3 %>
 						        				click: function() {
-													var loader = document.getElementById("preloader");
-													console.log(loader)
-													function vanish() {
-														// $('#preloader').addClass('preloader-disappear')
-														loader.classList.add('preloader-disappear');
-													}
-						        					vanish()
+						        					$('#preloader').removeClass('preloader-disappear')
 						        					var urlString = 'organizations_query/'+this.code;
 						        					window.location = urlString;
 						        				}
@@ -261,7 +251,7 @@
 													<% ((x-1)*@page_scope..(x-1)*@page_scope+(@page_scope-1)).each do |n| %>
 														<tr class="magic-row
 															<% if session[:membership] > 2 %>
-																clickable-row
+																clickable-row preloader-trigger
 															<% end %>
 															org-row-<%= x %>"
 															<% unless x == 1 %>
@@ -286,7 +276,7 @@
 													<% x = @numberOfPages+1 %>
 													<tr class="magic-row
 														<% if session[:membership] > 2 %>
-															clickable-row
+															clickable-row preloader-trigger
 														<% end %>
 														org-row-<%= x %>"
 														<% unless x == 1 %>

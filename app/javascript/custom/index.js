@@ -22,23 +22,18 @@ $(document).ready(function(){
 	function vanish() {
 		loader.classList.add('preloader-disappear');
 	}
-
-	// window.addEventListener('load', vanish)
 	vanish()
 
-	function unvanish() {
-		$('#preloader').removeClass('preloader-disappear')
-	}
+	// function unvanish() {
+	// 	$('#preloader').removeClass('preloader-disappear')
+	// }
 
 	function slideVanish() {
-
 		$('.preloader-trigger').click(function(){
-			unvanish()
+			$('#preloader').removeClass('preloader-disappear')
 			console.log("UNVANISH!!!")
 		})
-
 	}
-
 	slideVanish()
 
 	// AUTOCOMPLETE
@@ -60,7 +55,7 @@ $(document).ready(function(){
 					var startHTML = '<div id="org-entry-list" class="org-entry-display"><table id="org-table" class="highlight"><tbody>';
 					var myRows = '';
 					for (i = 0; i < response.length; i++) {
-						myRows += '<tr><td><a href="/organizations/show/'+response[i].id+'">'+response[i].name+'</a></td><tr>'
+						myRows += '<tr><td><a class="preloader-trigger" href="/organizations/show/'+response[i].id+'">'+response[i].name+'</a></td><tr>'
 					}
 					var endHTML = '</tbody></table></div>';
 					var newHTML = startHTML + myRows + endHTML;
