@@ -9,6 +9,10 @@ class MembersController < ApplicationController
 	require 'pp'
 
 	def detentions
+		Detention.all.each{|i|
+			i.detainees.destroy_all
+			i.destroy
+		}
 		myFile = detention_params[:file]
 		table = CSV.parse(File.read(myFile))
 		table.each{|x|
@@ -318,8 +322,6 @@ class MembersController < ApplicationController
 		@topDetentions = dataCookie[:topDetentions]
 		@topDetentionRoles = helpers.top_detention_roles
 		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
-		print "*******"*100
-		print session.to_hash
 	end
 
 	def detainees_freq_api
