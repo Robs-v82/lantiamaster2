@@ -37,6 +37,7 @@ gem 'mini_racer'
 
 # for Excel downloads
 gem 'rubyzip', '>= 1.2.1'
+gem 'caxlsx', '~> 3.0'
 
 gem 'poppler'
 gem 'mini_magick'
