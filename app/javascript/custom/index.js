@@ -534,13 +534,13 @@ $(document).ready(function(){
 			$('#nation_query_box').prop('checked', true)
 			$('#state-collapsible-tab').addClass('collapsible-disabled');
 			$("#state-collapsible-tab input").prop('checked', true)
-			// M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
+			M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
 		}
 		if ($('#organization_split_query_box').is(':checked')) {
 			$('#no_organization_split_query_box').prop('checked', true)
 			$('#organization-collapsible-tab').addClass('collapsible-disabled');
 			$("#organization-collapsible-tab input").prop('checked', true)
-			// M.toast({html: 'No es posible desagregar por posición y organización de forma simultánea'})
+			M.toast({html: 'No es posible desagregar por posición y organización de forma simultánea'})
 		}				
 	})
 
@@ -549,7 +549,7 @@ $(document).ready(function(){
 			$('#no_role_split_query_box').prop('checked', true)
 			$('#role-collapsible-tab').addClass('collapsible-disabled');
 			$("#role-collapsible-tab input").prop('checked', true)
-			// M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
+			M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
 		}
 	})
 
@@ -559,13 +559,13 @@ $(document).ready(function(){
 			$('#nation_query_box').prop('checked', true)
 			$('#state-collapsible-tab').addClass('collapsible-disabled');
 			$("#state-collapsible-tab input").prop('checked', true)
-			// M.toast({html: 'No es posible desagregar por posición y estado de forma simultánea'})
+			M.toast({html: 'No es posible desagregar por organización y estado de forma simultánea'})
 		};
 		if ($('#role_split_query_box').is(':checked')) {
 			$('#no_role_split_query_box').prop('checked', true)
 			$('#role-collapsible-tab').addClass('collapsible-disabled');
 			$("#role-collapsible-tab input").prop('checked', true)
-			// M.toast({html: 'No es posible desagregar por organización y posición de forma simultánea'})
+			M.toast({html: 'No es posible desagregar por organización y posición de forma simultánea'})
 		};				
 	})
 
@@ -574,7 +574,7 @@ $(document).ready(function(){
 			$('#no_organization_split_query_box').prop('checked', true)
 			$('#organization-collapsible-tab').addClass('collapsible-disabled');
 			$("#organization-collapsible-tab input").prop('checked', true)
-			// M.toast({html: 'No es posible desagregar por organización y estado de forma simultánea'})
+			M.toast({html: 'No es posible desagregar por organización y estado de forma simultánea'})
 		};
 	})
 
