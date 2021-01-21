@@ -4,6 +4,10 @@
  *= require jquery-ui
  */
 
+#state_filter_box a.disabled {
+	visibility: hidden;
+}
+
 #preloader, #permanent {
 	position: fixed;
 	top: 0;
