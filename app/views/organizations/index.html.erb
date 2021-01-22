@@ -64,9 +64,11 @@
 				        mapNavigation: {
 				            enabled: false,
 				        },
+				        <% unless session[:admin] %>
 						exporting: {
 							enabled: false
 						},
+						<% end %>
 			            colorAxis: {
 			            	dataClasses: [{
 				                to: 0.9,
