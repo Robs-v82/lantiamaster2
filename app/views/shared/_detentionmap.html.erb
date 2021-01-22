@@ -35,6 +35,9 @@
 		        chart: {
 		            map: geojson,
 		            height: mapHeight,
+			        style: {
+			            fontFamily: 'Montserrat'
+			        },
 		        },
 		        legend: {
 		        	layout: 'vertical',
@@ -137,6 +140,9 @@
 						        height: 124,
 						        marginTop: 6,
 						        marginBottom: 58,
+						        style: {
+						            fontFamily: 'Montserrat'
+						        },
 						    },
 					        title: false, 
 						       credits: false,
@@ -184,6 +190,9 @@
 						        type: 'pie',
 						        height: 148,
 						        marginTop: 0,
+						        style: {
+						            fontFamily: 'Montserrat'
+						        },
 						    },
 					        title: false, 
 						    credits: false,
@@ -235,6 +244,9 @@
 						        type: 'pie',
 						        height: 148,
 						        marginTop: 0,
+						        style: {
+						            fontFamily: 'Montserrat'
+						        },
 							},
 					        title: false, 
 						    credits: false,
@@ -286,6 +298,9 @@
 								type: 'bar',
 								height: 120,
 								marginTop: 0,
+						        style: {
+						            fontFamily: 'Montserrat',
+						        },
 							},
 					        title: false, 
 						    credits: false,
@@ -300,7 +315,13 @@
 					        		<% place[:agencies].each do |agency| %>
 					        			'<%= agency[:name]%>',
 					        		<% end %>
-					        	]
+					        	],
+							    labels: {
+							        style: {
+							            textOverflow: 'none',
+							            fontSize: "10px"
+							        }					        
+							    },
 					        },
 					        yAxis: {
 					        	title: {
