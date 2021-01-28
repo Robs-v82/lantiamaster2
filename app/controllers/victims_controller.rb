@@ -242,7 +242,7 @@ class VictimsController < ApplicationController
   		]
   		@pieStrings = %w{massacres shootings_authorities mass_graves} 
 
-  		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
+  		@fileHash = {:data=>@my_freq_table,:formats=>['csv','xlsx']}
 
   		print "******"*10000
   		print @my_freq_table

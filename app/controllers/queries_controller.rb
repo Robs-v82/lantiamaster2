@@ -41,8 +41,8 @@ class QueriesController < ApplicationController
 		@cartels = Sector.where(:scian2=>"98").last.organizations.uniq
 		@cartels = @cartels.sort_by{|c| c.name}
 		@fileArr = [
-			{:route=>"towns",:caption=>"Colonias/Localidades",:data=>@towns,:pdf=>false,:csv=>true,:excel=>false},
-			{:route=>"counties",:caption=>"Municipios",:data=>@counties,:pdf=>false,:csv=>true,:excel=>false},
+			{:route=>"towns", :caption=>"Colonias/Localidades",:data=>@towns,:pdf=>false,:csv=>true,:excel=>false},
+			{:route=>"counties",:caption=>"Municipios",:data=>@counties,:pdf=>false,:csv=>true,:excel=>true},
 			# {:route=>"cities",:caption=>"Zonas metropolitanas",:data=>@cities,:pdf=>true,:csv=>true,:excel=>true},
 			{:route=>"papers",:caption=>"Medios",:data=>@papers,:pdf=>false,:csv=>true,:excel=>false},
 			{:route=>"cartels",:caption=>"Organizaciones criminales",:data=>@cartels,:pdf=>false,:csv=>true,:excel=>false}
@@ -108,14 +108,34 @@ class QueriesController < ApplicationController
 	end
 
 	def test_xlsx
-		@records = Division.where(:scian3=>510).last.organizations
-		current_date = Date.today.strftime
-		file_name = "medios("+current_date+").xlsx"
+
+		require 'axlsx'
+
+		p = Axlsx::Package.new
+		wb = p.workbook
+
+		wb.add_worksheet(name: 'Basic Worksheet') do |sheet|
+		  sheet.add_row ['First', 'Second', 'Third']
+		  sheet.add_row [1, 2, 3]
+		end
+
+		p.serialize 'basic_example.xlsx'
+		print "****"*100
+		# @records = County.all
+		# @records = Division.where(:scian3=>510).last.organizations
+		# current_date = Date.today.strftime
+		# file_name = "municipios("+current_date+").xlsx"
+
+		# xlsx = render_to_string formats: [:xlsx], handlers: [:axlsx], template: ["queries/test_xlsx.xlsx"]
+		# self.instance_variable_set(:@_lookup_context, nil)
+		# attachment = Base64.encode64(xlsx)
+		# export = {mime_type: Mime[:xlsx], content: xlsx, encoding: 'base64'}
+
 		respond_to do |format|
-			format.xlsx {
-				response.headers['Content-Disposition'] = "attachment; filename='#{file_name}'"
-			}
-			format.html { render :files }
+			# format.xlsx {response.headers['Content-Disposition'] = "attachment; filename='#{file_name}'"}			
+			format.xlsx { render xlsx: p, mime_type: Mime[:xlsx] }
+			# format.xlsx { render xlsx: "queries/test_xlsx.xlsx.axlsx", mime_type: Mime[:xlsx], :filename => "'#{file_name}'"}
+			# format.html { render :files }
 		end
 		
 		# recipient = User.find(session[:user_id])

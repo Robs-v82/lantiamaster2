@@ -188,6 +188,8 @@ class StatesController < ApplicationController
             "Conflicto criminal inminente (IRCO estatal)",
             "Agresiones en el transporte de pasajeros (IRCO municipal)"
         ]
+        print "****"*100
+        print @evolutionArr
     end
 
     def icon
@@ -237,6 +239,8 @@ class StatesController < ApplicationController
             {:name=>"Violencia con daños colaterales", :definition=>"Incluye rafagueos, balaceras, incendios provocados y robo en carreteras"},
             {:name=>"Violencia con impacto social", :definition=>"Incluye atentados, agresiones o secuestros de figuras públicas, así como casos de trata de personas"}
         ]
+        print "****"*100
+        print @evolutionArr
     end
 
     def ircoOutput(quarter, place)

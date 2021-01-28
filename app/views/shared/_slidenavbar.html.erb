@@ -38,6 +38,12 @@
         <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Conflictividad" href="/states/icon">ICON</a></li>
       <% end %>
       <br>
+      <% if session[:membership] > 3 %>
+        <div class="divider"></div>
+        <br>
+        <li><a class="left-min-margin white-text p20 semi-slim" href="/guide_4.pdf" target="_blank">MANUAL</a></li>
+        <br>
+      <% end %>
     </div>
   </ul>
   <div class="col s2">
