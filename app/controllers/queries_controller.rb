@@ -41,6 +41,7 @@ class QueriesController < ApplicationController
 		@cartels = Sector.where(:scian2=>"98").last.organizations.uniq
 		@cartels = @cartels.sort_by{|c| c.name}
 		@fileArr = [
+			{:route=>"mails", :caption=>"Usuarios",:data=>@towns,:pdf=>false,:csv=>true,:excel=>false},
 			{:route=>"towns", :caption=>"Colonias/Localidades",:data=>@towns,:pdf=>false,:csv=>true,:excel=>false},
 			{:route=>"counties",:caption=>"Municipios",:data=>@counties,:pdf=>false,:csv=>true,:excel=>true},
 			# {:route=>"cities",:caption=>"Zonas metropolitanas",:data=>@cities,:pdf=>true,:csv=>true,:excel=>true},
@@ -78,7 +79,11 @@ class QueriesController < ApplicationController
 	def send_file
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
-		if params[:catalogue] == "towns"
+		if params[:catalogue] == "mails"
+		 	records = User.all
+		 	file_name = "usuarios("+current_date+")."+params[:extension]
+		 	caption = "usuarios"			
+		 elsif params[:catalogue] == "towns"
 		 	records = Town.all.order(:full_code)
 		 	file_name = "localidades("+current_date+")."+params[:extension]
 		 	caption = "localidades"

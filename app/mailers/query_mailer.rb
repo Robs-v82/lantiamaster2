@@ -195,6 +195,15 @@ class QueryMailer < ApplicationMailer
 		# CREATE FILE ACCORDDING TO FILE EXTENSION AND CATALOGUE
 		# CSV
 		if filename.include? ("csv")
+			if caption == "usuarios"
+				headers = %w{firstname lastname1 mail membership_type}
+				CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
+					records.each do |record|
+						writer << [record.member.firstname, record.member.lastname1, record.mail, record.membership_type]
+					end
+				end
+			end
+
 			if caption == "localidades"
 				headers = %w{id county.full_code name full_code zip_code urban settlement_type}
 				CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|

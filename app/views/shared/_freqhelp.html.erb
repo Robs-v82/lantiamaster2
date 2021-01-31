@@ -1,6 +1,8 @@
 <div class="modal-content">
 	<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
 	<div class="p18">
+	<% if session[:membership] < 1 %>
+	<% end %>
 	<br>
 	<p class="bold">Guía de navegación</p>
 	<ol>
