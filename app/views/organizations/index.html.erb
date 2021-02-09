@@ -154,7 +154,7 @@
 				<div class="info-box inline-block">
 					<h5 class="h5-no-margin"><%= @type_title %></h5>
 					<%= render "shared/scopetitle" %>
-					<h6  class="">
+					<h6  class="" style="visibility: hidden">
 					T<%= @quarters.first.name[-1]%>/<%= I18n.l(@quarters.first.first_day, format: '%Y') %><% if @quarters.length > 1 %> - T<%= @quarters.last.name[-1]%>/<%= I18n.l(@quarters.last.first_day, format: '%Y') %><% end %>
 					</h6>
 				</div>
