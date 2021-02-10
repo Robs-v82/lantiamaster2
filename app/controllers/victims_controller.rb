@@ -795,6 +795,9 @@ class VictimsController < ApplicationController
 		myLength = helpers.root_path[:myLength]
 		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension]).deliver_now
 		session[:email_success] = true
+		downloadCounter = recipient.downloads
+		downloadCounter += 1
+		recipient.update(:downloads=>downloadCounter)
 		redirect_to "/victims"		
 	end
 
