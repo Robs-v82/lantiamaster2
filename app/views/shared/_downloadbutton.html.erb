@@ -1,16 +1,20 @@
 <div class="row short-row right-extra-margin">
 	<div class="right">
-		<a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="small material-icons paletton-red-text right-extra-margin">download</i></a>
-		<ul id='files-dropdown' class='dropdown-content'>
-			<% @fileHash[:formats].each do |format| %>
-				<li class="dropdown-item">
-					<% if @victims %>
-						<a href="/victims/send_file/<%= format %>/<%= @paramsCookie[0] %>"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
-					<% else %>
-						<a href="/members/send_file/<%= format %>/<%= @paramsCookie[0] %>"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
-					<% end %>
-				</li>
-			<% end %>
-		</ul>
+		<% if User.find(session[:user_id]).promo && User.find(session[:user_id]).downloads > 1 %>
+			<a class="tooltipped" data-tooltip="Las descargas para membresías promocionales están limitadas. Para descargar más datos escríbenos a contacto@lantiaintelligence.com"><i class="small material-icons grey-text text-lighten-2 right-extra-margin">download</i></a>
+		<% else %>
+			<a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="small material-icons paletton-red-text right-extra-margin">download</i></a>
+			<ul id='files-dropdown' class='dropdown-content'>
+				<% @fileHash[:formats].each do |format| %>
+					<li class="dropdown-item">
+						<% if @victims %>
+							<a href="/victims/send_file/<%= format %>/<%= @paramsCookie[0] %>"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+						<% else %>
+							<a href="/members/send_file/<%= format %>/<%= @paramsCookie[0] %>"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+						<% end %>
+					</li>
+				<% end %>
+			</ul>
+		<% end %>
 	</div>
 </div>

@@ -387,6 +387,9 @@
 		<div class="modal-content">
 			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
 			<p class="p20 slim">Enviamos el archivo a <span class="cyan-text bold text-darken-2"><%= @user.mail %></span>. El procesamiento del correo puede tardar algunos minutos.</p>
+			<% if User.find(session[:user_id]).promo && User.find(session[:user_id]).downloads > 1 %>
+				<p class="p20 slim">Las descargas para membresías promocionales están limitadas. Para contratar una membresía institucional y descargar más datos escríbenos a <a href="mailto:contacto@lantiaintelligence.com"><span class="cyan-text bold text-darken-2">contacto@lantiaintelligence.com.</span></a></p>
+			<% end %>
 		</div>
 		<div class="modal-footer">
 			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
