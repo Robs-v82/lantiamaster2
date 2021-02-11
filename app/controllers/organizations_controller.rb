@@ -1017,7 +1017,7 @@ class OrganizationsController < ApplicationController
 
 		session[:filename] = load_organization_territory_params[:file].original_filename
 		session[:load_success] = true
-		redirect_to "/states/conflict_analysi"		
+		redirect_to "/states/conflict_analysis"		
 	end
 
   def new_name
