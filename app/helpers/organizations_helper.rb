@@ -80,10 +80,10 @@ module OrganizationsHelper
 
 	def groupKeys
 		groupKeys = [
-  			{"name"=>"Cártel de Sinaloa","color"=>'#80cbc4',"dark_color"=>'#00897b',"material_color"=>'teal'},
-  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffcc80',"dark_color"=>'#ffc107',"material_color"=>'orange'},
-  			{"name"=>"Cártel del Noreste","color"=>'#56566B'},
-  			{"name"=>"La Unión Tepito","color"=>'#E39052'}
+  			{"name"=>"Cártel de Sinaloa","color"=>'#53A89F',"dark_color"=>'#00897b',"material_color"=>'teal'},
+  			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#FFD17D',"dark_color"=>'#ffc107',"material_color"=>'orange'},
+  			{"name"=>"Cártel del Noreste","color"=>'#FFB47D'},
+  			{"name"=>"La Unión Tepito","color"=>'#607DB2'}
 		]
 		return groupKeys
 	end
