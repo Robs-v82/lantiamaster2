@@ -401,7 +401,7 @@ class MembersController < ApplicationController
 		headerHash = {}
 		totalHash = {}
 		totalHash[:name] = "Total"
-		coalitionKeys = helpers.coalitionKeys		
+		groupKeys = helpers.groupKeys		
 
 		years = Year.all
 		if period == "quarterly"
@@ -637,11 +637,11 @@ class MembersController < ApplicationController
 						localPolice[:share] = (localPoliceShare*100).round(0)
 						placeHash[:agencies].push(localPolice)
 						placeHash[:coalitions] = []
-						helpers.coalitionKeys.each{|coalition|
+						helpers.groupKeys.each{|coalition|
 							coalitionCounter = 0
 							organizationOptions.each{|organization|
 								myOrganization = Organization.where(:name=>organization).last
-								if myOrganization.coalition == coalition["name"]
+								if myOrganization.group == coalition["name"]
 									orgNumber = localDetainees.where(:organization_id=>myOrganization.id).length
 									coalitionCounter += orgNumber
 								end
