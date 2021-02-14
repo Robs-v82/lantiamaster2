@@ -1,52 +1,62 @@
 <script type="text/javascript">
-    // <% if session[:membership] < 4 %>
-    //   <% if @organizations || @victims %>
-    //     $(document).ready(function() {
-    //         if ($(window).width() > 600) {
-    //           $('#slide-out').addClass('animate__animated animate__slideInLeft')
-    //         };
-    //     })
-    //   <% end %>
-    // <% end %>
 </script>
 <div class="side-icon red-text text-accent-4">
- <ul id="slide-out" class="sidenav paletton-grey
-  <% if @intro %>
-    animate__animated animate__slideInLeft animate__delay-1s
-  <% end %>
- "
-    <% if @intro %>
-      style="transform: translateX(0%)"
+    <ul id="slide-out" class="sidenav paletton-grey
+        <% if @intro %>
+        animate__animated animate__slideInLeft animate__delay-1s
     <% end %>
- >
-  <li>
-    <div class="user-view background paletton-grey">
-    </div>
-  </li>
-    <div id="user-links white-text" class="paletton-red">
-      <br>
-      <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/victims/new_query">VÍCTIMAS</a></li>
-      <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/organizations/query">ORGANIZACIONES</a></li>
-      <% if session[:membership] > 3 %>
-        <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/members/new_query">ARRESTOS</a></li>
-      <% end %>
-      <br>
-      <div class="divider"></div>
-      <br>
-      <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Riesgo por Crimen Organizado" href="/states/irco">IRCO</a></li>
-      <% if session[:membership] > 1 %>
-        <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Conflictividad" href="/states/icon">ICON</a></li>
-      <% end %>
-      <br>
-      <% if session[:membership] > 3 %>
+    "
+        <% if @intro %>
+            style="transform: translateX(0%)"
+        <% end %>
+    >
+        <li>
+            <div class="user-view background paletton-grey"></div>
+        </li>
+        <div id="user-links white-text" class="paletton-red">
+        <br>
+        <% if User.find(session[:user_id]).victim_access == false %>
+            <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">VÍCTIMAS</span></li>
+        <% else %>
+            <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/victims/new_query">VÍCTIMAS</a></li>
+        <% end %>
+        <% if User.find(session[:user_id]).organization_access == false %>
+            <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ORGANIZACIONES</span></li>
+        <% else %>
+            <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/organizations/query">ORGANIZACIONES</a></li>
+        <% end %>
+        <% if session[:membership] > 3 %>
+             <% if User.find(session[:user_id]).detention_access == false %>
+                <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ARRESTOS</span></li>
+            <% else %>
+                <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/members/new_query">ARRESTOS</a></li>
+            <% end %>
+        <% end %>
+        <br>
         <div class="divider"></div>
         <br>
-        <li><a class="left-min-margin white-text p20 semi-slim" href="/guide_4.pdf" target="_blank">MANUAL</a></li>
+        <% if User.find(session[:user_id]).irco_access == false %>
+            <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">IRCO</span></li>
+        <% else %>
+            <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Riesgo por Crimen Organizado" href="/states/irco">IRCO</a></li>
+        <% end %>
+        <% if session[:membership] > 1 %>
+            <% if User.find(session[:user_id]).icon_access == false %>
+                <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ICON</span></li>
+            <% else %>
+                <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Conflictividad" href="/states/icon">ICON</a></li>
+            <% end %>
+        <% end %>
         <br>
-      <% end %>
-    </div>
-  </ul>
-  <div class="col s2">
-    <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons small paletton-red-text class">menu</i></a>
-  </div>
+        <% if session[:membership] > 3 %>
+            <div class="divider"></div>
+            <br>
+            <li><a class="left-min-margin white-text p20 semi-slim" href="/guide_4.pdf" target="_blank">MANUAL</a></li>
+            <br>
+        <% end %>
+        </div>
+    </ul>
+<div class="col s2">
+<a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons small paletton-red-text class">menu</i></a>
+</div>
 </div>

@@ -42,6 +42,26 @@ class ApplicationController < ActionController::Base
 		redirect_to "/users/index" unless session[:membership] > 1
 	end
 
+	def require_victim_access
+		redirect_to "/users/index" unless User.find(session[:user_id]).victim_access
+	end
+
+	def require_organization_access
+		redirect_to "/users/index" unless User.find(session[:user_id]).organization_access
+	end
+
+	def require_detention_access
+		redirect_to "/users/index" unless User.find(session[:user_id]).detention_access
+	end
+
+	def require_irco_access
+		redirect_to "/users/index" unless User.find(session[:user_id]).irco_access
+	end
+
+	def require_icon_access
+		redirect_to "/users/index" unless User.find(session[:user_id]).icon_access
+	end
+
 	def form_header(icon,title)
 		myHeader = {
 			icon: icon,

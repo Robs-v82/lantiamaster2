@@ -8,6 +8,7 @@ class OrganizationsController < ApplicationController
   skip_before_action :verify_authenticity_token
   before_action :require_pro, only: [:post_query, :get_query]
   before_action :require_premium, only: [:show]
+  before_action :require_organization_access, only: [:index, :show]
   # before_action :quick_preload, only: [:query]
 
   def stop_organization_help

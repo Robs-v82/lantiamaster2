@@ -5,6 +5,7 @@ class MembersController < ApplicationController
 	skip_before_action :verify_authenticity_token
 
 	before_action :require_pro, only: [:detainees]
+	before_action :require_detention_access, only: [:detainees]
 
 	require 'pp'
 

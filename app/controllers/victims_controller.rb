@@ -2,6 +2,7 @@ class VictimsController < ApplicationController
 
 	after_action :remove_email_message, only: [:victims]
 	before_action :require_pro, only: [:query, :county_query]
+	before_action :require_victim_access, only: [:victims]
 
 	def new_query
 		helpers.clear_session

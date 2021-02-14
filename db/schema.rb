@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_11_031513) do
+ActiveRecord::Schema.define(version: 2021_02_14_171938) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -360,6 +360,11 @@ ActiveRecord::Schema.define(version: 2021_02_11_031513) do
     t.integer "active", default: 1
     t.boolean "promo"
     t.integer "downloads", default: 0
+    t.boolean "victim_access", default: true
+    t.boolean "organization_access", default: true
+    t.boolean "detention_access", default: true
+    t.boolean "irco_access", default: true
+    t.boolean "icon_access", default: true
     t.index ["member_id"], name: "index_users_on_member_id"
   end
 

@@ -1,6 +1,7 @@
 class CountiesController < ApplicationController
 
-	before_action :require_premium, only: [:irco]
+  before_action :require_premium, only: [:irco]
+	before_action :require_irco_access, only: [:irco]
   require 'csv'
 
 	def getCounties
