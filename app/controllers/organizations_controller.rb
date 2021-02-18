@@ -554,8 +554,8 @@ class OrganizationsController < ApplicationController
   			@singleSections.push(parentSection)
   		end
   		
-  		@leads = @myOrganization.leads.sort_by{|lead| lead.event.event_date}
-
+      @leads = @myOrganization.leads.sort_by{|lead| lead.event.event_date}
+      @leads.reverse!
   		@leadArr = []
   		myCounter = 0
   		@leads.each{|lead|
@@ -583,7 +583,7 @@ class OrganizationsController < ApplicationController
   				@leadArr.push(leadHash)
   			end 
   		} 
-  		@leadArr = @leadArr
+
   		@key = Rails.application.credentials.google_maps_api_key
 
 

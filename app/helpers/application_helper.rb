@@ -756,7 +756,7 @@ module ApplicationHelper
   			"ü" => "u",
   			"ñ" => "n",
   		}
-  		myString = myString.encode("ASCII", "UTF-8", fallback: spanish)
+  		# myString = myString.encode("ASCII", "UTF-8", fallback: spanish)
   		return myString
   	end
 
