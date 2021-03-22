@@ -235,7 +235,7 @@ class StatesController < ApplicationController
             :noun=>"conflictividad"
         }
         @defStrings = [
-            {:name=>"Conflictividad social", :definition=>"Incluye movilizaciones sociales, marchas o manifestaciones, el surgimiento de grupos armados y, huelgas con impacto mediático"},
+            {:name=>"Conflictividad social", :definition=>"Incluye movilizaciones sociales, marchas o manifestaciones, el surgimiento de grupos armados, y huelgas con impacto mediático"},
             {:name=>"Ingobernabilidad", :definition=>"Incluye linchamientos, fugas o motines en centros de readaptación social, bloqueos en vías de comunicación, retenes en carreteras o toma de instalaciones"},
             {:name=>"Violencia con daños colaterales", :definition=>"Incluye rafagueos, balaceras, incendios provocados y robo en carreteras"},
             {:name=>"Violencia con impacto social", :definition=>"Incluye atentados, agresiones o secuestros de figuras públicas, así como casos de trata de personas"}
