@@ -50,7 +50,7 @@ class MembersController < ApplicationController
 								end
 							end
 						}
-						Detention.create(:event_id=>targetEvent.id,:legacy_id=>x[0])
+						Detention.create(:event_id=>targetEvent.id,:legacy_id=>x[0].to_i)
 						targetDetention = Detention.last
 
 						# ADD AUTHORITIES
@@ -75,7 +75,7 @@ class MembersController < ApplicationController
 						}
 
 					else
-						targetDetention = Detention.where(:legacy_id=>x[0]).last
+						targetDetention = Detention.where(:legacy_id=>x[0].to_i).last
 					end
 
 					# DEFINE ROLE
@@ -98,8 +98,8 @@ class MembersController < ApplicationController
 							Member.create(:organization_id=>targetOrganization.id,:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13], :alias=>myAlias)
 							targetMember = Member.last
 							targetMember = targetOrganization.members.where(:firstname=>x[11],:lastname1=>x[12],:lastname2=>x[13]).last
-							targetMember.update(:detention_id=>targetDetention.id)
 						end
+						targetMember.update(:detention_id=>targetDetention.id)
 						targetMember.update(:role_id=>targetRole.id)
 						if x[15] == "M"
 							targetMember.update(:gender=>"Masculino")
