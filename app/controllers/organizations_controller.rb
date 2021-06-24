@@ -1029,7 +1029,15 @@ class OrganizationsController < ApplicationController
       :change_date=> Date.today
     }
     legacy_names.push(myHash)
+    myOrganization.alias.each{|myString| myString.strip!}
+    aliasArr = myOrganization.alias
+    aliasArr.push(myOrganization.name)
+    myOrganization.update(:alias=>aliasArr)
     myOrganization.update(:name=>new_name_params[:new_name], :legacy_names=>legacy_names)
+    if  myOrganization.alias.include? new_name_params[:new_name]
+      myOrganization.alias.delete(new_name_params[:new_name])
+    end
+    print "XXXXX"*100
     redirect_to "/datasets/load"
   end
 
