@@ -67,9 +67,6 @@ class QueriesController < ApplicationController
 
 		content = helpers.cell_content(@type_of_query, cells, @myQuery)
 		file_name = "consulta-"+current_date+"-"+current_query_string+"."+params[:extension]
-		print "********** "
-		print file_name
-		print " **********"
 		file_root = Rails.root.join("private",file_name)
 		QueryMailer.query_email(recipient, header, content, file_root, file_name).deliver_now
 		session[:email_success] = true
