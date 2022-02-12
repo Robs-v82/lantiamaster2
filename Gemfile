@@ -33,7 +33,7 @@ gem 'materialize-sass', '~> 1.0.0'
 
 gem 'execjs'
 
-gem 'mini_racer'
+# gem 'mini_racer'
 
 # for Excel downloads
 gem 'rubyzip', '>= 1.2.1'
