@@ -869,6 +869,30 @@ class VictimsController < ApplicationController
 		redirect_to '/victims/new_query'
 	end
 
+
+	def national_annual_state
+		months = helpers.get_regular_months.sort
+		years = helpers.get_regular_years
+		states = State.all.sort_by {|state| state.code}
+		checkedStatesArr = states.pluck(:id)
+		cities = City.all.sort_by {|city| city.name}
+		checkedCitiesArr = cities.pluck(:id)
+		genderOptions = ["Masculino","Femenino","No identificado"]
+		current_month = "none"
+		Month.all.each{|month|
+			if month.victims.length != 0
+				current_month = month.name
+			end
+		}
+		print "XXX"*100 
+		print current_month
+		victim_freq_params = ["annual", "stateWise", "noGenderSplit", years, checkedStatesArr, checkedCitiesArr, genderOptions, "states", months]
+		content = api_freq_table(*victim_freq_params)
+		data = [{:month=>current_month, :content=>content}]
+		Cookie.create(:category=>"national_annual_state", :data=>data)
+		redirect_to '/victims/new_query'
+	end
+
 	def api_freq_table(period, scope, gender, years, states, cities, genderOptions, counties, months)
 		myTable = []
 		headerHash = {}

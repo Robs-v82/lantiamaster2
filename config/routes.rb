@@ -100,6 +100,8 @@ Rails.application.routes.draw do
     post 'victims/load_victims'
     get 'victims' => 'victims#victims'
     get 'victims/national_api'
+    get 'victims/national_annual_state'
+    get 'victims/national_annual_city'
     get 'victims/states_api'
     get 'victims/reset_map'
     get 'victims/county_query/:code' => 'victims#county_query'
