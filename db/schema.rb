@@ -352,6 +352,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "remember_token"
     t.datetime "email_verified_at"
     t.integer "role_id", default: 2
+    t.integer "membership_id"
     t.boolean "victim_help", default: true
     t.boolean "organization_help", default: true
     t.boolean "index_help", default: true

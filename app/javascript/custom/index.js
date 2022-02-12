@@ -20,6 +20,7 @@ $(document).ready(function(){
 
 	var loader = document.getElementById("preloader");
 	function vanish() {
+		console.log("VANISHING")
 		loader.classList.add('preloader-disappear');
 	}
 	vanish()
@@ -29,6 +30,7 @@ $(document).ready(function(){
 	// }
 
 	function slideVanish() {
+		console.log("PRELOADER")
 		$('.preloader-trigger').click(function(){
 			$('#preloader').removeClass('preloader-disappear')
 		})

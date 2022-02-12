@@ -1005,6 +1005,7 @@ class VictimsController < ApplicationController
 					genderHash = {:name=>k[:name], :color=>k[:color]}
 					genderHash[:freq] = localVictims.where(:gender=>k[:name].upcase).length
 					genderHash[:share] = genderHash[:freq]/localVictims.where(:gender=>["MASCULINO","FEMENINO"]).length.to_f
+					genderHash[:share] = genderHash[:share].round(3)
 					genderArr.push(genderHash)
 				end
 			}
@@ -1018,6 +1019,7 @@ class VictimsController < ApplicationController
 				number_of_victims = number_of_victims.where('age <= ?', k[:range][1]).length
 				ageHash[:freq] = number_of_victims
 				ageHash[:share] = number_of_victims/localVictims.where.not(:age=>nil).length.to_f
+				ageHash[:share] = ageHash[:share].round(3)
 				ageArr.push(ageHash)
 			}
 			placeHash[:ages] = ageArr
@@ -1040,7 +1042,10 @@ class VictimsController < ApplicationController
 			booleans.each{|boolean|
 				counter = 0
 				boolean[:killings].map{|k| counter += k.victims.length}
-				placeHash[boolean[:string]] = {:freq=>boolean[:killings].length, :share=>counter/localVictims.length.to_f}	
+				booleanShare = counter/localVictims.length.to_f
+				booleanShare = booleanShare.round(3)
+				placeHash[boolean[:string]] = {:freq=>boolean[:killings].length, :share=>booleanShare}
+
 			}
 
 			# TYPE OF PLACE
@@ -1052,6 +1057,7 @@ class VictimsController < ApplicationController
 				typeHash[:color] = type[:color]
 				typeHash[:freq] = typeKillings.length
 				typeHash[:share] = typeHash[:freq]/localKillings.where.not(:type_of_place=>nil).length.to_f
+				typeHash[:share] = typeHash[:share].round(3)
 				types.push(typeHash)
 				typeCounter += typeHash[:share]
 			}
@@ -1060,6 +1066,7 @@ class VictimsController < ApplicationController
 				:color=>'#e0e0e0',
 				:share=> 1 - typeCounter,
 			}
+			nilTypeHash[:share] = nilTypeHash[:share].round(3)
 			types.push(nilTypeHash)
 			placeHash[:types] = types
 

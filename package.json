@@ -1,5 +1,5 @@
 {
-  "name": "lantiamaster",
+  "name": "Boblink",
   "private": true,
   "dependencies": {
     "@rails/actioncable": "^6.0.0",
@@ -16,5 +16,9 @@
   "version": "0.1.0",
   "devDependencies": {
     "webpack-dev-server": "^3.10.3"
-  }
+  },
+  "main": "index.js",
+  "repository": "https://github.com/Robs-v82/lantiamaster2.git",
+  "author": "Robs-v82 <roberto.valladarespiedras@gmail.com>",
+  "license": "MIT"
 }
