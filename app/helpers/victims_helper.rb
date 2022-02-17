@@ -32,6 +32,19 @@ module VictimsHelper
 		return keys
 	end
 
+    def law_enforcement_keys
+        keys = [
+            {:name=>"SEDENA", :categories=>"Militar SEDENA"},
+            # {:name=>"SEMAR", :categories=>["Militar SEMAR"]},
+            {:name=>"PF/GN", :categories=>"Guardia Nacional"},
+            {:name=>"Policía Estatal", :categories=>"Policía Estatal (caminos)"},
+            {:name=>"Policía Municipal", :categories=>"Policía Municipal (preventivo)"},
+            {:name=>"Policía (no especificado)", :categories=>"Policía No Especificado u otro"},
+            # {:name=>"FGR/Fiscalía Estatal", :categories=>[]}
+        ]
+        return keys
+    end
+
     def female_victims(quarter, place, localVictims)
         quarterVictims = quarter.victims
         femaleQuarterVictims = localVictims.merge(quarterVictims).where(:gender=>"FEMENINO").length
@@ -107,6 +120,16 @@ module VictimsHelper
 			{:string=>"Transporte de pasajeros", :typeArr=>["Transporte público colectivo (autobús, metro, tren)","Transporte público privado (taxi, UBER, mototaxi)"], :color=>"#EF974E"}			
 		]
     	return myArr
+    end
+
+    def type_of_place_keys
+        myArr = [
+            {:string=>"Vía pública", :typeArr=>"Vía pública (calle, avenida, banqueta, carretera)", :color=>"#3EBF3E"},
+            {:string=>"Inmueble habitacional", :typeArr=>"Inmueble habitacional propiedad del ejecutado (dentro o fuera)", :color=>"#2F8F8F"},
+            {:string=>"Comercio", :typeArr=>"Local comercial (taller, tiendita, farmacia, tortillería)", :color=>"#EF4E50"},
+            {:string=>"Transporte de pasajeros", :typeArr=>"Transporte público colectivo (autobús, metro, tren)", :color=>"#EF974E"}          
+        ]
+        return myArr
     end
 
 end

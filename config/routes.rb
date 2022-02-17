@@ -102,6 +102,7 @@ Rails.application.routes.draw do
     get 'victims/national_api'
     get 'victims/national_annual_state'
     get 'victims/national_annual_city'
+    get 'victims/test'
     get 'victims/states_api'
     get 'victims/reset_map'
     get 'victims/county_query/:code' => 'victims#county_query'
