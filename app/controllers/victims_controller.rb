@@ -884,7 +884,7 @@ class VictimsController < ApplicationController
 		
 		# CREATE NATIONAL API
 		data = {}
-		myArr = [%w{monthly}, %w{stateWise}, %w{noGenderSplit}]
+		myArr = [%w{annual}, %w{stateWise}, %w{noGenderSplit}]
 		myArr[0].each{|timeframe|
 			timeHash = {}
 			myArr[1].each{|placeframe|
