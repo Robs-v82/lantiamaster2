@@ -869,6 +869,42 @@ class VictimsController < ApplicationController
 		redirect_to '/victims/new_query'
 	end
 
+	def national_inputs
+		months = helpers.get_regular_months.sort
+		helpers.clear_session
+		years = helpers.get_regular_years
+		checkedYearsArr = years.pluck(:id)
+		states = State.all.sort_by {|state| state.code}
+		checkedStatesArr = states.pluck(:id)
+		cities = City.all.sort_by {|city| city.name}
+		checkedCitiesArr = cities.pluck(:id)
+		genderOptions = ["Masculino","Femenino","No identificado"]
+		victim_freq_params = [params[:timeframe], params[:placeframe], "noGenderSplit", years, checkedStatesArr, checkedCitiesArr, genderOptions, "states", months]
+		data = api_freq_table(*victim_freq_params)
+		Cookie.create(:data=>[data], :category=>"victims_"+params[:timeframe]+"_"+params[:placeframe])
+		redirect_to '/victims/new_query'
+	end
+
+	def national_joint
+
+		data = {}
+		myArr = [%w{annual quarterly monthly}, %w{stateWise cityWise}, %w{noGenderSplit}]
+		myArr[0].each{|timeframe|
+			timeHash = {}
+			myArr[1].each{|placeframe|
+				placeHash = {}
+				myArr[2].each{|genderframe|
+					myCategory = "victims_"+timeframe+"_"+placeframe
+					placeHash[genderframe] = Cookie.where(:category=>myCategory).last.data[0]
+				}
+				timeHash[placeframe] = placeHash
+			}
+			data[timeframe] = timeHash
+		}
+		Cookie.create(:data=>[data], :category=>"victims")
+		redirect_to '/victims/new_query'
+	end
+
 	def test
 		months = helpers.get_regular_months.sort
 		helpers.clear_session

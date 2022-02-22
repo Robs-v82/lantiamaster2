@@ -100,6 +100,8 @@ Rails.application.routes.draw do
     post 'victims/load_victims'
     get 'victims' => 'victims#victims'
     get 'victims/national_api'
+    get 'victims/national/:timeframe/:placeframe' => 'victims#national_inputs'
+    get 'victims/national_joint'
     get 'victims/national_annual_state'
     get 'victims/national_annual_city'
     get 'victims/test'
