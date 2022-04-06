@@ -1,6 +1,6 @@
 rawData = "03,Víctor,Castro,Cosio,gobernador03.jpg
 	08,María Eugenia,Campos,Galván,gobernador08.jpg
-	06,Índira,Vizcaíno,Silva,gobernador06.jpg
+	06,Indira,Vizcaíno,Silva,gobernador06.jpg
 	12,Evelyn,Salgado,Pineda,gobernador12.jpg"
 
 if Role.where(:name=>"Gobernador").empty?
