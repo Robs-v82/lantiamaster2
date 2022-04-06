@@ -1,7 +1,16 @@
-rawData = "03,Víctor,Castro,Cosio,gobernador03.jpg
+rawData = "02,Marina del Pilar,Ávila,Olmeda,gobernador02.jpg
+	03,Víctor,Castro,Cosio,gobernador03.jpg
+	04,Layda,Sansores,San Román,gobernador04.jpg
 	08,María Eugenia,Campos,Galván,gobernador08.jpg
 	06,Indira,Vizcaíno,Silva,gobernador06.jpg
-	12,Evelyn,Salgado,Pineda,gobernador12.jpg"
+	12,Evelyn,Salgado,Pineda,gobernador12.jpg
+	16,Alfredo,Ramírez,Bedolla,gobernador16.jpg
+	18,Miguel Ángel,Navarro,Quintero,gobernador18.jpg
+	22,Mauricio,Kuri,González,gobernador22.jpg
+	24,Ricardo,Gallardo,Cardona,gobernador24.jpg
+	25,Rubén,Rocha,Moya,gobernador25.jpg
+	26,Alfonso,Durazo,Montaño,gobernador26.jpg
+	29,Lorena,Cuéllar,Cisneros,gobernador29.jpg"
 
 if Role.where(:name=>"Gobernador").empty?
 	Role.create(:name=>"Gobernador")	
