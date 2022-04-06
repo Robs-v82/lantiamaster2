@@ -31,7 +31,7 @@ State.all.each{|state|
 	governor = stateMembers.where(:role_id=>governorKey).last
 	governorArr.each{|x|
 		filename = "gobernador"+x[1]+".jpg"
-		downloaded_image = URI.open("/Users/bobsled/lantiamaster2/app/assets/images/"+x[4])
+		downloaded_image = URI.open(Rails.root / 'app' / 'assets' / 'images' / x[4])
 		print filename
 		if x[0] == state.code
 			if governor == nil	
