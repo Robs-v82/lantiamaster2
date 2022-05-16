@@ -16,7 +16,8 @@ criminalRoles = [
 	{:name=>"Narcomenudista"},
 	{:name=>"Sin definir"},
 	{:name=>"Jefe operativo"},	
-	{:name=>"Jefe regional"}	
+	{:name=>"Jefe regional"},
+	{:name=>"Jefe regional u operador"}		
 ]
 
 criminalRoles.each{|role|

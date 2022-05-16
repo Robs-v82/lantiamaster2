@@ -327,7 +327,7 @@ class MembersController < ApplicationController
 
 	def detainees_freq_api
 		helpers.clear_session
-		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
+		# paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
 		organizationOptions = helpers.get_detainees_cartels
 		roleOptions = []
 		myRoles = Role.where(:criminal=>true)

@@ -119,9 +119,9 @@ class StatesController < ApplicationController
             if inputs[:general_victims] > 0.5
                 placeHash[:warnings].push("Violencia generalizada")
             end
-            if inputs[:conflict] > inputs[:general_victims]
-                placeHash[:warnings].push("Conflicto criminal inminente")
-            end
+            # if inputs[:conflict] > inputs[:general_victims]
+            #     placeHash[:warnings].push("Conflicto criminal inminente")
+            # end
             if inputs[:female_victims] == 1
                placeHash[:warnings].push("Agresiones a mujeres") 
             end
@@ -186,7 +186,7 @@ class StatesController < ApplicationController
             "Agresiones a mujeres",
             "Agresiones a comercios",
             "Agresiones a autoridades",
-            "Conflicto criminal inminente (IRCO estatal)",
+            # "Conflicto criminal inminente (IRCO estatal)",
             "Agresiones en el transporte de pasajeros (IRCO municipal)"
         ]
         print "****"*100
@@ -282,10 +282,10 @@ class StatesController < ApplicationController
             :female_victims=>female_index.round, 
             :police_victims=>police_index,
             :commercial_killings=>commercial_index,
-            :conflict=>Cookie.where(:category=>"conflict_analysis").last.data[0][place.code].round(2),
+            # :conflict=>Cookie.where(:category=>"conflict_analysis").last.data[0][place.code].round(2),
             :feel_safe=>(1-(feel_safe(quarter, place)/100)).round(2)
         }
-        stateScore = (placeHash[:general_victims]*30)+(placeHash[:female_victims]*10)+(placeHash[:police_victims]*10)+(placeHash[:commercial_killings]*10)+(placeHash[:conflict]*20)+(placeHash[:feel_safe]*20)
+        stateScore = (placeHash[:general_victims]*40)+(placeHash[:female_victims]*10)+(placeHash[:police_victims]*20)+(placeHash[:commercial_killings]*20)+(placeHash[:feel_safe]*10)
         placeHash[:score] = stateScore.round(1)
         return placeHash
     end
@@ -332,10 +332,11 @@ class StatesController < ApplicationController
                 :female_victims=>female_index.round, 
                 :police_victims=>police_index,
                 :commercial_killings=>commercial_index,
-                :conflict=>Cookie.where(:category=>"conflict_analysis").last.data[0][place.code].round(2),
+                # :conflict=>Cookie.where(:category=>"conflict_analysis").last.data[0][place.code].round(2),
                 :feel_safe=>(1-(feel_safe(myQuarter, place)/100)).round(2)
             }
-            stateScore = (placeHash[:general_victims]*30)+(placeHash[:female_victims]*10)+(placeHash[:police_victims]*10)+(placeHash[:commercial_killings]*10)+(placeHash[:conflict]*20)+(placeHash[:feel_safe]*20)
+            # stateScore = (placeHash[:general_victims]*30)+(placeHash[:female_victims]*10)+(placeHash[:police_victims]*10)+(placeHash[:commercial_killings]*10)+(placeHash[:conflict]*20)+(placeHash[:feel_safe]*20)
+            stateScore = (placeHash[:general_victims]*40)+(placeHash[:female_victims]*10)+(placeHash[:police_victims]*20)+(placeHash[:commercial_killings]*20)+(placeHash[:feel_safe]*10)
             placeHash[:score] = stateScore.round(1)
             indexHash[place.code] = placeHash
         }
