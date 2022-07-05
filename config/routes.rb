@@ -113,4 +113,5 @@ Rails.application.routes.draw do
     get 'states/conflict_analysis'
     post 'states/stateIndexHash'
     get 'users/preloader'
+    get 'counties/testmap'
 end

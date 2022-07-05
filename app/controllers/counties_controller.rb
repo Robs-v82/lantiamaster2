@@ -317,6 +317,11 @@ class CountiesController < ApplicationController
 	    render json: matchTable
 	end
 
+    def testmap
+        @stateCode = 16
+        
+    end
+
 	private
 
 	def getCounties_params

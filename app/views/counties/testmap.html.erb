@@ -1,0 +1,21 @@
+<script type="text/javascript">
+	$(document).ready(function() {
+			$("#freq-map-trigger").click(function() {
+			$(".freq-entry-display").hide();
+			$("#freq-entry-map").show();
+			$("#freq-map-trigger i").addClass('active');
+			$("#freq-table-trigger i").removeClass('active');
+			return false
+	 	});
+
+		if ($(window).height() < 600) {
+			var mapHeight = 300
+        } else {
+        	var mapHeight = $(window).height()/2
+        };
+
+	})
+</script>
+
+<div id="victim-map">
+</div>
