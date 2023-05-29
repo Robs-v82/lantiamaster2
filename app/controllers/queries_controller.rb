@@ -77,7 +77,7 @@ class QueriesController < ApplicationController
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
 		if params[:catalogue] == "mails"
-		 	records = User.all
+		 	records = User.where.not(:membership_type=> 1)
 		 	file_name = "usuarios("+current_date+")."+params[:extension]
 		 	caption = "usuarios"			
 		 elsif params[:catalogue] == "towns"
