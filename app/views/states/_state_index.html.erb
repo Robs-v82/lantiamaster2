@@ -143,7 +143,7 @@
 														<div>
 															<p class="slim">
 																<% if row["code"] == "09" %>
-																	Jefa de Gobierno:
+																	Jefe de Gobierno:
 																<% elsif State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.gender == "FEMENINO"
 																	%>
 																Gobernadora:
