@@ -36,7 +36,7 @@ gem 'execjs'
 # gem 'mini_racer'
 
 # for Excel downloads
-gem 'rubyzip', '>= 1.2.1'
+gem 'rubyzip', '>= 1.2.1' 
 gem 'caxlsx', '~> 3.0'
 
 gem 'poppler'
@@ -52,7 +52,7 @@ gem "chartkick"
 gem 'capistrano', '~> 3.11'
 gem 'capistrano-rails', '~> 1.4'
 gem 'capistrano-bundler'
-# gem 'capistrano-passenger', '~> 0.2.0'
+gem 'capistrano-passenger', '~> 0.2.0'
 gem 'capistrano-rbenv', '~> 2.1', '>= 2.1.4'
 
 gem 'capistrano3-puma'
