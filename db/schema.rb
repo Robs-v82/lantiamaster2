@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_14_171938) do
+ActiveRecord::Schema.define(version: 2024_10_29_014136) do
 
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
@@ -241,6 +241,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "coalition"
     t.string "color"
     t.string "group"
+    t.string "ip_address"
     t.index ["county_id"], name: "index_organizations_on_county_id"
   end
 

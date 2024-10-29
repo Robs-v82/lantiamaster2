@@ -5,7 +5,7 @@
     "@rails/actioncable": "^6.0.0",
     "@rails/activestorage": "^6.0.0",
     "@rails/ujs": "^6.0.0",
-    "@rails/webpacker": "4.2.2",
+    "@rails/webpacker": "^5.4.4",
     "chart.js": "^2.9.3",
     "chartkick": "^3.2.1",
     "jquery": "^3.5.1",
@@ -15,7 +15,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "2.11.2"
   },
   "main": "index.js",
   "repository": "https://github.com/Robs-v82/lantiamaster2.git",

@@ -1,6 +1,7 @@
 class QueriesController < ApplicationController
 	
 	after_action :remove_email_message, only: [:files]
+	protect_from_forgery except: [:get_quarters, :get_months]
 
 	def mapOff
 		session[:map] = false

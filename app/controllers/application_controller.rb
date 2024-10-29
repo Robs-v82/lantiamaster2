@@ -27,8 +27,26 @@ class ApplicationController < ActionController::Base
 	end
 
 	def require_login
-		redirect_to "/password" if session[:user_id] == nil
+		if session[:user_id] == nil
+		if Rails.env.production?
+			client = request.remote_ip
+		else
+			client = '2806:107e:13:6d08:a82d:dfb2:8b9a:5624'		
+		end
+		valid_index = Organization.pluck(:ip_address).uniq
+		# print 'XXXXXX'*20+valid_index[1]+'OOOOO'*20
+			if valid_index.include? client
+				session[:user_id] = 1
+				session[:membership] = 4
+			else
+				redirect_to "/password"	
+			end
+		end
 	end
+
+	# def require_login
+	# 	redirect_to "/password" if session[:user_id] == nil
+	# end
 
 	def require_pro
 		redirect_to "/users/index" unless session[:membership] > 3
