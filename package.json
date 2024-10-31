@@ -10,12 +10,12 @@
     "chartkick": "^3.2.1",
     "jquery": "^3.5.1",
     "materialize-css": "^1.0.0",
-    "node": "^14.7.0",
     "turbolinks": "^5.2.0"
   },
   "version": "0.1.0",
   "devDependencies": {
-    "webpack-dev-server": "2.11.2"
+    "postcss-import": "^16.1.0",
+    "webpack-dev-server": "^5.1.0"
   },
   "main": "index.js",
   "repository": "https://github.com/Robs-v82/lantiamaster2.git",

@@ -39,23 +39,15 @@ gem 'execjs'
 gem 'rubyzip', '>= 1.2.1' 
 gem 'caxlsx', '~> 3.0'
 
-gem 'poppler'
+# gem 'poppler'
 gem 'mini_magick'
 
-gem 'wicked_pdf'
-gem 'wkhtmltopdf-binary'
+# gem 'wicked_pdf'
+# gem 'wkhtmltopdf-binary'
 
 gem "chartkick"
 
 # gem 'daru-view', git: 'https://github.com/SciRuby/daru-view'
-
-gem 'capistrano', '~> 3.11'
-gem 'capistrano-rails', '~> 1.4'
-gem 'capistrano-bundler'
-gem 'capistrano-passenger', '~> 0.2.0'
-gem 'capistrano-rbenv', '~> 2.1', '>= 2.1.4'
-
-gem 'capistrano3-puma'
 
 gem 'listen', '~> 3.2' 
 gem 'database_cleaner'
@@ -68,6 +60,13 @@ gem 'csv-xlsx-converter'
 
 gem 'psych', '< 4.0.0'
 gem 'fiddle', '1.1.0'
+
+# Capstrano gems from BrainTrust tutorial
+gem 'capistrano', '~> 3.10', require: false
+gem 'capistrano-passenger'
+gem 'capistrano-rails', '~> 1.5', require: false
+gem 'capistrano-rbenv', '~> 2.1'
+# gem 'capistrano-db-tasks', require:false
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -96,4 +95,4 @@ group :test, :production do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+# gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

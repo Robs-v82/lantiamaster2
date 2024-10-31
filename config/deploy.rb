@@ -1,21 +1,41 @@
-# config valid for current version and patch releases of Capistrano
-lock "~> 3.16.0"
+lock "~> 3.18.1"
+
+# require 'capistrano-db-tasks'
 
 set :application, "lantiamaster"
 set :repo_url, "https://github.com/Robs-v82/lantiamaster2"
+set :deploy_to, "/home/deploy/aws-rails"
+# set :branch
+
+set :linked_files, %w{config/database.yml config/master.key}
+set :linked_dirs %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
+
+set :keep_releases, 3
+set :keep_assets, 3
+
+namespace :deploy do
+	desc 'Restart application'
+	task :restar do
+		on roles (:app), in: :sequence, wait: 5 do 
+			execute :touch, release_path.join('tmp/restart.txt')
+		end 
+	end
+
+	after :publishing, 'deploy:restart'
+	after :finishing, 'deploy:cleanup'
+end
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
 # Default deploy_to directory is /var/www/my_app_name
 # set :deploy_to, "/var/www/my_app_name"
-set :deploy_to, "/var/www/#{fetch :application}"
 
-append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', '.bundle', 'public/system', 'public/uploads'
+
+# append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', '.bundle', 'public/system', 'public/uploads'
 
 set :keep_releases, 5
 
-set :linked_files, %w{config/master.key}
 
 set :deploy_via, :remote_cache
 
