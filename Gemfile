@@ -68,6 +68,10 @@ gem 'capistrano-rails', '~> 1.5', require: false
 gem 'capistrano-rbenv', '~> 2.1'
 # gem 'capistrano-db-tasks', require:false
 
+gem 'ed25519', '< 2.0'
+gem 'bcrypt_pbkdf', '<2.0'
+
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
