@@ -7,7 +7,7 @@
 # server "example.com", user: "deploy", roles: %w{app web}, other_property: :other_value
 # server "db.example.com", user: "deploy", roles: %w{db}
 
-server '3.134.94.157', user: 'ubuntu', roles: %w{app db web}
+server '18.118.85.206', user: 'ubuntu', roles: %w{app db web}
 
 # role-based syntax
 # ==================
@@ -44,7 +44,7 @@ server '3.134.94.157', user: 'ubuntu', roles: %w{app db web}
  set :ssh_options, {
   forward_agent: true, 
   auth_methods: %w[publickey],
-  keys: %w[~/lantiamasterkeypair.pem]
+  keys: %w[~/Lantiamaster2025.pem]
  }
 
 # The server-based syntax can be used to override options:
