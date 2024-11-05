@@ -12,6 +12,9 @@
 
 ActiveRecord::Schema.define(version: 2021_02_14_171938) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "accounts", force: :cascade do |t|
     t.integer "code"
     t.string "name"
@@ -23,8 +26,8 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.integer "record_id", null: false
-    t.integer "blob_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -46,7 +49,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "code"
-    t.integer "county_id"
+    t.bigint "county_id"
     t.integer "core_county_id"
     t.index ["county_id"], name: "index_cities_on_county_id"
   end
@@ -55,9 +58,9 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "data"
-    t.integer "quarter_id"
+    t.bigint "quarter_id"
     t.string "category"
-    t.integer "year_id"
+    t.bigint "year_id"
     t.index ["quarter_id"], name: "index_cookies_on_quarter_id"
     t.index ["year_id"], name: "index_cookies_on_year_id"
   end
@@ -66,11 +69,11 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "name"
     t.string "code"
     t.integer "population"
-    t.integer "state_id", null: false
+    t.bigint "state_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "full_code"
-    t.integer "city_id"
+    t.bigint "city_id"
     t.string "shortname"
     t.boolean "destination"
     t.text "comparison"
@@ -79,7 +82,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
   end
 
   create_table "detentions", force: :cascade do |t|
-    t.integer "event_id", null: false
+    t.bigint "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "legacy_id"
@@ -87,8 +90,8 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
   end
 
   create_table "detentions_organizations", force: :cascade do |t|
-    t.integer "detention_id"
-    t.integer "organization_id"
+    t.bigint "detention_id"
+    t.bigint "organization_id"
     t.index ["detention_id"], name: "index_detentions_organizations_on_detention_id"
     t.index ["organization_id"], name: "index_detentions_organizations_on_organization_id"
   end
@@ -97,7 +100,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "name"
     t.string "description"
     t.integer "scian3"
-    t.integer "sector_id", null: false
+    t.bigint "sector_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "shortname"
@@ -105,19 +108,19 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
   end
 
   create_table "divisions_organizations", id: false, force: :cascade do |t|
-    t.integer "division_id"
-    t.integer "organization_id"
+    t.bigint "division_id"
+    t.bigint "organization_id"
     t.index ["division_id"], name: "index_divisions_organizations_on_division_id"
     t.index ["organization_id"], name: "index_divisions_organizations_on_organization_id"
   end
 
   create_table "events", force: :cascade do |t|
     t.datetime "event_date"
-    t.integer "town_id", null: false
+    t.bigint "town_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "month_id"
-    t.integer "organization_id"
+    t.bigint "month_id"
+    t.bigint "organization_id"
     t.index ["month_id"], name: "index_events_on_month_id"
     t.index ["organization_id"], name: "index_events_on_organization_id"
     t.index ["town_id"], name: "index_events_on_town_id"
@@ -129,8 +132,8 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
   end
 
   create_table "keys", force: :cascade do |t|
-    t.integer "user_id", limit: 8, null: false
-    t.text "key", limit: 8
+    t.bigint "user_id", null: false
+    t.text "key"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_keys_on_user_id"
@@ -149,10 +152,10 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.boolean "aggression"
     t.boolean "shooting_between_criminals_and_authorities"
     t.string "notes"
-    t.integer "event_id", null: false
+    t.bigint "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "legacy_number", limit: 8
+    t.bigint "legacy_number"
     t.integer "aggresor_count"
     t.integer "kidnapped_count"
     t.integer "killer_vehicle_count"
@@ -166,7 +169,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
 
   create_table "leads", force: :cascade do |t|
     t.string "category"
-    t.integer "event_id", null: false
+    t.bigint "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "legacy_id"
@@ -189,11 +192,11 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "gender"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "organization_id"
-    t.integer "role_id"
+    t.bigint "organization_id"
+    t.bigint "role_id"
     t.string "mail"
     t.text "alias"
-    t.integer "detention_id"
+    t.bigint "detention_id"
     t.index ["detention_id"], name: "index_members_on_detention_id"
     t.index ["organization_id"], name: "index_members_on_organization_id"
     t.index ["role_id"], name: "index_members_on_role_id"
@@ -203,14 +206,14 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "quarter_id", null: false
+    t.bigint "quarter_id", null: false
     t.datetime "first_day"
     t.index ["quarter_id"], name: "index_months_on_quarter_id"
   end
 
   create_table "organization_towns", force: :cascade do |t|
-    t.integer "town_id"
-    t.integer "organization_id"
+    t.bigint "town_id"
+    t.bigint "organization_id"
     t.index ["organization_id"], name: "index_organization_towns_on_organization_id"
     t.index ["town_id"], name: "index_organization_towns_on_town_id"
   end
@@ -222,7 +225,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "rfc"
-    t.integer "county_id"
+    t.bigint "county_id"
     t.string "domain"
     t.boolean "active_links"
     t.date "active_since"
@@ -245,8 +248,8 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
   end
 
   create_table "organizations_towns", force: :cascade do |t|
-    t.integer "town_id"
-    t.integer "organization_id"
+    t.bigint "town_id"
+    t.bigint "organization_id"
     t.index ["organization_id"], name: "index_organizations_towns_on_organization_id"
     t.index ["town_id"], name: "index_organizations_towns_on_town_id"
   end
@@ -260,7 +263,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.boolean "is_quote"
     t.boolean "is_retweet"
     t.string "url"
-    t.integer "account_id", null: false
+    t.bigint "account_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["account_id"], name: "index_posts_on_account_id"
@@ -270,7 +273,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "year_id"
+    t.bigint "year_id"
     t.datetime "first_day"
     t.index ["year_id"], name: "index_quarters_on_year_id"
   end
@@ -299,7 +302,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.boolean "is_post"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "member_id"
+    t.bigint "member_id"
     t.index ["member_id"], name: "index_sources_on_member_id"
   end
 
@@ -319,7 +322,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "code"
     t.string "full_code"
     t.string "name"
-    t.integer "county_id", null: false
+    t.bigint "county_id", null: false
     t.string "urban"
     t.integer "population"
     t.integer "height"
@@ -333,8 +336,8 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
   end
 
   create_table "towns_and_organizations", force: :cascade do |t|
-    t.integer "town_id"
-    t.integer "organization_id"
+    t.bigint "town_id"
+    t.bigint "organization_id"
     t.index ["organization_id"], name: "index_towns_and_organizations_on_organization_id"
     t.index ["town_id"], name: "index_towns_and_organizations_on_town_id"
   end
@@ -345,7 +348,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.string "other_phone"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "member_id"
+    t.bigint "member_id"
     t.string "password_digest"
     t.string "recovery_password_digest"
     t.integer "query_counter"
@@ -418,11 +421,11 @@ ActiveRecord::Schema.define(version: 2021_02_14_171938) do
     t.boolean "semidesnudo"
     t.boolean "semienterrado"
     t.string "otra_forma"
-    t.integer "killing_id", null: false
+    t.bigint "killing_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "role_id"
-    t.integer "organization_id"
+    t.bigint "role_id"
+    t.bigint "organization_id"
     t.string "legacy_name"
     t.string "legacy_role_officer"
     t.string "legacy_role_civil"
