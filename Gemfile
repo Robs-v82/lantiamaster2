@@ -38,9 +38,9 @@ gem 'execjs'
 
 # for Excel downloads
 gem 'rubyzip', '>= 1.2.1'
-gem 'caxlsx', '~> 3.0'
+# gem 'caxlsx', '~> 3.0'
 
-gem 'poppler'
+# gem 'poppler'
 gem 'mini_magick'
 
 gem 'wicked_pdf'
@@ -62,7 +62,8 @@ gem 'database_cleaner'
 
 gem 'jquery-rails'
 # gem 'jquery-ui-rails'
-gem 'sqlite3', '~> 1.4'
+# gem 'sqlite3', '~> 1.4.1'
+gem 'pg'
 
 gem 'csv-xlsx-converter'
 
@@ -82,7 +83,7 @@ end
 
 group :test do
   # Adds support for Capybara system testing and selenium driver
-  gem 'capybara', '>= 2.15'
+  # gem 'capybara', '>= 2.15'
   gem 'selenium-webdriver'
   # Easy installation and use of web drivers to run system tests with browsers
   gem 'webdrivers'
