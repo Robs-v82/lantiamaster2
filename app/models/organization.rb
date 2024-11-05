@@ -5,6 +5,7 @@ class Organization < ApplicationRecord
 	has_and_belongs_to_many :detentions
 	has_many :detainees, :through => :detentions
 	has_many :members
+	has_many :users, :through => :members
 	has_many :events
 	has_many :leads, :through => :events
 	has_many :sources, :through => :events
