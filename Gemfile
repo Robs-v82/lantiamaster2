@@ -26,7 +26,8 @@ gem "aws-sdk-s3", require: false
 gem "active_storage_validations"
 
 # Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.4.2', require: false
+# gem 'bootsnap', '>= 1.4.2', require: false
+gem 'bootsnap', '~> 1.18', '>= 1.18.3', require: false
 
 # Materialize CSS
 gem 'materialize-sass', '~> 1.0.0'
