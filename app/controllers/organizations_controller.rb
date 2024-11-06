@@ -1066,6 +1066,10 @@ class OrganizationsController < ApplicationController
     return myString
   end
 
+  def frontpage
+    
+  end
+
 	private
 
 	def organization_selection_params

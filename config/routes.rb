@@ -114,4 +114,5 @@ Rails.application.routes.draw do
     post 'states/stateIndexHash'
     get 'users/preloader'
     get 'counties/testmap'
+    get 'frontpage' => 'organizations#frontpage'
 end

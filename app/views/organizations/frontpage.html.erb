@@ -1,14 +1,129 @@
-<nav>
-  <div class="nav-wrapper ">
-    <a><img class="tall-field" src="assets/Lantia_LogoNegativo.png"></a>
-    <ul id="nav-mobile" class="right hide-on-med-and-down">
-      <li><a href="sass.html">Inicio</a></li>
-      <li><a href="badges.html">Nosotros</a></li>
-      <li><a href="collapsible.html">Prensa</a></li>
-      <li><a href="collapsible.html">Datos</a></li>
-      <li><a href="collapsible.html">Servicios</a></li>
-    </ul>
-  </div>
-</nav>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <style type="text/css">
+      body{
+        background-color: #050a18 !important;
+      }
 
-<textarea>FRONTPAGE</textarea>
+
+
+      .dark-nav {
+      background-color: #050a18 !important;
+    }
+    .big-font {
+      font-size: 20px !important;
+      font-weight: 500;
+    }
+
+    .extra-height {
+      height: 100px !important;
+    }
+
+    .front-container {
+      background-color: #050a18 !important; 
+      height: 100%;
+      box-sizing: border-box !important;    
+    }
+
+
+
+    #video-container {
+      background-color: yellow;
+      heigh: 100px !important;
+    }
+
+    #hero {
+      min-height: 100vh;
+      position: :relative;
+    }
+
+      video{
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        object-fit:cover;
+      }
+
+
+      .capa {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+    h3 {
+      color: #ef4e50;
+      font-weight: 1000;
+    } 
+
+    #front-header {
+      color: white;
+      margin-top: 120px;
+    }
+
+    #front-promo {
+      width: 70%;
+    }
+
+    #front-header * p {
+      margin-top: 20px !important;
+      line-height: 24px;
+      font-size: 18px;
+    }
+
+    .front-opacity {
+      background-color: rgba(5, 10, 24, 0.2);
+    }
+
+    ul {
+      padding-right: 80px;
+    }
+
+    li {
+      margin-top: 20px;
+    }
+  </style>
+  </head>
+  <body>
+      <main id="hero">
+        <video autoplay="" muted="" loop="" id="front-video">
+                <source src="https://lantiaintelligence.com/img/video-home.mp4" type="video/mp4">
+        </video>
+        <div class="capa">
+    <nav class="nav-wrapper dark-nav extra-height z-depth-0" >
+      <div>
+        <a><img class="tall-field dark-nav" src="assets/Lantia_LogoNegativo.png"></a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down dark-nav tall-field">
+          <li><a class="big-font" href="sass.html">INICIO</a></li>
+          <li><a class="big-font" href="badges.html">NOSOTROS</a></li>
+          <li><a class="big-font" href="collapsible.html">PRENSA</a></li>
+          <li><a class="big-font" href="collapsible.html">DATOS</a></li>
+          <li><a class="big-font" href="collapsible.html">SERVICIOS</a></li>
+          <li><a class="big-font" href="/password">INICIA SESIÓN</a></li>
+          <li></li>
+        </ul>
+      </div>
+    </nav>
+      <div id="front-header" class="row">
+        <div class="container">
+          <div class="col l7 m12 s12 offset-l5 front-opacity">
+            <p></p>
+            <img id="front-promo" src="https://lantiaintelligence.com/img/home/video.jpg" alt="Video">
+            <h5 >BIENVENIDO A</h5>
+            <h3 class="h5-no-margin">LANTIA INTELLIGENCE</h3>
+            <p>Plataforma de datos y análisis sobre seguridad, crimen organizado y conflictividad social. La solución para mitigar riesgos e informar la toma de decisiones.</p>
+          </div>
+        </div>
+      </div>
+        </div>
+    </main>  
+  </body>
+  </html>
