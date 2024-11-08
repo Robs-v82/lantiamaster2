@@ -37,13 +37,13 @@ class ApplicationController < ActionController::Base
 			if valid_index.include? client
 				myOrganization = Organization.where(:ip_address == client).last
 				if myOrganization.users.empty?
-					redirect_to "/password"
+					redirect_to "/frontpage"
 				else
 					session[:user_id] = myOrganization.users.first.id
 					session[:membership] = 4
 				end
 			else
-				redirect_to "/password"	
+				redirect_to "/frontpage"	
 			end
 		end
 	end
