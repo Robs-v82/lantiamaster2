@@ -789,17 +789,26 @@ class VictimsController < ApplicationController
 			records = Cookie.where(:category=>"victims").last.data[0][paramsCookie[0]][paramsCookie[1]][paramsCookie[2]]
 		end
 
-		# OTHER MAIL PARAMS
-	 	file_name = "victimas("+current_date+")."
-	 	caption = "víctimas"
-		file_root = Rails.root.join("private",file_name)
-		myLength = helpers.root_path[:myLength]
-		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension]).deliver_now
-		session[:email_success] = true
 		downloadCounter = recipient.downloads
 		downloadCounter += 1
 		recipient.update(:downloads=>downloadCounter)
-		redirect_to "/victims"		
+
+		# OTHER FILE PARAMS
+	 	file_name = "victimas_"+downloadCounter.to_s+"_"+current_date+".csv"
+	 	caption = "víctimas"
+		file_root = Rails.root.join("private",file_name)
+		myLength = helpers.root_path[:myLength]
+		
+		myFile = helpers.send_freq_file(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension])
+
+		respond_to do |format|
+			format.html
+			format.csv { send_data myFile, filename: file_name}
+		end
+
+		# SHIFT TO EMAIL DELIVERY
+		# QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension]).deliver_now
+		# session[:email_success] = true
 	end
 
 	# def api(months)

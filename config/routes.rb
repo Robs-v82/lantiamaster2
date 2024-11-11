@@ -73,8 +73,8 @@ Rails.application.routes.draw do
     post 'states/getCities' => 'states#getCities'
     get 'queries/files' =>'queries#files'
     get 'queries/send_file/:catalogue/:extension' => 'queries#send_file'
-    get 'victims/send_file/:extension/:timeframe' => 'victims#send_file'
-    get 'members/send_file/:extension/:timeframe' => 'members#send_file'
+    get 'victims/send_file/:extension/:timeframe.csv' => 'victims#send_file'
+    get 'members/send_file/:extension/:timeframe.csv' => 'members#send_file'
     get 'queries/send_query_file/:extension' => 'queries#send_query_file'
     get 'queries/test_xlsx' => 'queries#test_xlsx', as: "test"
     post 'datasets/load_ensu' 

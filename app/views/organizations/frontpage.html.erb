@@ -195,27 +195,31 @@
                 <source src="https://lantiaintelligence.com/img/video-home.mp4" type="video/mp4">
         </video>
         <div class="capa">
-  <nav class="nav-wrapper dark-nav extra-height z-depth-0 hide-on-med-and-down" >
-    <div class="tall-field dark-nav">
-      <%= render "shared/lantialogo" %>
-      <ul id="nav-mobile" class="right">
-        <li><a class="big-font" href="#hero">INICIO</a></li>
-        <li><a class="big-font" href="#us-section">NOSOTROS</a></li>
-        <%# <li><a class="big-font" href="collapsible.html">PRENSA</a></li> %>
-        <li><a class="big-font" href="#data-section">DATOS</a></li>
-        <li><a class="big-font" href="#service-section">SERVICIOS</a></li>
-        <li><a class="big-font login-button" href="/password">INICIA SESIÓN</a></li>
-      </ul>
-    </div>
-  </nav>
-  <nav class="nav-wrapper dark-nav extra-height z-depth-0 hide-on-large-only" >
-    <div class="tall-field dark-nav">
-      <%= render "shared/lantialogo" %>
-      <ul id="nav-mobile" class="right">
-        <li><a class="big-font login-button" href="/password">INICIA SESIÓN</a></li>
-      </ul>
-    </div>
-  </nav>
+  <div class="navbar-fixed hide-on-med-and-down">
+    <nav class="nav-wrapper dark-nav extra-height z-depth-0">
+      <div class="tall-field dark-nav">
+        <%= render "shared/lantialogo" %>
+        <ul id="nav-mobile" class="right">
+          <li><a class="big-font" href="#hero">INICIO</a></li>
+          <li><a class="big-font" href="#us-section">NOSOTROS</a></li>
+          <%# <li><a class="big-font" href="collapsible.html">PRENSA</a></li> %>
+          <li><a class="big-font" href="#data-section">DATOS</a></li>
+          <li><a class="big-font" href="#service-section">SERVICIOS</a></li>
+          <li><a class="big-font login-button" href="/password">INICIA SESIÓN</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="navbar-fixed  hide-on-large-only">
+    <nav class="nav-wrapper dark-nav extra-height z-depth-0" >
+      <div class="tall-field dark-nav">
+        <%= render "shared/lantialogo" %>
+        <ul id="nav-mobile" class="right">
+          <li><a class="big-font login-button" href="/password">INICIA SESIÓN</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
       <div id="front-header" class="row">
         <div class="container">
           <div class="col l7 m12 s12 offset-l5 front-opacity">

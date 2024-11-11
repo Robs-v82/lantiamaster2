@@ -719,16 +719,28 @@ class MembersController < ApplicationController
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
 		records = api_or_table
-	 	file_name = "arrestos("+current_date+")."
-	 	caption = "arrestos"
-		file_root = Rails.root.join("private",file_name)
-		myLength = helpers.root_path[:myLength]
-		QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension]).deliver_now
-		session[:email_success] = true
+
 		downloadCounter = recipient.downloads
 		downloadCounter += 1
 		recipient.update(:downloads=>downloadCounter)
-		redirect_to "/members/detainees"
+
+	 	file_name = "arrestos_"+downloadCounter.to_s+"_"+current_date+".csv"
+	 	caption = "arrestos"
+		file_root = Rails.root.join("private",file_name)
+		myLength = helpers.root_path[:myLength]
+
+		myFile = helpers.send_freq_file(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension])
+
+		respond_to do |format|
+			format.html
+			format.csv { send_data myFile, filename: file_name}
+		end
+		# helpers.send_freq_file(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension])
+
+		# SHIFT TO EMAIL DELIVERY
+		# QueryMailer.freq_email(recipient, file_root, file_name, records, myLength, caption, params[:timeframe], paramsCookie[1], params[:extension]).deliver_now
+		# session[:email_success] = true
+		# redirect_to "/members/detainees"
 	end
 
 	private
