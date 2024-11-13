@@ -463,6 +463,42 @@ class StatesController < ApplicationController
             format.csv { send_data myFile, filename: file_name}
         end        
     end
+    
+    def send_icon
+        recipient = User.find(session[:user_id])
+        current_date = Date.today.strftime
+        downloadCounter = recipient.downloads
+        downloadCounter += 1
+        recipient.update(:downloads=>downloadCounter)
+        myCookie = Cookie.where(:category=>"icon").last
+        q = Quarter.find(myCookie[:quarter_id]).name
+        file_name = "ICON_"+q+"_.csv"
+        @icon_table = myCookie.data
+        @icon_table = @icon_table.sort_by{|state| state["rank"].to_i }
+        
+        def send_icon_file        
+            CSV.generate do |writer|
+                writer.to_io.write "\uFEFF"
+                header = ['ESTADO','POSICIÓN','PUNTAJE','NIVEL','TENDENCIA']
+                writer << header
+                @icon_table.each do |state|
+                    row = []
+                    row.push(state[:name])
+                    row.push(state["rank"])
+                    row.push(state[:score])
+                    row.push(state["nivel"])
+                    row.push(state["tendencia"])
+                    writer << row
+                end
+            end
+        end
+            
+        myFile = send_icon_file
+        respond_to do |format|
+            format.html
+            format.csv { send_data myFile, filename: file_name}
+        end        
+    end
 
     private
 

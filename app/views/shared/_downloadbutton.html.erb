@@ -21,9 +21,15 @@
 							<a href="/counties/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
 						</li>
 					<% else %>
-						<li class="dropdown-item">
-							<a href="/states/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
-						</li>
+						<% if @icon %>
+							<li class="dropdown-item">
+								<a href="/states/send_icon.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+							</li>							
+						<% else %>
+							<li class="dropdown-item">
+								<a href="/states/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+							</li>
+						<% end %>
 					<% end %>
 				<% end %>
 			</ul>
