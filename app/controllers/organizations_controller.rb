@@ -108,7 +108,6 @@ class OrganizationsController < ApplicationController
       State.where(:code=>"31").last.id,
     ]
     allCartels = Sector.where(:scian2=>98).last.organizations.uniq
-    allCartels = allCartels.where(:active=>true)
 
       @checkedTypes = []
       session[:organization_selection][0].each{|key|
