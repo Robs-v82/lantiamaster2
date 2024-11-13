@@ -108,6 +108,7 @@ class OrganizationsController < ApplicationController
       State.where(:code=>"31").last.id,
     ]
     allCartels = Sector.where(:scian2=>98).last.organizations.uniq
+    allCartels = allCartels.where(:active=>true)
 
       @checkedTypes = []
       session[:organization_selection][0].each{|key|
@@ -1146,5 +1147,4 @@ class OrganizationsController < ApplicationController
   def new_name_params
     params.require(:query).permit(:cartel_id, :new_name)
   end
-
 end
