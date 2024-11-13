@@ -118,4 +118,5 @@ Rails.application.routes.draw do
     get 'states/send_file.csv' => 'states#send_file'
     get 'counties/send_file.csv' => 'counties#send_file'
     get 'states/send_icon.csv' => 'states#send_icon'
+    get 'organizations/send_file.csv' => 'organizations#send_file'
 end

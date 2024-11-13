@@ -3,7 +3,7 @@
 		<% if User.find(session[:user_id]).promo && User.find(session[:user_id]).downloads > 0 %>
 			<a class="tooltipped" data-tooltip="Las descargas para membresías promocionales están limitadas. Para descargar más datos escríbenos a contacto@lantiaintelligence.com"><i class="small material-icons grey-text text-lighten-2 right-extra-margin">download</i></a>
 		<% else %>
-			<a id="freq-download-trigger" class="dropdown-trigger z-depth-1" href='#' data-target='files-dropdown' href=""><i class="small material-icons paletton-red-text right-extra-margin">download</i></a>
+			<a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="small material-icons paletton-red-text right-extra-margin">download</i></a>
 			<ul id='files-dropdown' class='dropdown-content'>
 				<% if @fileHash %>
 					<% @fileHash[:formats].each do |format| %>
@@ -20,6 +20,8 @@
 						<a 
 							<% if @icon %>	
 								href="/states/send_icon.csv"
+							<% elsif @organizations %>
+								href="/organizations/send_file.csv"
 							<% else %>
 								<% if @countyWise %>
 									href="/counties/send_file.csv"

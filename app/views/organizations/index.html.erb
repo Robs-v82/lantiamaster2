@@ -167,6 +167,9 @@
 						<% end %>
 					">
 						<div class="card-content">
+						<% if session[:membership] > 3 %>
+							<%= render "shared/downloadbutton" %>
+						<% end %>
 							<div class="row card-narrow">
 								<% if session[:membership] > 3 %>
 									<div class="hide-on-med-and-up">
