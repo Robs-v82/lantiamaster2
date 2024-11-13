@@ -16,15 +16,15 @@
 						</li>
 					<% end %>
 				<% else %>
-					<% if @countyWise %>
+					<% if @icon %>
 						<li class="dropdown-item">
-							<a href="/counties/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+							<a href="/states/send_icon.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
 						</li>
 					<% else %>
-						<% if @icon %>
-							<li class="dropdown-item">
-								<a href="/states/send_icon.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
-							</li>							
+						<% if @countyWise %>
+						<li class="dropdown-item">
+							<a href="/counties/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+						</li>	
 						<% else %>
 							<li class="dropdown-item">
 								<a href="/states/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
