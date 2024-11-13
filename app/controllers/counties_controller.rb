@@ -318,8 +318,49 @@ class CountiesController < ApplicationController
 	end
 
     def testmap
-        @stateCode = 16
-        
+        @stateCode = 16  
+    end
+
+    def send_file
+        recipient = User.find(session[:user_id])
+        current_date = Date.today.strftime
+        downloadCounter = recipient.downloads
+        downloadCounter += 1
+        recipient.update(:downloads=>downloadCounter)
+        myCookie = Cookie.where(:category=>"irco_counties").last
+        q = Quarter.find(myCookie[:quarter_id]).name
+        file_name = "IRCO_Municipal_"+q+"_.csv"
+        @icon_table = myCookie.data
+        @icon_table = @icon_table.sort_by{|county| county["rank"].to_i }
+        def send_irco_file        
+            CSV.generate do |writer|
+                writer.to_io.write "\uFEFF"
+                header = ['MUNICIPIO','POSICIÓN','PUNTAJE','NIVEL','TENDENCIA',"Violencia generalizada","Agresiones a mujeres","Agresiones a comercios","Agresiones a autoridades","Agresiones en el transporte de pasajeros"]
+                writer << header
+                @icon_table.each do |county|
+                    row = []
+                    row.push(county[:name])
+                    row.push(county["rank"])
+                    row.push(county[:score])
+                    row.push(county["nivel"])
+                    row.push(county["tendencia"])
+                     header[5..-1].each do |warning|
+                        if county[:warnings].include? warning
+                            row.push(1)
+                        else
+                            row.push(0)
+                        end
+                     end
+                    writer << row
+                end
+            end
+        end
+            
+        myFile = send_irco_file
+        respond_to do |format|
+            format.html
+            format.csv { send_data myFile, filename: file_name}
+        end        
     end
 
 	private

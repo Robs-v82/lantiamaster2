@@ -420,6 +420,49 @@ class StatesController < ApplicationController
         Cookie.create(:data=>[stateHash], :category=>"conflict_analysis")
         redirect_to '/datasets/load'        
     end
+    
+    def send_file
+        recipient = User.find(session[:user_id])
+        current_date = Date.today.strftime
+        downloadCounter = recipient.downloads
+        downloadCounter += 1
+        recipient.update(:downloads=>downloadCounter)
+        myCookie = Cookie.where(:category=>"irco").last
+        q = Quarter.find(myCookie[:quarter_id]).name
+        file_name = "IRCO_"+q+"_.csv"
+        @icon_table = myCookie.data
+        @icon_table = @icon_table.sort_by{|state| state["rank"].to_i }
+        
+        def send_irco_file        
+            CSV.generate do |writer|
+                writer.to_io.write "\uFEFF"
+                header = ['ESTADO','POSICIÓN','PUNTAJE','NIVEL','TENDENCIA',"Violencia generalizada","Agresiones a mujeres","Agresiones a comercios","Agresiones a autoridades","Agresiones en el transporte de pasajeros"]
+                writer << header
+                @icon_table.each do |state|
+                    row = []
+                    row.push(state[:name])
+                    row.push(state["rank"])
+                    row.push(state[:score])
+                    row.push(state["nivel"])
+                    row.push(state["tendencia"])
+                     header[5..-1].each do |warning|
+                        if state[:warnings].include? warning
+                            row.push(1)
+                        else
+                            row.push(0)
+                        end
+                     end
+                    writer << row
+                end
+            end
+        end
+            
+        myFile = send_irco_file
+        respond_to do |format|
+            format.html
+            format.csv { send_data myFile, filename: file_name}
+        end        
+    end
 
     private
 

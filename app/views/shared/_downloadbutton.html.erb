@@ -5,14 +5,26 @@
 		<% else %>
 			<a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="small material-icons paletton-red-text right-extra-margin">download</i></a>
 			<ul id='files-dropdown' class='dropdown-content'>
-				<% @fileHash[:formats].each do |format| %>
-					<li class="dropdown-item">
-						<% if @victims %>
-							<a href="/victims/send_file/<%= format %>/<%= @paramsCookie[0] %>.csv"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
-						<% else %>
-							<a href="/members/send_file/<%= format %>/<%= @paramsCookie[0] %>.csv"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
-						<% end %>
-					</li>
+				<% if @fileHash %>
+					<% @fileHash[:formats].each do |format| %>
+						<li class="dropdown-item">
+							<% if @victims %>
+								<a href="/victims/send_file/<%= format %>/<%= @paramsCookie[0] %>.csv"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+							<% else %>
+								<a href="/members/send_file/<%= format %>/<%= @paramsCookie[0] %>.csv"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+							<% end %>
+						</li>
+					<% end %>
+				<% else %>
+					<% if @countyWise %>
+						<li class="dropdown-item">
+							<a href="/counties/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+						</li>
+					<% else %>
+						<li class="dropdown-item">
+							<a href="/states/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+						</li>
+					<% end %>
 				<% end %>
 			</ul>
 		<% end %>

@@ -115,4 +115,6 @@ Rails.application.routes.draw do
     get 'users/preloader'
     get 'counties/testmap'
     get 'frontpage' => 'organizations#frontpage'
+    get 'states/send_file.csv' => 'states#send_file'
+    get 'counties/send_file.csv' => 'counties#send_file'
 end

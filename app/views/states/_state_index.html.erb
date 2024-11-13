@@ -49,6 +49,9 @@
 			<div class="col l7 m5 s12">
 				<div class="card white index-card">
 					<div class="card-content">
+						<% if session[:membership] > 3 %>
+							<%= render "shared/downloadbutton" %>
+						<% end %>
 						<div id="icon-table-display" class="index-display">
 							<% @screens.each do |screen| %>
 								<div class="<%= screen[:style] %>">
