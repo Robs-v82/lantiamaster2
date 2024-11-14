@@ -1110,7 +1110,7 @@ class OrganizationsController < ApplicationController
                   myCartel = Organization.find(id)
                   row.push(myCartel.name)
                   row.push(myCartel.league)
-                  if cartel.subleague
+                  if myCartel.subleague
                     row.push(myCartel.subleague)
                   else 
                     row.push('N.D.') 
