@@ -321,8 +321,34 @@ class OrganizationsController < ApplicationController
     end
 
     def api
+
+      cartels = Sector.where(:scian2=>"98").last.organizations.uniq
+      coalitionKeys = helpers.coalitionKeys
+
+      cartels.each{|cartel|
+        cartelIn = false
+        coalitionKeys.each{|coalition|
+          leader = Organization.where(:name=>coalition["name"]).last
+          if leader
+            if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
+              cartel.update(:coalition=>coalition["name"],:color=>coalition["color"])
+              cartelIn = true 
+            elsif cartel.parent
+              if cartel.parent.coalition == leader.name
+                cartel.update(:coalition=>coalition["name"],:color=>coalition["color"])
+                cartelIn = true 
+              end
+            end
+          end
+        }
+        unless cartelIn
+          cartel.update(:coalition=>coalitionKeys[2]["name"],:color=>coalitionKeys[2]["color"])
+          cartelIn = true       
+        end
+      }
+
       byType = [[],[],[]]
-      Sector.where(:scian2=>98).last.organizations.uniq.each{|cartel|
+      cartels.each{|cartel|
         if cartel.league == "Cártel"
           byType[0].push(cartel)
         elsif cartel.league == "Mafia"
@@ -331,30 +357,26 @@ class OrganizationsController < ApplicationController
           byType[2].push(cartel)
         end
       }
+
       cartels = byType.flatten
       @colorArr = []
       @alliedCartels = []
       cartels.each {|cartel|
         cartelIn = false
-        helpers.coalitionKeys.each{|coalition|
-          leader = Organization.where(:name=>coalition["name"]).last
-          if leader
-            if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
-              @colorArr.push(coalition["material_color"])
-              cartelIn = true 
-            end
-          else
-            unless cartelIn
-              @colorArr.push(coalition["material_color"])
-              cartelIn = true         
-            end
+        coalitionKeys.each{|coalition|
+          if cartel.coalition == coalition["name"]
+            @colorArr.push(coalition["material_color"])
+            cartelIn = true 
+          end
+          unless cartelIn
+            @colorArr.push(coalition["material_color"])
+            cartelIn = true         
           end
         }
         if cartelIn
           @alliedCartels.push(cartel)
         end
       }
-
 
       @placeArr = []
       State.all.each{|place|
@@ -1081,13 +1103,19 @@ class OrganizationsController < ApplicationController
           myData = Cookie.where(:category=>"send_file").last.data
           CSV.generate do |writer|
               writer.to_io.write "\uFEFF"
-              header = ['NOMBRE','TIPO']
+              header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
               writer << header
               myData.each do |id|
                   row = []
                   myCartel = Organization.find(id)
                   row.push(myCartel.name)
                   row.push(myCartel.league)
+                  if cartel.subleague
+                    row.push(myCartel.subleague)
+                  else 
+                    row.push('N.D.') 
+                  end
+                  row.push(myCartel.coalition)
                   writer << row
               end
           end
