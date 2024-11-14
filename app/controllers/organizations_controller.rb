@@ -226,7 +226,7 @@ class OrganizationsController < ApplicationController
             cartelIn = false
             @checkedCoalitions.each{|coalition|              
               if racket.coalition == coalition["name"]
-                myLeaders.push(leader.name)
+                myLeaders.push(coalition["name"])
                 cartelIn = true
                 racketHash[:color] = coalition["dark_color"]
               end
@@ -1120,13 +1120,17 @@ class OrganizationsController < ApplicationController
           
       myFile = build_file
       respond_to do |format|
-          format.html
-          format.csv { send_data myFile, filename: file_name}
+        format.html
+        format.csv { send_data myFile, filename: file_name}
       end        
   end
 
-  def alliedCartels
-    
+  def send_map_data
+      myFile = build_file
+      respond_to do |format|
+        format.html
+        format.csv { send_data myFile, filename: file_name}
+      end
   end
 
   private
