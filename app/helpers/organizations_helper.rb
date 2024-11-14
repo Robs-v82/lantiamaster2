@@ -73,7 +73,7 @@ module OrganizationsHelper
 		coalitionKeys = [
   			{"name"=>"Cártel de Sinaloa","color"=>'#80cbc4',"dark_color"=>'#00897b',"material_color"=>'teal'},
   			{"name"=>"Cártel Jalisco Nueva Generación","color"=>'#ffcc80',"dark_color"=>'#ffc107',"material_color"=>'orange'},
-  			{"name"=>"Sin coalición","color"=>'#e0e0e0',"dark_color"=>'#454157',"material_color"=>'paletton-grey'}
+  			{"name"=>"Sin coalición","color"=>'#454157',"dark_color"=>'#454157',"material_color"=>'paletton-grey'}
   		]
 		return coalitionKeys
 	end
