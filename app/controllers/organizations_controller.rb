@@ -224,14 +224,11 @@ class OrganizationsController < ApplicationController
               racketHash[:name] = racket.name
             end
             cartelIn = false
-            @checkedCoalitions.each{|coalition|
-              leader = Organization.where(:name=>coalition["name"]).last
-              if leader
-                if racket.name == leader.name or leader.subordinates.include? racket or leader.allies.include? racket.id
-                  myLeaders.push(leader.name)
-                  cartelIn = true
-                  racketHash[:color] = coalition["dark_color"]
-                end
+            @checkedCoalitions.each{|coalition|              
+              if racket.coalition == coalition["name"]
+                myLeaders.push(leader.name)
+                cartelIn = true
+                racketHash[:color] = coalition["dark_color"]
               end
             }
             unless cartelIn
