@@ -294,7 +294,7 @@
 														<td>
 															<div class="valign-wrapper">
 																<div class="pseudo-button valign-wrapper">
-																	<i class="tiny material-icons right-min-margin <%= @colorArr[n] %> lighten-3 <%= @colorArr[n] %>-text text-lighten-3 z-depth-1">brightness_1</i>
+																	<i class="tiny material-icons right-min-margin" style="color:<%= @alliedCartels[n].color %>;">brightness_1</i>
 																</div>
 																<span class="valign-wrapper">
 																	<%= @alliedCartels[n].name %><% if @checkedStates.length == 1 %><% if @undefined.include? @alliedCartels[n] %>*<% end %><% end %>
