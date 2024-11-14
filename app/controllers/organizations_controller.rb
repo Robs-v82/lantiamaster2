@@ -315,6 +315,7 @@ class OrganizationsController < ApplicationController
         alliedArr.push(cartel.id)
       }
       Cookie.create(:category=>"send_file", :data=>alliedArr) 
+      Cookie.create(:category=>"send_map_data", :data=>@checkedStates) 
     end
 
     def api
