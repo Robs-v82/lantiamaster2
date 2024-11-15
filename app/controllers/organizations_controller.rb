@@ -1093,7 +1093,15 @@ class OrganizationsController < ApplicationController
       downloadCounter = recipient.downloads
       downloadCounter += 1
       recipient.update(:downloads=>downloadCounter)
-      file_name = "Organizaciones_"+downloadCounter.to_s+"_"+current_date+".csv"
+      
+      # ADDING STRING TO STATE FILE
+      mapData = Cookie.where(:category=>"send_map_data").last.data
+      if mapData.length > 1
+        file_name = "Organizaciones_"+downloadCounter.to_s+"_"+current_date+".csv"
+      else 
+        myState = State.where(:code=>mapData[0]).last
+        file_name = "Organizaciones_"+myState.shortname+"_"+downloadCounter.to_s+"_"+current_date+".csv"
+      end
       
       def build_file        
           myData = Cookie.where(:category=>"send_file").last.data
