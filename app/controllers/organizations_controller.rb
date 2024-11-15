@@ -148,7 +148,7 @@ class OrganizationsController < ApplicationController
       @checkedStates.each{|id|
         state = State.find(id.to_i)
         myStates.push(state)
-        localOrganizations = state.rackets.uniq
+        localOrganizations = state.rackets.where(:active=>true).uniq
         @checkedTypes.each{|type|
           @cartels.push(type.organizations.merge(localOrganizations))
         }
@@ -1103,8 +1103,9 @@ class OrganizationsController < ApplicationController
               writer.to_io.write "\uFEFF"
               header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
               mapData = Cookie.where(:category=>"send_map_data").last.data
+              validStates = State.all.sort_by{|state| state.code}
               if mapData.length > 1
-                State.all.each{|state|
+                validStates.each{|state|
                   header.push(state.shortname)
                 }
               end
@@ -1121,7 +1122,7 @@ class OrganizationsController < ApplicationController
                   end
                   row.push(myCartel.coalition)
                   if mapData.length > 1                 
-                    State.all.each{|state|
+                    validStates.each{|state|
                       if state.rackets.include? myCartel
                         row.push(1)
                       else
@@ -1141,13 +1142,6 @@ class OrganizationsController < ApplicationController
       end        
   end
 
-  def send_map_data
-      myFile = build_file
-      respond_to do |format|
-        format.html
-        format.csv { send_data myFile, filename: file_name}
-      end
-  end
 
   private
 
