@@ -433,8 +433,16 @@ class OrganizationsController < ApplicationController
       fileData.push(header)
       cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
       cartels.each {|myCartel|
+        row = []
+        myCartel = Organization.find(id)
+        row.push(myCartel.name)
+        row.push(myCartel.league)
+        if myCartel.subleague
+          row.push(myCartel.subleague)
+        else 
+          row.push('N.D.') 
+        end
         validStates.each{|state|
-          row = []
           if state.rackets.include? myCartel
             row.push(1)
           else
@@ -1144,7 +1152,7 @@ class OrganizationsController < ApplicationController
                 allCounties.each{|county|
                   unless county.rackets.where(:active=>true).length == 0
                     validCounties.push(county)
-                    myString = county.full_code+"_"+county.name
+                    myString = county.full_code+" - "+county.name
                     header.push(myString)
                   end
                 } 
