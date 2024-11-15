@@ -1106,6 +1106,15 @@ class OrganizationsController < ApplicationController
                 validStates.each{|state|
                   header.push(state.shortname)
                 }
+              else
+                myState = State.where(:code=>mapData[0]).last
+                allCounties = myState.counties
+                validCounties = []
+                allCounties.each{|county|
+                  unless county.length == 0
+                    validCounties.push(county)
+                  end
+                } 
               end
               writer << header
               myData.each do |id|
@@ -1125,6 +1134,14 @@ class OrganizationsController < ApplicationController
                         row.push(1)
                       else
                         row.push(0)
+                      end
+                    }
+                  else
+                    validCounties.each{|county|
+                      if county.rackets.include? myCartel
+                        row.push(1)
+                      else
+                        row.push(0)                    
                       end
                     }
                   end
