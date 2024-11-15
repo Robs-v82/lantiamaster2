@@ -1102,6 +1102,9 @@ class OrganizationsController < ApplicationController
           CSV.generate do |writer|
               writer.to_io.write "\uFEFF"
               header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
+              States.all.each{|state|
+                header.push(state.shortname)
+              }
               writer << header
               myData.each do |id|
                   row = []
@@ -1114,6 +1117,13 @@ class OrganizationsController < ApplicationController
                     row.push('N.D.') 
                   end
                   row.push(myCartel.coalition)
+                  States.all.each{|state|
+                    if state.rackets.include? myCartel
+                      row.push(1)
+                    else
+                      row.push(0)
+                    end
+                  }
                   writer << row
               end
           end
