@@ -1120,7 +1120,7 @@ class OrganizationsController < ApplicationController
                     row.push('N.D.') 
                   end
                   row.push(myCartel.coalition)
-                  if mapData > 1                 
+                  if mapData.length > 1                 
                     State.all.each{|state|
                       if state.rackets.include? myCartel
                         row.push(1)
