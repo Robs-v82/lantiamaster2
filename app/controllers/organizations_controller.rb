@@ -1104,7 +1104,7 @@ class OrganizationsController < ApplicationController
               header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
               mapData = Cookie.where(:category=>"send_map_data").last.data
               if mapData.length > 1
-                States.all.each{|state|
+                State.all.each{|state|
                   header.push(state.shortname)
                 }
               end
