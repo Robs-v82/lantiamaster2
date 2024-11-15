@@ -1113,6 +1113,8 @@ class OrganizationsController < ApplicationController
                 allCounties.each{|county|
                   unless county.length == 0
                     validCounties.push(county)
+                    myString = county.full_code + county.name
+                    header.push(myString)
                   end
                 } 
               end
