@@ -422,6 +422,15 @@ class OrganizationsController < ApplicationController
         }
       ]
       Cookie.create(:category=>"organizations", :data=>dataArr)
+      
+      # CREATE NATIONAL SEND FILE COOKIE
+      fileData = []
+      header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
+      State.all.each{|state|
+        header.push(state.shortname)
+      }
+      fileData.push(header)
+      Cookie.create(:category=>"organizations_national_file", :data=>fileData)
       redirect_to '/organizations/query'
     end
 
