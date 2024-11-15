@@ -1102,12 +1102,11 @@ class OrganizationsController < ApplicationController
           CSV.generate do |writer|
               writer.to_io.write "\uFEFF"
               header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
-              if Cookie.where(:category=>"send_map_data").data.length > 1
+              mapData = Cookie.where(:category=>"send_map_data").last.data
+              if mapData.length > 1
                 States.all.each{|state|
                   header.push(state.shortname)
                 }
-              else
-
               end
               writer << header
               myData.each do |id|
@@ -1121,13 +1120,15 @@ class OrganizationsController < ApplicationController
                     row.push('N.D.') 
                   end
                   row.push(myCartel.coalition)
-                  State.all.each{|state|
-                    if state.rackets.include? myCartel
-                      row.push(1)
-                    else
-                      row.push(0)
-                    end
-                  }
+                  if mapData > 1                 
+                    State.all.each{|state|
+                      if state.rackets.include? myCartel
+                        row.push(1)
+                      else
+                        row.push(0)
+                      end
+                    }
+                  end
                   writer << row
               end
           end
