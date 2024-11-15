@@ -426,10 +426,23 @@ class OrganizationsController < ApplicationController
       # CREATE NATIONAL SEND FILE COOKIE
       fileData = []
       header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
-      State.all.each{|state|
+      validStates = State.all.sort_by{|state| state.code}
+      validStates.each{|state|
         header.push(state.shortname)
       }
       fileData.push(header)
+      cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
+      cartels.each {|myCartel|
+        validStates.each{|state|
+          row = []
+          if state.rackets.include? myCartel
+            row.push(1)
+          else
+            row.push(0)
+          end
+          fileData.push(row)
+        }
+      }
       Cookie.create(:category=>"organizations_national_file", :data=>fileData)
       redirect_to '/organizations/query'
     end
@@ -1126,12 +1139,12 @@ class OrganizationsController < ApplicationController
                 header =  Cookie.where(:category=>"organizations_national_file").last.data[0]
               else
                 myState = State.where(:code=>mapData[0]).last
-                allCounties = myState.counties
+                allCounties = myState.counties.sort_by{|county| county.code}
                 validCounties = []
                 allCounties.each{|county|
                   unless county.rackets.where(:active=>true).length == 0
                     validCounties.push(county)
-                    myString = county.full_code + county.name
+                    myString = county.full_code+"_"+county.name
                     header.push(myString)
                   end
                 } 
