@@ -434,7 +434,6 @@ class OrganizationsController < ApplicationController
       cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
       cartels.each {|myCartel|
         row = []
-        myCartel = Organization.find(id)
         row.push(myCartel.name)
         row.push(myCartel.league)
         if myCartel.subleague
@@ -442,6 +441,7 @@ class OrganizationsController < ApplicationController
         else 
           row.push('N.D.') 
         end
+        row.push(myCartel.coalition)
         validStates.each{|state|
           if state.rackets.include? myCartel
             row.push(1)
