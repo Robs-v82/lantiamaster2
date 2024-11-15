@@ -319,10 +319,8 @@ class OrganizationsController < ApplicationController
     end
 
     def api
-
-      cartels = Sector.where(:scian2=>"98").last.organizations.uniq
+      cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
       coalitionKeys = helpers.coalitionKeys
-
       cartels.each{|cartel|
         cartelIn = false
         coalitionKeys.each{|coalition|
@@ -378,7 +376,7 @@ class OrganizationsController < ApplicationController
 
       @placeArr = []
       State.all.each{|place|
-        placeRackets = place.rackets.uniq
+        placeRackets = place.rackets.where(:active=>true).uniq
         myRackets = []
         myLeaders = []
         placeRackets.each{|racket|
