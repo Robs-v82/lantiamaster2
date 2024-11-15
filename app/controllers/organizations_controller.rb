@@ -1111,7 +1111,7 @@ class OrganizationsController < ApplicationController
                 allCounties = myState.counties
                 validCounties = []
                 allCounties.each{|county|
-                  unless county.length == 0
+                  unless county.rackets.where(:active=>true) length == 0
                     validCounties.push(county)
                     myString = county.full_code + county.name
                     header.push(myString)
