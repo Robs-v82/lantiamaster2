@@ -1120,9 +1120,10 @@ class OrganizationsController < ApplicationController
               mapData = Cookie.where(:category=>"send_map_data").last.data
               validStates = State.all.sort_by{|state| state.code}
               if mapData.length > 1
-                validStates.each{|state|
-                  header.push(state.shortname)
-                }
+                # validStates.each{|state|
+                #   header.push(state.shortname)
+                # }
+                header =  Cookie.where(:category=>"organizations_national_file").last.data[0]
               else
                 myState = State.where(:code=>mapData[0]).last
                 allCounties = myState.counties
