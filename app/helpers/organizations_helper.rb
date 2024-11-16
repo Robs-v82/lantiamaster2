@@ -95,7 +95,7 @@ module OrganizationsHelper
 
 	def indexCartels(cartels)
 		myIndex = Organization.joins(:leads).group('organizations.id').having('count(organization_id) > 1')
-		myIndex = myIndex.where(:active=>true).uniq
+		myIndex = myIndex.where(:active=>true)
 		finalCartels = myIndex.merge(cartels)
 		finalCartels = finalCartels.sort_by{|c| c.id}
 		return finalCartels
