@@ -27,7 +27,7 @@
 							<% else %>
 								full_code:'<%= place[:full_code] %>',
 							<% end %>
-							value:<%= place[:coalition] %>, rackets:'<% place[:rackets][0..@racketLimit].each do |racket|%><span style="color:<%= racket[:color]%>; font-size:10px">- <%= racket[:name][0..32] %><% if racket[:name].length > 33 %>...<% end %><span><br><br><% end %><% if place[:rackets].length > @racketLimit %><span style="font-size:10px">...</span><% end %>',
+							value:<%= place[:coalition] %>, rackets:'<% place[:rackets][0..@racketLimit].each do |racket|%><span style="color:<%= racket[:color]%>; font-size:12px">- <%= racket[:name][0..15] %><% if racket[:name].length > 16 %>...<% end %><span><br><br><% end %><% if place[:rackets].length > @racketLimit %><span style="font-size:10px">...</span><% end %>',
 							freq:<%= place[:freq]%>, 
 							<% if place[:freq] == 1 %>
 								string:'organización'
