@@ -1134,7 +1134,6 @@ class OrganizationsController < ApplicationController
         else
           trueCode = mapData[0]
         end
-        trueCode = mapData[0]
         myState = State.where(:code=>trueCode).last
         file_name = "Organizaciones_"+myState.shortname+"_"+downloadCounter.to_s+"_"+current_date+".csv"
       end
