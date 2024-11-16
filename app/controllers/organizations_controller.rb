@@ -176,19 +176,27 @@ class OrganizationsController < ApplicationController
         @alliedCartels = []
         @cartels.each {|cartel|
           cartelIn = false
-          @checkedCoalitions.each{|coalition|
-            leader = Organization.where(:name=>coalition["name"]).last
-            if leader
-              if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
-                @colorArr.push(coalition["material_color"])
-                cartelIn = true 
-              end
-            else
-              unless cartelIn
-                @colorArr.push(coalition["material_color"])
-                cartelIn = true         
-              end
+          @checkedCoalitions.each{|thisCoalition|
+            if cartel.coalition = thisCoalition["name"]
+               @colorArr.push(coalition["material_color"])
+               cartelIn = true
             end
+            unless cartelIn
+              @colorArr.push(coalition["material_color"])
+              cartelIn = true
+            end
+            # leader = Organization.where(:name=>coalition["name"]).last
+            # if leader
+            #   if cartel.name == leader.name or leader.subordinates.include? cartel or leader.allies.include? cartel.id
+            #     @colorArr.push(coalition["material_color"])
+            #     cartelIn = true 
+            #   end
+            # else
+            #   unless cartelIn
+            #     @colorArr.push(coalition["material_color"])
+            #     cartelIn = true         
+            #   end
+            # end
           }
           if cartelIn
             @alliedCartels.push(cartel)
