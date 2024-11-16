@@ -178,11 +178,11 @@ class OrganizationsController < ApplicationController
           cartelIn = false
           @checkedCoalitions.each{|thisCoalition|
             if cartel.coalition = thisCoalition["name"]
-               @colorArr.push(coalition["material_color"])
+               @colorArr.push(thisCoalition["material_color"])
                cartelIn = true
             end
             unless cartelIn
-              @colorArr.push(coalition["material_color"])
+              @colorArr.push(thisCoalition["material_color"])
               cartelIn = true
             end
             # leader = Organization.where(:name=>coalition["name"]).last
