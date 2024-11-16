@@ -1129,7 +1129,7 @@ class OrganizationsController < ApplicationController
       if mapData.length > 1
         file_name = "Organizaciones_"+downloadCounter.to_s+"_"+current_date+".csv"
       else 
-        if mapData[0].length == 1
+        if mapData[0] < 10
           trueCode = "0"+mapData[0].to_s  
         else
           trueCode = mapData[0]
@@ -1146,7 +1146,7 @@ class OrganizationsController < ApplicationController
               header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
               mapData = Cookie.where(:category=>"send_map_data").last.data
               validStates = State.all.sort_by{|state| state.code}
-              if mapData < 10
+              if mapData.length > 1
                 # validStates.each{|state|
                 #   header.push(state.shortname)
                 # }
