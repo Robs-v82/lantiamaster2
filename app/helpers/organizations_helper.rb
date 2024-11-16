@@ -93,4 +93,12 @@ module OrganizationsHelper
 		myArr.push(Organization.where(:name=>"Secretaría de la Defensa Nacional").last, Organization.where(:name=>"Secretaría de Marina").last, Organization.where(:name=>"Guardia Nacional").last, Organization.where(:name=>"Fiscalía General de la República").last)
 	end
 
+	def indexCartels(cartels)
+		myIndex = Organization.joins(:leads).group('organizations.id').having('count(organization_id) > 1')
+		myIndex = myIndex.where(:active=>true).uniq
+		finalCartels = myIndex.merge(cartels)
+		finalCartels = finalCartels.sort_by{|c| c.id}
+		return finalCartels
+	end
+
 end

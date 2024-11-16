@@ -148,7 +148,9 @@ class OrganizationsController < ApplicationController
       @checkedStates.each{|id|
         state = State.find(id.to_i)
         myStates.push(state)
-        localOrganizations = state.rackets.where(:active=>true).uniq
+        # localOrganizations = state.rackets.where(:active=>true).uniq
+        localOrganizations = state.rackets
+        localOrganizations = helpers.indexCartels(localOrganizations)
         @checkedTypes.each{|type|
           @cartels.push(type.organizations.merge(localOrganizations))
         }
@@ -258,18 +260,6 @@ class OrganizationsController < ApplicationController
               placeCoalition = 3
             end
           end
-          # myLeaders = myLeaders.uniq
-          # if myLeaders.length == 2
-          #   placeCoalition = 0
-          # elsif myLeaders.length == 0
-          #   placeCoalition = 3
-          # else
-          #   if myLeaders.last == "Cártel de Sinaloa"
-          #     placeCoalition = 1 
-          #   else
-          #     placeCoalition = 2
-          #   end     
-          # end
           if @checkedStates.length == 1
             placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
           else
@@ -341,7 +331,9 @@ class OrganizationsController < ApplicationController
     end
 
     def api
-      cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
+      # cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
+      cartels = Sector.where(:scian2=>"98").last.organizations
+      cartels = helpers.indexCartels(cartels)
       coalitionKeys = helpers.coalitionKeys
       cartels.each{|cartel|
         cartelIn = false
@@ -398,7 +390,9 @@ class OrganizationsController < ApplicationController
 
       @placeArr = []
       State.all.each{|place|
-        placeRackets = place.rackets.where(:active=>true).uniq
+        # placeRackets = place.rackets.where(:active=>true).uniq
+        placeRackets = place.rackets
+        placeRackets = helpers.indexCartels(placeRackets)
         myRackets = []
         myLeaders = []
         placeRackets.each{|racket|
@@ -433,18 +427,6 @@ class OrganizationsController < ApplicationController
             placeCoalition = 3
           end
         end
-        # myLeaders = myLeaders.uniq
-        # if myLeaders.length == 2
-        #   placeCoalition = 0
-        # elsif myLeaders.length == 0
-        #   placeCoalition = 3
-        # else
-        #   if myLeaders.last == "Cártel de Sinaloa"
-        #     placeCoalition = 1 
-        #   else
-        #     placeCoalition = 2
-        #   end     
-        # end
         placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
         unless placeHash[:freq] == 0
           @placeArr.push(placeHash)
@@ -467,7 +449,9 @@ class OrganizationsController < ApplicationController
         header.push(state.shortname)
       }
       fileData.push(header)
-      cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
+      # cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
+      cartels = Sector.where(:scian2=>"98").last.organizations
+      cartels = helpers.indexCartels(cartels)
       cartels.each {|myCartel|
         row = []
         row.push(myCartel.name)
