@@ -1151,7 +1151,12 @@ class OrganizationsController < ApplicationController
                 # }
                 header =  Cookie.where(:category=>"organizations_national_file").last.data[0]
               else
-                myState = State.where(:code=>mapData[0]).last
+              if mapData[0] < 10
+                trueCode = "0"+mapData[0].to_s  
+              else
+                trueCode = mapData[0]
+              end
+                myState = State.where(:code=>trueCode).last
                 allCounties = myState.counties.sort_by{|county| county.code}
                 validCounties = []
                 allCounties.each{|county|
