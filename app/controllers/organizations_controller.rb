@@ -244,18 +244,32 @@ class OrganizationsController < ApplicationController
             end
             myRackets.push(racketHash)
           }
-          myLeaders = myLeaders.uniq
-          if myLeaders.length == 2
-            placeCoalition = 0
-          elsif myLeaders.length == 0
-            placeCoalition = 3
-          else
-            if myLeaders.last == "Cártel de Sinaloa"
-              placeCoalition = 1 
+          myLeaders = placeRackets.pluck(:coalition).uniq
+          if myLeaders.include? "Cártel de Sinaloa"
+            if myLeaders.include? "Cártel Jalisco Nueva Generación"
+              placeCoalition = 0
             else
+              placeCoalition = 1
+            end
+          else
+            if myLeaders.include? "Cártel Jalisco Nueva Generación"
               placeCoalition = 2
-            end     
+            else
+              placeCoalition = 3
+            end
           end
+          # myLeaders = myLeaders.uniq
+          # if myLeaders.length == 2
+          #   placeCoalition = 0
+          # elsif myLeaders.length == 0
+          #   placeCoalition = 3
+          # else
+          #   if myLeaders.last == "Cártel de Sinaloa"
+          #     placeCoalition = 1 
+          #   else
+          #     placeCoalition = 2
+          #   end     
+          # end
           if @checkedStates.length == 1
             placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
           else
