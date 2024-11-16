@@ -1129,7 +1129,13 @@ class OrganizationsController < ApplicationController
       if mapData.length > 1
         file_name = "Organizaciones_"+downloadCounter.to_s+"_"+current_date+".csv"
       else 
-        myState = State.where(:code=>mapData[0]).last
+        if mapData[0].length == 1
+          trueCode = "0"+mapData[0].to_s  
+        else
+          trueCode = mapData[0]
+        end
+        trueCode = mapData[0]
+        myState = State.where(:code=>trueCode).last
         file_name = "Organizaciones_"+myState.shortname+"_"+downloadCounter.to_s+"_"+current_date+".csv"
       end
       
