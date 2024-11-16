@@ -468,8 +468,8 @@ class OrganizationsController < ApplicationController
           else
             row.push(0)
           end
-          fileData.push(row)
         }
+        fileData.push(row)
       }
       Cookie.create(:category=>"organizations_national_file", :data=>fileData)
       redirect_to '/organizations/query'
@@ -1203,6 +1203,7 @@ class OrganizationsController < ApplicationController
                   else 
                     row.push('N.D.') 
                   end
+                  row.push(myCartel.coalition)
                   validCounties.each{|county|
                     if county.rackets.include? myCartel
                       row.push(1)
