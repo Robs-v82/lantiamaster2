@@ -1188,7 +1188,12 @@ class OrganizationsController < ApplicationController
                 } 
               end
               writer << header
-              myData.each do |id|
+              if mapData.length > 1
+                Cookie.where(:category=>"organizations_national_file").last.data[1..-1].each{|row|
+                  writer << row
+                }
+              else
+                myData.each do |id|
                   row = []
                   myCartel = Organization.find(id)
                   row.push(myCartel.name)
@@ -1198,26 +1203,44 @@ class OrganizationsController < ApplicationController
                   else 
                     row.push('N.D.') 
                   end
-                  row.push(myCartel.coalition)
-                  if mapData.length > 1                 
-                    validStates.each{|state|
-                      if state.rackets.include? myCartel
-                        row.push(1)
-                      else
-                        row.push(0)
-                      end
-                    }
-                  else
-                    validCounties.each{|county|
-                      if county.rackets.include? myCartel
-                        row.push(1)
-                      else
-                        row.push(0)                    
-                      end
-                    }
-                  end
+                  validCounties.each{|county|
+                    if county.rackets.include? myCartel
+                      row.push(1)
+                    else
+                      row.push(0)                    
+                    end
+                  }
                   writer << row
+                end 
               end
+                  # row = []
+                  # myCartel = Organization.find(id)
+                  # row.push(myCartel.name)
+                  # row.push(myCartel.league)
+                  # if myCartel.subleague
+                  #   row.push(myCartel.subleague)
+                  # else 
+                  #   row.push('N.D.') 
+                  # end
+                  # row.push(myCartel.coalition)
+                  # if mapData.length > 1                 
+                  #   validStates.each{|state|
+                  #     if state.rackets.include? myCartel
+                  #       row.push(1)
+                  #     else
+                  #       row.push(0)
+                  #     end
+                  #   }
+                  # else
+                  #   validCounties.each{|county|
+                  #     if county.rackets.include? myCartel
+                  #       row.push(1)
+                  #     else
+                  #       row.push(0)                    
+                  #     end
+                  #   }
+                  # end
+                  # writer << row
           end
       end
           
