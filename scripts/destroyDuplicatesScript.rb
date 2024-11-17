@@ -1,0 +1,9 @@
+killings = Month.where(:name=>"2024_10").last.killings
+killings.each{|k|
+	legacy = k.legacy_id
+	if killings.where(:legacy_id=>legay).length > 1
+		k.victims.destroy_all
+		k.destroy
+	end
+}
+print "Ready!"
