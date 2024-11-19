@@ -38,11 +38,7 @@ class ApplicationController < ActionController::Base
 		valid_index = Organization.pluck(:ip_address).uniq
 		valid_index.flatten!
 			if valid_index.include? client
-				Organization.where.not(:ip_address=>nil).each{|org|
-					if org.ip_address.include? client
-						myOrganization = Organization.where(:ip_address == client).last
-					end
-				}
+				my_organization = Organization.where.not(ip_address: nil).where("ip_address LIKE ?", "%#{client}%").last
 				if myOrganization.users.empty?
 					redirect_to "/frontpage"
 				else
