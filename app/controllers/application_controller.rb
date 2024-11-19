@@ -33,10 +33,16 @@ class ApplicationController < ActionController::Base
 		else
 			client = '::1'	
 		end
+		print "XXoo"*200
+		print client
 		valid_index = Organization.pluck(:ip_address).uniq
 		valid_index.flatten!
 			if valid_index.include? client
-				myOrganization = Organization.where(:ip_address == client).last
+				Organization.where.not(:ip_address=>nil).each{|org|
+					if org.ip_address.include? client
+						myOrganization = Organization.where(:ip_address == client).last
+					end
+				}
 				if myOrganization.users.empty?
 					redirect_to "/frontpage"
 				else
