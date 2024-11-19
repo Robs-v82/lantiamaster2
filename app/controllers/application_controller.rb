@@ -31,9 +31,10 @@ class ApplicationController < ActionController::Base
 		if Rails.env.production?
 			client = request.remote_ip
 		else
-			client = '::1'		
+			client = '::1'	
 		end
 		valid_index = Organization.pluck(:ip_address).uniq
+		valid_index.flatten!
 			if valid_index.include? client
 				myOrganization = Organization.where(:ip_address == client).last
 				if myOrganization.users.empty?

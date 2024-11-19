@@ -26,10 +26,9 @@ class Organization < ApplicationRecord
 	serialize :rivals, Array
 	serialize :alias, Array
 	serialize :legacy_names, Array
+	serialize :ip_address, Array
 
 	def self.search(term)
 	  where("name LIKE ?", "%#{term}%")
 	end
-
-
 end
