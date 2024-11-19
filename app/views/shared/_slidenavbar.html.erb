@@ -15,6 +15,11 @@
         </li>
         <div id="user-links white-text" class="paletton-red">
         <br>
+        <li class="white-text p20 semi-slim">
+            <a class="left-min-margin p20 semi-slim preloader-trigger" href="/frontpage">
+                <i class="material-icons white-text left-extra-margin">home</i>
+            </a>
+        </li>
         <% if User.find(session[:user_id]).victim_access == false %>
             <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">VÍCTIMAS</span></li>
         <% else %>
