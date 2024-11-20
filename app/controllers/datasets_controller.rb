@@ -13,6 +13,8 @@ class DatasetsController < ApplicationController
 		@months = Month.all.sort
 		ensuLoaded = []
 		violenceReportLoaded = []
+		socialReportLoaded = []
+		forecastReportLoaded = []
 		crimeVictimReportLoaded = []
 		@quarters.each{|quarter|
 			if quarter.ensu.attached?
@@ -22,6 +24,12 @@ class DatasetsController < ApplicationController
 		@months.each{|month|
 			if month.violence_report.attached?
 				violenceReportLoaded.push(month.name)
+			end
+			if month.social_report.attached?
+				socialReportLoaded.push(month.name)
+			end
+			if month.forecast_report.attached?
+				forecastReportLoaded.push(month.name)
 			end
 			if month.crime_victim_report.attached?
 				crimeVictimReportLoaded.push(month.name)
@@ -44,6 +52,8 @@ class DatasetsController < ApplicationController
 			{caption:"Detenciones", myAction:"/members/detentions", timeSearch: nil, myObject:"file", loaded: nil, fileWindow: true},
 			{caption:"ENSU BP1_1", myAction:"/datasets/load_ensu", timeSearch:"shared/quartersearch", myObject:"ensu", loaded:ensuLoaded, fileWindow: true},
 			{caption:"Reporte de Violencia del Crimen Organizado", myAction:"/months/load_violence_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:violenceReportLoaded, fileWindow: true},
+			{caption:"Reporte de Riesgo Social", myAction:"/months/load_social_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:socialReportLoaded, fileWindow: true},
+			{caption:"Prospectiva", myAction:"/months/load_forecast_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:forecastReportLoaded, fileWindow: true},
 			{caption:"Cifras delictivas mensuales", myAction:"/months/load_crime_victim_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:crimeVictimReportLoaded, fileWindow: true},
 			{caption:"Crear irco estatal", myAction:"/states/load_irco", timeSearch:"shared/quartersearch", myObject: nil, loaded:nil},
 			{caption:"Crear datos para irco estatal", myAction:"/states/stateIndexHash", timeSearch:"shared/quartersearch", myObject: nil, loaded:nil},
