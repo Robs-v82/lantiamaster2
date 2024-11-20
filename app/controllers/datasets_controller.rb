@@ -793,11 +793,9 @@ class DatasetsController < ApplicationController
     end
 
     def downloads
-    	@v_months = Month.joins(:violence_report_attachment)
-    	@v_tags = []
-    	@v_months.each {|month|
-    		
-    	}
+    	@v_months = Month.joins(:violence_report_attachment).sort { |a, b| b <=> a }
+    	@s_months = Month.joins(:social_report_attachment).sort { |a, b| b <=> a }
+    	@f_months = Month.joins(:forecast_report_attachment).sort { |a, b| b <=> a }
     end
 
 	private

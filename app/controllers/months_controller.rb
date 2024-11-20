@@ -24,6 +24,34 @@ class MonthsController < ApplicationController
 		redirect_to "/datasets/load"
 	end
 
+	def load_social_report
+		myName = load_social_report_params[:year]+"_"+load_social_report_params[:month]
+		myMonth = Month.where(:name=>myName).last		
+		myMonth.social_report.purge
+		myMonth.social_report.attach(load_social_report_params[:report])	
+		if myMonth.social_report.attached?
+			session[:filename] = load_social_report_params[:report].original_filename
+			session[:load_success] = true
+			print "*******ATTACHEMENT WORKED: "
+			print "TRUE"
+		end
+		redirect_to "/datasets/load"
+	end
+
+	def load_forecast_report
+		myName = load_forecast_report_params[:year]+"_"+load_forecast_report_params[:month]
+		myMonth = Month.where(:name=>myName).last		
+		myMonth.forecast_report.purge
+		myMonth.forecast_report.attach(load_forecast_report_params[:report])	
+		if myMonth.forecast_report.attached?
+			session[:filename] = load_forecast_report_params[:report].original_filename
+			session[:load_success] = true
+			print "*******ATTACHEMENT WORKED: "
+			print "TRUE"
+		end
+		redirect_to "/datasets/load"
+	end
+
 	def load_crime_victim_report
 		myName = load_crime_victim_report_params[:year]+"_"+load_crime_victim_report_params[:month]
 		myMonth = Month.where(:name=>myName).last		
@@ -54,6 +82,14 @@ class MonthsController < ApplicationController
 	private
 
 	def load_violence_report_params
+		params.require(:query).permit(:report,:year,:month)
+	end
+
+	def load_social_report_params
+		params.require(:query).permit(:report,:year,:month)
+	end
+
+	def load_forecast_report_params
 		params.require(:query).permit(:report,:year,:month)
 	end
 

@@ -9,6 +9,8 @@ class Month < ApplicationRecord
 	has_many :leads, :through => :events 
 
 	has_one_attached :violence_report
+	has_one_attached :social_report
+	has_one_attached :forecast_report
 	has_one_attached :crime_victim_report
 	has_one_attached :car_theft_report
 end

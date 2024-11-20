@@ -78,7 +78,9 @@ Rails.application.routes.draw do
     get 'queries/send_query_file/:extension' => 'queries#send_query_file'
     get 'queries/test_xlsx' => 'queries#test_xlsx', as: "test"
     post 'datasets/load_ensu' 
-    post 'months/load_violence_report' 
+    post 'months/load_violence_report'
+    post 'months/load_social_report'
+    post 'months/load_forecast_report' 
     post 'months/load_crime_victim_report' 
     post 'months/header_selector/:month' => 'months#header_selector'
     get 'datasets/victims_query'
