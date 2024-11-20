@@ -1,0 +1,17 @@
+<div class="row">
+	<div class="col l3 m4 s6">
+		<div class="card grey lighten-2">
+			<div class="card-image">
+				<img src="/assets/Violencia del Crimen Organizado.jpg">
+         		<span class="card-title">Violencia del Crimen Organizado</span>
+			</div>
+			<div class="card-content">
+				<ul class="collection grey lighten-2" style="max-height: 400px; overflow-y: auto;">
+					<% @v_months.each do |month| %>
+						<li class="collection-item valign-wrapper grey lighten-2"><a href="<%= rails_blob_path(month.violence_report, disposition: "attachment")%>"><img class="center small-icon-size" src="/assets/pdf_icon.png"></a><span style="margin-left: 16px;"><%= I18n.l(month.first_day, format: '%B de %Y') %></span></li>
+					<% end %>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>

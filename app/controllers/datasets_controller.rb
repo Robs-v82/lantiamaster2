@@ -792,6 +792,14 @@ class DatasetsController < ApplicationController
     	render json: myHash
     end
 
+    def downloads
+    	@v_months = Month.joins(:violence_report_attachment)
+    	@v_tags = []
+    	@v_months.each {|month|
+    		
+    	}
+    end
+
 	private
 
 	def load_ensu_params
