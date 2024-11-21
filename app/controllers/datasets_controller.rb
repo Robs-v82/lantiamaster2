@@ -813,7 +813,8 @@ class DatasetsController < ApplicationController
     		myHash[:path] = file[7..-1]
     		myHash[:number] = file[34..36]
     		myString = file[62..65]+"_"+file[60..61]
-    		myHash[:month] = Month.where(:name=>myString).last.first_day.strftime('%B de %Y')
+    		myMonth = Month.where(:name=>myString).last
+    		myHash[:month] = I18n.l(myMonth.first_day, format: '%B de %Y')
     		@briefings.push(myHash)
     	}
     end
