@@ -806,6 +806,16 @@ class DatasetsController < ApplicationController
     	@v_months = Month.joins(:violence_report_attachment).sort { |a, b| b <=> a }
     	@s_months = Month.joins(:social_report_attachment).sort { |a, b| b <=> a }
     	@f_months = Month.joins(:forecast_report_attachment).sort { |a, b| b <=> a }
+    	myFiles = Dir['public/briefings/*'].sort { |a, b| b <=> a }
+    	@briefings = []
+    	myFiles.each{|file|
+    		myHash = {}
+    		myHash[:path] = file[7..-1]
+    		myHash[:number] = file[34..36]
+    		myString = file[62..65]+"_"+file[60..61]
+    		myHash[:month] = Month.where(:name=>myString).last.first_day.strftime('%B de %Y')
+    		@briefings.push(myHash)
+    	}
     end
 
 	private

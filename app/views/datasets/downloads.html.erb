@@ -44,3 +44,19 @@
 			</div>
 		</div>
 	</div>
+	<div class="col l3 m4 s6">
+		<div class="card grey lighten-2">
+			<div class="card-image">
+				<img src="/assets/Briefing.jpg">
+         		<span class="card-title" style="background-color: rgba(0, 0, 0, 0.5);">Briefing Semanal</span>
+			</div>
+			<div class="card-content">
+				<ul class="collection grey lighten-2" style="max-height: 400px; overflow-y: auto;">
+					<% @briefings.each do |briefing| %>
+						<li class="collection-item valign-wrapper grey lighten-2"><a href="/<%= briefing[:path] %>"><img class="center small-icon-size" src="/assets/pdf_icon.png"></a><span style="margin-left: 16px;"><%= briefing[:number] %></span></li>
+					<% end %>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
