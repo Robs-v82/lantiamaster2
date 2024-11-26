@@ -115,7 +115,6 @@ class OrganizationsController < ApplicationController
       }
 
       @type_title = get_type_title(@checkedTypes)
-
       @typeKeys = allCartels.pluck(:mainleague_id).uniq
       @allTypes = []
       @typeKeys.each{|key|
@@ -123,26 +122,7 @@ class OrganizationsController < ApplicationController
       }
 
       @allCoalitions = helpers.coalitionKeys
-
       @checkedCoalitions = session[:organization_selection][1]
-
-      # @myActivities = []
-      # activityArr = [
-      #   "Narcotráfico",
-      #   "Narcomenudeo",
-      #   "Extorsión",
-      #   "Lavado de dinero",
-      #   "Mercado Ilícito de Hidrocarburos",
-      #   "Trata y tráfico de personas"
-      # ]
-
-      # @allActivities = Sector.where(:scian2=>"98").last.divisions
-      # @allActivities.each{|activity|
-      #   if activityArr.include? activity.name
-      #     @myActivities.push(activity)
-      #   end
-      # }
-
       @cartels = []
       myStates = []
       @checkedStates.each{|id|
@@ -1199,34 +1179,6 @@ class OrganizationsController < ApplicationController
                   writer << row
                 end 
               end
-                  # row = []
-                  # myCartel = Organization.find(id)
-                  # row.push(myCartel.name)
-                  # row.push(myCartel.league)
-                  # if myCartel.subleague
-                  #   row.push(myCartel.subleague)
-                  # else 
-                  #   row.push('N.D.') 
-                  # end
-                  # row.push(myCartel.coalition)
-                  # if mapData.length > 1                 
-                  #   validStates.each{|state|
-                  #     if state.rackets.include? myCartel
-                  #       row.push(1)
-                  #     else
-                  #       row.push(0)
-                  #     end
-                  #   }
-                  # else
-                  #   validCounties.each{|county|
-                  #     if county.rackets.include? myCartel
-                  #       row.push(1)
-                  #     else
-                  #       row.push(0)                    
-                  #     end
-                  #   }
-                  # end
-                  # writer << row
           end
       end
           

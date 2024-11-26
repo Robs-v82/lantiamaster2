@@ -9,9 +9,9 @@
 					<% @fileHash[:formats].each do |format| %>
 						<li class="dropdown-item">
 							<% if @victims %>
-								<a href="/victims/send_file/<%= format %>/<%= @paramsCookie[0] %>.csv"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+								<a href="/victims/send_file/<%= format %>/<%= @paramsCookie[0] %>.csv"><%= image_tag format+"_icon.png", :class => "center small-icon-size" %></a>
 							<% else %>
-								<a href="/members/send_file/<%= format %>/<%= @paramsCookie[0] %>.csv"><%= image_tag format+"_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+								<a href="/members/send_file/<%= format %>/<%= @paramsCookie[0] %>.csv"><%= image_tag format+"_icon.png", :class => "center small-icon-size" %></a>
 							<% end %>
 						</li>
 					<% end %>
@@ -29,7 +29,7 @@
 									href="/states/send_file.csv"
 								<% end %>
 							<% end %>
-						><%= image_tag "csv_icon.png", :class => "center small-icon-size preloader-trigger" %></a>
+						><%= image_tag "csv_icon.png", :class => "center small-icon-size" %></a>
 					</li>
 				<% end %>	
 			</ul>
