@@ -84,148 +84,239 @@ class OrganizationsController < ApplicationController
       end  
     end
 
-def index
-  @user = User.find(session[:user_id])
-  @organizations = true
-  @racket_limit = 20
-
-  prepare_states_and_activities
-  prepare_cartels_and_coalitions
-  prepare_places_and_leaders
-  set_page_variables
-
-  handle_undefined_counties if @checked_states.one?
-  create_download_cookies
-end
-
-private
-
-def prepare_states_and_activities
-  @quarters = helpers.get_specific_quarters(Year.all, "leads")
-  @states = State.all.order(:name)
-  @all_activities = Sector.where(scian2: "98").last.divisions
-
-  @checked_states = if session[:checkedStates]
-                      Cookie.find(session[:checkedStates]).data
-                    elsif session[:membership] < 2
-                      helpers.demo_states.pluck(:id)
-                    else
-                      State.pluck(:id)
-                    end
-end
-
-def prepare_cartels_and_coalitions
-  @short_map = %w[12 16 20 27 29 31].map do |code|
-    State.find_by(code: code)&.id
-  end.compact
-
-  @checked_types = session[:organization_selection][0].map do |key|
-    League.find_by(id: key.to_i)
-  end.compact
-
-  @type_title = get_type_title(@checked_types)
-
-  @all_types = Sector.where(scian2: 98).last.organizations
-                     .pluck(:mainleague_id).uniq.map do |key|
-    League.find_by(id: key.to_i)
-  end.compact
-
-  @all_coalitions = helpers.coalitionKeys
-  @checked_coalitions = session[:organization_selection][1]
-
-  @my_activities = @all_activities.select do |activity|
-    %w[Narcotráfico Narcomenudeo Extorsión Lavado de dinero Mercado Ilícito de Hidrocarburos Trata y tráfico de personas].include?(activity.name)
-  end
-
-  build_cartels
-end
-
-def build_cartels
-  @cartels = []
-  my_states = State.where(id: @checked_states)
-
-  my_states.each do |state|
-    local_organizations = state.rackets.where(active: true).uniq
-    @checked_types.each do |type|
-      @cartels.concat(type.organizations.merge(local_organizations))
+  def index
+    @user = User.find(session[:user_id])
+    @organizations = true
+    @racketLimit = 20
+    @quarters = helpers.get_specific_quarters(Year.all, "leads")
+    @states = State.all.sort
+    @allActivities = Sector.where(:scian2=>"98").last.divisions
+    if session[:checkedStates]
+      @checkedStates = Cookie.find(session[:checkedStates]).data
+    elsif session[:membership] < 2
+      @checkedStates = helpers.demo_states.pluck(:id)
+    else
+      @checkedStates = State.pluck(:id)
     end
-  end
 
-  @cartels.uniq!
-  @cartels.sort_by!(&:name)
-  group_cartels_by_type
-end
+    @shortMap = [
+      State.where(:code=>"12").last.id,
+      State.where(:code=>"16").last.id,
+      State.where(:code=>"20").last.id,
+      State.where(:code=>"27").last.id,
+      State.where(:code=>"29").last.id,
+      State.where(:code=>"31").last.id,
+    ]
+    allCartels = Sector.where(:scian2=>98).last.organizations.uniq
 
-def group_cartels_by_type
-  by_type = Array.new(3) { [] }
-  @cartels.each do |cartel|
-    case cartel.league
-    when "Cártel" then by_type[0] << cartel
-    when "Mafia" then by_type[1] << cartel
-    else by_type[2] << cartel
-    end
-  end
-  @cartels = by_type.flatten
-end
+      @checkedTypes = []
+      session[:organization_selection][0].each{|key|
+        @checkedTypes.push(League.find(key.to_i))
+      }
 
-def prepare_places_and_leaders
-  @allied_cartels, @color_arr = if full_selection?
-                                  cached_cartels_and_colors
-                                else
-                                  calculate_cartels_and_colors
-                                end
+      @type_title = get_type_title(@checkedTypes)
 
-  @n = @allied_cartels.size - 1
-end
+      @typeKeys = allCartels.pluck(:mainleague_id).uniq
+      @allTypes = []
+      @typeKeys.each{|key|
+        @allTypes.push(League.find(key.to_i))
+      }
 
-def full_selection?
-  @checked_states.size == 32 && @checked_coalitions == @all_coalitions && @checked_types.size == 3
-end
+      @allCoalitions = helpers.coalitionKeys
 
-def cached_cartels_and_colors
-  last_cookie = Cookie.where(category: "organizations").last&.data&.dig(0)
-  [last_cookie[:alliedCartels].uniq, last_cookie[:colorData]]
-end
+      @checkedCoalitions = session[:organization_selection][1]
 
-def calculate_cartels_and_colors
-  allied_cartels = []
-  color_arr = []
+      @myActivities = []
+      activityArr = [
+        "Narcotráfico",
+        "Narcomenudeo",
+        "Extorsión",
+        "Lavado de dinero",
+        "Mercado Ilícito de Hidrocarburos",
+        "Trata y tráfico de personas"
+      ]
 
-  @cartels.each do |cartel|
-    cartel_in = false
-    @checked_coalitions.each do |coalition|
-      if cartel.coalition == coalition["name"]
-        color_arr << coalition["material_color"]
-        cartel_in = true
+      @allActivities = Sector.where(:scian2=>"98").last.divisions
+      @allActivities.each{|activity|
+        if activityArr.include? activity.name
+          @myActivities.push(activity)
+        end
+      }
+
+      @cartels = []
+      myStates = []
+      @checkedStates.each{|id|
+        state = State.find(id.to_i)
+        myStates.push(state)
+        localOrganizations = state.rackets.where(:active=>true).uniq
+        # localOrganizations = state.rackets
+        # localOrganizations = helpers.indexCartels(localOrganizations)
+        @checkedTypes.each{|type|
+          @cartels.push(type.organizations.merge(localOrganizations))
+        }
+      }
+      @cartels.flatten!
+      @cartels = @cartels.uniq
+      @cartels = @cartels.sort_by{|cartel| cartel.name}
+      byType = [[],[],[]]
+      @cartels.each{|cartel|
+        if cartel.league == "Cártel"
+          byType[0].push(cartel)
+        elsif cartel.league == "Mafia"
+          byType[1].push(cartel)
+        else
+          byType[2].push(cartel)
+        end
+      }
+      @cartels = byType.flatten
+      if @checkedStates.length == 32 && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
+        @colorArr = Cookie.where(:category=>"organizations").last.data[0][:colorData]
+        @alliedCartels = Cookie.where(:category=>"organizations").last.data[0][:alliedCartels]
+        @alliedCartels = @alliedCartels.uniq
+      else
+        @colorArr = []
+        @alliedCartels = []
+        @cartels.each {|cartel|
+          cartelIn = false
+          @checkedCoalitions.each{|thisCoalition|
+            if cartel.coalition = thisCoalition["name"]
+               @colorArr.push(thisCoalition["material_color"])
+               cartelIn = true
+            end
+            unless cartelIn
+              @colorArr.push(thisCoalition["material_color"])
+              cartelIn = true
+            end
+          }
+          if cartelIn
+            @alliedCartels.push(cartel)
+          end
+        }
       end
+
+      if @alliedCartels.empty?
+        session[:empty_request] = true
+        redirect_to '/organizations/query'
+      end
+
+      @n = @alliedCartels.length-1
+
+      if @checkedStates.length == 1
+        myPlaces = State.find(@checkedStates).last.counties
+      else
+        myPlaces = myStates
+      end
+
+     
+      if myPlaces == State.all && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
+        @placeArr = Cookie.where(:category=>"organizations").last.data[0][:placeData].uniq
+      else
+        @placeArr = []
+        myPlaces.each{|place|
+          placeRackets = place.rackets.merge(@alliedCartels)
+          myRackets = []
+          myLeaders = []
+          placeRackets.each{|racket|
+            racketHash = {}
+            if @alliedCartels.include? racket
+              racketHash[:name] = racket.name
+            end
+            cartelIn = false
+            @checkedCoalitions.each{|coalition|              
+              if racket.coalition == coalition["name"]
+                myLeaders.push(coalition["name"])
+                cartelIn = true
+                racketHash[:color] = coalition["dark_color"]
+              end
+            }
+            unless cartelIn
+              racketHash[:color] = '#454157'         
+            end
+            myRackets.push(racketHash)
+          }
+          myLeaders = placeRackets.pluck(:coalition).uniq
+          if myLeaders.include? "Cártel de Sinaloa"
+            if myLeaders.include? "Cártel Jalisco Nueva Generación"
+              placeCoalition = 0
+            else
+              placeCoalition = 1
+            end
+          else
+            if myLeaders.include? "Cártel Jalisco Nueva Generación"
+              placeCoalition = 2
+            else
+              placeCoalition = 3
+            end
+          end
+          if @checkedStates.length == 1
+            placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+          else
+            placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+          end
+          unless placeHash[:freq] == 0
+            @placeArr.push(placeHash)
+          end
+        }
+      end
+
+      State.all.each{|state|
+        stateRackets = state.rackets.uniq
+        myRackets = []
+
+        stateRackets.each{|racket|
+          racketHash = {}
+          if @alliedCartels.include? racket
+            myRackets.push(racket)
+          end
+          cartelIn = false
+        }
+      }
+
+      if @checkedCoalitions.length == 1
+        @lightMapColor = @checkedCoalitions[0]["color"]
+        @darkMapColor = @checkedCoalitions[0]["dark_color"]
+      else
+        @lightMapColor = "#ffcdd2"
+        @darkMapColor = "#c62828"
+      end
+
+      # PAGES
+      @page_scope = 10
+      @numberOfPages = @n/@page_scope
+      session[:indexPage] = 0
+      @beginning = 1+((session[:indexPage]-1)*@page_scope) 
+      if session[:indexPage] >= (@n/@page_scope.to_f).ceil
+        @finalPage = true
+      end
+      if session[:indexPage]+1 >= (@n/@page_scope.to_f).ceil
+        @finalPagePlus = true
+      end
+
+      # UNDEFINED COUNTIES FOR SINGLE STATE MAP
+      if @checkedStates.length == 1
+        # @undefined = @alliedCartels.clone
+        @undefined = []      
+        @alliedCartels.each{|cartel|
+            cartelUndefined = true
+            State.find(@checkedStates.last).counties.where.not(:name=>"Sin definir").each{|county| 
+            if county.rackets.include? cartel
+              cartelUndefined = false
+            end
+          }
+          if cartelUndefined
+            @undefined.push(cartel)
+          end
+        }       
+      end
+
+      # ADD COOKIE THAT WE WILL USE FOR DOWNLOADS
+      alliedArr = []
+      @alliedCartels.each{|cartel|
+        alliedArr.push(cartel.id)
+      }
+      Cookie.create(:category=>"send_file", :data=>alliedArr) 
+      Cookie.create(:category=>"send_map_data", :data=>@checkedStates) 
     end
-    color_arr << "#454157" unless cartel_in
-    allied_cartels << cartel if cartel_in
-  end
-
-  [allied_cartels.uniq, color_arr]
-end
-
-def set_page_variables
-  @page_scope = 10
-  @number_of_pages = (@n / @page_scope.to_f).ceil
-  session[:indexPage] = 0
-  @beginning = 1 + ((session[:indexPage] - 1) * @page_scope)
-  @final_page = session[:indexPage] >= @number_of_pages - 1
-end
-
-def handle_undefined_counties
-  @undefined = @allied_cartels.reject do |cartel|
-    State.find(@checked_states.last).counties.where.not(name: "Sin definir").any? do |county|
-      county.rackets.include?(cartel)
-    end
-  end
-end
-
-def create_download_cookies
-  Cookie.create(category: "send_file", data: @allied_cartels.pluck(:id))
-  Cookie.create(category: "send_map_data", data: @checked_states)
-end
 
     def api
       cartels = Sector.where(:scian2=>"98").last.organizations.where(:active=>true).uniq
