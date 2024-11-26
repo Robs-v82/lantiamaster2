@@ -126,22 +126,22 @@ class OrganizationsController < ApplicationController
 
       @checkedCoalitions = session[:organization_selection][1]
 
-      @myActivities = []
-      activityArr = [
-        "Narcotráfico",
-        "Narcomenudeo",
-        "Extorsión",
-        "Lavado de dinero",
-        "Mercado Ilícito de Hidrocarburos",
-        "Trata y tráfico de personas"
-      ]
+      # @myActivities = []
+      # activityArr = [
+      #   "Narcotráfico",
+      #   "Narcomenudeo",
+      #   "Extorsión",
+      #   "Lavado de dinero",
+      #   "Mercado Ilícito de Hidrocarburos",
+      #   "Trata y tráfico de personas"
+      # ]
 
-      @allActivities = Sector.where(:scian2=>"98").last.divisions
-      @allActivities.each{|activity|
-        if activityArr.include? activity.name
-          @myActivities.push(activity)
-        end
-      }
+      # @allActivities = Sector.where(:scian2=>"98").last.divisions
+      # @allActivities.each{|activity|
+      #   if activityArr.include? activity.name
+      #     @myActivities.push(activity)
+      #   end
+      # }
 
       @cartels = []
       myStates = []
@@ -149,8 +149,6 @@ class OrganizationsController < ApplicationController
         state = State.find(id.to_i)
         myStates.push(state)
         localOrganizations = state.rackets.where(:active=>true).uniq
-        # localOrganizations = state.rackets
-        # localOrganizations = helpers.indexCartels(localOrganizations)
         @checkedTypes.each{|type|
           @cartels.push(type.organizations.merge(localOrganizations))
         }
@@ -294,7 +292,6 @@ class OrganizationsController < ApplicationController
 
       # UNDEFINED COUNTIES FOR SINGLE STATE MAP
       if @checkedStates.length == 1
-        # @undefined = @alliedCartels.clone
         @undefined = []      
         @alliedCartels.each{|cartel|
             cartelUndefined = true
