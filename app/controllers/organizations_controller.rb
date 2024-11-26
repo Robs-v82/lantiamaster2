@@ -145,7 +145,7 @@ def build_cartels
   my_states = State.where(id: @checked_states)
 
   my_states.each do |state|
-    local_organizations = state.rackets.active.uniq
+    local_organizations = state.rackets.where(active: true).uniq
     @checked_types.each do |type|
       @cartels.concat(type.organizations.merge(local_organizations))
     end
