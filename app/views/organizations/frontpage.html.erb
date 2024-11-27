@@ -212,17 +212,11 @@
       <div class="tall-field dark-nav">
         <%= render "shared/lantialogo" %>
         <ul id="nav-mobile" class="right">
-          <li>
-            <a class="big-font navtitle" href="#hero">
-            <%= image_tag "arrow_left.svg", :class => "chevron tiny-arrow left-min-margin", :style => "display: none" %>
-              INICIO
-            <%= image_tag "arrow_right.svg", :class => "chevron tiny-arrow", :style => "display: none" %>
-            </a>
-          </li>
-          <li><a class="big-font" href="#us-section">NOSOTROS</a></li>
+          <li><a class="big-font navtitle" href="#hero">INICIO</a></li>
+          <li><a class="big-font navtitle" href="#us-section">NOSOTROS</a></li>
           <%# <li><a class="big-font" href="collapsible.html">PRENSA</a></li> %>
-          <li><a class="big-font" href="#data-section">DATOS</a></li>
-          <li><a class="big-font" href="#service-section">SERVICIOS</a></li>
+          <li><a class="big-font navtitle" href="#data-section">DATOS</a></li>
+          <li><a class="big-font navtitle" href="#service-section">SERVICIOS</a></li>
           <% if session[:user_id] %>
             <li><a class="big-font login-button reset-values" href="/">PLATAFORMA DE DATOS</a></li>
           <% else %>
