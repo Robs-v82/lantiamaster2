@@ -1,7 +1,7 @@
   <!DOCTYPE html>
   <html>
   <head>
-    <title>Lanta Intelligence</title>
+    <title>Lantiamaster</title>
     <meta charset="UTF-8">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -24,6 +24,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,300&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="/assets/favicon.png">
     <script type="text/javascript">
+      $(document).ready(function(){
+
+        $(".navtitle")
+          .on( "mouseover", function() {
+            $(this).addClass("red-text");
+          })
+          .on( "mouseout", function() {
+            $(this).removeClass("red-text");
+        });
+      })
+    </script>
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
@@ -201,15 +212,21 @@
       <div class="tall-field dark-nav">
         <%= render "shared/lantialogo" %>
         <ul id="nav-mobile" class="right">
-          <li><a class="big-font" href="#hero">INICIO</a></li>
+          <li>
+            <a class="big-font navtitle" href="#hero">
+            <%= image_tag "arrow_left.svg", :class => "chevron tiny-arrow left-min-margin", :style => "display: none" %>
+              INICIO
+            <%= image_tag "arrow_right.svg", :class => "chevron tiny-arrow", :style => "display: none" %>
+            </a>
+          </li>
           <li><a class="big-font" href="#us-section">NOSOTROS</a></li>
           <%# <li><a class="big-font" href="collapsible.html">PRENSA</a></li> %>
           <li><a class="big-font" href="#data-section">DATOS</a></li>
           <li><a class="big-font" href="#service-section">SERVICIOS</a></li>
           <% if session[:user_id] %>
-            <li><a class="big-font login-button" href="/">PLATAFORMA DE DATOS</a></li>
+            <li><a class="big-font login-button reset-values" href="/">PLATAFORMA DE DATOS</a></li>
           <% else %>
-            <li><a class="big-font login-button" href="/password">INICIA SESIÓN</a></li>
+            <li><a class="big-font login-button reset-values" href="/password">INICIA SESIÓN</a></li>
           <% end %>
         </ul>
       </div>
