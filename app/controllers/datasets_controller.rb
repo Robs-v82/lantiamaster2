@@ -545,7 +545,7 @@ class DatasetsController < ApplicationController
         myYears = helpers.get_regular_years
         # CHANGE THIS IN JANUARY!!!
         # thisYear = Year.where(:name=>Time.now.year.to_s).last
-        thisYear = Year.where(:name=>"2022").last
+        thisYear = Year.where(:name=>"2024").last
         victimYearsArr = []
         myYears.each{|year|
             yearHash = {}
