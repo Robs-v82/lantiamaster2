@@ -26,11 +26,14 @@
 	</div>
 	<div class="col l3 m4 s6">
 		<div class="card grey lighten-2">
-			<div class="card-image">
+<%# 			<div class="card-image">
 				<img src="/assets/Riesgo Social.jpg">
          		<span class="card-title" style="background-color: rgba(0, 0, 0, 0.5);">Riesgo Social</span>
+			</div> %>
+			<div class="card-content cyan darken-1 white-text">
+				<span class="card-title">Riesgo Social</span>
 			</div>
-			<div class="card-content">
+			<div class="card-action  grey lighten-2">
 				<ul class="collection grey lighten-2" style="max-height: 400px; overflow-y: auto;">
 					<% @s_months.each do |month| %>
 						<li class="collection-item valign-wrapper grey lighten-2"><a href="<%= rails_blob_path(month.social_report, disposition: "attachment")%>"><img class="center small-icon-size" src="/assets/pdf_icon.png"></a><span style="margin-left: 16px;"><%= I18n.l(month.first_day, format: '%B de %Y') %></span></li>
@@ -41,11 +44,14 @@
 	</div>
 	<div class="col l3 m4 s6">
 		<div class="card grey lighten-2">
-			<div class="card-image">
+<%# 			<div class="card-image">
 				<img src="/assets/Prospectiva.jpg">
          		<span class="card-title" style="background-color: rgba(0, 0, 0, 0.5);">Prospectiva</span>
+			</div> %>
+			<div class="card-content green darken-1 white-text">
+				<span class="card-title">Prospectiva</span>
 			</div>
-			<div class="card-content">
+			<div class="card-action  grey lighten-2">
 				<ul class="collection grey lighten-2" style="max-height: 400px; overflow-y: auto;">
 					<% @f_months.each do |month| %>
 						<li class="collection-item valign-wrapper grey lighten-2"><a href="<%= rails_blob_path(month.forecast_report, disposition: "attachment")%>"><img class="center small-icon-size" src="/assets/pdf_icon.png"></a><span style="margin-left: 16px;"><%= I18n.l(month.first_day, format: '%B de %Y') %></span></li>
@@ -56,11 +62,14 @@
 	</div>
 	<div class="col l3 m4 s6">
 		<div class="card grey lighten-2">
-			<div class="card-image">
+<%# 			<div class="card-image">
 				<img src="/assets/Briefing.jpg">
          		<span class="card-title" style="background-color: rgba(0, 0, 0, 0.5);">Briefing Semanal</span>
+			</div> %>
+			<div class="card-content orange darken-1 white-text">
+				<span class="card-title">Briefing Semanal</span>
 			</div>
-			<div class="card-content">
+			<div class="card-action  grey lighten-2">
 				<ul class="collection grey lighten-2" style="max-height: 400px; overflow-y: auto;">
 					<% @briefings.each do |briefing| %>
 						<li class="collection-item valign-wrapper grey lighten-2"><a href="/<%= briefing[:path] %>"><img class="center small-icon-size" src="/assets/pdf_icon.png"></a><span style="margin-left: 16px;"><%= briefing[:number] %> | <%= briefing[:month] %></span></li>
