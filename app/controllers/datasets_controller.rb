@@ -806,7 +806,7 @@ class DatasetsController < ApplicationController
     	@v_months = Month.joins(:violence_report_attachment).sort { |a, b| b <=> a }
     	@s_months = Month.joins(:social_report_attachment).sort { |a, b| b <=> a }
     	@f_months = Month.joins(:forecast_report_attachment).sort { |a, b| b <=> a }
-    	myFiles = Dir['public/briefings/*'].sort { |a, b| b <=> a }
+    	myFiles = Dir['public/briefings/*'].sort { |a, b| b.downcase <=> a.downcase }
     	@briefings = []
     	myFiles.each{|file|
     		myHash = {}
