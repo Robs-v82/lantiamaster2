@@ -150,7 +150,8 @@ class MembersController < ApplicationController
 	end
 
 	def query
-		print session print "XXxx"*100
+		print(session)
+		print("XXxx"*100)
 		paramsStates = Cookie.find(session[:checkedStates]).data.length
 		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
 		helpers.clear_session
