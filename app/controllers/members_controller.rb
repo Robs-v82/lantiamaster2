@@ -150,11 +150,8 @@ class MembersController < ApplicationController
 	end
 
 	def query
-		print(session)
-		print("XXxx"*100)
 		paramsStates = Cookie.find(session[:checkedStates]).data.length
 		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
-		helpers.clear_session
 		if detainee_freq_params[:freq_timeframe]
 			paramsCookie[0] = detainee_freq_params[:freq_timeframe]
 		end
@@ -311,22 +308,12 @@ class MembersController < ApplicationController
 		if @stateWise && @checkedStates.length == State.all.length
 			@maps = true
 		end
-
-		# if @stateWise
-		# 	if @organizationFrames[0][:checked] && @roleFrames[0][:checked]
-		# 		@maps = true
-		# 	elsif @roleFrames[0][:checked] && @checkedOrganizations.length == 1
-		# 		@maps = true
-		# 	elsif @organizationFrames[0][:checked] && @checkedRoles.length == 1
-		# 		@maps = true
-		# 	elsif @checkedOrganizations.length == 1 && @checkedRoles.length == 1
-		# 		@maps = true
-		# 	end
-		# end
 		@detention_cartels = helpers.detention_cartels
 		@topDetentions = dataCookie[:topDetentions]
 		@topDetentionRoles = helpers.top_detention_roles
 		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
+		print(session)
+		print("XXxx"*100)
 	end
 
 	def detainees_freq_api
