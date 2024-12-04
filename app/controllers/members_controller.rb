@@ -151,6 +151,7 @@ class MembersController < ApplicationController
 
 	def query
 		paramsStates = Cookie.find(session[:checkedStates]).data.length
+		helpers.clear_session
 		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
 		if detainee_freq_params[:freq_timeframe]
 			paramsCookie[0] = detainee_freq_params[:freq_timeframe]
