@@ -313,7 +313,7 @@ class MembersController < ApplicationController
 		@detention_cartels = helpers.detention_cartels
 		@topDetentions = dataCookie[:topDetentions]
 		@topDetentionRoles = helpers.top_detention_roles
-		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
+		# @fileHash = {:data=>@my_freq_table,:formats=>['csv']}
 		logger.info("XXxx"*300)
 		logger.info(session.inspect)
 	end
