@@ -187,8 +187,8 @@ class MembersController < ApplicationController
 			session[:checkedRoles] = paramsCookie[7]
 		end
 		Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
-		logger.info("XXxx"*300)
-		logger.info(session.inspect)
+		# logger.info("XXxx"*300)
+		# logger.info(session.inspect)
 		redirect_to "/members/detainees"
 	end
 
@@ -314,9 +314,7 @@ class MembersController < ApplicationController
 		@detention_cartels = helpers.detention_cartels
 		@topDetentions = dataCookie[:topDetentions]
 		@topDetentionRoles = helpers.top_detention_roles
-		# @fileHash = {:data=>@my_freq_table,:formats=>['csv']}
-		logger.info("XXxx"*300)
-		logger.info(session.inspect)
+		@fileHash = {:data=>@my_freq_table,:formats=>['csv']}
 	end
 
 	def detainees_freq_api
