@@ -28,25 +28,26 @@ class ApplicationController < ActionController::Base
 
 	def require_login
 		if session[:user_id] == nil
-		if Rails.env.production?
-			client = request.remote_ip
-		else
-			client = '::1'	
-		end
-		print "XXoo"*200
-		print client
-		valid_index = Organization.pluck(:ip_address).uniq
-		valid_index.flatten!
+			if Rails.env.production?
+				client = request.remote_ip
+			else
+				client = '::1'		
+			end
+			valid_index = Organization.pluck(:ip_address).uniq
 			if valid_index.include? client
-				myOrganization = Organization.where.not(ip_address: nil).where("ip_address LIKE ?", "%#{client}%").last
+				myOrganization = Organization.where(:ip_address == client).last
 				if myOrganization.users.empty?
-					redirect_to "/frontpage"
+					# SWITCH TO FRONTPAGE VERSION
+					# redirect_to "/frontpage"
+					redirect_to "/password"
 				else
 					session[:user_id] = myOrganization.users.first.id
 					session[:membership] = 4
 				end
 			else
-				redirect_to "/frontpage"	
+				# SWITCH TO FRONTPAGE VERSION
+				# redirect_to "/frontpage"	
+				redirect_to "/password"	
 			end
 		end
 	end
