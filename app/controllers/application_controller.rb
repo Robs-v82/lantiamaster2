@@ -38,16 +38,16 @@ class ApplicationController < ActionController::Base
 				myOrganization = Organization.where(:ip_address == client).last
 				if myOrganization.users.empty?
 					# SWITCH TO FRONTPAGE VERSION
-					# redirect_to "/frontpage"
-					redirect_to "/password"
+					redirect_to "/frontpage"
+					# redirect_to "/password"
 				else
 					session[:user_id] = myOrganization.users.first.id
 					session[:membership] = 4
 				end
 			else
 				# SWITCH TO FRONTPAGE VERSION
-				# redirect_to "/frontpage"	
-				redirect_to "/password"	
+				redirect_to "/frontpage"	
+				# redirect_to "/password"	
 			end
 		end
 	end
