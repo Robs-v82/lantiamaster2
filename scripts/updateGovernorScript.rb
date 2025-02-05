@@ -17,7 +17,7 @@ governorArr.each{|x|
 		:lastname2 => x[3])
 	g.avatar.purge
 	downloaded_image = URI.open(Rails.root / 'app' / 'assets' / 'images' / x[4])
-	governor.avatar.attach(io: downloaded_image, filename: x[4])
+	g.avatar.attach(io: downloaded_image, filename: x[4])
 }
 
 print "Ready :-)"
