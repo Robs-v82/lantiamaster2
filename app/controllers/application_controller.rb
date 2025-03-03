@@ -58,7 +58,7 @@ class ApplicationController < ActionController::Base
 
 	def print_session
 		logger.info 'XXxx'*300
-		logger.info session
+		logger.info session.inspect
 		logger.info 'XXxx'*300
 	end
 
