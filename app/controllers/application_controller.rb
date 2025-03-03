@@ -56,10 +56,8 @@ class ApplicationController < ActionController::Base
 	# 	redirect_to "/password" if session[:user_id] == nil
 	# end
 
-	def print_session
-		logger.info 'XXxx'*300
-		logger.info session.inspect
-		logger.info 'XXxx'*300
+	def clear_this_session
+		helpers.clear_session
 	end
 
 	def require_pro

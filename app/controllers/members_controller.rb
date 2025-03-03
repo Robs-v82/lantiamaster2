@@ -6,7 +6,7 @@ class MembersController < ApplicationController
 
 	before_action :require_pro, only: [:detainees]
 	before_action :require_detention_access, only: [:detainees]
-	before_action :print_session, only: [:detainees, :query]
+	before_action :clear_this_session, only: [:query]
 
 	require 'pp'
 
@@ -151,12 +151,8 @@ class MembersController < ApplicationController
 	end
 
 	def query
-		print 'XXxx'*300
-		print session
 		paramsStates = Cookie.find(session[:checkedStates]).data.length
 		helpers.clear_session
-		print 'OOoo'*300
-		print session
 		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
 		if detainee_freq_params[:freq_timeframe]
 			paramsCookie[0] = detainee_freq_params[:freq_timeframe]
@@ -192,8 +188,6 @@ class MembersController < ApplicationController
 			session[:checkedRoles] = paramsCookie[7]
 		end
 		Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
-		# logger.info("XXxx"*300)
-		# logger.info(session.inspect)
 		redirect_to "/members/detainees"
 	end
 
