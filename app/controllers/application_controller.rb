@@ -56,6 +56,12 @@ class ApplicationController < ActionController::Base
 	# 	redirect_to "/password" if session[:user_id] == nil
 	# end
 
+	def print_session
+		print 'XXxx'*300
+		print session
+		print 'XXxx'*300
+	end
+
 	def require_pro
 		redirect_to "/users/index" unless session[:membership] > 3
 	end

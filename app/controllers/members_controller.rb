@@ -6,6 +6,7 @@ class MembersController < ApplicationController
 
 	before_action :require_pro, only: [:detainees]
 	before_action :require_detention_access, only: [:detainees]
+	before_action :print_session, only: [:detainees, :query]
 
 	require 'pp'
 
