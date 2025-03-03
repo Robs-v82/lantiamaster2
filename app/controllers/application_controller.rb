@@ -57,9 +57,9 @@ class ApplicationController < ActionController::Base
 	# end
 
 	def print_session
-		print 'XXxx'*300
-		print session
-		print 'XXxx'*300
+		logger.info 'XXxx'*300
+		logger.info session
+		logger.info 'XXxx'*300
 	end
 
 	def require_pro
