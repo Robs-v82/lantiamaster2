@@ -422,14 +422,14 @@
 						        series: [{
 						        	data: [
 						        		<% (0..place[:freq].length-1).each do |x| %>
-						        			["a<%=x%>",<%= place[:freq][x] %>],
+						        			["<%= @my_freq_table[0][:period][x+1] %>",<%= place[:freq][x] %>],
 						        		<% end %>
 						        	],
 						        	color: "#0A6868",
 									tooltip: {
-<%# 										headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
-										pointFormat: false, %>
-										pointFormat: '<span style="font-size:12px; color:#454157">{xAxis.categories[point.x]}: {point.y}</span><br>',
+										headerFormat: '<span style="font-size:12px; color:#454157">{point.x}: {point.y}</span><br>',
+										pointFormat: false,
+										<%# pointFormat: '<span style="font-size:12px; color:#454157">{xAxis.categories[point.x]}: {point.y}</span><br>', %>
 									}
 						        }]
 							});
