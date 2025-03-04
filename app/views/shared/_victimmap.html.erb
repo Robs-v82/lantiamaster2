@@ -426,7 +426,7 @@
 												<% if @annual %>
 													"<%= @my_freq_table[0][:period][x+1].name %>"
 												<% elsif @quarterly %>
-													"T<%= @my_freq_table[0][:period][x+1].name[-1]%>/<%= I18n.l(@my_freq_table[0][:period][x+1].first_day, format: '%Y')[2,2] %>"
+													"<%= @my_freq_table[0][:period][x+1].name %>"
 												<% else %>
 													"<%= I18n.l(@my_freq_table[0][:period][x+1].first_day, format: '%b/%Y') %>"
 												<% end %>,						        				
