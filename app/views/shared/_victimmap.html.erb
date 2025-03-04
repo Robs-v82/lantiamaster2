@@ -423,13 +423,7 @@
 						        	data: [
 						        		<% (0..place[:freq].length-1).each do |x| %>
 						        			[
-												<% if @annual %>
-													"<%= @my_freq_table[0][:period][x+1].name %>"
-												<% elsif @quarterly %>
-													"<%= @my_freq_table[0][:period][x+1].name %>"
-												<% else %>
-													"<%= I18n.l(@my_freq_table[0][:period][x+1].first_day, format: '%b/%Y') %>"
-												<% end %>,						        				
+						        				"<%= @my_freq_table[0][:period][x+1].name %>",
 						        				<%= place[:freq][x] %>
 						        			],
 						        		<% end %>
