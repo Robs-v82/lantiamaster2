@@ -7,30 +7,29 @@ typeOfPlaces = [
 	{:string=>"Comercio", :typeArr=>["Local comercial (taller, tiendita, farmacia, tortillería)","Inmueble comercial (centro comercial, gasolinera, hotel, bar)"], :color=>"#EF4E50"},
 	{:string=>"Transporte de pasajeros", :typeArr=>["Transporte público colectivo (autobús, metro, tren)","Transporte público privado (taxi, UBER, mototaxi)"], :color=>"#EF974E"}			
 ]
-
-mainArr = [["Estado","Tipo de lugar"]]
-myQuarters.each{|q|
-	mainArr[0].push(q.name)
-	myStates = State.all.sort_by{|s| s.code}
-	myStates.each{|state|
-		localVictims = state.victims
+quarterNames = myQuarters.pluck(:name)
+mainArr = [["Estado", "Tipo de lugar"] + quarterNames]
+myStates = State.all.sort_by{|s| s.code}
+myStates.each{|state|
+	localVictims = state.victims
+	localKillings = state.killings
+	typeOfPlaces.each{|type|
+		stateArr = [state.name]
+		stateArr.push(type[:string])
+		typeKillings = localKillings.where(:type_of_place=>type[:typeArr])
+		myQuarters.each{|q|
+			periodKillings = q.killings
+			targetKillings = typeKillings.merge(periodKillings)
+			counter = targetKillings.joins(:victims).count
+			stateArr.push(counter)
+		}
+		mainArr.push(stateArr)
+	}
+	mainArr.push([state.name,"Total"])
+	myQuarters.each{|q|
 		periodVictims = q.victims
 		targetVictims = localVictims.merge(periodVictims)
-		localKillings = state.killings
-		periodKillings = q.killings
-		targetKillings = localKillings.merge(periodKillings)
-		typeOfPlaces.each{|type|
-			stateArr = [state.name]
-			stateArr.push(type[:string])
-			counter = 0
-			typeKillings = targetKillings.where(:type_of_place=>type[:typeArr])
-			typeKillings.each{|k|
-				counter += k.victims.count
-			}
-			stateArr.push(counter)
-			mainArr.push(stateArr)
-		}
-		mainArr.push([state.name,"Total",targetVictims.count])
+		mainArr[-1].push(targetVictims.count)
 	}
 }
 
