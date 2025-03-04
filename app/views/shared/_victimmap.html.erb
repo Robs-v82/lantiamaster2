@@ -423,7 +423,7 @@
 						        	data: [
 						        		<% (0..place[:freq].length-1).each do |x| %>
 						        			[
-						        				"<%= @my_freq_table[0][:period][x+1]%>",
+						        				"<%= @my_freq_table[0][:period][x].name%>",
 						        				<%= place[:freq][x] %>
 						        			],
 						        		<% end %>
