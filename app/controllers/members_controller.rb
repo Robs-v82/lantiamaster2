@@ -151,43 +151,43 @@ class MembersController < ApplicationController
 	end
 
 	def query
-		paramsStates = Cookie.find(session[:checkedStates]).data.length
-		helpers.clear_session
-		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
-		if detainee_freq_params[:freq_timeframe]
-			paramsCookie[0] = detainee_freq_params[:freq_timeframe]
-		end
-		if detainee_freq_params[:freq_placeframe]
-			paramsCookie[1] = detainee_freq_params[:freq_placeframe]
-		end
-		if detainee_freq_params[:freq_organizationframe]
-			paramsCookie[2] = detainee_freq_params[:freq_organizationframe]
-		end
-		if detainee_freq_params[:freq_roleframe]
-			paramsCookie[3] = detainee_freq_params[:freq_roleframe]
-		end
-		if detainee_freq_params[:freq_organizations]
-			paramsCookie[4] = detainee_freq_params[:freq_organizations]
-		end
-		if detainee_freq_params[:freq_states]
-			if paramsStates == 32
-				paramsCookie[5] = false
-			else
-				paramsCookie[5] = true				
-			end
-			myArr = detainee_freq_params[:freq_states].map(&:to_i)
-			Cookie.create(:data=>myArr)
-			session[:checkedStates] = Cookie.last.id
-		end
-		if detainee_freq_params[:freq_organizations]
-			paramsCookie[6] = detainee_freq_params[:freq_organizations]
-			session[:checkedOrganizations] = paramsCookie[6]
-		end
-		if detainee_freq_params[:freq_roles]
-			paramsCookie[7] = detainee_freq_params[:freq_roles]
-			session[:checkedRoles] = paramsCookie[7]
-		end
-		Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
+		# paramsStates = Cookie.find(session[:checkedStates]).data.length
+		# helpers.clear_session
+		# paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
+		# if detainee_freq_params[:freq_timeframe]
+		# 	paramsCookie[0] = detainee_freq_params[:freq_timeframe]
+		# end
+		# if detainee_freq_params[:freq_placeframe]
+		# 	paramsCookie[1] = detainee_freq_params[:freq_placeframe]
+		# end
+		# if detainee_freq_params[:freq_organizationframe]
+		# 	paramsCookie[2] = detainee_freq_params[:freq_organizationframe]
+		# end
+		# if detainee_freq_params[:freq_roleframe]
+		# 	paramsCookie[3] = detainee_freq_params[:freq_roleframe]
+		# end
+		# if detainee_freq_params[:freq_organizations]
+		# 	paramsCookie[4] = detainee_freq_params[:freq_organizations]
+		# end
+		# if detainee_freq_params[:freq_states]
+		# 	if paramsStates == 32
+		# 		paramsCookie[5] = false
+		# 	else
+		# 		paramsCookie[5] = true				
+		# 	end
+		# 	myArr = detainee_freq_params[:freq_states].map(&:to_i)
+		# 	Cookie.create(:data=>myArr)
+		# 	session[:checkedStates] = Cookie.last.id
+		# end
+		# if detainee_freq_params[:freq_organizations]
+		# 	paramsCookie[6] = detainee_freq_params[:freq_organizations]
+		# 	session[:checkedOrganizations] = paramsCookie[6]
+		# end
+		# if detainee_freq_params[:freq_roles]
+		# 	paramsCookie[7] = detainee_freq_params[:freq_roles]
+		# 	session[:checkedRoles] = paramsCookie[7]
+		# end
+		# Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
 		redirect_to "/members/detainees"
 	end
 
