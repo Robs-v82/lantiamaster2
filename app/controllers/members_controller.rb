@@ -37,7 +37,7 @@ class MembersController < ApplicationController
 						targetMonth = Month.where(:name=>monthName).last
 						Event.create(:event_date=>myDate, :town_id=>targetTown.id, :month_id=>targetMonth.id)
 						targetEvent = Event.last
-						limit = x.length-1
+						limit = x.count-1
 						(28..limit).each{|y|
 							unless x[y].nil?
 								if Source.where(:url=>x[y]).empty?
@@ -151,21 +151,21 @@ class MembersController < ApplicationController
 	end
 
 	def query
-		paramsStates = Cookie.find(session[:checkedStates]).data.length
+		paramsStates = Cookie.find(session[:checkedStates]).data.count
 		helpers.clear_session
 		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
 		if detainee_freq_params[:freq_timeframe]
 			paramsCookie[0] = detainee_freq_params[:freq_timeframe]
 		end
-		# if detainee_freq_params[:freq_placeframe]
-		# 	paramsCookie[1] = detainee_freq_params[:freq_placeframe]
-		# end
-		# if detainee_freq_params[:freq_organizationframe]
-		# 	paramsCookie[2] = detainee_freq_params[:freq_organizationframe]
-		# end
-		# if detainee_freq_params[:freq_roleframe]
-		# 	paramsCookie[3] = detainee_freq_params[:freq_roleframe]
-		# end
+		if detainee_freq_params[:freq_placeframe]
+			paramsCookie[1] = detainee_freq_params[:freq_placeframe]
+		end
+		if detainee_freq_params[:freq_organizationframe]
+			paramsCookie[2] = detainee_freq_params[:freq_organizationframe]
+		end
+		if detainee_freq_params[:freq_roleframe]
+			paramsCookie[3] = detainee_freq_params[:freq_roleframe]
+		end
 		# if detainee_freq_params[:freq_organizations]
 		# 	paramsCookie[4] = detainee_freq_params[:freq_organizations]
 		# end
@@ -194,7 +194,7 @@ class MembersController < ApplicationController
 	def api_or_table
 		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
 		paramsCookie[5] = session[:checkedStates] 
-		if Cookie.find(session[:checkedStates]).data.length < 32 || paramsCookie[2] == "organizationSplit" || paramsCookie[3] == "roleSplit"
+		if Cookie.find(session[:checkedStates]).data.count < 32 || paramsCookie[2] == "organizationSplit" || paramsCookie[3] == "roleSplit"
 			table = detainee_freq_table(
 				paramsCookie[0],
 				paramsCookie[1],
@@ -307,7 +307,7 @@ class MembersController < ApplicationController
 		end
 
 		@maps = false
-		if @stateWise && @checkedStates.length == State.all.length
+		if @stateWise && @checkedStates.count == State.all.count
 			@maps = true
 		end
 		@detention_cartels = helpers.detention_cartels
@@ -420,7 +420,7 @@ class MembersController < ApplicationController
 		end
 
 		totalFreq = []
-		(1..myPeriod.length).each {
+		(1..myPeriod.count).each {
 			totalFreq.push(0)
 		}
 
@@ -443,7 +443,7 @@ class MembersController < ApplicationController
 					counter = 0
 					place_total = 0
 					myPeriod.each {|timeUnit|
-						number_of_detainees = timeUnit.detainees.length
+						number_of_detainees = timeUnit.detainees.count
 						freq.push(number_of_detainees)
 						totalFreq[counter] += number_of_detainees
 						counter += 1
@@ -465,7 +465,7 @@ class MembersController < ApplicationController
 						counter = 0
 						place_total = 0
 						myPeriod.each {|timeUnit|
-							number_of_detainees = timeUnit.detainees.where(:organization_id=>targetOrganization.id).length
+							number_of_detainees = timeUnit.detainees.where(:organization_id=>targetOrganization.id).count
 							freq.push(number_of_detainees)
 							totalFreq[counter] += number_of_detainees
 							counter += 1
@@ -490,7 +490,7 @@ class MembersController < ApplicationController
 						place_total = 0
 						roleDetainees = r.members
 						myPeriod.each {|timeUnit|
-							number_of_detainees = roleDetainees.merge(timeUnit.detainees).length
+							number_of_detainees = roleDetainees.merge(timeUnit.detainees).count
 							freq.push(number_of_detainees)
 							totalFreq[counter] += number_of_detainees
 							counter += 1
@@ -516,7 +516,7 @@ class MembersController < ApplicationController
 							place_total = 0
 							roleDetainees = r.members
 							myPeriod.each {|timeUnit|
-								number_of_detainees = roleDetainees.merge(timeUnit.detainees.where(:organization_id=>targetOrganization.id)).length
+								number_of_detainees = roleDetainees.merge(timeUnit.detainees.where(:organization_id=>targetOrganization.id)).count
 								freq.push(number_of_detainees)
 								totalFreq[counter] += number_of_detainees
 								counter += 1
@@ -552,7 +552,7 @@ class MembersController < ApplicationController
 					myRoles.each{|r|
 						roleHash = {}
 						roleHash[:role] = r.name
-						number_of_detainees = r.members.merge(localDetainees).length
+						number_of_detainees = r.members.merge(localDetainees).count
 						if number_of_detainees
 							roleHash[:freq] = number_of_detainees
 							rolesArr.push(roleHash)
@@ -564,7 +564,7 @@ class MembersController < ApplicationController
 					colors = ['#71a110','#addf49','#d8f69b']
 					colorCounter = 0
 					rolesArr.each{|r|
-						if newRolesArr.length < 3 && r[:role] != "Sin definir" && r[:freq] > 0
+						if newRolesArr.count < 3 && r[:role] != "Sin definir" && r[:freq] > 0
 							r[:color] = colors[colorCounter]
 							newRolesArr.push(r)
 							colorCounter += 1
@@ -585,7 +585,7 @@ class MembersController < ApplicationController
 					counter = 0
 					place_total = 0
 					myPeriod.each {|timeUnit|
-						number_of_detainees = localDetainees.merge(timeUnit.detainees).length
+						number_of_detainees = localDetainees.merge(timeUnit.detainees).count
 						freq.push(number_of_detainees)
 						unless place == "Nacional"
 							totalFreq[counter] += number_of_detainees
@@ -608,14 +608,14 @@ class MembersController < ApplicationController
 							else
 								agencyHash[:name] = "Policía Estatal"		
 							end
-							agencyShare = (agency.detainees.merge(localDetainees).length/place_total.to_f).round(2)
+							agencyShare = (agency.detainees.merge(localDetainees).count/place_total.to_f).round(2)
 							agencyHash[:share] = (agencyShare*100).round(0) 
 							placeHash[:agencies].push(agencyHash)								
 						}
 						if place == "Nacional"
 							statePolice = {:name=>"Policía Estatal", :freq=>0}
 							State.all.each{|state|
-								statePolice[:freq] += state.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last.detainees.length
+								statePolice[:freq] += state.counties.where(:name=>"Sin definir").last.organizations.where(:league=>"Seguridad Pública").last.detainees.count
 							}
 							statePoliceShare = (statePolice[:freq]/place_total.to_f).round(2)
 							statePolice[:share] = (statePoliceShare*100).round(0)
@@ -623,7 +623,7 @@ class MembersController < ApplicationController
 						end
 						localPolice = {:name=>"Policía Municipal", :freq=>0}
 						localCounties.each{|county|
-							localPolice[:freq] += county.organizations.where(:league=>"Seguridad Pública").last.detainees.length
+							localPolice[:freq] += county.organizations.where(:league=>"Seguridad Pública").last.detainees.count
 						}
 						localPoliceShare = (localPolice[:freq]/place_total.to_f).round(2)
 						localPolice[:share] = (localPoliceShare*100).round(0)
@@ -634,7 +634,7 @@ class MembersController < ApplicationController
 							organizationOptions.each{|organization|
 								myOrganization = Organization.where(:name=>organization).last
 								if myOrganization.group == coalition["name"]
-									orgNumber = localDetainees.where(:organization_id=>myOrganization.id).length
+									orgNumber = localDetainees.where(:organization_id=>myOrganization.id).count
 									coalitionCounter += orgNumber
 								end
 							}
@@ -664,7 +664,7 @@ class MembersController < ApplicationController
 						place_total = 0
 						localDetainees = place.detainees
 						myPeriod.each {|timeUnit|
-							number_of_detainees = localDetainees.where(:organization_id=>targetOrganization.id).merge(timeUnit.detainees).length
+							number_of_detainees = localDetainees.where(:organization_id=>targetOrganization.id).merge(timeUnit.detainees).count
 							freq.push(number_of_detainees)
 							totalFreq[counter] += number_of_detainees
 							counter += 1
@@ -695,7 +695,7 @@ class MembersController < ApplicationController
 			}
 		}
 		Detention.all.each{|detention|
-			if detention.detainees.length > 9
+			if detention.detainees.count > 9
 				detentionArr.push(detention)
 			end
 		}
