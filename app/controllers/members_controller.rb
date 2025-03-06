@@ -151,12 +151,12 @@ class MembersController < ApplicationController
 	end
 
 	def query
-		# paramsStates = Cookie.find(session[:checkedStates]).data.length
-		# helpers.clear_session
-		# paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
-		# if detainee_freq_params[:freq_timeframe]
-		# 	paramsCookie[0] = detainee_freq_params[:freq_timeframe]
-		# end
+		paramsStates = Cookie.find(session[:checkedStates]).data.length
+		helpers.clear_session
+		paramsCookie = Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.data
+		if detainee_freq_params[:freq_timeframe]
+			paramsCookie[0] = detainee_freq_params[:freq_timeframe]
+		end
 		# if detainee_freq_params[:freq_placeframe]
 		# 	paramsCookie[1] = detainee_freq_params[:freq_placeframe]
 		# end
@@ -187,7 +187,7 @@ class MembersController < ApplicationController
 		# 	paramsCookie[7] = detainee_freq_params[:freq_roles]
 		# 	session[:checkedRoles] = paramsCookie[7]
 		# end
-		# Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
+		Cookie.where(:category=>"detainee_freq_params_"+session[:user_id].to_s).last.update(:data=>paramsCookie)
 		redirect_to "/members/detainees"
 	end
 
