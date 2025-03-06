@@ -31,6 +31,8 @@ rawData2 = "1,1,Aguascalientes,1001,1,Aguascalientes,1
 2344,31,Mérida,31050,55,Mérida,1
 2456,32,Zacatecas,32056,56,Zacatecas-Guadalupe,1"
 
+# Test
+
 capitalArr = []
 rawData2.each_line{|l| line = l.split(","); capitalArr.push(line)}
 capitalArr.each{|x|x.each{|y|y.strip!}}
