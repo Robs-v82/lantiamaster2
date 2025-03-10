@@ -7,8 +7,12 @@ cartels.each do |cartel|
   myStates = cartel.states.uniq
 
   myStates.each do |myState|
-    myArr = myLeads.select { |l| l.event.state == myState } # Filtramos los leads de forma más eficiente
-
+    myArr = []
+    myState.leads.each{|l|
+    	if myLeads.include? l
+    		myArr.push(l)
+    	end
+    }
     stateCombo = { s: myState.name, c: myArr.count } # Corregido myState.name
     cartelArr.push(stateCombo)
   end
