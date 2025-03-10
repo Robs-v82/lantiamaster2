@@ -5,7 +5,7 @@ cartels.each do |cartel|
   cartelArr = [cartel.name]
   myLeads = cartel.leads
   myStates = cartel.states.uniq
-
+  myStates = myStates.sort_by{|g| g.code}
   myStates.each do |myState|
     myArr = []
     myState.leads.each{|l|
