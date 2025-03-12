@@ -6,7 +6,7 @@ class Organization < ApplicationRecord
 	has_many :detainees, :through => :detentions
 	has_many :members
 	has_many :users, :through => :members
-	has_many :events
+	has_many :events, dependent: :destroy
 	has_many :leads, :through => :events
 	has_many :sources, :through => :events
 	has_many :counties, :through => :towns
