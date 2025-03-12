@@ -1025,7 +1025,12 @@ class OrganizationsController < ApplicationController
           countyString = countyString + 100000
           countyString = countyString.to_s
           countyString = countyString[1..-1]
-          pseudoTown = Town.where(:full_code=>countyString+"0000").last
+          if County.where(:full_code=>countyString).last != nil
+            pseudoTown = Town.where(:full_code=>countyString+"0000").last
+          else
+            pseudoString = countyString[0,2]+"0000000"
+            pseudoTown = Town.where(:full_code=>pseudoString).last
+          end
           towns.push(pseudoTown)
           unless x[1].nil?
             x[1].split(";").each{|town|
