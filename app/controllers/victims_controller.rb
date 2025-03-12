@@ -686,7 +686,7 @@ class VictimsController < ApplicationController
 						boolean_killing_dictionary.each{|variable|
 							myString = variable.values[0]
 							myKey = variable.keys[0]
-							if row[myString] == "VERDADERO" || row[myString] == "Sí"
+							if row[myString] == "TRUE" || row[myString] == "Sí"
 								killing[myKey] = true
 							else
 								killing[myKey] = false
