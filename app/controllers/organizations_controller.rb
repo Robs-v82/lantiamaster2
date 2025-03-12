@@ -147,7 +147,7 @@ class OrganizationsController < ApplicationController
         end
       }
       @cartels = byType.flatten
-      if @checkedStates.length == 32 && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
+      if @checkedStates.count == 32 && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.count == 3
         @colorArr = Cookie.where(:category=>"organizations").last.data[0][:colorData]
         @alliedCartels = Cookie.where(:category=>"organizations").last.data[0][:alliedCartels]
         @alliedCartels = @alliedCartels.uniq
@@ -177,16 +177,16 @@ class OrganizationsController < ApplicationController
         redirect_to '/organizations/query'
       end
 
-      @n = @alliedCartels.length-1
+      @n = @alliedCartels.count-1
 
-      if @checkedStates.length == 1
+      if @checkedStates.count == 1
         myPlaces = State.find(@checkedStates).last.counties
       else
         myPlaces = myStates
       end
 
      
-      if myPlaces == State.all && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.length == 3
+      if myPlaces == State.all && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.count == 3
         @placeArr = Cookie.where(:category=>"organizations").last.data[0][:placeData].uniq
       else
         @placeArr = []
@@ -226,10 +226,10 @@ class OrganizationsController < ApplicationController
               placeCoalition = 3
             end
           end
-          if @checkedStates.length == 1
-            placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+          if @checkedStates.count == 1
+            placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.count, :rackets=>myRackets, :coalition=>placeCoalition}
           else
-            placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+            placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.count, :rackets=>myRackets, :coalition=>placeCoalition}
           end
           unless placeHash[:freq] == 0
             @placeArr.push(placeHash)
@@ -250,7 +250,7 @@ class OrganizationsController < ApplicationController
         }
       }
 
-      if @checkedCoalitions.length == 1
+      if @checkedCoalitions.count == 1
         @lightMapColor = @checkedCoalitions[0]["color"]
         @darkMapColor = @checkedCoalitions[0]["dark_color"]
       else
@@ -271,7 +271,7 @@ class OrganizationsController < ApplicationController
       end
 
       # UNDEFINED COUNTIES FOR SINGLE STATE MAP
-      if @checkedStates.length == 1
+      if @checkedStates.count == 1
         @undefined = []      
         @alliedCartels.each{|cartel|
             cartelUndefined = true
@@ -392,7 +392,7 @@ class OrganizationsController < ApplicationController
             placeCoalition = 3
           end
         end
-        placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.length, :rackets=>myRackets, :coalition=>placeCoalition}
+        placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.count, :rackets=>myRackets, :coalition=>placeCoalition}
         unless placeHash[:freq] == 0
           @placeArr.push(placeHash)
         end
@@ -520,7 +520,7 @@ class OrganizationsController < ApplicationController
         end
       }
       @checkedCoalitions = session[:organization_selection][1]
-      @n = @alliedCartels.length-1
+      @n = @alliedCartels.count-1
 
       # PROPER SHOW STUFF
       session[:map] = true
@@ -765,7 +765,7 @@ class OrganizationsController < ApplicationController
   def get_cartels
     myCartels = Sector.where(:scian2=>98).last.organizations.uniq
     matches = myCartels.select{|cartel| helpers.bob_decode(cartel.name).downcase.include? helpers.bob_decode(params[:myString]).downcase}    
-    if matches.length >= 1 && matches.length <= 10 
+    if matches.count >= 1 && matches.count <= 10 
       render json: matches
     end
   end
@@ -1074,7 +1074,7 @@ class OrganizationsController < ApplicationController
   end
 
   def get_type_title(types)
-    if types.length == 1
+    if types.count == 1
       if types[0][:name] == "Banda"
         myString = "Bandas"
       elsif types[0][:name] == "Mafia"
@@ -1082,7 +1082,7 @@ class OrganizationsController < ApplicationController
       else
         myString = "Cárteles"
       end
-    elsif types.length == 2
+    elsif types.count == 2
       if types.pluck(:name).include? "Banda" 
         if types.pluck(:name).include? "Mafia" 
           myString = "Mafias y Bandas"
@@ -1111,7 +1111,7 @@ class OrganizationsController < ApplicationController
       
       # ADDING STRING TO STATE FILE
       mapData = Cookie.where(:category=>"send_map_data").last.data
-      if mapData.length > 1
+      if mapData.count > 1
         file_name = "Organizaciones_"+downloadCounter.to_s+"_"+current_date+".csv"
       else 
         if mapData[0] < 10
@@ -1130,7 +1130,7 @@ class OrganizationsController < ApplicationController
               header = ['NOMBRE','TIPO','SUBTIPO','COALICIÓN']
               mapData = Cookie.where(:category=>"send_map_data").last.data
               validStates = State.all.sort_by{|state| state.code}
-              if mapData.length > 1
+              if mapData.count > 1
                 # validStates.each{|state|
                 #   header.push(state.shortname)
                 # }
@@ -1145,7 +1145,7 @@ class OrganizationsController < ApplicationController
                 allCounties = myState.counties.sort_by{|county| county.code}
                 validCounties = []
                 allCounties.each{|county|
-                  unless county.rackets.where(:active=>true).length == 0
+                  unless county.rackets.where(:active=>true).count == 0
                     validCounties.push(county)
                     myString = county.full_code+" - "+county.name
                     header.push(myString)
@@ -1153,7 +1153,7 @@ class OrganizationsController < ApplicationController
                 } 
               end
               writer << header
-              if mapData.length > 1
+              if mapData.count > 1
                 Cookie.where(:category=>"organizations_national_file").last.data[1..-1].each{|row|
                   writer << row
                 }
