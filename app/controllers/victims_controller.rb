@@ -63,8 +63,8 @@ class VictimsController < ApplicationController
 		end
 		if victim_freq_params[:freq_counties]
 			myArr = victim_freq_params[:freq_counties].map(&:to_i)
-			validCounties = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][paramsCookie[0]]["noGenderSplit"].length - 3
-			if myArr.length < validCounties
+			validCounties = Cookie.where(:category=>State.find(session[:checkedStatesArr].last).code+"_victims").last.data[0][paramsCookie[0]]["noGenderSplit"].count - 3
+			if myArr.count < validCounties
 				Cookie.create(:data=>myArr)
 				session[:checkedCounties] = Cookie.last.id
 				paramsCookie[7] = session[:checkedCounties]
@@ -168,8 +168,8 @@ class VictimsController < ApplicationController
   		# DEFINE TABLE
 		if @paramsCookie[2] == "genderSplit" || @paramsCookie[1] == "nationWise"
 			@my_freq_table = victim_freq_table(*@paramsCookie)
-		elsif @stateWise && @paramsCookie[4].length < State.all.length || 
-			@paramsCookie[5].length < City.all.length ||
+		elsif @stateWise && @paramsCookie[4].count < State.all.count || 
+			@paramsCookie[5].count < City.all.count ||
 			session[:checkedCounties] != "states"			
 			@my_freq_table = partial_table
 		elsif @countyWise && session[:checkedCounties] == "states"
@@ -184,7 +184,7 @@ class VictimsController < ApplicationController
 				:place_total=>freqTotal
 			}
 			@my_freq_table[1..-3].each{|row|
-				(0..@my_freq_table[-1][:freq].length-1).each {|x|
+				(0..@my_freq_table[-1][:freq].count-1).each {|x|
 					remainder[:freq][x] -= row[:freq][x] 
 				}
 				remainder[:place_total] -= row[:place_total]
@@ -214,12 +214,12 @@ class VictimsController < ApplicationController
   		]
   		@checkedCities = session[:checkedCitiesArr]
   		@checkedGenderOptions = session[:checkedGenderOptions]
-  		if @checkedStates.length == 1
+  		if @checkedStates.count == 1
   			targetState = State.find(@checkedStates[0])
   			@counties = []
   			counties = targetState.counties.sort_by {|county| county.full_code}
   			counties.map{|c| 
-  				if c.victims.length > 4
+  				if c.victims.count > 4
   					@counties.push(c)
   				end
   			}
@@ -237,9 +237,9 @@ class VictimsController < ApplicationController
   			factor = 0.05
   		end
   		@dataClasses = [
-  			factor*200*@checkedYears.length,
-  			factor*500*@checkedYears.length,
-  			factor*1000*@checkedYears.length
+  			factor*200*@checkedYears.count,
+  			factor*500*@checkedYears.count,
+  			factor*1000*@checkedYears.count
   		]
   		@pieStrings = %w{massacres shootings_authorities mass_graves} 
 
@@ -285,18 +285,18 @@ class VictimsController < ApplicationController
 			myPeriod = totalMonths
 			n = 1
 		end
-		if myPeriod.length > 1
-			unless (totalMonths.length%n) == 0
+		if myPeriod.count > 1
+			unless (totalMonths.count%n) == 0
 				myPeriod.pop
 			end
 		end
 
 		totalFreq = []
-		(1..myPeriod.length).each {
+		(1..myPeriod.count).each {
 			totalFreq.push(0)
 		}
 		newTable[1..-1].each{|row|
-			(0..myPeriod.length-1).each {|x|
+			(0..myPeriod.count-1).each {|x|
 				totalFreq[x] += row[:freq][x] 
 			}
 		}
@@ -345,7 +345,7 @@ class VictimsController < ApplicationController
 			myScope = []
 			if counties == "states"
 				myStates.each{|state|
-					myCounties = state.counties.reject { |county| county.victims.length < 5 }
+					myCounties = state.counties.reject { |county| county.victims.count < 5 }
 					myScope.push(myCounties)
 				}
 			else
@@ -353,7 +353,7 @@ class VictimsController < ApplicationController
 				myKeys = Cookie.find(counties).data
 				myKeys.each {|x|
 					myCounty = County.find(x)
-					# if myCounty.victims.length > 4
+					# if myCounty.victims.count > 4
 						myCounties.push(myCounty)
 					# end
 				}
@@ -375,14 +375,14 @@ class VictimsController < ApplicationController
 			myPeriod = totalMonths
 			n = 1
 		end
-		if myPeriod.length > 1
-			unless (totalMonths.length%n) == 0
+		if myPeriod.count > 1
+			unless (totalMonths.count%n) == 0
 				myPeriod.pop
 			end
 		end
 
 		totalFreq = []
-		(1..myPeriod.length).each {
+		(1..myPeriod.count).each {
 			totalFreq.push(0)
 		}
 
@@ -402,7 +402,7 @@ class VictimsController < ApplicationController
 				counter = 0
 				place_total = 0
 				myPeriod.each {|timeUnit|
-					number_of_victims = timeUnit.victims.length
+					number_of_victims = timeUnit.victims.count
 					freq.push(number_of_victims)
 					totalFreq[counter] += number_of_victims
 					counter += 1
@@ -423,7 +423,7 @@ class VictimsController < ApplicationController
 					counter = 0
 					place_total = 0
 					myPeriod.each {|timeUnit|
-						number_of_victims = timeUnit.victims.where(:gender=>gender.upcase).length
+						number_of_victims = timeUnit.victims.where(:gender=>gender.upcase).count
 						freq.push(number_of_victims)
 						totalFreq[counter] += number_of_victims
 						counter += 1
@@ -440,7 +440,7 @@ class VictimsController < ApplicationController
 				myTable.push(headerHash)
 				if scope == "stateWise" || scope == "cityWise" 
 					myScope.push("Nacional")
-				elsif scope == "countyWise" && states.length == 1
+				elsif scope == "countyWise" && states.count == 1
 					myScope.push("Estado")
 				end
 
@@ -477,7 +477,7 @@ class VictimsController < ApplicationController
 					counter = 0
 					place_total = 0
 					myPeriod.each {|timeUnit|
-						number_of_victims = localVictims.merge(timeUnit.victims).length
+						number_of_victims = localVictims.merge(timeUnit.victims).count
 						freq.push(number_of_victims)
 						unless place == "Nacional" || place =="Estado"
 							totalFreq[counter] += number_of_victims
@@ -493,8 +493,8 @@ class VictimsController < ApplicationController
 					genderKeys.each{|k|
 						if k[:name] == "Femenino" || k[:name] == "Masculino"
 							genderHash = {:name=>k[:name], :color=>k[:color]}
-							genderHash[:freq] = localVictims.where(:gender=>k[:name].upcase).length
-							genderHash[:share] = genderHash[:freq]/localVictims.where(:gender=>["MASCULINO","FEMENINO"]).length.to_f
+							genderHash[:freq] = localVictims.where(:gender=>k[:name].upcase).count
+							genderHash[:share] = genderHash[:freq]/localVictims.where(:gender=>["MASCULINO","FEMENINO"]).count.to_f
 							genderArr.push(genderHash)
 						end
 					}
@@ -505,9 +505,9 @@ class VictimsController < ApplicationController
 					ageKeys.each{|k|
 						ageHash = {:name=>k[:name]}
 						number_of_victims = localVictims.where('age >= ?', k[:range][0])
-						number_of_victims = number_of_victims.where('age <= ?', k[:range][1]).length
+						number_of_victims = number_of_victims.where('age <= ?', k[:range][1]).count
 						ageHash[:freq] = number_of_victims
-						ageHash[:share] = number_of_victims/localVictims.where.not(:age=>nil).length.to_f
+						ageHash[:share] = number_of_victims/localVictims.where.not(:age=>nil).count.to_f
 						ageArr.push(ageHash)
 					}
 					placeHash[:ages] = ageArr
@@ -516,7 +516,7 @@ class VictimsController < ApplicationController
 					policeArr = []
 					policeKeys.each{|k|
 						policeHash = {:name=>k[:name]}
-						policeHash[:freq] = localVictims.where(:legacy_role_officer=>k[:categories]).length
+						policeHash[:freq] = localVictims.where(:legacy_role_officer=>k[:categories]).count
 						policeArr.push(policeHash)
 					}
 					placeHash[:agencies] = policeArr
@@ -529,8 +529,8 @@ class VictimsController < ApplicationController
 					]
 					booleans.each{|boolean|
 						counter = 0
-						boolean[:killings].map{|k| counter += k.victims.length}
-						placeHash[boolean[:string]] = {:freq=>boolean[:killings].length, :share=>counter/localVictims.length.to_f}	
+						boolean[:killings].map{|k| counter += k.victims.count}
+						placeHash[boolean[:string]] = {:freq=>boolean[:killings].count, :share=>counter/localVictims.count.to_f}	
 					}
 
 					# TYPE OF PLACE
@@ -540,8 +540,8 @@ class VictimsController < ApplicationController
 						typeHash = {:name=>type[:string]}
 						typeKillings = localKillings.where(:type_of_place=>type[:typeArr])
 						typeHash[:color] = type[:color]
-						typeHash[:freq] = typeKillings.length
-						typeHash[:share] = typeHash[:freq]/localKillings.where.not(:type_of_place=>nil).length.to_f
+						typeHash[:freq] = typeKillings.count
+						typeHash[:share] = typeHash[:freq]/localKillings.where.not(:type_of_place=>nil).count.to_f
 						types.push(typeHash)
 						typeCounter += typeHash[:share]
 					}
@@ -574,7 +574,7 @@ class VictimsController < ApplicationController
 						place_total = 0
 						localVictims = place.victims.where(:gender=>gender.upcase)
 						myPeriod.each {|timeUnit|
-							number_of_victims = timeUnit.victims.merge(localVictims).length
+							number_of_victims = timeUnit.victims.merge(localVictims).count
 							freq.push(number_of_victims)
 							totalFreq[counter] += number_of_victims
 							counter += 1
@@ -760,8 +760,8 @@ class VictimsController < ApplicationController
 		# DEFINE TABLE
 		if paramsCookie[2] == "genderSplit" || paramsCookie[1] == "nationWise"
 			records = victim_freq_table(*paramsCookie)
-		elsif paramsCookie[1] == "stateWise" && paramsCookie[4].length < State.all.length || 
-			paramsCookie[5].length < City.all.length ||
+		elsif paramsCookie[1] == "stateWise" && paramsCookie[4].count < State.all.count || 
+			paramsCookie[5].count < City.all.count ||
 			session[:checkedCounties] != "states"			
 			records = partial_table
 		elsif paramsCookie[1] == "countyWise" && session[:checkedCounties] == "states"
@@ -777,7 +777,7 @@ class VictimsController < ApplicationController
 				:place_total=>freqTotal
 			}
 			records[1..-3].each{|row|
-				(0..records[-1][:freq].length-1).each {|x|
+				(0..records[-1][:freq].count-1).each {|x|
 					remainder[:freq][x] -= row[:freq][x] 
 				}
 				remainder[:place_total] -= row[:place_total]
@@ -958,7 +958,7 @@ class VictimsController < ApplicationController
 		genderOptions = ["Masculino","Femenino","No identificado"]
 		current_month = "none"
 		Month.all.each{|month|
-			if month.victims.length != 0
+			if month.victims.count != 0
 				current_month = month.name
 			end
 		}
@@ -979,7 +979,7 @@ class VictimsController < ApplicationController
 		genderOptions = ["Masculino","Femenino","No identificado"]
 		current_month = "none"
 		Month.all.each{|month|
-			if month.victims.length != 0
+			if month.victims.count != 0
 				current_month = month.name
 			end
 		}
@@ -1019,14 +1019,14 @@ class VictimsController < ApplicationController
 			totalHash[:county_placer] = "--"
 			headerHash[:scope] = "MUNICIPIO"
 			if counties == "states"
-				myCounties = myStates.first.counties.reject { |county| county.victims.length < 5 }
+				myCounties = myStates.first.counties.reject { |county| county.victims.count < 5 }
 				myScope = [myCounties]
 			else
 				myCounties = []
 				myKeys = Cookie.find(counties).data
 				myKeys.each {|x|
 					myCounty = County.find(x)
-					if myCounty.victims.length > 4
+					if myCounty.victims.count > 4
 						myCounties.push(myCounty)
 					end
 				}
@@ -1048,14 +1048,14 @@ class VictimsController < ApplicationController
 			myPeriod = totalMonths
 			n = 1
 		end
-		if myPeriod.length > 1
-			unless (totalMonths.length%n) == 0
+		if myPeriod.count > 1
+			unless (totalMonths.count%n) == 0
 				myPeriod.pop
 			end
 		end
 
 		totalFreq = []
-		(1..myPeriod.length).each {
+		(1..myPeriod.count).each {
 			totalFreq.push(0)
 		}
 
@@ -1071,7 +1071,7 @@ class VictimsController < ApplicationController
 		myTable.push(headerHash)
 		if scope == "stateWise" || scope == "cityWise" 
 			myScope.push("Nacional")
-		elsif scope == "countyWise" && states.length == 1
+		elsif scope == "countyWise" && states.count == 1
 			myScope.push("Estado")
 		end
 
@@ -1108,7 +1108,7 @@ class VictimsController < ApplicationController
 			counter = 0
 			place_total = 0
 			myPeriod.each {|timeUnit|
-				number_of_victims = localVictims.merge(timeUnit.victims).length
+				number_of_victims = localVictims.merge(timeUnit.victims).count
 				freq.push(number_of_victims)
 				unless place == "Nacional" || place =="Estado"
 					totalFreq[counter] += number_of_victims
@@ -1124,8 +1124,8 @@ class VictimsController < ApplicationController
 			genderKeys.each{|k|
 				if k[:name] == "Femenino" || k[:name] == "Masculino"
 					genderHash = {:name=>k[:name], :color=>k[:color]}
-					genderHash[:freq] = localVictims.where(:gender=>k[:name].upcase).length
-					genderHash[:share] = genderHash[:freq]/localVictims.where(:gender=>["MASCULINO","FEMENINO"]).length.to_f
+					genderHash[:freq] = localVictims.where(:gender=>k[:name].upcase).count
+					genderHash[:share] = genderHash[:freq]/localVictims.where(:gender=>["MASCULINO","FEMENINO"]).count.to_f
 					genderHash[:share] = genderHash[:share].round(3)
 					genderArr.push(genderHash)
 				end
@@ -1137,9 +1137,9 @@ class VictimsController < ApplicationController
 			ageKeys.each{|k|
 				ageHash = {:name=>k[:name]}
 				number_of_victims = localVictims.where('age >= ?', k[:range][0])
-				number_of_victims = number_of_victims.where('age <= ?', k[:range][1]).length
+				number_of_victims = number_of_victims.where('age <= ?', k[:range][1]).count
 				ageHash[:freq] = number_of_victims
-				ageHash[:share] = number_of_victims/localVictims.where.not(:age=>nil).length.to_f
+				ageHash[:share] = number_of_victims/localVictims.where.not(:age=>nil).count.to_f
 				ageHash[:share] = ageHash[:share].round(3)
 				ageArr.push(ageHash)
 			}
@@ -1149,7 +1149,7 @@ class VictimsController < ApplicationController
 			policeArr = []
 			policeKeys.each{|k|
 				policeHash = {:name=>k[:name]}
-				policeHash[:freq] = localVictims.where(:legacy_role_officer=>k[:categories]).length
+				policeHash[:freq] = localVictims.where(:legacy_role_officer=>k[:categories]).count
 				policeArr.push(policeHash)
 			}
 			placeHash[:agencies] = policeArr
@@ -1162,10 +1162,10 @@ class VictimsController < ApplicationController
 			]
 			booleans.each{|boolean|
 				counter = 0
-				boolean[:killings].map{|k| counter += k.victims.length}
-				booleanShare = counter/localVictims.length.to_f
+				boolean[:killings].map{|k| counter += k.victims.count}
+				booleanShare = counter/localVictims.count.to_f
 				booleanShare = booleanShare.round(3)
-				placeHash[boolean[:string]] = {:freq=>boolean[:killings].length, :share=>booleanShare}
+				placeHash[boolean[:string]] = {:freq=>boolean[:killings].count, :share=>booleanShare}
 
 			}
 
@@ -1176,8 +1176,8 @@ class VictimsController < ApplicationController
 				typeHash = {:name=>type[:string]}
 				typeKillings = localKillings.where(:type_of_place=>type[:typeArr])
 				typeHash[:color] = type[:color]
-				typeHash[:freq] = typeKillings.length
-				typeHash[:share] = typeHash[:freq]/localKillings.where.not(:type_of_place=>nil).length.to_f
+				typeHash[:freq] = typeKillings.count
+				typeHash[:share] = typeHash[:freq]/localKillings.where.not(:type_of_place=>nil).count.to_f
 				typeHash[:share] = typeHash[:share].round(3)
 				types.push(typeHash)
 				typeCounter += typeHash[:share]
