@@ -1,5 +1,6 @@
 # config valid for current version and patch releases of Capistrano
 lock "~> 3.16.0"
+require 'capistrano-db-tasks'
 
 set :application, "lantiamaster"
 set :repo_url, "https://github.com/Robs-v82/lantiamaster2"
@@ -14,6 +15,8 @@ set :deploy_to, "/var/www/#{fetch :application}"
 append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', '.bundle', 'public/system', 'public/uploads'
 
 set :keep_releases, 5
+set :db_local_clean, true
+set :db_remote_clean, true
 
 set :linked_files, %w{config/master.key}
 
