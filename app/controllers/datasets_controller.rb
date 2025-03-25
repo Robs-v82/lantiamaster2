@@ -56,6 +56,9 @@ class DatasetsController < ApplicationController
 		if session[:filename]
 			@filename = session[:filename]
 		end
+		if session[:bad_briefing]
+			@bad_briefing = true
+		end
 		@myYears = (2010..2030)
 		@forms = [
 			{caption:"Víctimas", myAction:"/victims/load_victims", timeSearch: "shared/monthsearch", myObject:"file", loaded: nil, fileWindow: true},
@@ -135,8 +138,15 @@ class DatasetsController < ApplicationController
 	def load_briefing
 		myFile = load_briefing_params[:report]
 		regex = /^Briefing_Semanal_\d{3}_Lantia_Intelligence_\d{8}_.pdf$/
-		if !!("Briefing_Semanal_064_Lantia_Intelligence_03042022df" =~ regex)
-			
+		if !!(myFile.original_filename =~ regex)
+			dir = Rails.root.join('public','briefings')
+			File.open(dir.join(myFile.original_filename), 'wb') do |file|
+  				file.write(myFile.read)
+			end
+			session[:load_success] = true
+			session[:filename] = myFile.original_filename
+		else
+			session[:bad_briefing] = true
 		end
 		redirect_to "/datasets/load"	
 	end

@@ -62,3 +62,21 @@
 		</div>
 	</div>
 <% end %>
+
+<!-- BAD BRIEFING MODAL -->
+<% if @bad_briefing %>
+	<div id="load-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">Error fatal: el nombre del archivo no tiene la estructura necesaria. Por favor modifique el nombre para que tenga una estructura idéntica a la que se muestra en el siguiente ejemplo:</p>
+			<br>
+			<p  class="p20">
+				Briefing_Semanal_213_Lantia_Intelligence_25032025_.pdf
+			</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>
+

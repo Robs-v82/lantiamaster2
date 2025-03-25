@@ -164,6 +164,11 @@ class ApplicationController < ActionController::Base
 			print "****"
 			print "REMOVING LOAD SUCCESS"
 		end
+		if session[:bad_briefing]
+			session[:bad_briefing] = nil
+			print "****"
+			print "REMOVING BAD BRIEFING"
+		end
 	end
 
 	def remove_password_error_message
