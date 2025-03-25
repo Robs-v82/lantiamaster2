@@ -16,6 +16,7 @@ class DatasetsController < ApplicationController
 		socialReportLoaded = []
 		forecastReportLoaded = []
 		crimeVictimReportLoaded = []
+		briefingLoaded = []
 		@quarters.each{|quarter|
 			if quarter.ensu.attached?
 				ensuLoaded.push(quarter.name)
@@ -35,6 +36,19 @@ class DatasetsController < ApplicationController
 				crimeVictimReportLoaded.push(month.name)
 			end
 		}
+		myFiles = Dir['public/briefings/*'].sort { |a, b| a.downcase <=> b.downcase }
+    	myFiles.each{|file|
+    		# myHash = {}
+    		# myHash[:path] = file[7..-1]
+    		# myHash[:number] = file[34..36]
+    		myString = file[34..36]
+    		# myMonth = Month.where(:name=>myString).last
+    		# myHash[:month] = I18n.l(myMonth.first_day, format: '%B de %Y')
+    		briefingLoaded.push(myString)
+    	}
+    	briefingLoaded = briefingLoaded[-31..-1]
+
+
 		@cartels = helpers.get_cartels
 		if session[:load_success]
 			@load_success = true
@@ -54,6 +68,7 @@ class DatasetsController < ApplicationController
 			{caption:"Reporte de Violencia del Crimen Organizado", myAction:"/months/load_violence_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:violenceReportLoaded, fileWindow: true},
 			{caption:"Reporte de Riesgo Social", myAction:"/months/load_social_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:socialReportLoaded, fileWindow: true},
 			{caption:"Prospectiva", myAction:"/months/load_forecast_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:forecastReportLoaded, fileWindow: true},
+			{caption:"Briefing semanal", myAction:"/datasets/load_briefing", timeSearch: nil, myObject:"report", loaded:briefingLoaded, fileWindow: true},
 			{caption:"Cifras delictivas mensuales", myAction:"/months/load_crime_victim_report", timeSearch:"shared/monthsearch", myObject:"report", loaded:crimeVictimReportLoaded, fileWindow: true},
 			{caption:"Crear irco estatal", myAction:"/states/load_irco", timeSearch:"shared/quartersearch", myObject: nil, loaded:nil},
 			{caption:"Crear datos para irco estatal", myAction:"/states/stateIndexHash", timeSearch:"shared/quartersearch", myObject: nil, loaded:nil},
@@ -115,6 +130,15 @@ class DatasetsController < ApplicationController
 			}
 		}
 		redirect_to "/datasets/load"
+	end
+
+	def load_briefing
+		myFile = load_briefing_params[:report]
+		regex = /^Briefing_Semanal_\d{3}_Lantia_Intelligence_\d{8}_.pdf$/
+		if !!("Briefing_Semanal_064_Lantia_Intelligence_03042022df" =~ regex)
+			
+		end
+		redirect_to "/datasets/load"	
 	end
 
 	def basic
@@ -823,6 +847,10 @@ class DatasetsController < ApplicationController
 
 	def load_ensu_params
 		params.require(:query).permit(:ensu,:year,:quarter)
+	end
+
+	def load_briefing_params
+		params.require(:query).permit(:report)
 	end
 
 	def basic_county_params
