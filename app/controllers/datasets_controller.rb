@@ -3,9 +3,246 @@ class DatasetsController < ApplicationController
 	require 'csv'
 	require 'pp'
 	layout false, only: [:year_victims, :state_victims, :county_victims, :county_victims_map]
-	after_action :remove_load_message, only: [:load]
+	after_action :remove_load_message, only: [:load, :terrorist_panel]
 
 	def show
+	end
+
+	def terrorist_search
+		@keyMembers = Member.joins(:hits).distinct
+	end
+
+	def terrorist_panel
+		if session[:load_success]
+			@load_success = true
+		end
+		if session[:filename]
+			@filename = session[:filename]
+		end
+		if session[:message]
+			@mesagge = session[:message]
+		end
+
+		@forms = [
+			{caption:"Notas/links", myAction:"/datasets/upload_hits", timeSearch: nil, myObject:"file", loaded: nil, fileWindow: true},
+			{caption:"Personas", myAction:"/datasets/upload_members", timeSearch: nil, myObject:"file", loaded: nil, fileWindow: true}
+		]
+	end
+
+	def upload_members
+		myFile = load_members_params[:file]
+
+		# 🔍 Roles que queremos conservar
+		roles_permitidos = [
+		  "Líder",
+		  "Operador",
+		  "Familiar",
+		  "Autoridad cooptada",
+		  "Socio"
+		]
+
+		# 🗂️ Contenedores por categoría
+		repetidos = []
+		validos = []
+		invalidos = []
+		correcciones_nombres = 0
+
+		reemplazos_roles = {
+			"Familiar de un criminal" => "Familiar",
+			"Miembro de un grupo criminal" => "Operador"
+		}
+
+		# 🔎 Función auxiliar para encontrar la organización
+		def find_organization_by_name_or_alias(name)
+			return nil if name.blank?
+			normalized = name.to_s.strip.downcase
+
+			Organization.find do |org|
+				org.name.to_s.downcase == normalized ||
+				org.acronym.to_s.downcase == normalized ||
+				Array(org.alias).map { |a| a.downcase.strip }.include?(normalized)
+			end
+		end
+
+		def corregir_nombres(fn, ln1, ln2)
+			if fn.to_s.strip.split.size == 1 && ln1.to_s.strip.split.size == 1 && ln2.to_s.strip.split.size == 2
+				nuevo_fn = "#{fn.strip} #{ln1.strip}"
+				nuevo_ln1, nuevo_ln2 = ln2.strip.split
+				return [nuevo_fn, nuevo_ln1, nuevo_ln2]
+			end
+			[fn, ln1, ln2] # si no aplica la heurística, devolver tal cual
+		end
+
+		CSV.foreach(myFile, headers: true, encoding: "bom|utf-8") do |row|
+			role = row["role"]&.strip
+			role = reemplazos_roles[role] || role
+
+			next unless roles_permitidos.include?(role)
+			original_fn  = row["firstname"]&.strip
+			original_ln1 = row["lastname1"]&.strip
+			original_ln2 = row["lastname2"]&.strip
+			firstname, lastname1, lastname2 = corregir_nombres(original_fn, original_ln1, original_ln2)
+			org_name   = row["organization"]&.strip
+			legacy_id = row["legacy_id"]&.strip
+
+			if [firstname, lastname1, lastname2] != [original_fn, original_ln1, original_ln2]
+  				correcciones_nombres += 1
+			end
+
+			# Extraer los alias
+			alias_string = row["alias"]&.strip
+			alias_array = alias_string.present? ? alias_string.split(";").map(&:strip).uniq : []
+
+			datos_completos = firstname.present? && lastname1.present? && lastname2.present?
+
+			unless datos_completos
+				invalidos << row.to_h
+				next
+			end
+
+			myOrganization = find_organization_by_name_or_alias(org_name)
+				unless myOrganization.present?
+				invalidos << row.to_h
+				next
+			end
+
+			myOrganization = find_organization_by_name_or_alias(org_name)
+
+			# Buscar posibles miembros con mismo nombre completo
+			miembros_potenciales = Member.joins(:organization)
+				.where(
+					firstname: firstname,
+					lastname1: lastname1,
+					lastname2: lastname2
+				)
+			# Verificar si alguno tiene la misma organización (resuelta por name, alias o acronym)
+			repetido = miembros_potenciales.any? { |m| m.organization_id == myOrganization&.id }
+			if repetido
+				repetidos << row.to_h
+				myMember = miembros_potenciales.reverse.find { |m| m.organization_id == myOrganization.id }
+
+				if myMember && myMember.role_id.nil?
+					rol = Role.find_or_create_by!(name: role)
+					myMember.update(role: rol)
+				end
+
+				# Asignar rol si no tiene
+				if myMember.role_id.nil?
+					rol = Role.find_or_create_by!(name: role)
+					myMember.update(role: rol)
+				end
+				legacy_id_valida = Hit.exists?(legacy_id: legacy_id)
+				if legacy_id_valida
+					myHit = Hit.find_by(legacy_id: legacy_id) 
+					myMember.hits << myHit unless myMember.hits.exists?(myHit.id)
+				end
+				if alias_array.any?
+					# Evitar nulos
+					myMember.alias ||= []
+					nuevos_alias = alias_array - myMember.alias
+					if nuevos_alias.any?
+						myMember.alias += nuevos_alias
+						myMember.save!
+					end
+				end
+
+				# 🆕 Si se marca como detenido
+				if row["detention"].to_s.strip == "1" && myHit.present?
+					hit_date = myHit.date
+					town_id = myHit.town_id
+					detention = Detention.find_by(legacy_id: myHit.legacy_id)
+
+					if detention.nil?
+						new_event = Event.create!(event_date: hit_date, town_id: town_id)
+						detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
+					end
+
+					if myMember.detention.nil? || myMember.detention.event.event_date < hit_date
+						myMember.update!(detention: detention)
+					end
+				end
+				next
+			end
+
+			# Verificar si los datos básicos son válidos
+			organizacion_valida = myOrganization.present?
+			legacy_id_valida = Hit.exists?(legacy_id: legacy_id)
+			if legacy_id_valida
+				myHit = Hit.find_by(legacy_id: legacy_id) 
+			end
+			if datos_completos && organizacion_valida && legacy_id_valida
+				validos << row.to_h
+				rol = Role.find_or_create_by!(name: role)
+				myMember = Member.create!(
+					firstname: firstname,
+			    	lastname1: lastname1,
+			    	lastname2: lastname2,
+			    	organization: myOrganization, 
+			    	alias: alias_array,
+			    	role: rol
+			    )
+
+			    myMember.hits << myHit
+
+				if row["detention"].to_s.strip == "1" && myHit.present?
+					hit_date = myHit.date
+					town_id = myHit.town_id
+					detention = Detention.find_by(legacy_id: myHit.legacy_id)
+					if detention.nil?
+						new_event = Event.create!(event_date: hit_date, town_id: town_id)
+						detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
+					end
+					myMember.update!(detention: detention)
+				end
+			else
+				invalidos << row.to_h
+			end
+		end
+
+		session[:filename] = load_members_params[:file].original_filename
+		session[:load_success] = true
+		session[:message] = "🔁 Repetidos: #{repetidos.count}"+"\n"+
+			"✅ Válidos:   #{validos.count}"+"\n"+
+			"⚠️ Inválidos: #{invalidos.count}" + "\n" +
+			"✏️ Nombres corregidos: #{correcciones_nombres}"
+
+
+		csv_string = CSV.generate(headers: true) do |csv|
+		  csv << ["legacy_id", "firstname", "lastname1", "lastname2", "alias", "role", "organization", "detention"]
+		  invalidos.each do |row|
+		    csv << [
+		      row["legacy_id"],
+		      row["firstname"],
+		      row["lastname1"],
+		      row["lastname2"],
+		      row["alias"],
+		      row["role"],
+		      row["organization"],
+		      row["detention"]
+		    ]
+		  end
+		end
+
+		# Guardar CSV en archivo temporal
+		filename = "invalid_members_#{Time.now.to_i}.csv"
+		filepath = Rails.root.join("tmp", filename)
+		File.write(filepath, csv_string)
+
+		# Guardar el nombre en sesión para usarlo en la vista
+		session[:invalid_members_csv] = filename
+
+		redirect_to '/datasets/terrorist_panel'
+	end
+
+	def download_invalid_members
+		filename = params[:filename]
+		filepath = Rails.root.join("tmp", filename)
+
+		if File.exist?(filepath)
+			send_file filepath, filename: filename, type: "text/csv"
+		else
+			redirect_to '/datasets/terrorist_panel', alert: "El archivo ya no está disponible."
+		end
 	end
 
 	def load
@@ -853,6 +1090,89 @@ class DatasetsController < ApplicationController
     	}
     end
 
+	def upload_hits
+		loaded = 0
+		skipped = 0
+		errors = []
+		myFile = load_hit_params[:file]
+		CSV.foreach(myFile, headers: true, encoding: "bom|utf-8") do |row|
+			legacy_id = row["legacy_id"]&.strip
+			date      = Date.parse(row["fecha"]) rescue nil
+			state_name = row["estado"]&.strip
+			municipality_name = row["municipio o localidad"]&.strip
+			clave = row["clave INEGI"]&.strip
+			clave = clave.rjust(5, "0") if clave.present? # Normaliza clave a 6 dígitos
+			title = row["título"]&.strip
+			report = row["reporte"]&.strip
+			link = row["link"]&.strip
+
+	    # Validación: legacy_id único
+	    if Hit.exists?(legacy_id: legacy_id)
+			skipped += 1
+			next
+	    end
+
+	    # Validación: fecha válida
+	    if date.nil?
+			errors << { legacy_id: legacy_id, error: "Fecha inválida" }
+			next
+	    end
+
+	    # Validación: determinar el town por clave INEGI o nombre del estado
+	    town = nil
+
+	    if clave.present?
+	    	clave = clave + "0000"
+	    	unless Town.find_by(full_code: clave).nil?
+	    		town = Town.find_by(full_code: clave).id
+	    	end
+	    end
+
+	    if town.nil? && state_name.present?
+			state = State.find_by(name: state_name)
+			clave = state.code + "0000000"
+			town = Town.find_by(full_code: clave).id
+	    end
+
+	    if town.nil?
+			errors << { legacy_id: legacy_id, error: "No se encontró municipio ni estado" }
+			next
+	    end
+
+	    # Validación: link único o reporte presente
+	    link_valido = link.present? && !Hit.exists?(link: link)
+	    tiene_reporte = report.present?
+
+	    unless link_valido || tiene_reporte
+			errors << { legacy_id: legacy_id, error: "Sin link válido ni reporte" }
+			next
+	    end
+
+	    # Crear el hit
+	    Hit.create!(
+			legacy_id: legacy_id,
+			date: date,
+			title: title,
+			link: link,
+			report: report,
+			town_id: town
+	    )
+	    loaded += 1
+		rescue => e
+			errors << { legacy_id: legacy_id, error: e.message }
+			next
+		end
+
+		puts "✅ Hits cargados: #{loaded}"
+		puts "⚠️ Hits omitidos (legacy_id duplicado): #{skipped}"
+		puts "❌ Errores:"
+		errors.each { |e| puts e.inspect }
+	  	session[:filename] = load_hit_params[:file].original_filename
+		session[:load_success] = true
+		session[:message] = "✅ Hits cargados: #{loaded} \n ⚠️ Hits omitidos (legacy_id duplicado): #{skipped}"
+		redirect_to '/datasets/terrorist_panel'
+	end
+
 	private
 
 	def load_ensu_params
@@ -870,6 +1190,14 @@ class DatasetsController < ApplicationController
 	def victim_freq_params
 		params[:query][:freq_years] ||= []
 		params.require(:query).permit(:freq_timeframe, :freq_placeframe, :freq_genderframe, freq_years: [], freq_states: [], freq_cities: [], freq_counties: [], freq_gender_options: [])
+	end
+
+	def load_hit_params
+		params.require(:query).permit(:file)
+	end
+
+	def load_members_params
+		params.require(:query).permit(:file)
 	end
 
 end

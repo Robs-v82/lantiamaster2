@@ -7,4 +7,5 @@ class Member < ApplicationRecord
 	has_one :user
 	serialize :alias, Array
 	has_one_attached :avatar
+	has_and_belongs_to_many :hits
 end

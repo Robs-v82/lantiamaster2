@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_05_154820) do
+ActiveRecord::Schema.define(version: 2025_04_10_145106) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,8 +26,8 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.bigint "record_id", null: false
-    t.bigint "blob_id", null: false
+    t.integer "record_id", null: false
+    t.integer "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -44,12 +44,26 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "arrests", force: :cascade do |t|
+    t.integer "event_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_id"], name: "index_arrests_on_event_id"
+  end
+
+  create_table "arrests_organizations", force: :cascade do |t|
+    t.integer "arrest_id"
+    t.integer "organization_id"
+    t.index ["arrest_id"], name: "index_arrests_organizations_on_arrest_id"
+    t.index ["organization_id"], name: "index_arrests_organizations_on_organization_id"
+  end
+
   create_table "cities", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "code"
-    t.bigint "county_id"
+    t.integer "county_id"
     t.integer "core_county_id"
     t.index ["county_id"], name: "index_cities_on_county_id"
   end
@@ -58,7 +72,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "data"
-    t.bigint "quarter_id"
+    t.integer "quarter_id"
     t.string "category"
     t.bigint "year_id"
     t.index ["quarter_id"], name: "index_cookies_on_quarter_id"
@@ -69,11 +83,11 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.string "name"
     t.string "code"
     t.integer "population"
-    t.bigint "state_id", null: false
+    t.integer "state_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "full_code"
-    t.bigint "city_id"
+    t.integer "city_id"
     t.string "shortname"
     t.boolean "destination"
     t.text "comparison"
@@ -82,7 +96,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   end
 
   create_table "detentions", force: :cascade do |t|
-    t.bigint "event_id", null: false
+    t.integer "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "legacy_id"
@@ -90,8 +104,8 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   end
 
   create_table "detentions_organizations", force: :cascade do |t|
-    t.bigint "detention_id"
-    t.bigint "organization_id"
+    t.integer "detention_id"
+    t.integer "organization_id"
     t.index ["detention_id"], name: "index_detentions_organizations_on_detention_id"
     t.index ["organization_id"], name: "index_detentions_organizations_on_organization_id"
   end
@@ -100,7 +114,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.string "name"
     t.string "description"
     t.integer "scian3"
-    t.bigint "sector_id", null: false
+    t.integer "sector_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "shortname"
@@ -108,19 +122,19 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   end
 
   create_table "divisions_organizations", id: false, force: :cascade do |t|
-    t.bigint "division_id"
-    t.bigint "organization_id"
+    t.integer "division_id"
+    t.integer "organization_id"
     t.index ["division_id"], name: "index_divisions_organizations_on_division_id"
     t.index ["organization_id"], name: "index_divisions_organizations_on_organization_id"
   end
 
   create_table "events", force: :cascade do |t|
     t.datetime "event_date"
-    t.bigint "town_id", null: false
+    t.integer "town_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "month_id"
-    t.bigint "organization_id"
+    t.integer "month_id"
+    t.integer "organization_id"
     t.index ["month_id"], name: "index_events_on_month_id"
     t.index ["organization_id"], name: "index_events_on_organization_id"
     t.index ["town_id"], name: "index_events_on_town_id"
@@ -129,6 +143,25 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   create_table "events_sources", id: false, force: :cascade do |t|
     t.integer "event_id"
     t.integer "source_id"
+  end
+
+  create_table "hits", force: :cascade do |t|
+    t.date "date"
+    t.string "title"
+    t.string "link"
+    t.bigint "town_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "legacy_id"
+    t.string "report"
+    t.index ["town_id"], name: "index_hits_on_town_id"
+  end
+
+  create_table "hits_members", id: false, force: :cascade do |t|
+    t.bigint "hit_id", null: false
+    t.bigint "member_id", null: false
+    t.index ["hit_id", "member_id"], name: "index_hits_members_on_hit_id_and_member_id"
+    t.index ["member_id", "hit_id"], name: "index_hits_members_on_member_id_and_hit_id"
   end
 
   create_table "keys", force: :cascade do |t|
@@ -152,7 +185,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.boolean "aggression"
     t.boolean "shooting_between_criminals_and_authorities"
     t.string "notes"
-    t.bigint "event_id", null: false
+    t.integer "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "legacy_number"
@@ -169,7 +202,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
 
   create_table "leads", force: :cascade do |t|
     t.string "category"
-    t.bigint "event_id", null: false
+    t.integer "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "legacy_id"
@@ -183,6 +216,145 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "lrvl_documents", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "file", limit: 255, null: false
+    t.string "title", limit: 255, null: false
+    t.text "description", null: false
+    t.string "url", limit: 255
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.datetime "deleted_at", precision: 0
+    t.integer "only_vip", limit: 2, default: 0, null: false
+  end
+
+  create_table "lrvl_failed_jobs", force: :cascade do |t|
+    t.text "connection", null: false
+    t.text "queue", null: false
+    t.text "payload", null: false
+    t.text "exception", null: false
+    t.datetime "failed_at", precision: 0, default: -> { "CURRENT_TIMESTAMP" }, null: false
+  end
+
+  create_table "lrvl_graph_reports", force: :cascade do |t|
+    t.string "name", limit: 255, null: false
+    t.text "url", null: false
+    t.boolean "enabled_home", default: true, null: false
+    t.boolean "enabled_datos", default: true, null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.datetime "deleted_at", precision: 0
+  end
+
+  create_table "lrvl_internal_publications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "cover", limit: 255
+    t.string "title", limit: 255, null: false
+    t.text "description", null: false
+    t.string "url", limit: 255
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.datetime "deleted_at", precision: 0
+  end
+
+  create_table "lrvl_log_membership_payments", force: :cascade do |t|
+    t.string "who", limit: 255, null: false
+    t.string "event", limit: 255, null: false
+    t.text "event_data", null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+  end
+
+  create_table "lrvl_membership_expiration", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "membership_id", null: false
+    t.string "customer_token", limit: 255, null: false
+    t.bigint "log_membership_payments_id", null: false
+    t.datetime "expiration", precision: 0, null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.boolean "expirated", default: false, null: false
+  end
+
+  create_table "lrvl_memberships", force: :cascade do |t|
+    t.string "name", limit: 255, null: false
+    t.text "description", null: false
+    t.integer "duration", limit: 2, default: 30, null: false
+    t.float "price", null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.float "price_year", default: 0.0, null: false
+    t.integer "duration_year", default: 365, null: false
+  end
+
+  create_table "lrvl_news", force: :cascade do |t|
+    t.bigint "referer_id", null: false
+    t.bigint "user_id", null: false
+    t.string "cover", limit: 255, null: false
+    t.string "title", limit: 255, null: false
+    t.text "description", null: false
+    t.string "url", limit: 255, null: false
+    t.datetime "published", precision: 0, null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.datetime "deleted_at", precision: 0
+  end
+
+  create_table "lrvl_password_resets", id: false, force: :cascade do |t|
+    t.string "email", limit: 255, null: false
+    t.string "token", limit: 255, null: false
+    t.datetime "created_at", precision: 0
+    t.index ["email"], name: "lrvl_password_resets_email_index"
+  end
+
+  create_table "lrvl_payments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "products", null: false
+    t.string "total", limit: 255, null: false
+    t.string "reference", limit: 255
+    t.integer "msi", default: 0, null: false
+    t.string "gateway", limit: 255
+    t.text "gatewayData"
+    t.integer "status", limit: 2, default: 1, null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.datetime "deleted_at", precision: 0
+  end
+
+  create_table "lrvl_publications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "cover", limit: 255
+    t.string "title", limit: 255, null: false
+    t.text "description", null: false
+    t.string "url", limit: 255, null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.datetime "deleted_at", precision: 0
+  end
+
+  create_table "lrvl_user_conekta_customers", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "customer_token", limit: 255, null: false
+    t.text "customer_data", null: false
+    t.string "subscription_id", limit: 255, null: false
+    t.text "subscription_data"
+    t.string "random_key", limit: 255, null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.text "cancelation_data"
+    t.boolean "canceled", default: false
+  end
+
+  create_table "lrvl_videos", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title", limit: 255, null: false
+    t.text "description"
+    t.text "url", null: false
+    t.datetime "created_at", precision: 0
+    t.datetime "updated_at", precision: 0
+    t.datetime "deleted_at", precision: 0
+  end
+
   create_table "members", force: :cascade do |t|
     t.string "firstname"
     t.string "lastname1"
@@ -192,28 +364,37 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.string "gender"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "organization_id"
-    t.bigint "role_id"
+    t.integer "organization_id"
+    t.integer "role_id"
     t.string "mail"
     t.text "alias"
-    t.bigint "detention_id"
+    t.integer "arrest_id"
+    t.integer "detention_id"
+    t.bigint "member_id"
+    t.index ["arrest_id"], name: "index_members_on_arrest_id"
     t.index ["detention_id"], name: "index_members_on_detention_id"
+    t.index ["member_id"], name: "index_members_on_member_id"
     t.index ["organization_id"], name: "index_members_on_organization_id"
     t.index ["role_id"], name: "index_members_on_role_id"
+  end
+
+  create_table "migrations", id: :serial, force: :cascade do |t|
+    t.string "migration", limit: 255, null: false
+    t.integer "batch", null: false
   end
 
   create_table "months", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "quarter_id", null: false
+    t.integer "quarter_id", null: false
     t.datetime "first_day"
     t.index ["quarter_id"], name: "index_months_on_quarter_id"
   end
 
   create_table "organization_towns", force: :cascade do |t|
-    t.bigint "town_id"
-    t.bigint "organization_id"
+    t.integer "town_id"
+    t.integer "organization_id"
     t.index ["organization_id"], name: "index_organization_towns_on_organization_id"
     t.index ["town_id"], name: "index_organization_towns_on_town_id"
   end
@@ -225,7 +406,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "rfc"
-    t.bigint "county_id"
+    t.integer "county_id"
     t.string "domain"
     t.boolean "active_links"
     t.date "active_since"
@@ -249,8 +430,8 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   end
 
   create_table "organizations_towns", force: :cascade do |t|
-    t.bigint "town_id"
-    t.bigint "organization_id"
+    t.integer "town_id"
+    t.integer "organization_id"
     t.index ["organization_id"], name: "index_organizations_towns_on_organization_id"
     t.index ["town_id"], name: "index_organizations_towns_on_town_id"
   end
@@ -264,7 +445,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.boolean "is_quote"
     t.boolean "is_retweet"
     t.string "url"
-    t.bigint "account_id", null: false
+    t.integer "account_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["account_id"], name: "index_posts_on_account_id"
@@ -274,7 +455,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "year_id"
+    t.integer "year_id"
     t.datetime "first_day"
     t.index ["year_id"], name: "index_quarters_on_year_id"
   end
@@ -303,7 +484,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.boolean "is_post"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "member_id"
+    t.integer "member_id"
     t.index ["member_id"], name: "index_sources_on_member_id"
   end
 
@@ -323,7 +504,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.string "code"
     t.string "full_code"
     t.string "name"
-    t.bigint "county_id", null: false
+    t.integer "county_id", null: false
     t.string "urban"
     t.integer "population"
     t.integer "height"
@@ -337,8 +518,8 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   end
 
   create_table "towns_and_organizations", force: :cascade do |t|
-    t.bigint "town_id"
-    t.bigint "organization_id"
+    t.integer "town_id"
+    t.integer "organization_id"
     t.index ["organization_id"], name: "index_towns_and_organizations_on_organization_id"
     t.index ["town_id"], name: "index_towns_and_organizations_on_town_id"
   end
@@ -349,14 +530,13 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.string "other_phone"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "member_id"
+    t.integer "member_id"
     t.string "password_digest"
     t.string "recovery_password_digest"
     t.integer "query_counter"
     t.string "remember_token"
     t.datetime "email_verified_at"
-    t.integer "role_id", default: 2
-    t.integer "membership_id"
+    t.integer "role_id"
     t.boolean "victim_help", default: true
     t.boolean "organization_help", default: true
     t.boolean "index_help", default: true
@@ -422,11 +602,11 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
     t.boolean "semidesnudo"
     t.boolean "semienterrado"
     t.string "otra_forma"
-    t.bigint "killing_id", null: false
+    t.integer "killing_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "role_id"
-    t.bigint "organization_id"
+    t.integer "role_id"
+    t.integer "organization_id"
     t.string "legacy_name"
     t.string "legacy_role_officer"
     t.string "legacy_role_civil"
@@ -443,6 +623,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "arrests", "events"
   add_foreign_key "cities", "counties"
   add_foreign_key "cities", "counties", column: "core_county_id"
   add_foreign_key "cookies", "quarters"
@@ -454,10 +635,22 @@ ActiveRecord::Schema.define(version: 2024_11_05_154820) do
   add_foreign_key "events", "months"
   add_foreign_key "events", "organizations"
   add_foreign_key "events", "towns"
+  add_foreign_key "hits", "towns"
   add_foreign_key "keys", "users"
   add_foreign_key "killings", "events"
   add_foreign_key "leads", "events"
+  add_foreign_key "lrvl_documents", "users", name: "lrvl_documents_user_id_foreign"
+  add_foreign_key "lrvl_internal_publications", "users", name: "lrvl_internal_publications_user_id_foreign"
+  add_foreign_key "lrvl_membership_expiration", "lrvl_log_membership_payments", column: "log_membership_payments_id", name: "lrvl_membership_expiration_log_membership_payments_id_foreign"
+  add_foreign_key "lrvl_membership_expiration", "lrvl_memberships", column: "membership_id", name: "lrvl_membership_expiration_membership_id_foreign"
+  add_foreign_key "lrvl_membership_expiration", "users", name: "lrvl_membership_expiration_user_id_foreign"
+  add_foreign_key "lrvl_news", "users", name: "lrvl_news_user_id_foreign"
+  add_foreign_key "lrvl_payments", "users", name: "lrvl_payments_user_id_foreign"
+  add_foreign_key "lrvl_publications", "users", name: "lrvl_publications_user_id_foreign"
+  add_foreign_key "lrvl_videos", "users", name: "lrvl_videos_user_id_foreign"
+  add_foreign_key "members", "arrests"
   add_foreign_key "members", "detentions"
+  add_foreign_key "members", "members"
   add_foreign_key "members", "organizations"
   add_foreign_key "members", "roles"
   add_foreign_key "months", "quarters"

@@ -1,0 +1,88 @@
+<div class="row">
+	<% @forms.each do |form| %>
+		<div class="col l6 m8 s12">
+			<div class="card cyan darken-1">
+				<div class="card-content white-text">
+					<form action="<%= form[:myAction]%>" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+						<div class="row">
+							<div class="col s11 left">
+								<span class="card-title"><%= form[:caption]%></span>
+							</div>
+						</div>
+						<div class="row">
+							<% unless form[:loaded] == nil %>
+								<% form[:loaded].each do |period| %>
+									<div class="col s3">
+										<span class="new badge grey darken-3 period-badge" data-badge-caption=""><%= period %></span>
+									</div>
+								<% end %>
+							<% end %>
+						</div>
+						<% if form[:fileWindow] %>
+							<div class="row">
+								<div class="file-field input-field short-row">
+									<div class="col s1">
+		 								<i class="material-icons white-text">attach_file</i>
+		 							</div>
+		 							<div class="col s11">
+		 								<input class="white-file-input" type="file" name="query[<%= form[:myObject] %>]">
+									</div>
+									<div class="col s11">
+										<div class="file-path-wrapper">
+											<input class="file-path validate" type="text">
+										</div>
+									</div>
+								</div>
+							</div>
+						<% end %>
+						<% unless form[:timeSearch] == nil %>		
+							<%= render form[:timeSearch] %>
+						<% end %>
+						<div class="card-action">
+							<%= render "shared/sendbutton"%>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	<% end %>
+</div>
+
+
+<!-- LOAD MODAL -->
+<% if @load_success %>
+	<div id="load-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">El archivo <span class="cyan-text bold text-darken-2"><%= @filename %></span> se cargó con éxito.</p>
+			<p><%= @mesagge %></p>
+			<% if session[:invalid_members_csv] %>
+			  	<p>
+			    	<strong>Descargar miembros inválidos:</strong><br>
+			    	<%= link_to "📥 Descargar CSV", download_invalid_members_path(filename: session[:invalid_members_csv]), class: "btn btn-primary" %>
+			  	</p>
+			<% end %>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>
+
+<!-- BAD BRIEFING MODAL -->
+<% if @bad_briefing %>
+	<div id="load-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">Error fatal: el nombre del archivo no tiene la estructura necesaria. Por favor modifique el nombre para que tenga una estructura idéntica a la que se muestra en el siguiente ejemplo:</p>
+			<br>
+			<p  class="p20">
+				Briefing_Semanal_213_Lantia_Intelligence_25032025_.pdf
+			</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

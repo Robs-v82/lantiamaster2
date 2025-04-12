@@ -1,0 +1,185 @@
+require 'net/http'
+require 'uri'
+require 'json'
+require 'nokogiri'
+
+API_KEY = 'TU_API_KEY_DE_SCRAPINGBEE' # ← Reemplaza esto por tu API key
+BASE_URL = 'https://www.milenio.com/buscador'
+
+# Construye URL de búsqueda con palabra clave y año
+def build_search_url(query, year, page)
+  fecha = "#{year}"
+  "#{BASE_URL}?q=#{URI.encode_www_form_component(query)}+#{fecha}&page=#{page}"
+end
+
+# Llama a ScrapingBee con renderizado de JS (por si Milenio carga dinámicamente)
+def fetch_html_with_scrapingbee(url)
+  uri = URI('https://app.scrapingbee.com/api/v1/')
+  params = {
+    api_key: API_KEY,
+    url: url,
+    render_js: true # ← importante para que cargue bien
+  }
+  uri.query = URI.encode_www_form(params)
+
+  res = Net::HTTP.get_response(uri)
+  body = res.body
+
+  # Encoding a UTF-8 limpio
+  body.force_encoding('UTF-8')
+  body = body.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+
+  body
+end
+
+# Extrae enlaces relevantes a notas de Milenio (evita otros links)
+def extract_article_links(html)
+  doc = Nokogiri::HTML(html)
+  links = []
+
+  doc.css('a').each do |a|
+    href = a['href']
+    next unless href
+
+    # Filtra solo URLs que parecen ser notas
+    if href.match?(/^\/[a-z\-]+\/[a-z0-9\-]+\/[a-z0-9\-]+$/)
+      full_url = href.start_with?('http') ? href : "https://www.milenio.com#{href}"
+      links << full_url
+    end
+  end
+
+  links.uniq
+end
+
+# === MAIN ===
+
+query = 'CJNG'
+year = 2023
+total_pages = 5 # Podés aumentarlo si querés más profundidad
+all_links = []
+
+(1..total_pages).each do |page|
+  search_url = build_search_url(query, year, page)
+  puts "\n🔎 Página #{page}: #{search_url}"
+
+  html = fetch_html_with_scrapingbee(search_url)
+  links = extract_article_links(html)
+
+  puts "  ↳ Se encontraron #{links.size} links"
+  all_links.concat(links)
+
+  sleep(2) # Respeto para la API
+end
+
+puts "\n✅ Total de links únicos encontrados: #{all_links.uniq.size}"
+puts all_links.uniq
+🧪 Resultado esperado
+Este script debe darte los enlaces a artículos que mencionan CJNG publicados en 2023, y recorrerá las primeras 5 páginas del buscador de Milenio.
+
+🧰 ¿Qué más podríamos agregar luego?
+Guardar los resultados en CSV o JSON.
+
+Extraer nombre del autor, fecha, contenido.
+
+Repetir el proceso para otros años o palabras clave.
+
+¿Querés que prepare la versión para guardar los links en un archivo también?
+
+
+
+
+
+
+
+Dijiste:
+Podrías hacer un script con la opción de hacer la búsqueda en google
+
+
+ChatGPT dijo:
+¡Claro que sí! La opción de buscar desde Google con site:milenio.com + palabra clave + año es una excelente alternativa, porque Google indexa mejor que muchos buscadores internos de los medios.
+
+🧠 ¿Qué haremos?
+Usaremos ScrapingBee para hacer las búsquedas en Google (porque evita bloqueos).
+
+La query será: CJNG site:milenio.com 2023
+
+Google muestra 10 resultados por página, así que usaremos el parámetro start=0, 10, 20...
+
+Extraeremos los enlaces a artículos desde los resultados de búsqueda.
+
+¡Y todo esto respetando el encoding UTF-8!
+
+📜 Script Ruby – ScrapingBee + Google + site:milenio.com
+ruby
+Copiar
+Editar
+require 'net/http'
+require 'uri'
+require 'json'
+require 'nokogiri'
+
+API_KEY = 'TU_API_KEY_DE_SCRAPINGBEE' # ← Reemplaza con tu clave
+GOOGLE_SEARCH_URL = 'https://www.google.com/search'
+
+def build_google_search_url(query, start)
+  q = URI.encode_www_form_component(query)
+  "#{GOOGLE_SEARCH_URL}?q=#{q}&start=#{start}"
+end
+
+def fetch_html_with_scrapingbee(url)
+  uri = URI('https://app.scrapingbee.com/api/v1/')
+  params = {
+    api_key: API_KEY,
+    url: url,
+    render_js: true, # necesario para resultados de Google
+    premium_proxy: 'true' # mejora acceso a Google
+  }
+  uri.query = URI.encode_www_form(params)
+
+  res = Net::HTTP.get_response(uri)
+  body = res.body
+
+  body.force_encoding('UTF-8')
+  body = body.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+
+  body
+end
+
+def extract_links_from_google(html)
+  doc = Nokogiri::HTML(html)
+  links = []
+
+  # Extrae los enlaces de resultados orgánicos (selector típico de Google)
+  doc.css('div.yuRUbf > a').each do |a|
+    href = a['href']
+    if href && href.include?('milenio.com')
+      links << href
+    end
+  end
+
+  links.uniq
+end
+
+# === MAIN ===
+
+query = 'CJNG site:milenio.com 2023'
+pages = 5 # 5 páginas x 10 resultados = hasta 50 resultados
+all_links = []
+
+(0...pages).each do |i|
+  start = i * 10
+  url = build_google_search_url(query, start)
+
+  puts "\n🔍 Google Search página #{i + 1}: #{url}"
+
+  html = fetch_html_with_scrapingbee(url)
+  links = extract_links_from_google(html)
+
+  puts "  ↳ Se encontraron #{links.size} enlaces"
+  all_links.concat(links)
+
+  sleep(2) # evita bloqueos y respeta tu cuota
+end
+
+puts "\n✅ Total de links únicos encontrados: #{all_links.uniq.size}"
+puts all_links.uniq

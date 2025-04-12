@@ -123,4 +123,9 @@ Rails.application.routes.draw do
     get 'states/send_icon.csv' => 'states#send_icon'
     get 'organizations/send_file.csv' => 'organizations#send_file'
     get 'datasets/downloads'
+    get 'datasets/terrorist_panel'
+    post 'datasets/upload_hits'
+    post 'datasets/upload_members'
+    get '/datasets/download_invalid_members', to: 'datasets#download_invalid_members', as: 'download_invalid_members'
+    get 'datasets/terrorist_search'
 end
