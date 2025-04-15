@@ -32,7 +32,7 @@ def extract_links_from_duckduckgo(html)
 
   doc.css('a.result__a').each do |a|
     href = a['href']
-    if href.include?('milenio.com')
+    if href.include?('guerrero.quadratin.com.mx')
       links << href
     end
   end
@@ -42,14 +42,14 @@ end
 
 # === MAIN ===
 
-query = 'CJNG site:milenio.com 2023'
+query = 'Los Ardillos site:guerrero.quadratin.com.mx 2024'
 all_links = []
 
 puts "\n🔍 Buscando en DuckDuckGo: #{query}"
 
 url = build_duckduckgo_search_url(query)
 html = fetch_html_with_scrapingbee(url)
-File.write("duckduckgo_cjng_2023.html", html)
+File.write("Ardillos_2024.html", html)
 
 links = extract_links_from_duckduckgo(html)
 puts "  ↳ Se encontraron #{links.size} enlaces:"

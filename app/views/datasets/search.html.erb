@@ -1,0 +1,37 @@
+<h1>Buscar enlaces web</h1>
+
+<%= form_with url: web_scrape_path, method: :get, local: true do |f| %>
+  <div>
+    <%= label_tag :keyword1, "Palabra clave 1" %>
+    <%= text_field_tag :keyword1, params[:keyword1] %>
+  </div>
+
+  <div>
+    <%= label_tag :keyword2, "Palabra clave 2" %>
+    <%= text_field_tag :keyword2, params[:keyword2] %>
+  </div>
+
+  <div>
+    <%= label_tag :year, "Año de búsqueda *" %>
+    <%= text_field_tag :year, params[:year], required: true %>
+  </div>
+
+  <div>
+    <%= label_tag :organization_id, "Organización (opcional)" %>
+    <%= select_tag :organization_id, options_from_collection_for_select(@cartels, :id, :name), include_blank: true %>
+  </div>
+
+  <div>
+    <%= label_tag :site, "Filtrar por sitio específico (opcional)" %>
+    <%= text_field_tag :site, params[:site], placeholder: "ej. milenio.com" %>
+  </div>
+
+  <div>
+    <%= submit_tag "Buscar enlaces" %>
+  </div>
+<% end %>
+
+<% if session[:message] %>
+  <pre style="background:#f7f7f7; padding:1em; border-radius:6px;"><%= session[:message] %></pre>
+  <% session.delete(:message) %>
+<% end %>

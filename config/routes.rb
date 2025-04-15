@@ -128,4 +128,6 @@ Rails.application.routes.draw do
     post 'datasets/upload_members'
     get '/datasets/download_invalid_members', to: 'datasets#download_invalid_members', as: 'download_invalid_members'
     get 'datasets/terrorist_search'
+    get 'datasets/search'
+    get '/web_scrape', to: 'datasets#web_scrape', as: :web_scrape
 end

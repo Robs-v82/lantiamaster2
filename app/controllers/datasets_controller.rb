@@ -2,6 +2,12 @@ class DatasetsController < ApplicationController
 	
 	require 'csv'
 	require 'pp'
+	require 'net/http'
+	require 'net/https'
+	require 'uri'
+	require 'json'
+
+
 	layout false, only: [:year_victims, :state_victims, :county_victims, :county_victims_map]
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
 
@@ -48,8 +54,10 @@ class DatasetsController < ApplicationController
 		correcciones_nombres = 0
 
 		reemplazos_roles = {
+			"Líder criminal" => "Líder",
 			"Familiar de un criminal" => "Familiar",
-			"Miembro de un grupo criminal" => "Operador"
+			"Miembro de un grupo criminal" => "Operador",
+			"Autoridad coludida" => "Autoridad cooptada"
 		}
 
 		# 🔎 Función auxiliar para encontrar la organización
@@ -1171,6 +1179,57 @@ class DatasetsController < ApplicationController
 		session[:load_success] = true
 		session[:message] = "✅ Hits cargados: #{loaded} \n ⚠️ Hits omitidos (legacy_id duplicado): #{skipped}"
 		redirect_to '/datasets/terrorist_panel'
+	end
+
+	def search
+		@cartels = Sector.where(:scian2=>98).last.organizations.uniq
+	end
+
+	def web_scrape
+		keyword1 = params[:keyword1]&.strip
+		keyword2 = params[:keyword2]&.strip
+		year     = params[:year]&.strip
+		org_id   = params[:organization_id]
+		site     = params[:site]&.strip
+
+		if year.blank?
+			flash[:alert] = "Debes especificar un año de búsqueda."
+			redirect_to search_path and return
+		end
+
+		organization = Organization.find_by(id: org_id) if org_id.present?
+		org_name = organization&.name
+
+		# Construir query de búsqueda
+		query_terms = [keyword1, keyword2, org_name, year].compact.join(" ")
+		site_filter = site.present? ? " site:#{site}" : ""
+		query = URI.encode_www_form_component("#{query_terms}#{site_filter}")
+
+		# Preparar ScrapingBee URL
+		api_key = '7F4T3OWDZ2MS5CJN7RF6K7E9XVTBR0RFXXZYQD9U5C2G430S09JTMLUCKTQRUQRG3B292VW5RC6O6FUK'
+		search_url = "https://www.google.com/search?q=#{query}"
+		scrapingbee_url = "https://app.scrapingbee.com/api/v1/?api_key=#{api_key}&url=#{search_url}&render_js=false"
+
+		# Hacer la petición
+		uri = URI(scrapingbee_url)
+		http = Net::HTTP.new(uri.host, uri.port)
+		http.use_ssl = true
+
+		req = Net::HTTP::Get.new(uri)
+		response = http.request(req)
+
+		if response.code.to_i == 200
+			body = response.body.force_encoding("UTF-8")
+
+			# Extraer enlaces de los resultados (simplificado)
+			links = body.scan(/<a href="\/url\?q=(https?:\/\/[^&]+)&amp;/).flatten.uniq
+
+			session[:message] = "🔗 Se encontraron #{links.size} enlaces:\n\n" + links.map { |l| "• #{l}" }.join("\n")
+		else
+			session[:message] = "❌ Error en la búsqueda (HTTP #{response.code})"
+		end
+
+		redirect_to '/datasets/search'
 	end
 
 	private
