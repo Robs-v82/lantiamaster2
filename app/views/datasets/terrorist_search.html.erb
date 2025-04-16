@@ -1,5 +1,29 @@
 <div class="container">
 	<h3>Miembros vinculados con al menos un hit</h3>
+	<br>
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th>Rol</th>
+				<th>Total de miembros</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% total_general = 0 %>
+			<% @conteo_por_rol.each do |rol, total| %>
+			<tr>
+				<td><%= rol %></td>
+				<td><%= total %></td>
+			</tr>
+			<% total_general += total %>
+			<% end %>
+			<tr>
+				<th>Total general</th>
+				<th><%= total_general %></th>
+			</tr>
+		</tbody>
+	</table>
+	<br>
 	<table class="table table-striped">
 		<thead>
 			<tr>

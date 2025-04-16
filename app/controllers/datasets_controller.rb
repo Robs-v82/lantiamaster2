@@ -16,6 +16,32 @@ class DatasetsController < ApplicationController
 
 	def terrorist_search
 		@keyMembers = Member.joins(:hits).distinct
+
+		# Definir roles permitidos
+		roles_permitidos = [
+		  "Líder",
+		  "Operador",
+		  "Familiar",
+		  "Autoridad cooptada",
+		  "Socio"
+		]
+
+		# Crear el hash con valores iniciales en cero
+		@conteo_por_rol = roles_permitidos.index_with { 0 }
+
+		# Consultar y agrupar miembros con al menos un hit, cuyo rol esté en roles_permitidos
+		Member.joins(:hits, :role)
+		      .where(roles: { name: roles_permitidos })
+		      .distinct
+		      .group("roles.name")
+		      .count
+		      .each do |rol, total|
+		        @conteo_por_rol[rol] = total
+		      end
+
+		# Resultado: {"Líder"=>12, "Operador"=>34, "Familiar"=>7, ...}
+		puts @conteo_por_rol
+
 	end
 
 	def terrorist_panel
