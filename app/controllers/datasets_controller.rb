@@ -83,7 +83,8 @@ class DatasetsController < ApplicationController
 			"Líder criminal" => "Líder",
 			"Familiar de un criminal" => "Familiar",
 			"Miembro de un grupo criminal" => "Operador",
-			"Autoridad coludida" => "Autoridad cooptada"
+			"Autoridad coludida" => "Autoridad cooptada",
+			"Socio de un grupo criminal" => "Socio"
 		}
 
 		# 🔎 Función auxiliar para encontrar la organización
