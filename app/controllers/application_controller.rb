@@ -169,6 +169,10 @@ class ApplicationController < ActionController::Base
 			print "****"
 			print "REMOVING BAD BRIEFING"
 		end
+		if session[:scraped_links_file]
+			File.delete(session[:scraped_links_file])
+			session.delete(:scraped_links_file)
+		end
 	end
 
 	def remove_password_error_message

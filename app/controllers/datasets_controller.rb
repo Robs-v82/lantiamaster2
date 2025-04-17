@@ -6,12 +6,16 @@ class DatasetsController < ApplicationController
 	require 'net/https'
 	require 'uri'
 	require 'json'
-
+	require 'nokogiri'
 
 	layout false, only: [:year_victims, :state_victims, :county_victims, :county_victims_map]
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
 
 	def show
+	end
+
+	def method_name
+		
 	end
 
 	def terrorist_search
@@ -45,6 +49,10 @@ class DatasetsController < ApplicationController
 	end
 
 	def terrorist_panel
+		@myYears = ["2018","2019","2020","2021","2022","2023","2024","2025"]
+		@myStates = State.all.pluck(:name).uniq
+		@myStates = @myStates.sort
+		@myCartels = ["CJNG", "Cártel de Sinaloa", "Cártel del Golfo", "Cártel del Noreste", "Cárteles Unidos", "La Familia Michoacana"]
 		if session[:load_success]
 			@load_success = true
 		end
@@ -1213,50 +1221,103 @@ class DatasetsController < ApplicationController
 	end
 
 	def web_scrape
-		keyword1 = params[:keyword1]&.strip
-		keyword2 = params[:keyword2]&.strip
-		year     = params[:year]&.strip
-		org_id   = params[:organization_id]
-		site     = params[:site]&.strip
 
-		if year.blank?
-			flash[:alert] = "Debes especificar un año de búsqueda."
-			redirect_to search_path and return
+		def build_duckduckgo_url(query, offset)
+			base_url = 'https://html.duckduckgo.com/html/'
+			"#{base_url}?q=#{URI.encode_www_form_component(query)}&s=#{offset}"
 		end
 
-		organization = Organization.find_by(id: org_id) if org_id.present?
-		org_name = organization&.name
+		def fetch_html_with_scrapingbee(url)
+			api_key = '7F4T3OWDZ2MS5CJN7RF6K7E9XVTBR0RFXXZYQD9U5C2G430S09JTMLUCKTQRUQRG3B292VW5RC6O6FUK' 
+			uri = URI('https://app.scrapingbee.com/api/v1/')
+			params = {
+			api_key: api_key,
+			url: url,
+			render_js: false,
+			block_resources: true
+			}
+			uri.query = URI.encode_www_form(params)
 
-		# Construir query de búsqueda
-		query_terms = [keyword1, keyword2, org_name, year].compact.join(" ")
-		site_filter = site.present? ? " site:#{site}" : ""
-		query = URI.encode_www_form_component("#{query_terms}#{site_filter}")
+			res = Net::HTTP.get_response(uri)
 
-		# Preparar ScrapingBee URL
-		api_key = '7F4T3OWDZ2MS5CJN7RF6K7E9XVTBR0RFXXZYQD9U5C2G430S09JTMLUCKTQRUQRG3B292VW5RC6O6FUK'
-		search_url = "https://www.google.com/search?q=#{query}"
-		scrapingbee_url = "https://app.scrapingbee.com/api/v1/?api_key=#{api_key}&url=#{search_url}&render_js=false"
+			html = res.body
+			html.force_encoding('UTF-8')
+			html.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+		end
 
-		# Hacer la petición
-		uri = URI(scrapingbee_url)
-		http = Net::HTTP.new(uri.host, uri.port)
-		http.use_ssl = true
+		def extract_links_from_duckduckgo(html)
+			doc = Nokogiri::HTML(html)
+			links = []
 
-		req = Net::HTTP::Get.new(uri)
-		response = http.request(req)
+			doc.css('a.result__a').each do |a|
+				href = a['href']
+				# if href.include?('milenio.com')
+				links << href
+			end
 
-		if response.code.to_i == 200
-			body = response.body.force_encoding("UTF-8")
+			links.uniq
+		end
 
-			# Extraer enlaces de los resultados (simplificado)
-			links = body.scan(/<a href="\/url\?q=(https?:\/\/[^&]+)&amp;/).flatten.uniq
-
-			session[:message] = "🔗 Se encontraron #{links.size} enlaces:\n\n" + links.map { |l| "• #{l}" }.join("\n")
+		year = scraping_params[:year]
+		if year == "2025"
+			months = %w[enero febrero marzo abril]
 		else
-			session[:message] = "❌ Error en la búsqueda (HTTP #{response.code})"
+			months = %w[enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre]
+		end
+		cartel = scraping_params[:cartel]
+		state = scraping_params[:state]
+		if scraping_params[:domain]
+			myDomain = scraping_params[:domain]
+		else
+			puts "XXxx"*1000 +"Domain empty"
+		end
+		pages_per_month = 1
+		all_links = []
+		Dir.mkdir('htmls') unless Dir.exist?('htmls')
+
+		months.each do |month|
+			puts "\n📅 Procesando: #{month.capitalize} #{year}"
+
+			pages_per_month.times do |i|
+				offset = i * 30
+				query = "#{cartel} #{month} #{year} #{state}"
+				if myDomain
+					query = query + " site: #{myDomain}"
+				end
+				url = build_duckduckgo_url(query, offset)
+
+				puts "🔎 Página #{i + 1} — Offset #{offset}"
+				html = fetch_html_with_scrapingbee(url)
+
+				# Guardar HTML por si querés inspeccionar
+				File.write("htmls/duck_cjng_#{month}_#{year}_p#{i + 1}.html", html)
+
+				links = extract_links_from_duckduckgo(html)
+				puts "   ↳ Se encontraron #{links.size} enlaces"
+				all_links.concat(links)
+
+				sleep(2)
+			end
 		end
 
-		redirect_to '/datasets/search'
+		filename = "tmp/scraped_links_#{SecureRandom.hex(10)}.json"
+		File.write(filename, all_links.uniq.to_json)
+		session[:scraped_links_file] = filename
+		redirect_to '/datasets/terrorist_panel'
+	end
+
+	def download_scraped_links
+		if session[:scraped_links_file] && File.exist?(session[:scraped_links_file])
+			links = JSON.parse(File.read(session[:scraped_links_file])) rescue []
+
+			csv_data = CSV.generate do |csv|
+				csv << ['Enlace']
+				links.each { |link| csv << [link] }
+			end
+				send_data csv_data, filename: "enlaces_scrapeados_#{Time.zone.now.to_date}.csv", type: 'text/csv'
+			else
+				redirect_to '/datasets/terrorist_panel'
+			end
 	end
 
 	private
@@ -1284,6 +1345,10 @@ class DatasetsController < ApplicationController
 
 	def load_members_params
 		params.require(:query).permit(:file)
+	end
+
+	def scraping_params
+		params.require(:query).permit(:year, :cartel, :state, :domain)
 	end
 
 end

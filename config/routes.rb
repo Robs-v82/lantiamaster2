@@ -129,5 +129,6 @@ Rails.application.routes.draw do
     get '/datasets/download_invalid_members', to: 'datasets#download_invalid_members', as: 'download_invalid_members'
     get 'datasets/terrorist_search'
     get 'datasets/search'
-    get '/web_scrape', to: 'datasets#web_scrape', as: :web_scrape
+    post '/web_scrape', to: 'datasets#web_scrape', as: :web_scrape
+    post '/datasets/download_scraped_links', to: 'datasets#download_scraped_links', as: :download_scraped_links
 end
