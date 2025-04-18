@@ -52,7 +52,7 @@ class DatasetsController < ApplicationController
 		@myYears = ["2018","2019","2020","2021","2022","2023","2024","2025"]
 		@myStates = State.all.pluck(:name).uniq
 		@myStates = @myStates.sort
-		@myCartels = ["CJNG", "Cártel de Sinaloa", "Cártel del Golfo", "Cártel del Noreste", "Cárteles Unidos", "La Familia Michoacana", "La Barredora", "Gente Nueva"]
+		@myCartels = ["CJNG", "Cártel de Sinaloa", "Cártel del Golfo", "Cártel del Noreste", "Cárteles Unidos", "La Familia Michoacana", "La Barredora", "Gente Nueva", "Tropa del Infierno"]
 		if session[:load_success]
 			@load_success = true
 		end
