@@ -20,8 +20,6 @@ class DatasetsController < ApplicationController
 
 	def terrorist_search
 		@keyMembers = Member.joins(:hits).distinct
-		# @keyMembers = @keyMembers.order(:firstname)
-		# @keyMembers = @keyMembers.order(:lastname2)
 		@keyMembers = @keyMembers.order(:lastname1).order(:lastname2).order(:firstname)
 
 		# Definir roles permitidos

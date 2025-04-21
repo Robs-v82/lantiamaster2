@@ -31,6 +31,7 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
+				<th>ID</th>
 				<th>Nombres</th>
 				<th>Apellido Paterno</th>
 				<th>Apellido Materno</th>
@@ -44,6 +45,7 @@
 	<tbody>
 		<% @keyMembers.each do |member| %>
 			<tr>
+				<td><%= member.id %></td>
 				<td><%= member.firstname %></td>
 				<td><%= member.lastname1 %></td>
 				<td><%= member.lastname2 %></td>
