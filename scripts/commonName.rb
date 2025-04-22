@@ -373,4 +373,6 @@ rawData = [["Hernández",4875002],
 ["ESPERANZA",91500],
 ["GUILLERMINA",90500],
 ["DORA",89500],
-["EVA",89500],],
+["EVA",89500]]
+
+rawData.each{|x| Name.create(:word=>x[0], :freq=>x[1])}
