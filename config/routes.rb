@@ -91,7 +91,6 @@ Rails.application.routes.draw do
     get 'organizations/organizations_query/:code' => 'organizations#get_query'
     get 'datasets/victims'
     get 'datasets/basic'
-    get 'datasets/:type/:cell' => 'datasets#sort'
     post 'counties/getCheckboxCounties/:id' => 'counties#getCheckboxCounties'
     get 'organizations/show/:id' => 'organizations#show'
     get 'organizations/query' => 'organizations#query'
@@ -134,4 +133,5 @@ Rails.application.routes.draw do
     get 'datasets/members_outcome'
     post '/web_scrape', to: 'datasets#web_scrape', as: :web_scrape
     post '/datasets/download_scraped_links', to: 'datasets#download_scraped_links', as: :download_scraped_links
+    get 'datasets/:type/:cell' => 'datasets#sort'
 end

@@ -38,11 +38,28 @@
 
 
 
-<div class="container">
-
+<div class="b-container">
+ 
 <% if @myQuery.present? %>
   <div class="row">
-    <div class="col s7">
+    <div class="col s12 m5">
+      <div class="row">
+        <div class="col m4 s12 right">
+        <div class="right col s9">
+          <div class="right valign-wrapper paletton-red-text">
+
+            <a href="/datasets/members_search"><i class="material-icons paletton-red-text right-extra-margin">arrow_back</i></a>
+            <a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="material-icons paletton-red-text right-extra-margin">download</i></a>
+            <ul id='files-dropdown' class='dropdown-content'>
+                <li class="dropdown-item">
+                  <a><%= image_tag "pdf_icon.png", :class => "center small-icon-size" %></a>
+                </li>
+            </ul>
+            <a href="#freq-help-modal-2" class="modal-trigger"><i class="material-icons paletton-red-text right-extra-margin">help_outline</i></a>
+          </div>
+        </div>
+        </div>  
+      </div>
       <div class="card z-depth-1" style="background-color: white; margin-bottom: 30px">
         <div class="card-content" style="color: #33333C;">
           <table class="striped responsive-table" style="font-size: 14px;">
@@ -118,7 +135,7 @@
           else "más de 1000"
           end
         %>
-        Se estima que <%= estimacion %> mexicano(s) adulto(s) tienen(n) el nombre y apellidos consultados o alguna de sus variantes.
+        Se estima que hay <%= estimacion %> mexicano(s) adulto(s) con el nombre y apellidos consultados o alguna de sus variantes.
       </td>
       </tr>
             </tbody>
