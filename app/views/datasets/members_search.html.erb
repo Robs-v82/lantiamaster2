@@ -1,0 +1,78 @@
+<div class="row">
+	<br>
+	<div class="col l5 m8 s12">
+		<div class="card paletton-grey">
+			<div class="card-content white-text">
+				<div class="row">
+					<div class="col s12">
+						
+						<span class="card-title center valign-wrapper">
+							<i class="material-icons valign">person_pin</i>
+							Consulta de registros
+						</span>
+					</div>
+				</div>
+				<form action="/datasets/members_query" method="post">
+					<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+					<div class="row">
+						<div class="col s11 valign-wrapper">
+							<input class="input-padding white query-field" name="query[firstname]" type="text"  autocomplete="off">
+							 <i class="material-icons white-text small" style="display: none; margin-left: 10px">check</i>
+						</div>
+							
+						<div class="label-row">
+							<div class="col s10 offset">
+								<label class="white-text">NOMBRE(S)</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col s11 valign-wrapper">
+							<input class="input-padding white query-field" name="query[lastname1]" type="text" autocomplete="off">
+							<i class="material-icons white-text small" style="display: none; margin-left: 10px">check</i>
+						</div>
+						<div class="label-row">
+							<div class="col s10 offset">
+								<label class="white-text">APELLIDO PATERNO</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col s11 valign-wrapper">
+							<input class="input-padding white query-field" name="query[lastname2]" type="text" autocomplete="off">
+							<i class="material-icons white-text small" style="display: none; margin-left: 10px">check</i>
+						</div>
+						<div class="label-row">
+							<div class="col s10 offset">
+								<label class="white-text">APELLIDO MATERNO</label>
+							</div>
+						</div>
+					</div>
+					<div class="divider"></div>
+					<div class="row">
+						<div class="col s12">
+							<div class="card-action">
+								<div class="right" style="height: 10px">
+									<%= render "shared/sendmagicbutton" %>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- PASSWORD ERROR MODAL -->
+<% if @password_error %>
+	<div id="password-error-modal" class="modal">
+		<div class="modal-content">
+			<%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+			<p class="p20 slim">Lo sentimos. El correo o la contraseña no corresponden a ningún usuario registrado.</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat"><i class="material-icons small">close</i></a>
+		</div>
+	</div>
+<% end %>

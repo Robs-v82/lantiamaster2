@@ -14,8 +14,32 @@ class DatasetsController < ApplicationController
 	def show
 	end
 
-	def method_name
-		
+	def members_query
+		query = members_query_params
+
+		input_firstname = I18n.transliterate(query[:firstname].to_s.downcase)
+		input_lastname1 = I18n.transliterate(query[:lastname1].to_s.downcase)
+		input_lastname2 = I18n.transliterate(query[:lastname2].to_s.downcase)
+
+		potential_matches = Member.joins(:hits).distinct.select do |member|
+			db_firstname = I18n.transliterate(member.firstname.to_s.downcase)
+			db_lastname1 = I18n.transliterate(member.lastname1.to_s.downcase)
+			db_lastname2 = I18n.transliterate(member.lastname2.to_s.downcase)
+
+			firstname_match = input_firstname.include?(db_firstname) || db_firstname.include?(input_firstname)
+			lastname1_match = input_lastname1.include?(db_lastname1) || db_lastname1.include?(input_lastname1)
+			lastname2_match = input_lastname2.include?(db_lastname2) || db_lastname2.include?(input_lastname2)
+
+			firstname_match && lastname1_match && lastname2_match
+		end
+
+		session[:members_query_ids] = potential_matches.map(&:id).take(100)
+
+		redirect_to '/datasets/members_outcome'
+	end
+
+	def members_outcome
+		@keyMembers = Member.where(id: session[:members_query_ids])  
 	end
 
 	def terrorist_search
@@ -47,6 +71,10 @@ class DatasetsController < ApplicationController
 		# Resultado: {"Líder"=>12, "Operador"=>34, "Familiar"=>7, ...}
 		puts @conteo_por_rol
 
+	end
+
+	def members_search
+		
 	end
 
 	def terrorist_panel
@@ -1322,6 +1350,10 @@ class DatasetsController < ApplicationController
 	end
 
 	private
+
+	def members_query_params
+		params.require(:query).permit(:firstname, :lastname1, :lastname2)
+	end
 
 	def load_ensu_params
 		params.require(:query).permit(:ensu,:year,:quarter)
