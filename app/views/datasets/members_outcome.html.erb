@@ -1,42 +1,85 @@
+<style>
+  .members-outcome-heading {
+    color: #33333C;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .members-outcome-card {
+    background-color: #041F3A;
+  }
+
+  .members-outcome-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .members-outcome-table th {
+    color: #EF4E50;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 2px solid #EF4E50;
+    padding: 12px 8px;
+    background-color: #041F3A;
+  }
+
+  .members-outcome-table td {
+    color: #FFFFFF;
+    font-size: 14px;
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .members-outcome-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+</style>
+
 <div class="container">
-	<h3>Miembros vinculados con al menos un hit</h3>
-	<br>
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>Nombres</th>
-				<th>Apellido Paterno</th>
-				<th>Apellido Materno</th>
-				<th>Alias</th>
-				<th>Rol</th>
-				<th>Organización</th>
-				<th>Último registro</th>
-				<th>Lugar</th>
-			</tr>
-		</thead>
-	<tbody>
-		<% @keyMembers.each do |member| %>
-			<tr>
-				<td><%= member.id %></td>
-				<td><%= member.firstname %></td>
-				<td><%= member.lastname1 %></td>
-				<td><%= member.lastname2 %></td>
-				<td><%= member.alias.first %></td>
-				<td><% if member.role %>
-						<%= member.role.name %>
-					<% end %>
-				</td>
-				<td><%= member.organization&.name %></td>
-				<td><%= member.hits.last.date.strftime("%d/%m/%y")%></td>
-				<td>
-					<% unless member.hits.last.town.county.name == "Sin definir" %>
-					<%= member.hits.last.town.county.name %>,
-					<% end %>
-					<%= member.hits.last.town.county.state.shortname %>
-				</td>
-			</tr>
-		<% end %>
-	</tbody>
-	</table>
+  <div class="row">
+    <div class="col s12">
+      <h5 class="members-outcome-heading">Miembros vinculados con al menos un hit</h5>
+
+      <div class="card z-depth-1 members-outcome-card">
+        <div class="card-content">
+          <table class="highlight responsive-table members-outcome-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombres</th>
+                <th>Apellido Paterno</th>
+                <th>Apellido Materno</th>
+                <th>Alias</th>
+                <th>Rol</th>
+                <th>Organización</th>
+                <th>Último registro</th>
+                <th>Lugar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @keyMembers.each do |member| %>
+                <tr>
+                  <td><%= member.id %></td>
+                  <td><%= member.firstname %></td>
+                  <td><%= member.lastname1 %></td>
+                  <td><%= member.lastname2 %></td>
+                  <td><%= member.alias.first %></td>
+                  <td><%= member.role&.name %></td>
+                  <td><%= member.organization&.name %></td>
+                  <td><%= member.hits.last&.date&.strftime('%d/%m/%y') %></td>
+                  <td>
+                    <% if member.hits.last&.town&.county&.name.present? && member.hits.last.town.county.name != "Sin definir" %>
+                      <%= member.hits.last.town.county.name %>,
+                    <% end %>
+                    <%= member.hits.last&.town&.county&.state&.shortname %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
