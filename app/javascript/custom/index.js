@@ -433,35 +433,35 @@ $(document).ready(function(){
 			$('.send-to-bottom').show();
 		})
 
-$('.query-field').on('input', function() {
-  const soloLetrasRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]{2,}$/;
-  let todosValidos = true;
+	$('.query-field').on('input', function() {
+	  const soloLetrasRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{2,}$/;
+	  let todosValidos = true;
 
-  $('.query-field').each(function() {
-    const valor = $(this).val().trim();
-    const $campo = $(this);
-    const $checkIcon = $campo.siblings('i.material-icons');
+	  $('.query-field').each(function() {
+	    const valor = $(this).val().trim();
+	    const $campo = $(this);
+	    const $checkIcon = $campo.siblings('i.material-icons');
 
-    if (soloLetrasRegex.test(valor)) {
-      $campo.addClass('campo-valido');
-      $checkIcon.css('display', 'inline-block');
-    } else {
-      todosValidos = false;
-      $campo.removeClass('campo-valido');
-      $checkIcon.css('display', 'none');
-    }
-  });
+	    if (soloLetrasRegex.test(valor)) {
+	      $campo.addClass('campo-valido');
+	      $checkIcon.css('display', 'inline-block');
+	    } else {
+	      todosValidos = false;
+	      $campo.removeClass('campo-valido');
+	      $checkIcon.css('display', 'none');
+	    }
+	  });
 
-  if (todosValidos) {
-    $('.send_button').removeClass('disabled').addClass('white pulse');
-    $('.send_button i').addClass('text-darken-3');
-    $('.send-to-bottom').show();
-  } else {
-    $('.send_button').addClass('disabled').removeClass('white pulse');
-    $('.send_button i').removeClass('text-darken-3');
-    $('.send-to-bottom').hide();
-  }
-});
+	  if (todosValidos) {
+	    $('.send_button').removeClass('disabled').addClass('white pulse');
+	    $('.send_button i').addClass('text-darken-3');
+	    $('.send-to-bottom').show();
+	  } else {
+	    $('.send_button').addClass('disabled').removeClass('white pulse');
+	    $('.send_button i').removeClass('text-darken-3');
+	    $('.send-to-bottom').hide();
+	  }
+	});
 
 	// CLEAR ALL BUTTONS
 		$('.clear-all').click(function() {
