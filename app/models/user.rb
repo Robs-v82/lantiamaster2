@@ -16,4 +16,5 @@ class User < ApplicationRecord
 	# belongs_to :role, optional: true
 	belongs_to :member, optional: true
 	has_many :keys
+	has_many :queries
 end

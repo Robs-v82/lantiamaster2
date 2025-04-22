@@ -1,3 +1,6 @@
+<script>
+  window.nameFrequencies = <%= raw @names_data.to_json %>;
+</script>
 <div class="row">
 	<br>
 	<div class="col l5 m8 s12">
@@ -43,7 +46,7 @@
 							<i class="material-icons white-text small" style="display: none; margin-left: 10px">check</i>
 						</div>
 						<div class="label-row">
-							<div class="col s10 offset">
+							<div class="col s8">
 								<label class="white-text">APELLIDO MATERNO</label>
 							</div>
 						</div>
@@ -51,12 +54,20 @@
 					<div class="divider"></div>
 					<div class="row">
 						<div class="col s12">
+							<div style="margin: 20px 0px 0px 20px">
+								<div style="display: inline-block;">Probabilidad de homónimos: </div>
+								<div id="name-warning" class="valign" style="display: inline-block; font-weight: 800;"></div>
+							</div>
+						</div>
+					</div>
+					<input type="hidden" name="query[homo_score]" id="homo_score_input">
+					<div class="divider"></div>
+					<div class="row">
 							<div class="card-action">
 								<div class="right" style="height: 10px">
 									<%= render "shared/sendmagicbutton" %>
 								</div>
 							</div>
-						</div>
 					</div>
 				</form>
 			</div>

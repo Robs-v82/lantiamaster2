@@ -4,6 +4,7 @@ class Member < ApplicationRecord
 	belongs_to :detention, optional: true
 	has_many :accounts
 	has_many :sources
+	has_many :queries
 	has_one :user
 	serialize :alias, Array
 	has_one_attached :avatar

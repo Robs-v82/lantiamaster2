@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_22_050932) do
+ActiveRecord::Schema.define(version: 2025_04_22_173443) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -467,6 +467,23 @@ ActiveRecord::Schema.define(version: 2025_04_22_050932) do
     t.index ["year_id"], name: "index_quarters_on_year_id"
   end
 
+  create_table "queries", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "member_id", null: false
+    t.bigint "organization_id", null: false
+    t.float "homo_score"
+    t.string "firstname"
+    t.string "lastname1"
+    t.string "lastname2"
+    t.text "outcome"
+    t.integer "search"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["member_id"], name: "index_queries_on_member_id"
+    t.index ["organization_id"], name: "index_queries_on_organization_id"
+    t.index ["user_id"], name: "index_queries_on_user_id"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.string "name"
     t.string "description"
@@ -667,6 +684,9 @@ ActiveRecord::Schema.define(version: 2025_04_22_050932) do
   add_foreign_key "organizations", "organizations", column: "parent_id"
   add_foreign_key "posts", "accounts"
   add_foreign_key "quarters", "years"
+  add_foreign_key "queries", "members"
+  add_foreign_key "queries", "organizations"
+  add_foreign_key "queries", "users"
   add_foreign_key "sources", "members"
   add_foreign_key "states", "counties", column: "capital_id"
   add_foreign_key "towns", "counties"

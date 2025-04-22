@@ -433,35 +433,94 @@ $(document).ready(function(){
 			$('.send-to-bottom').show();
 		})
 
-	$('.query-field').on('input', function() {
-	  const soloLetrasRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{2,}$/;
-	  let todosValidos = true;
+	// $('.query-field').on('input', function() {
+	//   const soloLetrasRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{2,}$/;
+	//   let todosValidos = true;
 
-	  $('.query-field').each(function() {
-	    const valor = $(this).val().trim();
-	    const $campo = $(this);
-	    const $checkIcon = $campo.siblings('i.material-icons');
+	//   $('.query-field').each(function() {
+	//     const valor = $(this).val().trim();
+	//     const $campo = $(this);
+	//     const $checkIcon = $campo.siblings('i.material-icons');
 
-	    if (soloLetrasRegex.test(valor)) {
-	      $campo.addClass('campo-valido');
-	      $checkIcon.css('display', 'inline-block');
-	    } else {
-	      todosValidos = false;
-	      $campo.removeClass('campo-valido');
-	      $checkIcon.css('display', 'none');
-	    }
-	  });
+	//     if (soloLetrasRegex.test(valor)) {
+	//       $campo.addClass('campo-valido');
+	//       $checkIcon.css('display', 'inline-block');
+	//     } else {
+	//       todosValidos = false;
+	//       $campo.removeClass('campo-valido');
+	//       $checkIcon.css('display', 'none');
+	//     }
+	//   });
 
-	  if (todosValidos) {
-	    $('.send_button').removeClass('disabled').addClass('white pulse');
-	    $('.send_button i').addClass('text-darken-3');
-	    $('.send-to-bottom').show();
-	  } else {
-	    $('.send_button').addClass('disabled').removeClass('white pulse');
-	    $('.send_button i').removeClass('text-darken-3');
-	    $('.send-to-bottom').hide();
-	  }
-	});
+	//   if (todosValidos) {
+	//     $('.send_button').removeClass('disabled').addClass('white pulse');
+	//     $('.send_button i').addClass('text-darken-3');
+	//     $('.send-to-bottom').show();
+	//   } else {
+	//     $('.send_button').addClass('disabled').removeClass('white pulse');
+	//     $('.send_button i').removeClass('text-darken-3');
+	//     $('.send-to-bottom').hide();
+	//   }
+	// });
+
+$('.query-field').on('input', function() {
+  const soloLetrasRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{2,}$/;
+  let todosValidos = true;
+  let freqs = [];
+
+  $('.query-field').each(function() {
+    const valor = $(this).val().trim();
+    const normalizado = valor.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const $campo = $(this);
+    const $checkIcon = $campo.siblings('i.material-icons');
+
+    if (soloLetrasRegex.test(valor)) {
+      $campo.addClass('campo-valido');
+      $checkIcon.css('display', 'inline-block');
+
+      let matchedKey = Object.keys(window.nameFrequencies).find(key => {
+        const keyNorm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        return normalizado.includes(keyNorm) || keyNorm.includes(normalizado);
+      });
+
+      let freq = matchedKey ? window.nameFrequencies[matchedKey] : 5;
+      freqs.push(freq);
+    } else {
+      todosValidos = false;
+      $campo.removeClass('campo-valido');
+      $checkIcon.css('display', 'none');
+    }
+  });
+
+if (todosValidos && freqs.length === 3) {
+  $('.send_button').removeClass('disabled').addClass('white pulse');
+  $('.send_button i').addClass('text-darken-3');
+  $('.send-to-bottom').show();
+
+  const resultado = Math.round((freqs[0] * freqs[1] * freqs[2]) / 10000);
+  $('#homo_score_input').val(resultado); // <- ESTA es la línea que faltaba
+
+  let mensaje = "";
+
+  if (resultado < 2) {
+    mensaje = "Baja";
+  } else if (resultado < 5) {
+    mensaje = "Media";
+  } else if (resultado <= 10) {
+    mensaje = "Alta";
+  } else {
+    mensaje = "Muy alta";
+  }
+
+  $('#name-warning').text(mensaje);
+} else {
+  $('.send_button').addClass('disabled').removeClass('white pulse');
+  $('.send_button i').removeClass('text-darken-3');
+  $('.send-to-bottom').hide();
+  $('#name-warning').text('');
+  $('#homo_score_input').val('');
+}
+});
 
 	// CLEAR ALL BUTTONS
 		$('.clear-all').click(function() {

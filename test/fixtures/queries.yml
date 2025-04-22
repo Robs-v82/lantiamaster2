@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  member: one
+  organization: one
+  homo_score: 1.5
+  firstname: MyString
+  lastname1: MyString
+  lastname2: MyString
+  outcome: MyText
+  search: 1
+
+two:
+  user: two
+  member: two
+  organization: two
+  homo_score: 1.5
+  firstname: MyString
+  lastname1: MyString
+  lastname2: MyString
+  outcome: MyText
+  search: 1

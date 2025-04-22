@@ -15,31 +15,46 @@ class DatasetsController < ApplicationController
 	end
 
 	def members_query
-		query = members_query_params
+		query_params = members_query_params
 
-		input_firstname = I18n.transliterate(query[:firstname].to_s.downcase)
-		input_lastname1 = I18n.transliterate(query[:lastname1].to_s.downcase)
-		input_lastname2 = I18n.transliterate(query[:lastname2].to_s.downcase)
+		input_firstname = I18n.transliterate(query_params[:firstname].to_s.downcase)
+		input_lastname1 = I18n.transliterate(query_params[:lastname1].to_s.downcase)
+		input_lastname2 = I18n.transliterate(query_params[:lastname2].to_s.downcase)
 
 		potential_matches = Member.joins(:hits).distinct.select do |member|
-			db_firstname = I18n.transliterate(member.firstname.to_s.downcase)
-			db_lastname1 = I18n.transliterate(member.lastname1.to_s.downcase)
-			db_lastname2 = I18n.transliterate(member.lastname2.to_s.downcase)
+		db_firstname = I18n.transliterate(member.firstname.to_s.downcase)
+		db_lastname1 = I18n.transliterate(member.lastname1.to_s.downcase)
+		db_lastname2 = I18n.transliterate(member.lastname2.to_s.downcase)
 
-			firstname_match = input_firstname.include?(db_firstname) || db_firstname.include?(input_firstname)
-			lastname1_match = input_lastname1.include?(db_lastname1) || db_lastname1.include?(input_lastname1)
-			lastname2_match = input_lastname2.include?(db_lastname2) || db_lastname2.include?(input_lastname2)
+		firstname_match = input_firstname.include?(db_firstname) || db_firstname.include?(input_firstname)
+		lastname1_match = input_lastname1.include?(db_lastname1) || db_lastname1.include?(input_lastname1)
+		lastname2_match = input_lastname2.include?(db_lastname2) || db_lastname2.include?(input_lastname2)
 
-			firstname_match && lastname1_match && lastname2_match
+		firstname_match && lastname1_match && lastname2_match
 		end
 
-		session[:members_query_ids] = potential_matches.map(&:id).take(100)
+		user = User.find_by(id: session[:user_id])
+
+		new_query = Query.new(
+		firstname: query_params[:firstname],
+		lastname1: query_params[:lastname1],
+		lastname2: query_params[:lastname2],
+		homo_score: query_params[:homo_score],
+		outcome: potential_matches.map(&:id),
+		search: Member.joins(:hits).distinct.count,
+		user: user,
+		member: user&.member,
+		organization: user&.member&.organization
+		)
+
+		new_query.save
 
 		redirect_to '/datasets/members_outcome'
 	end
 
 	def members_outcome
-		@keyMembers = Member.where(id: session[:members_query_ids])  
+		@myQuery = User.find(session[:user_id]).queries.last
+		@keyMembers = Member.where(id: @myQuery.outcome)  
 	end
 
 	def terrorist_search
@@ -74,7 +89,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def members_search
-		
+		@names_data = Name.all.pluck(:word, :freq).map { |word, freq| [word.capitalize, freq] }.to_h
 	end
 
 	def terrorist_panel
@@ -1352,7 +1367,7 @@ class DatasetsController < ApplicationController
 	private
 
 	def members_query_params
-		params.require(:query).permit(:firstname, :lastname1, :lastname2)
+ 		params.require(:query).permit(:firstname, :lastname1, :lastname2, :homo_score)
 	end
 
 	def load_ensu_params
