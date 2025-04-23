@@ -93,6 +93,9 @@ class DatasetsController < ApplicationController
 
 	def members_search
 		@names_data = Name.all.pluck(:word, :freq).map { |word, freq| [word.capitalize, freq] }.to_h
+		@user = User.find_by(id: session[:user_id])
+		@queries_info = consultas_mensuales(@user)
+		@suscription = set_suscription(@user)
 	end
 
 	def terrorist_panel
@@ -1417,6 +1420,42 @@ class DatasetsController < ApplicationController
 
 		unless [4283, 4284].include?(org_id)
 			redirect_to root_path, alert: "Acceso restringido a organizaciones autorizadas."
+		end
+	end
+
+	def consultas_mensuales(user)
+		return { usuario: 0, organizacion: 0, total: 0 } unless user&.member&.organization
+
+			inicio_de_mes = Time.current.beginning_of_month
+			fin_de_mes = Time.current.end_of_month
+			org = user.member.organization
+
+			queries_usuario = user.queries.where(created_at: inicio_de_mes..fin_de_mes).count
+
+			queries_organizacion = Query.where(user_id: org.users.where.not(id: user.id).pluck(:id))
+			.where(created_at: inicio_de_mes..fin_de_mes)
+			.count
+
+			{
+			usuario: queries_usuario,
+			organizacion: queries_organizacion,
+			total: queries_usuario + queries_organizacion
+		}
+	end
+
+
+	def set_suscription(user)
+		org_level = user&.member&.organization&.search_level.to_i
+
+		@suscription = case org_level
+		when 1
+		{ level: "básica", points: 200 }
+			when 2
+		{ level: "avanzada", points: 500 }
+			when 3
+		{ level: "premium", points: 1000 }
+		else
+			{ level: "sin suscripción", points: 0 }
 		end
 	end
 
