@@ -40,15 +40,14 @@
 
 
 <div class="b-container">
- <div class="row" style="display: flex; align-items: stretch;">
+ <div class="row">
 <% if @myQuery.present? %>
   
-    <div class="col s12 m9 l5">
+    <div class="col s12 m7 l4">
       <div class="row">
         <div class="col m4 s12 right">
         <div class="right col s9">
           <div class="right valign-wrapper paletton-red-text">
-
             <a href="/datasets/members_search"><i class="material-icons paletton-red-text right-extra-margin">arrow_back</i></a>
             <a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="material-icons paletton-red-text right-extra-margin">download</i></a>
             <ul id='files-dropdown' class='dropdown-content'>
@@ -61,8 +60,8 @@
         </div>
         </div>  
       </div>
-      <div class="card z-depth-1 grey lighten-3" style="background-color: white; margin-bottom: 30px">
-        <div class="card-content" style="color: #33333C;">
+      <div class="card paletton-grey z-depth-1 white-text" style="margin-bottom: 30px">
+        <div class="card-content">
           <table id="summary-table" class="" style="font-size: 14px;">
             <tbody>
               <tr>
@@ -145,89 +144,89 @@
       </div>
     </div>
 <% end %>
-<div class="col s12 m9 l7">
+<div class="col s12 m10 l8">
     <div id="outcome-card" class="card z-depth-1" style="background-color: white; margin-bottom: 30px; height:100%">
-<div class="card-content" style="color: #33333C">
-  <table id="ourcome-table" style="font-size: 14px; width: 100%;">
-    <tbody>
+    <div class="card-content" style="color: #33333C">
+      <table id="ourcome-table" style="font-size: 14px; width: 100%;">
+        <tbody>
+          <tr>
+            <td colspan="2" style="font-weight: bold; padding-bottom: 15px; color: #EF4E50;">
+              RESULTADOS
+            </td>
+          </tr>
+
+    <% if @myQuery.outcome.blank? %>
       <tr>
-        <td colspan="2" style="font-weight: bold; padding-bottom: 15px; color: #EF4E50;">
-          RESULTADOS
+        <td colspan="2" style="font-weight: bold">
+          No identificamos registros de personas señaladas o personas expuestas que coincidan con los parámetros de consulta.
         </td>
       </tr>
-
-<% if @myQuery.outcome.blank? %>
-  <tr>
-    <td colspan="2" style="font-weight: bold">
-      No identificamos registros de personas señaladas o personas expuestas que coincidan con los parámetros de consulta.
-    </td>
-  </tr>
-<% else %>
-  <tr>
-    <td colspan="2" style="font-weight: bold">
-      Se identificó<%= @myQuery.outcome.size > 1 ? 'n' : '' %> <%= @myQuery.outcome.size %> registro<%= @myQuery.outcome.size > 1 ? 's' : '' %> que coincide con los parámetros de consulta, según se detalla a continuación.
-    </td>
-  </tr>
-  <% registros = @keyMembers.first(3) %>
-  <% registros.each_with_index do |member, index| %>
-    <tr>
-      <td colspan="2" style="padding-top: 15px;">
-        <% if registros.size == 1 %>
-          REGISTRO ÚNICO
-        <% else %>
-          <%= ["PRIMER", "SEGUNDO", "TERCER"][index] %> REGISTRO
-        <% end %>
-      </td>
-    </tr>
-    <tr>
-      <th style="font-weight: bold; padding-top: 10px;">Nombre(s):</th>
-      <td><%= member.firstname %></td>
-    </tr>
-    <tr>
-      <th style="font-weight: bold;">Apellido paterno:</th>
-      <td><%= member.lastname1 %></td>
-    </tr>
-    <tr>
-      <th style="font-weight: bold;">Apellido materno:</th>
-      <td><%= member.lastname2 %></td>
-    </tr>
-    <% if member.alias.present? && member.alias.any? %>
+    <% else %>
       <tr>
-        <th style="font-weight: bold;">Alias:</th>
-        <td><%= member.alias.join(", ") %></td>
+        <td colspan="2" style="font-weight: bold">
+          Se identificó<%= @myQuery.outcome.size > 1 ? 'n' : '' %> <%= @myQuery.outcome.size %> registro<%= @myQuery.outcome.size > 1 ? 's' : '' %> que coincide con los parámetros de consulta, según se detalla a continuación.
+        </td>
       </tr>
-    <% end %>
+      <% registros = @keyMembers.first(3) %>
+      <% registros.each_with_index do |member, index| %>
+        <tr>
+          <td colspan="2" style="padding-top: 15px;">
+            <% if registros.size == 1 %>
+              REGISTRO ÚNICO
+            <% else %>
+              <%= ["PRIMER", "SEGUNDO", "TERCER"][index] %> REGISTRO
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <th style="font-weight: bold; padding-top: 10px;">Nombre(s):</th>
+          <td><%= member.firstname %></td>
+        </tr>
+        <tr>
+          <th style="font-weight: bold;">Apellido paterno:</th>
+          <td><%= member.lastname1 %></td>
+        </tr>
+        <tr>
+          <th style="font-weight: bold;">Apellido materno:</th>
+          <td><%= member.lastname2 %></td>
+        </tr>
+        <% if member.alias.present? && member.alias.any? %>
+          <tr>
+            <th style="font-weight: bold;">Alias:</th>
+            <td><%= member.alias.join(", ") %></td>
+          </tr>
+        <% end %>
 
-    <tr>
-      <th style="font-weight: bold;">Organización:</th>
-      <td><%= member.organization&.name || "Sin definir" %></td>
-    </tr>
-    <tr>
-      <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
-      <td><%= member.role&.name || "Sin definir" %></td>
-    </tr>
+        <tr>
+          <th style="font-weight: bold;">Organización:</th>
+          <td><%= member.organization&.name || "Sin definir" %></td>
+        </tr>
+        <tr>
+          <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
+          <td><%= member.role&.name || "Sin definir" %></td>
+        </tr>
 
-    <tr>
-      <th style="font-weight: bold; vertical-align: top;">Actividad reciente:</th>
-      <td>
-        <ul style="margin: 0; padding-left: 18px; list-style-type: disc;">
-          <% member.hits.order(date: :desc).each do |hit| %>
-            <li style="margin-bottom: 6px;">
-              <%= hit.date.strftime("%d/%m/%y") %> — 
-              <% unless hit.town.county.name == "Sin definir" %>
-                <%= hit.town.county.name %>,
+        <tr>
+          <th style="font-weight: bold; vertical-align: top;">Actividad reportada:</th>
+          <td>
+            <ul style="margin: 0; list-style-type: disc;">
+              <% member.hits.order(date: :desc).each do |hit| %>
+                <li style="margin-bottom: 6px;">
+                  <%= hit.date.strftime("%d/%m/%y") %> — 
+                  <% unless hit.town.county.name == "Sin definir" %>
+                    <%= hit.town.county.name %>,
+                  <% end %>
+                  <%= hit.town.county.state.shortname %>
+                </li>
               <% end %>
-              <%= hit.town.county.state.shortname %>
-            </li>
-          <% end %>
-        </ul>
-      </td>
-    </tr>
-  <% end %>
-<% end %>
-    </tbody>
-  </table>
-</div>
+            </ul>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+        </tbody>
+      </table>
+    </div>
     </div>
   </div>
   </div>
