@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_23_143131) do
+ActiveRecord::Schema.define(version: 2025_04_23_174104) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -435,6 +435,8 @@ ActiveRecord::Schema.define(version: 2025_04_23_143131) do
     t.text "ip_address"
     t.boolean "designation", default: false, null: false
     t.date "designation_date"
+    t.boolean "search_panel", default: false, null: false
+    t.integer "search_level"
     t.index ["county_id"], name: "index_organizations_on_county_id"
   end
 
