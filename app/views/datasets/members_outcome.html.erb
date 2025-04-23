@@ -202,6 +202,43 @@
           <td><%= member.organization&.name || "Sin definir" %></td>
         </tr>
         <tr>
+
+        <% cartel_designado = nil %>
+        <% cartel_fuente = nil %>
+        <% cartel_fuente_tipo = nil %>
+
+        <% if member.organization&.designation %>
+          <% cartel_designado = member.organization %>
+        <% elsif member.organization&.parent&.designation %>
+          <% cartel_designado = member.organization.parent %>
+          <% cartel_fuente = cartel_designado.name %>
+          <% cartel_fuente_tipo = "subordinada a" %>
+        <% elsif member.organization&.allies.present? %>
+          <% aliadas_designadas = Organization.where(id: member.organization.allies).select(&:designation) %>
+          <% if aliadas_designadas.any? %>
+            <% cartel_designado = aliadas_designadas.first %>
+            <% cartel_fuente = cartel_designado.name %>
+            <% cartel_fuente_tipo = "aliada a" %>
+          <% end %>
+        <% end %>
+
+        <% fondo_alerta = cartel_designado.present? ? "background-color: #fff9c4;" : "" %>
+          <tr style="<%= fondo_alerta %>">
+            <th style="font-weight: bold;">Designación del Departamento de Estado:</th>
+              <td>
+            <% if cartel_designado.present? && cartel_fuente.nil? %>
+              Cártel designado como terrorista.<br>
+              <%= cartel_designado.designation_date.strftime("%d/%m/%Y") %>
+            <% elsif cartel_designado.present? && cartel_fuente_tipo.present? %>
+              Organización <%= cartel_fuente_tipo %> <%= cartel_fuente %><br>
+              Cártel designado como terrorista.<br>
+              <%= cartel_designado.designation_date.strftime("%d/%m/%Y") %>
+            <% else %>
+              Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas.
+            <% end %>
+          </td>
+        </tr>
+
           <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
           <td><%= member.role&.name || "Sin definir" %></td>
         </tr>
