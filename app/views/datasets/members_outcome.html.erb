@@ -147,30 +147,30 @@
 <div class="col s12 m10 l8">
     <div id="outcome-card" class="card z-depth-1" style="background-color: white; margin-bottom: 30px; height:100%">
     <div class="card-content" style="color: #33333C">
-      <table id="ourcome-table" style="font-size: 14px; width: 100%;">
+      <table id="outcome-table" style="font-size: 14px; width: 100%;">
         <tbody>
-          <tr>
+          <tr style="border-bottom: none;">
             <td colspan="2" style="font-weight: bold; padding-bottom: 15px; color: #EF4E50;">
               RESULTADOS
             </td>
           </tr>
 
     <% if @myQuery.outcome.blank? %>
-      <tr>
+      <tr style="border-bottom: none;">
         <td colspan="2" style="font-weight: bold">
           No identificamos registros de personas señaladas o personas expuestas que coincidan con los parámetros de consulta.
         </td>
       </tr>
     <% else %>
-      <tr>
+      <tr style="border-bottom: none;">
         <td colspan="2" style="font-weight: bold">
           Se identificó<%= @myQuery.outcome.size > 1 ? 'n' : '' %> <%= @myQuery.outcome.size %> registro<%= @myQuery.outcome.size > 1 ? 's' : '' %> que coincide con los parámetros de consulta, según se detalla a continuación.
         </td>
       </tr>
       <% registros = @keyMembers.first(3) %>
       <% registros.each_with_index do |member, index| %>
-        <tr>
-          <td colspan="2" style="padding-top: 15px;">
+        <tr class="white-text" style="background-color: #33333C;">
+          <td colspan="2" style="padding-top: 15px;" class="center-align">
             <% if registros.size == 1 %>
               REGISTRO ÚNICO
             <% else %>
@@ -178,7 +178,7 @@
             <% end %>
           </td>
         </tr>
-        <tr>
+        <tr style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold; padding-top: 10px;">Nombre(s):</th>
           <td><%= member.firstname %></td>
         </tr>
@@ -197,7 +197,7 @@
           </tr>
         <% end %>
 
-        <tr>
+        <tr style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold;">Organización:</th>
           <td><%= member.organization&.name || "Sin definir" %></td>
         </tr>
@@ -238,7 +238,7 @@
             <% end %>
           </td>
         </tr>
-
+        <tr style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
           <td><%= member.role&.name || "Sin definir" %></td>
         </tr>
