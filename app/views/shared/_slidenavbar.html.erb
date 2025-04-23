@@ -20,6 +20,11 @@
                 <i class="material-icons white-text left-extra-margin">home</i>
             </a>
         </li>
+        <% if User.find(session[:user_id])&.member&.organization&.search_panel %>
+            <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/datasets/members_search">PANEL DE CONSULTA</a></li>
+            <div class="divider"></div>
+            <br>
+        <% end %>
         <% if User.find(session[:user_id]).victim_access == false %>
             <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">VÍCTIMAS</span></li>
         <% else %>
