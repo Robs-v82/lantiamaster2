@@ -22,6 +22,8 @@ set :linked_files, %w{config/master.key}
 
 set :deploy_via, :remote_cache
 
+set :linked_dirs, fetch(:linked_dirs, []).push('public/briefings')
+
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
 
