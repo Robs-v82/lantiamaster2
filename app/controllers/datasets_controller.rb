@@ -1262,6 +1262,7 @@ class DatasetsController < ApplicationController
     	myFiles = Dir['public/briefings/*'].sort { |a, b| b.downcase <=> a.downcase }
     	@briefings = []
     	myFiles.each{|file|
+    		# This should work
     		myHash = {}
     		myHash[:path] = file[7..-1]
     		myHash[:number] = file[34..36]
