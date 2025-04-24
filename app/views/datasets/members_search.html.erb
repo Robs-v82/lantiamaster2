@@ -1,3 +1,88 @@
+<style type="text/css">	
+	.collapsible.popout > li {
+  box-shadow: none !important;
+  margin: 0 !important;
+  border: none !important;
+}
+  .clave-boton {
+    min-width: 110px;
+    text-align: center;
+    padding: 4px 8px;
+    font-size: 13px;
+    background-color: #f0f0f0;
+    color: #33333C;
+    border-radius: 4px;
+  }
+
+  .clave-boton:hover {
+    background-color: #e0e0e0;
+  }
+
+ a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.consulta-item:hover {
+  background-color: #FFC4C4;
+  border-radius: 4px;
+}
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    Highcharts.chart('grafico-uso-consultas', {
+      chart: {
+        type: 'pie',
+        height: 160,
+        margin: 0,
+        style: {
+          fontFamily: 'Poppins',
+        },
+      },
+      title: false,
+      credits: false,
+      exporting: { enabled: false },
+      legend: { enabled: false },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: { enabled: false },
+          showInLegend: true,
+          innerSize: '40%',
+          states: { inactive: { opacity: 1 } }
+        }
+      },
+      series: [{
+        data: [
+          {
+            name: 'Disponibles',
+            y: <%= @suscription[:points] - @queries_info[:total] %>,
+            color: '#E0E0E3',
+            showInLegend: true
+          },
+          {
+            name: 'Tú',
+            y: <%= @queries_info[:usuario] %>,
+            color: '#00B894',
+            showInLegend: true
+          },
+          {
+            name: 'Otros usuarios de <%= @user.member.organization.name %>',
+            y: <%= @queries_info[:organizacion] %>,
+            color: '#0984E3',
+            showInLegend: true
+          }
+        ],
+        tooltip: {
+          headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+          pointFormat: '<span style="font-size:13px"><b>{point.y} consultas</b></span>'
+        }
+      }]
+    });
+  });
+</script>
+
 <script>
   window.nameFrequencies = <%= raw @names_data.to_json %>;
 </script>
@@ -73,18 +158,60 @@
 			</div>
 		</div>
 	</div>
-	<div class="col s12 m6 l4">
-    <div id="outcome-card" class="card z-depth-1" style="background-color: white; margin-bottom: 30px; height:100%">
-    <div class="card-content" style="color: #33333C">
+	<div class="col s12 m6 l4" style="height: calc(100vh - 150px); padding-bottom: 20px;">
+    <div id="outcome-card" class="card z-depth-1" style="background-color: white; margin-bottom: 30px; height: 100%; display: flex; flex-direction: column;">
+    <div class="card-content" style="color: #33333C; overflow-y: auto; flex-grow: 1; padding-right: 8px; padding-bottom: 20px;">
       <table id="outcome-table" class="animate__animated animate__fadeIn" style="font-size: 14px; width: 100%;">
         <tbody>
           <tr style="border-bottom: none;">
             <td colspan="2" style="font-weight: bold; padding-bottom: 15px;">
-              <%= @user.member.organization.name %>
+              <%= @user.member.organization.name.upcase %>
             </td>
+          </tr>
+          <tr style="border-bottom: 2px solid #33333C;">
+          	<td>
+          		<p>Suscripción: <span style="font-weight: 800;"><%= @suscription[:level] %></span></p>
+          		<br>
+							<p>
+							  <%= User.find(session[:user_id]).member.organization.name %> tiene
+							  <%= @suscription[:points] - @queries_info[:total] %> consulta<%= @suscription[:points] - @queries_info[:total] == 1 ? '' : 's' %> disponibles para usarse antes del
+							  <%= l(Time.current.end_of_month, format: "%-d de %B de %Y") %>.
+							</p>
+          	</td>
+          	<td>
+          		<div id="grafico-uso-consultas" style="height: 200px; max-width: 200px; margin: 0 auto;"></div>
+          	</td>
           </tr>
         </tbody>
       </table>
+			<div class="section">
+			  <p style="font-weight: bold; color: #33333C; font-size: 15px;">Tus consultas de <%= l(Time.current, format: "%B") %></p>
+
+			  <ul class="collapsible popout" style="border: none;" data-collapsible="accordion">
+			    <% @queries_por_dia.sort.reverse.each do |fecha, queries| %>
+			      <li>
+			        <div class="collapsible-header" style="color: #33333C; font-weight: 600;">
+			          <%= fecha.strftime("%d/%m/%Y") %> - <%= queries.size %> consulta<%= queries.size > 1 ? 's' : '' %>
+			        </div>
+			        <div class="collapsible-body" style="padding: 15px;">
+			          <ul style="margin: 0; padding-left: 18px;">
+									<% queries.each do |q| %>
+									  <% clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{q.id}" %>
+									  <a href="<%= redirect_to_outcome_path(q.id) %>">
+									  <li class="consulta-item" style="display: flex; align-items: center; margin-bottom: 6px;">
+									    <button class="btn-flat transparent z-depth-0 clave-boton" style="min-width: 110px; font-weight: 500; margin-right: 12px; padding: 0 8px;">
+									      <%= clave %>
+									    </button>
+									    <span><%= [q.firstname, q.lastname1, q.lastname2].join(" ") %></span>
+									  </li>
+									  </a>
+									<% end %>
+			          </ul>
+			        </div>
+			      </li>
+			    <% end %>
+			  </ul>
+			</div>
     </div>
   </div>
 </div>

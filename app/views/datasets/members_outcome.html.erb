@@ -71,7 +71,10 @@
               </tr>
               <tr>
                 <th>ID:</th>
-                <td><%= @myQuery.organization.id %>-<%= @myQuery.id %></td>
+                <td>
+                  <% clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{@myQuery.id}" %>
+                  <%= clave %>     
+                  </td>
               </tr>
               <tr>
                 <th>Fecha y hora:</th>

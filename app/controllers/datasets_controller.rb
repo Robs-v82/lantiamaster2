@@ -55,9 +55,20 @@ class DatasetsController < ApplicationController
 		redirect_to '/datasets/members_outcome'
 	end
 
+	def redirect_to_outcome
+	  session[:query_id] = params[:id]
+	  redirect_to datasets_members_outcome_path
+	end
+
 	def members_outcome
-		@myQuery = User.find(session[:user_id]).queries.last
-		@keyMembers = Member.where(id: @myQuery.outcome)  
+		@myQuery = if session[:query_id]
+			Query.find_by(id: session[:query_id])
+		else
+			User.find(session[:user_id]).queries.last
+		end
+		@user = User.find(session[:user_id])
+		@keyMembers = Member.where(id: @myQuery.outcome)
+		session.delete(:query_id) # ← limpia después de usar
 	end
 
 	def terrorist_search
@@ -96,6 +107,9 @@ class DatasetsController < ApplicationController
 		@user = User.find_by(id: session[:user_id])
 		@queries_info = consultas_mensuales(@user)
 		@suscription = set_suscription(@user)
+		@queries_por_dia = @user.queries
+			.where(created_at: Time.current.beginning_of_month..Time.current.end_of_month)
+			.group_by { |q| q.created_at.to_date }
 	end
 
 	def terrorist_panel
@@ -868,11 +882,11 @@ class DatasetsController < ApplicationController
 		return myTable
 	end
 
-	def sort
-		if params[:type] == "victims"
-			redirect_to "/datasets/victims"
-		end
-	end
+	# def sort
+	# 	if params[:type] == "victims"
+	# 		redirect_to "/datasets/victims"
+	# 	end
+	# end
 
     def loadApi
         myHash = {}
