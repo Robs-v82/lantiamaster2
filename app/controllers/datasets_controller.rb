@@ -1,5 +1,6 @@
 class DatasetsController < ApplicationController
 	
+	require 'prawn'
 	require 'csv'
 	require 'pp'
 	require 'net/http'
@@ -69,6 +70,80 @@ class DatasetsController < ApplicationController
 		@user = User.find(session[:user_id])
 		@keyMembers = Member.where(id: @myQuery.outcome)
 		session.delete(:query_id) # ← limpia después de usar
+	end
+
+	def members_outcome_pdf
+		@myQuery = session[:query_id] ? Query.find(session[:query_id]) : User.find(session[:user_id]).queries.last
+		@user = User.find(session[:user_id])
+		@keyMembers = Member.where(id: @myQuery.outcome)
+
+		pdf = Prawn::Document.new(page_size: 'A4', margin: 40)
+		pdf.font_families.update("Poppins" => {
+		normal: Rails.root.join("app/assets/fonts/Poppins-Regular.ttf"),
+		bold:   Rails.root.join("app/assets/fonts/Poppins-Bold.ttf")
+		})
+		pdf.font "Poppins"
+
+		# Título
+		pdf.text "RESULTADO DE CONSULTA", size: 16, style: :bold, align: :center, color: "33333C"
+		pdf.move_down 20
+
+		# Tabla resumen
+		pdf.text "Parámetros de consulta", size: 12, style: :bold, color: "EF4E50"
+		pdf.move_down 8
+		resumen_data = [
+		["ID", "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{@myQuery.id}"],
+		["Fecha y hora", @myQuery.created_at.strftime("%d/%m/%Y %H:%M")],
+		["Nombre(s)", @myQuery.firstname],
+		["Apellido paterno", @myQuery.lastname1],
+		["Apellido materno", @myQuery.lastname2],
+		["Registros analizados", @myQuery.search.to_s],
+		["Probabilidad de homónimos", case @myQuery.homo_score
+		  when 0...2 then "Baja"
+		  when 2...5 then "Media"
+		  when 5..10 then "Alta"
+		  else "Muy alta"
+		end],
+		]
+		pdf.table(resumen_data, cell_style: { border_width: 0, padding: [4, 8, 4, 8], size: 10 }) do
+		row(0..-1).columns(0).font_style = :bold
+		end
+		pdf.move_down 20
+
+		# Resultados
+		if @keyMembers.any?
+		pdf.text "Resultados", size: 12, style: :bold, color: "EF4E50"
+		pdf.move_down 10
+		@keyMembers.first(3).each_with_index do |member, index|
+		  pdf.text "#{%w[Primer Segundo Tercer][index]} registro", style: :bold, size: 11
+		  pdf.move_down 4
+		  data = [
+		    ["Nombre(s)", member.firstname],
+		    ["Apellido paterno", member.lastname1],
+		    ["Apellido materno", member.lastname2],
+		    ["Alias", member.alias&.join(", ")],
+		    ["Organización", member.organization&.name || "Sin definir"],
+		    ["Rol", member.role&.name || "Sin definir"]
+		  ].reject { |row| row[1].blank? }
+		  pdf.table(data, cell_style: { border_width: 0, padding: [4, 8, 4, 8], size: 10 }) do
+		    row(0..-1).columns(0).font_style = :bold
+		  end
+		  pdf.move_down 8
+
+		  pdf.text "Actividad reportada:", style: :bold, size: 10
+		  member.hits.order(date: :desc).each do |hit|
+		    loc = "#{hit.date.strftime('%d/%m/%y')} – "
+		    loc += "#{hit.town.county.name}, " unless hit.town.county.name == "Sin definir"
+		    loc += hit.town.county.state.shortname
+		    pdf.text "• #{loc}", size: 9
+		  end
+		  pdf.move_down 15
+		end
+		else
+		pdf.text "No se identificaron registros coincidentes.", size: 10, style: :italic
+		end
+
+		send_data pdf.render, filename: "resultado_consulta.pdf", type: "application/pdf", disposition: "attachment"
 	end
 
 	def terrorist_search

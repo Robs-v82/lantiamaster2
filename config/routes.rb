@@ -135,4 +135,5 @@ Rails.application.routes.draw do
     post '/datasets/download_scraped_links', to: 'datasets#download_scraped_links', as: :download_scraped_links
     # get 'datasets/:type/:cell' => 'datasets#sort'
     get 'datasets/redirect_to_outcome/:id', to: 'datasets#redirect_to_outcome', as: 'redirect_to_outcome'
+    get 'datasets/members_outcome_pdf', to: 'datasets#members_outcome_pdf'
 end
