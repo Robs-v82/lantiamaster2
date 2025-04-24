@@ -1259,16 +1259,25 @@ class DatasetsController < ApplicationController
     	@v_months = Month.joins(:violence_report_attachment).sort { |a, b| b <=> a }
     	@s_months = Month.joins(:social_report_attachment).sort { |a, b| b <=> a }
     	@f_months = Month.joins(:forecast_report_attachment).sort { |a, b| b <=> a }
-    	myFiles = Dir['public/briefings/*'].sort { |a, b| b.downcase <=> a.downcase }
+    	myFiles = Dir['storage/briefings/*'].sort { |a, b| b.downcase <=> a.downcase }
     	@briefings = []
     	myFiles.each{|file|
     		myHash = {}
     		myHash[:path] = file[7..-1]
-    		myHash[:number] = file[34..36]
-    		myString = file[62..65]+"_"+file[60..61]
+    		print "XXXXxxxx"*1000
+    		print myHash[:path]
+    		myHash[:number] = file[35..37]
+    		myString = file[63..66]+"_"+file[61..62]
     		myMonth = Month.where(:name=>myString).last
     		myHash[:month] = I18n.l(myMonth.first_day, format: '%B de %Y')
     		@briefings.push(myHash)
+    		# myHash = {}
+    		# myHash[:path] = file[7..-1]
+    		# myHash[:number] = file[34..36]
+    		# myString = file[62..65]+"_"+file[60..61]
+    		# myMonth = Month.where(:name=>myString).last
+    		# myHash[:month] = I18n.l(myMonth.first_day, format: '%B de %Y')
+    		# @briefings.push(myHash)
     	}
     end
 
