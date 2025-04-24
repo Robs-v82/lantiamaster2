@@ -84,13 +84,8 @@ def members_outcome_pdf
   })
   pdf.font "Poppins"
 
-  # Título
   pdf.text "RESULTADO DE CONSULTA", size: 16, style: :bold, align: :center, color: "33333C"
   pdf.move_down 20
-
-  # Tabla de resumen
-  pdf.text "Parámetros de consulta", size: 12, style: :bold, color: "EF4E50"
-  pdf.move_down 8
 
   clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{@myQuery.id}"
 
@@ -126,9 +121,12 @@ def members_outcome_pdf
     else "más de 1000"
   end
 
+  pdf.text "Parámetros de consulta", size: 12, style: :bold, color: "EF4E50"
+  pdf.move_down 8
+
   resumen_data = [
     ["ID", clave],
-    ["Fecha y hora", @myQuery.created_at.strftime("%d/%m/%Y %H:%M")],
+    ["Fecha y hora", @myQuery.created_at.in_time_zone("Mexico City").strftime("%d/%m/%Y %H:%M")],
     ["Nombre(s)", @myQuery.firstname],
     ["Apellido paterno", @myQuery.lastname1],
     ["Apellido materno", @myQuery.lastname2],
@@ -144,14 +142,8 @@ def members_outcome_pdf
     end
   end
 
-  # pdf.table(resumen_data, column_widths: [160, 340], cell_style: { size: 10, padding: 6 }) do
-  #   row(0..-1).columns(0).font_style = :bold
-  #   row(6).columns(1).text_color = "EF4E50"
-  # end
-
   pdf.move_down 20
 
-  # Resultados
   if @keyMembers.any?
     pdf.text "Resultados", size: 12, style: :bold, color: "EF4E50"
     pdf.move_down 10
@@ -184,7 +176,6 @@ def members_outcome_pdf
         ["Apellido paterno", member.lastname1],
         ["Apellido materno", member.lastname2],
       ]
-
       data << ["Alias", member.alias.join(", ")] if member.alias.present?
       data << ["Organización", member.organization&.name || "Sin definir"]
 
@@ -216,10 +207,10 @@ def members_outcome_pdf
       pdf.move_down 18
     end
   else
-    pdf.text "No se identificaron registros coincidentes.", size: 10, style: :italic
+    pdf.text "No se identificaron registros de personas señaladas o personas expuestas que coincidan con los parámetros de consulta.", size: 10
   end
 
-	send_data pdf.render, filename: "#{clave}.pdf", type: "application/pdf", disposition: "attachment"
+  send_data pdf.render, filename: "#{clave}.pdf", type: "application/pdf", disposition: "attachment"
 end
 
 	def terrorist_search
