@@ -1264,20 +1264,11 @@ class DatasetsController < ApplicationController
     	myFiles.each{|file|
     		myHash = {}
     		myHash[:path] = file[7..-1]
-    		print "XXXXxxxx"*1000
-    		print myHash[:path]
     		myHash[:number] = file[35..37]
     		myString = file[63..66]+"_"+file[61..62]
     		myMonth = Month.where(:name=>myString).last
     		myHash[:month] = I18n.l(myMonth.first_day, format: '%B de %Y')
     		@briefings.push(myHash)
-    		# myHash = {}
-    		# myHash[:path] = file[7..-1]
-    		# myHash[:number] = file[34..36]
-    		# myString = file[62..65]+"_"+file[60..61]
-    		# myMonth = Month.where(:name=>myString).last
-    		# myHash[:month] = I18n.l(myMonth.first_day, format: '%B de %Y')
-    		# @briefings.push(myHash)
     	}
     end
 
