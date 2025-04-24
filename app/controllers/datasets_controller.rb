@@ -72,79 +72,155 @@ class DatasetsController < ApplicationController
 		session.delete(:query_id) # ← limpia después de usar
 	end
 
-	def members_outcome_pdf
-		@myQuery = session[:query_id] ? Query.find(session[:query_id]) : User.find(session[:user_id]).queries.last
-		@user = User.find(session[:user_id])
-		@keyMembers = Member.where(id: @myQuery.outcome)
+def members_outcome_pdf
+  @myQuery = Query.find_by(id: params[:id]) || User.find(session[:user_id]).queries.last
+  @user = User.find(session[:user_id])
+  @keyMembers = Member.where(id: @myQuery.outcome)
 
-		pdf = Prawn::Document.new(page_size: 'A4', margin: 40)
-		pdf.font_families.update("Poppins" => {
-		normal: Rails.root.join("app/assets/fonts/Poppins-Regular.ttf"),
-		bold:   Rails.root.join("app/assets/fonts/Poppins-Bold.ttf")
-		})
-		pdf.font "Poppins"
+  pdf = Prawn::Document.new(page_size: 'A4', margin: 40)
+  pdf.font_families.update("Poppins" => {
+    normal: Rails.root.join("app/assets/fonts/Poppins-Regular.ttf"),
+    bold:   Rails.root.join("app/assets/fonts/Poppins-Bold.ttf")
+  })
+  pdf.font "Poppins"
 
-		# Título
-		pdf.text "RESULTADO DE CONSULTA", size: 16, style: :bold, align: :center, color: "33333C"
-		pdf.move_down 20
+  # Título
+  pdf.text "RESULTADO DE CONSULTA", size: 16, style: :bold, align: :center, color: "33333C"
+  pdf.move_down 20
 
-		# Tabla resumen
-		pdf.text "Parámetros de consulta", size: 12, style: :bold, color: "EF4E50"
-		pdf.move_down 8
-		resumen_data = [
-		["ID", "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{@myQuery.id}"],
-		["Fecha y hora", @myQuery.created_at.strftime("%d/%m/%Y %H:%M")],
-		["Nombre(s)", @myQuery.firstname],
-		["Apellido paterno", @myQuery.lastname1],
-		["Apellido materno", @myQuery.lastname2],
-		["Registros analizados", @myQuery.search.to_s],
-		["Probabilidad de homónimos", case @myQuery.homo_score
-		  when 0...2 then "Baja"
-		  when 2...5 then "Media"
-		  when 5..10 then "Alta"
-		  else "Muy alta"
-		end],
-		]
-		pdf.table(resumen_data, cell_style: { border_width: 0, padding: [4, 8, 4, 8], size: 10 }) do
-		row(0..-1).columns(0).font_style = :bold
-		end
-		pdf.move_down 20
+  # Tabla de resumen
+  pdf.text "Parámetros de consulta", size: 12, style: :bold, color: "EF4E50"
+  pdf.move_down 8
 
-		# Resultados
-		if @keyMembers.any?
-		pdf.text "Resultados", size: 12, style: :bold, color: "EF4E50"
-		pdf.move_down 10
-		@keyMembers.first(3).each_with_index do |member, index|
-		  pdf.text "#{%w[Primer Segundo Tercer][index]} registro", style: :bold, size: 11
-		  pdf.move_down 4
-		  data = [
-		    ["Nombre(s)", member.firstname],
-		    ["Apellido paterno", member.lastname1],
-		    ["Apellido materno", member.lastname2],
-		    ["Alias", member.alias&.join(", ")],
-		    ["Organización", member.organization&.name || "Sin definir"],
-		    ["Rol", member.role&.name || "Sin definir"]
-		  ].reject { |row| row[1].blank? }
-		  pdf.table(data, cell_style: { border_width: 0, padding: [4, 8, 4, 8], size: 10 }) do
-		    row(0..-1).columns(0).font_style = :bold
-		  end
-		  pdf.move_down 8
+  clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{@myQuery.id}"
 
-		  pdf.text "Actividad reportada:", style: :bold, size: 10
-		  member.hits.order(date: :desc).each do |hit|
-		    loc = "#{hit.date.strftime('%d/%m/%y')} – "
-		    loc += "#{hit.town.county.name}, " unless hit.town.county.name == "Sin definir"
-		    loc += hit.town.county.state.shortname
-		    pdf.text "• #{loc}", size: 9
-		  end
-		  pdf.move_down 15
-		end
-		else
-		pdf.text "No se identificaron registros coincidentes.", size: 10, style: :italic
-		end
+  homonimo_label = case @myQuery.homo_score.to_f
+    when 0...2 then "Baja"
+    when 2...5 then "Media"
+    when 5..10 then "Alta"
+    else "Muy alta"
+  end
 
-		send_data pdf.render, filename: "resultado_consulta.pdf", type: "application/pdf", disposition: "attachment"
-	end
+  estimacion = case @myQuery.homo_score.to_f
+    when 0...2 then "sólo 1"
+    when 2...3 then "más de 2"
+    when 3...4 then "más de 3"
+    when 4...5 then "más de 4"
+    when 5...6 then "más de 5"
+    when 6...7 then "más de 6"
+    when 7...8 then "más de 7"
+    when 8...9 then "más de 8"
+    when 9...10 then "más de 9"
+    when 10...20 then "más de 10"
+    when 20...30 then "más de 20"
+    when 30...40 then "más de 30"
+    when 40...50 then "más de 40"
+    when 50...60 then "más de 50"
+    when 60...70 then "más de 60"
+    when 70...80 then "más de 70"
+    when 80...90 then "más de 80"
+    when 90...100 then "más de 90"
+    when 100...200 then "más de 100"
+    when 200...500 then "más de 200"
+    when 500...1000 then "más de 500"
+    else "más de 1000"
+  end
+
+  resumen_data = [
+    ["ID", clave],
+    ["Fecha y hora", @myQuery.created_at.strftime("%d/%m/%Y %H:%M")],
+    ["Nombre(s)", @myQuery.firstname],
+    ["Apellido paterno", @myQuery.lastname1],
+    ["Apellido materno", @myQuery.lastname2],
+    ["Registros analizados", @myQuery.search.to_s],
+    ["Probabilidad de homónimos", homonimo_label],
+    ["", "Se estima que hay #{estimacion} mexicano(s) adulto(s) con el nombre y apellidos consultados o alguna de sus variantes."]
+  ]
+
+  pdf.bounding_box([0, pdf.cursor], width: 325) do
+    pdf.table(resumen_data, cell_style: { size: 10, padding: [4, 8, 4, 8] }) do
+      row(0..-1).columns(0).font_style = :bold
+      row(6).columns(1).text_color = "EF4E50"
+    end
+  end
+
+  # pdf.table(resumen_data, column_widths: [160, 340], cell_style: { size: 10, padding: 6 }) do
+  #   row(0..-1).columns(0).font_style = :bold
+  #   row(6).columns(1).text_color = "EF4E50"
+  # end
+
+  pdf.move_down 20
+
+  # Resultados
+  if @keyMembers.any?
+    pdf.text "Resultados", size: 12, style: :bold, color: "EF4E50"
+    pdf.move_down 10
+
+    @keyMembers.first(3).each_with_index do |member, index|
+      pdf.text "#{%w[Primer Segundo Tercer][index]} registro", style: :bold, size: 11
+      pdf.move_down 6
+
+      cartel_designado = nil
+      cartel_fuente = nil
+      cartel_fuente_tipo = nil
+
+      if member.organization&.designation
+        cartel_designado = member.organization
+      elsif member.organization&.parent&.designation
+        cartel_designado = member.organization.parent
+        cartel_fuente = cartel_designado.name
+        cartel_fuente_tipo = "subordinada a"
+      elsif member.organization&.allies.present?
+        aliadas_designadas = Organization.where(id: member.organization.allies).select(&:designation)
+        if aliadas_designadas.any?
+          cartel_designado = aliadas_designadas.first
+          cartel_fuente = cartel_designado.name
+          cartel_fuente_tipo = "aliada a"
+        end
+      end
+
+      data = [
+        ["Nombre(s)", member.firstname],
+        ["Apellido paterno", member.lastname1],
+        ["Apellido materno", member.lastname2],
+      ]
+
+      data << ["Alias", member.alias.join(", ")] if member.alias.present?
+      data << ["Organización", member.organization&.name || "Sin definir"]
+
+      if cartel_designado.present?
+        mensaje = if cartel_fuente.nil?
+          "Cártel designado como terrorista\n#{cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+        else
+          "Organización #{cartel_fuente_tipo} #{cartel_fuente}\nCártel designado como terrorista\n#{cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+        end
+        data << ["Designación del Departamento de Estado", mensaje]
+      else
+        data << ["Designación del Departamento de Estado", "Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas."]
+      end
+
+      data << ["Rol o vínculo con la organización", member.role&.name || "Sin definir"]
+
+      pdf.table(data, cell_style: { size: 10, padding: [4, 6, 4, 6] }, column_widths: [180, 320]) do
+        row(0..-1).columns(0).font_style = :bold
+      end
+
+      pdf.move_down 6
+      pdf.text "Actividad reportada:", style: :bold, size: 10
+      member.hits.order(date: :desc).each do |hit|
+        lugar = "#{hit.date.strftime('%d/%m/%y')} – "
+        lugar += "#{hit.town.county.name}, " unless hit.town.county.name == "Sin definir"
+        lugar += hit.town.county.state.shortname
+        pdf.text "• #{lugar}", size: 9
+      end
+      pdf.move_down 18
+    end
+  else
+    pdf.text "No se identificaron registros coincidentes.", size: 10, style: :italic
+  end
+
+	send_data pdf.render, filename: "#{clave}.pdf", type: "application/pdf", disposition: "attachment"
+end
 
 	def terrorist_search
 		@keyMembers = Member.joins(:hits).distinct
@@ -1262,7 +1338,6 @@ class DatasetsController < ApplicationController
     	myFiles = Dir['public/briefings/*'].sort { |a, b| b.downcase <=> a.downcase }
     	@briefings = []
     	myFiles.each{|file|
-    		# This should work
     		myHash = {}
     		myHash[:path] = file[7..-1]
     		myHash[:number] = file[34..36]

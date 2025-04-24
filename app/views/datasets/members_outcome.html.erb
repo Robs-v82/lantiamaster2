@@ -52,8 +52,7 @@
             <a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="material-icons paletton-red-text right-extra-margin">download</i></a>
             <ul id='files-dropdown' class='dropdown-content'>
                 <li class="dropdown-item">
-                  <a href="<%= datasets_members_outcome_pdf_path %>"><%= image_tag "pdf_icon.png", class: "center small-icon-size" %></a>
-
+                  <%= link_to image_tag("pdf_icon.png", class: "center small-icon-size"), members_outcome_pdf_path(id: @myQuery.id) %>
                 </li>
             </ul>
             <a href="#freq-help-modal-2" class="modal-trigger"><i class="material-icons paletton-red-text right-extra-margin">help_outline</i></a>
