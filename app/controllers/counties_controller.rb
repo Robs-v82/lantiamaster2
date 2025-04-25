@@ -152,6 +152,7 @@ class CountiesController < ApplicationController
         @countyWise = true
         @myModel = County
         myQuarter = Cookie.where(:category=>"irco_counties").last.quarter
+        @myQuarter = myQuarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
         back_one_quarter = helpers.back_one_q(myQuarter) 
         @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
