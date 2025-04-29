@@ -2,11 +2,47 @@
 	<h5>Catálogo de personas vinculadas y personas expuestas</h5>
 	<br>
 		<div class="row">
+
+<div class="col l4 m6 s12">
+  <div class="card-panel z-depth-1" style="height: 500px; display: flex; flex-direction: column; padding: 0;">
+    <table class="highlight" style="margin: 0;">
+      <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
+        <tr>
+          <th>Estado</th>
+          <th>Total de hits</th>
+        </tr>
+      </thead>
+    </table>
+    <div style="overflow-y: auto; flex: 1;">
+      <table class="highlight" style="margin: 0;">
+        <tbody>
+          <% total_hits = 0 %>
+          <% @hits_por_estado.each do |estado, total| %>
+            <tr>
+              <td><%= estado %></td>
+              <td><%= total %></td>
+            </tr>
+            <% total_hits += total %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <table class="highlight" style="margin: 0;">
+      <tfoot style="position: sticky; bottom: 0; background-color: white; z-index: 2;">
+        <tr>
+          <th>Total general</th>
+          <th><%= total_hits %></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
 			<div class="col l4 m6 s12">
 				<table class="highlight z-depth-1" style="padding: 20px;">
 					<thead>
 						<tr>
-							<th>Organización</th>
+							<th>Coalición</th>
 							<th>Total de miembros</th>
 						</tr>
 					</thead>
@@ -53,42 +89,46 @@
 			</div>
 		</div>
 	<br>
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>Nombres</th>
-				<th>Apellido Paterno</th>
-				<th>Apellido Materno</th>
-				<th>Alias</th>
-				<th>Rol</th>
-				<th>Organización</th>
-				<th>Último registro</th>
-				<th>Lugar</th>
-			</tr>
-		</thead>
-	<tbody>
-		<% @keyMembers.each do |member| %>
-			<tr>
-				<td><%= member.id %></td>
-				<td><%= member.firstname %></td>
-				<td><%= member.lastname1 %></td>
-				<td><%= member.lastname2 %></td>
-				<td><%= member.alias.first %></td>
-				<td><% if member.role %>
-						<%= member.role.name %>
-					<% end %>
-				</td>
-				<td><%= member.organization&.name %></td>
-				<td><%= member.hits.last.date.strftime("%d/%m/%y")%></td>
-				<td>
-					<% unless member.hits.last.town.county.name == "Sin definir" %>
-					<%= member.hits.last.town.county.name %>,
-					<% end %>
-					<%= member.hits.last.town.county.state.shortname %>
-				</td>
-			</tr>
-		<% end %>
-	</tbody>
-	</table>
+	<div class="row">
+		<div class="col s12">
+			<table class="table highlight z-depth-1">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Nombres</th>
+						<th>Apellido Paterno</th>
+						<th>Apellido Materno</th>
+						<th>Alias</th>
+						<th>Rol</th>
+						<th>Organización</th>
+						<th>Último registro</th>
+						<th>Lugar</th>
+					</tr>
+				</thead>
+			<tbody>
+				<% @keyMembers.each do |member| %>
+					<tr>
+						<td><%= member.id %></td>
+						<td><%= member.firstname %></td>
+						<td><%= member.lastname1 %></td>
+						<td><%= member.lastname2 %></td>
+						<td><%= member.alias.first %></td>
+						<td><% if member.role %>
+								<%= member.role.name %>
+							<% end %>
+						</td>
+						<td><%= member.organization&.name %></td>
+						<td><%= member.hits.last.date.strftime("%d/%m/%y")%></td>
+						<td>
+							<% unless member.hits.last.town.county.name == "Sin definir" %>
+							<%= member.hits.last.town.county.name %>,
+							<% end %>
+							<%= member.hits.last.town.county.state.shortname %>
+						</td>
+					</tr>
+				<% end %>
+			</tbody>
+			</table>
+		</div>
+	</div>
 </div>

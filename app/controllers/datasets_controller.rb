@@ -270,7 +270,11 @@ end
 		restantes = Organization.where.not(id: usadas.map(&:id))
 		@conteo_por_organizacion["Otras organizaciones"] = restantes.to_a
 
-	
+		# Conteo de hits por estado (ordenado de mayor a menor)
+			@hits_por_estado = Hit.joins(town: { county: :state })
+        .group("states.name")
+        .order("COUNT(states.name) DESC")
+        .count
 	end
 
 	def members_search
