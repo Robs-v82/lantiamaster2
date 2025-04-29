@@ -1551,7 +1551,7 @@ def clear_members
   unless conflict_found
     session.delete(:ignored_conflicts)
     flash[:notice] = "No hay más miembros en conflicto."
-    redirect_to datasets_path
+    redirect_to datasets_clear_members_path
   end
 end
 
