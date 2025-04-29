@@ -1556,22 +1556,11 @@ def clear_members
 end
 
 def ignore_conflict
-  @key_members = Member.joins(:hits).distinct
+  member1_id = params[:member1_id].to_i
+  member2_id = params[:member2_id].to_i
 
-  @key_members.each_with_index do |member1, idx1|
-    @key_members.each_with_index do |member2, idx2|
-      next if idx2 <= idx1
-
-      if members_similar?(member1, member2) &&
-         !session[:ignored_conflicts]&.include?([member1.id, member2.id].sort)
-
-        # Guardar el primer conflicto ignorado
-        session[:ignored_conflicts] ||= []
-        session[:ignored_conflicts] << [member1.id, member2.id].sort
-        break
-      end
-    end
-  end
+  session[:ignored_conflicts] ||= []
+  session[:ignored_conflicts] << [member1_id, member2_id].sort
 
   redirect_to datasets_clear_members_path
 end
