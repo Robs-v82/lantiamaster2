@@ -1526,7 +1526,90 @@ end
 			end
 	end
 
-	private
+def clear_members
+  @key_members = Member.joins(:hits).distinct
+  session[:ignored_conflicts] ||= []
+
+  conflict_found = false
+
+  @key_members.each_with_index do |member1, idx1|
+    @key_members.each_with_index do |member2, idx2|
+      next if idx2 <= idx1 # Evitar repeticiones
+
+      if members_similar?(member1, member2) &&
+         !session[:ignored_conflicts].include?([member1.id, member2.id].sort)
+
+        @member1 = member1
+        @member2 = member2
+        conflict_found = true
+        break
+      end
+    end
+    break if conflict_found
+  end
+
+  unless conflict_found
+    session.delete(:ignored_conflicts)
+    flash[:notice] = "No hay más miembros en conflicto."
+    redirect_to datasets_path
+  end
+end
+
+def ignore_conflict
+  @key_members = Member.joins(:hits).distinct
+
+  @key_members.each_with_index do |member1, idx1|
+    @key_members.each_with_index do |member2, idx2|
+      next if idx2 <= idx1
+
+      if members_similar?(member1, member2) &&
+         !session[:ignored_conflicts]&.include?([member1.id, member2.id].sort)
+
+        # Guardar el primer conflicto ignorado
+        session[:ignored_conflicts] ||= []
+        session[:ignored_conflicts] << [member1.id, member2.id].sort
+        break
+      end
+    end
+  end
+
+  redirect_to datasets_clear_members_path
+end
+
+
+def merge_members
+  keep = Member.find(params[:keep_id])
+  remove = Member.find(params[:remove_id])
+
+  # Transferir hits
+  remove.hits.each do |hit|
+    keep.hits << hit unless keep.hits.include?(hit)
+  end
+
+  remove.destroy
+
+  # Redirigir al siguiente conflicto recalculado
+  redirect_to datasets_clear_members_path
+end
+
+private
+
+def members_similar?(member1, member2)
+  fn1 = I18n.transliterate(member1.firstname.to_s.downcase)
+  ln1a = I18n.transliterate(member1.lastname1.to_s.downcase)
+  ln1b = I18n.transliterate(member1.lastname2.to_s.downcase)
+
+  fn2 = I18n.transliterate(member2.firstname.to_s.downcase)
+  ln2a = I18n.transliterate(member2.lastname1.to_s.downcase)
+  ln2b = I18n.transliterate(member2.lastname2.to_s.downcase)
+
+  firstname_match = fn1.include?(fn2) || fn2.include?(fn1)
+  lastname1_match = ln1a.include?(ln2a) || ln2a.include?(ln1a)
+  lastname2_match = ln1b.include?(ln2b) || ln2b.include?(ln1b)
+
+  firstname_match && lastname1_match && lastname2_match
+end
+
 
 	def members_query_params
  		params.require(:query).permit(:firstname, :lastname1, :lastname2, :homo_score)
