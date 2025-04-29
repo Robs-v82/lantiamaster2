@@ -190,8 +190,8 @@
 			  <ul class="collapsible popout" style="border: none;" data-collapsible="accordion">
 			    <% @queries_por_dia.sort.reverse.each do |fecha, queries| %>
 			      <li>
-			        <div class="collapsible-header" style="color: #33333C; font-weight: 600;">
-			          <%= fecha.strftime("%d/%m/%Y") %> - <%= queries.size %> consulta<%= queries.size > 1 ? 's' : '' %>
+			        <div class="collapsible-header" style="color: #33333C">
+			          <div style="font-weight: 600"><%= fecha.strftime("%d/%m/%Y") %></div><div class="right-align" style="width: 120px;"><span><%= queries.size %> consulta<%= queries.size > 1 ? 's' : '' %></span></div>
 			        </div>
 			        <div class="collapsible-body" style="padding: 15px;">
 			          <ul style="margin: 0; padding-left: 18px;">

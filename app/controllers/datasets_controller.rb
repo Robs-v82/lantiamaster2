@@ -239,9 +239,38 @@ end
 		        @conteo_por_rol[rol] = total
 		      end
 
-		# Resultado: {"Líder"=>12, "Operador"=>34, "Familiar"=>7, ...}
-		puts @conteo_por_rol
+		@conteo_por_organizacion = {}
 
+		# Organizaciones principales por nombre
+		principales = [
+		  "Cártel Jalisco Nueva Generación",
+		  "Cártel de Sinaloa",
+		  "Cártel del Golfo",
+		  "Cártel del Noreste",
+		  "La Nueva Familia Michoacana",
+		  "Cárteles Unidos"
+		]
+
+		usadas = []
+
+		principales.each do |nombre|
+		  principal = Organization.find_by(name: nombre)
+		  next unless principal
+
+		  aliadas = Organization.where(name: principal.allies).to_a
+		  subordinadas = principal.subordinates.to_a
+
+		  bloque = [principal] + aliadas + subordinadas
+
+		  @conteo_por_organizacion[nombre] = bloque
+		  usadas += bloque
+		end
+
+		# Otras organizaciones
+		restantes = Organization.where.not(id: usadas.map(&:id))
+		@conteo_por_organizacion["Otras organizaciones"] = restantes.to_a
+
+	
 	end
 
 	def members_search
