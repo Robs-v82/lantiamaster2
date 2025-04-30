@@ -1558,7 +1558,7 @@ end
 				redirect_to '/datasets/terrorist_panel'
 			end
 	end
-
+	
 def clear_members
   @key_members = Member.joins(:hits).distinct
   session[:ignored_conflicts] ||= []
@@ -1567,7 +1567,7 @@ def clear_members
 
   @key_members.each_with_index do |member1, idx1|
     @key_members.each_with_index do |member2, idx2|
-      next if idx2 <= idx1 # Evitar repeticiones
+      next if idx2 <= idx1
 
       if members_similar?(member1, member2) &&
          !session[:ignored_conflicts].include?([member1.id, member2.id].sort)
@@ -1584,7 +1584,7 @@ def clear_members
   unless conflict_found
     session.delete(:ignored_conflicts)
     flash[:notice] = "No hay más miembros en conflicto."
-    redirect_to datasets_clear_members_path
+    redirect_to datasets_terrorist_panel_path # ← o root_path
   end
 end
 
