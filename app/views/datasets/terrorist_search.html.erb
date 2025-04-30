@@ -2,7 +2,6 @@
 	<h5>Catálogo de personas vinculadas y personas expuestas</h5>
 	<br>
 		<div class="row">
-
 <div class="col l4 m6 s12">
   <div class="card-panel z-depth-1" style="height: 500px; display: flex; flex-direction: column; padding: 0;">
     <table class="highlight" style="margin: 0;">
@@ -37,7 +36,42 @@
     </table>
   </div>
 </div>
-
+<div class="col l4 m6 s12">
+  <div class="card-panel z-depth-1" style="height: 500px; display: flex; flex-direction: column; padding: 0;">
+    <table class="highlight" style="margin: 0;">
+      <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
+        <tr>
+          <th>Dominio</th>
+          <th>Hits</th>
+        </tr>
+      </thead>
+    </table>
+    <div style="overflow-y: auto; flex: 1;">
+      <table class="highlight" style="margin: 0;">
+        <tbody>
+          <% total_hits_dominio = 0 %>
+          <% @conteo_por_dominio.each do |dominio, total| %>
+            <tr>
+              <td><%= dominio %></td>
+              <td><%= total %></td>
+            </tr>
+            <% total_hits_dominio += total %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <table class="highlight" style="margin: 0;">
+      <tfoot style="position: sticky; bottom: 0; background-color: white; z-index: 2;">
+        <tr>
+          <th>Total general</th>
+          <th><%= total_hits_dominio %></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+</div>
+<div class="row">
 			<div class="col l4 m6 s12">
 				<table class="highlight z-depth-1" style="padding: 20px;">
 					<thead>

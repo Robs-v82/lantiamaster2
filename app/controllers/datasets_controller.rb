@@ -275,6 +275,25 @@ end
         .group("states.name")
         .order("COUNT(states.name) DESC")
         .count
+
+@conteo_por_dominio = {}
+
+Hit.all.each do |hit|
+  next unless hit.link.present?
+
+  begin
+    dominio = URI.parse(hit.link).host&.sub(/^www\./, '')
+    if dominio
+      @conteo_por_dominio[dominio] ||= 0
+      @conteo_por_dominio[dominio] += 1
+    end
+  rescue URI::InvalidURIError
+    next
+  end
+end
+
+@conteo_por_dominio = @conteo_por_dominio.sort_by { |_, v| -v }.to_h
+
 	end
 
 	def members_search
@@ -1558,7 +1577,7 @@ end
 				redirect_to '/datasets/terrorist_panel'
 			end
 	end
-	
+
 def clear_members
   @key_members = Member.joins(:hits).distinct
   session[:ignored_conflicts] ||= []
