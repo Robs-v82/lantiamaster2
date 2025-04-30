@@ -200,6 +200,7 @@ class StatesController < ApplicationController
         @myModel = State
         myCookie = Cookie.where(:category=>"icon").last
         myQuarter = myCookie.quarter
+        @myQuarter = myQuarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
         back_one_quarter = helpers.back_one_q(myQuarter) 
         @back_one_q_strings = helpers.quarter_strings(back_one_quarter)
