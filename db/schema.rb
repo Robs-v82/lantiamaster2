@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_23_174104) do
+ActiveRecord::Schema.define(version: 2025_04_30_222759) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -154,6 +154,7 @@ ActiveRecord::Schema.define(version: 2025_04_23_174104) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "legacy_id"
     t.string "report"
+    t.boolean "national"
     t.index ["town_id"], name: "index_hits_on_town_id"
   end
 
@@ -371,6 +372,7 @@ ActiveRecord::Schema.define(version: 2025_04_23_174104) do
     t.integer "arrest_id"
     t.integer "detention_id"
     t.bigint "member_id"
+    t.boolean "media_score"
     t.index ["arrest_id"], name: "index_members_on_arrest_id"
     t.index ["detention_id"], name: "index_members_on_detention_id"
     t.index ["member_id"], name: "index_members_on_member_id"
