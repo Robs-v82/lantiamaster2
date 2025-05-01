@@ -126,8 +126,6 @@ GEM
     ffi (1.15.5)
     globalid (1.0.0)
       activesupport (>= 5.0)
-    grover (1.2.1)
-      nokogiri (~> 1)
     i18n (1.9.1)
       concurrent-ruby (~> 1.0)
     image_processing (1.12.1)
@@ -295,7 +293,6 @@ DEPENDENCIES
   csv-xlsx-converter
   database_cleaner
   execjs
-  grover
   image_processing (~> 1.2)
   jbuilder (~> 2.7)
   jquery-rails
