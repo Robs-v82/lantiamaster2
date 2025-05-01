@@ -1,6 +1,8 @@
 require 'grover'
 
-Hit.left_outer_joins(:pdf_attachment).where(active_storage_attachments: { id: nil }).each do |hit|
+myHits = Hit.left_outer_joins(:pdf_attachment).where(active_storage_attachments: { id: nil }).limit(10)
+myHits = myHits.where.not(:link=>nil)
+myHits.each do |hit|
   next unless hit.link.present? && hit.link.start_with?('http')
 
   begin
