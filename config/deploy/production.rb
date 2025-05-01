@@ -59,3 +59,6 @@ server '18.118.85.206', user: 'ubuntu', roles: %w{app db web}
 #     auth_methods: %w(publickey password)
 #     # password: "please use keys"
 #   }
+set :default_env, {
+  'PATH' => "/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"
+}
