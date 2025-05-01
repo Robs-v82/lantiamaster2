@@ -19,6 +19,9 @@
             <a class="left-min-margin p20 semi-slim preloader-trigger" href="/frontpage">
                 <i class="material-icons white-text left-extra-margin">home</i>
             </a>
+            <a class="left-min-margin p20 semi-slim preloader-trigger" href="/organizations/logout">
+                <i class="material-icons white-text left-extra-margin tooltipped" data-tooltip="Cerrar sesión">power_settings_new</i>
+            </a>
         </li>
         <% if User.find(session[:user_id])&.member&.organization&.search_panel %>
             <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/datasets/members_search">PANEL DE CONSULTA</a></li>
@@ -65,6 +68,9 @@
             <li><a class="left-min-margin white-text p20 semi-slim" href="/guide_4.pdf" target="_blank">MANUAL</a></li>
             <br>
         <% end %>
+        <li>
+            
+        </li>
         </div>
     </ul>
 <div class="col s2">
