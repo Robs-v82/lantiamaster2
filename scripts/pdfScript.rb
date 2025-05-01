@@ -1,11 +1,11 @@
 require 'grover'
 
-Grover.configure do |config|
-  config.options = {
-    executable_path: '/usr/bin/chromium', # o '/usr/bin/chromium-browser'
-    format: 'A4'
-  }
-end
+# Grover.configure do |config|
+#   config.options = {
+#     executable_path: '/usr/bin/chromium', # o '/usr/bin/chromium-browser'
+#     format: 'A4'
+#   }
+# end
 
 myHits = Hit.left_outer_joins(:pdf_attachment).where(active_storage_attachments: { id: nil }).limit(10)
 myHits = myHits.where.not(:link=>nil)
