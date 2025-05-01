@@ -532,6 +532,18 @@ end
 		# Guardar el nombre en sesión para usarlo en la vista
 		session[:invalid_members_csv] = filename
 
+		# Obtener miembros con al menos un hit
+		targetMembers = Member.joins(:hits).distinct
+
+		# Evaluar media_score de cada miembro
+		puts "⏳ Evaluando media_score..."
+		targetMembers.find_each do |member|
+		  hits = member.hits
+		  media_score_value = hits.size >= 2 && hits.any? { |h| h.national }
+		  member.update_column(:media_score, media_score_value)
+		end
+		puts "✅ media_score actualizado para miembros clave."
+
 		redirect_to '/datasets/terrorist_panel'
 	end
 
@@ -1471,6 +1483,33 @@ end
 	  	session[:filename] = load_hit_params[:file].original_filename
 		session[:load_success] = true
 		session[:message] = "✅ Hits cargados: #{loaded} \n ⚠️ Hits omitidos (legacy_id duplicado): #{skipped}"
+		
+		nationalMedia = [
+		  "infobae.com",
+		  "jornada.com.mx",
+		  "oem.com.mx",
+		  "lasillarota.com",
+		  "milenio.com",
+		  "proceso.com.mx",
+		  "excelsior.com.mx",
+		  "elfinanciero.com.mx",
+		  "eluniversal.com.mx",
+		  "eleconomista.com.mx",
+		  "sinembargo.mx",
+		  "aristeguinoticias.com",
+		  "reforma.com",
+		  "univision.com",
+		  "latinus.us"
+		]
+
+		puts "⏳ Actualizando nacionalidad de hits..."
+		Hit.where(:national=>nil).each do |hit|
+		  domain = hit.link.to_s.match(/https?:\/\/(?:www\.)?([^\/]+)/).to_a[1]
+		  is_national = nationalMedia.include?(domain)
+		  hit.update_column(:national, is_national)
+		end
+		puts "✅ Hits actualizados."
+
 		redirect_to '/datasets/terrorist_panel'
 	end
 

@@ -181,6 +181,18 @@
             <% end %>
           </td>
         </tr>
+        <% unless member.media_score.nil? %>
+          <tr  style="border-top: 2px solid #33333C;">
+            <th style="font-weight: bold; padding-top: 10px;">Solidez de las fuentes:</th>
+            <td>
+              <% if member.media_score == true %>
+                Alta
+              <% else %>
+                Media
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
         <tr style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold; padding-top: 10px;">Nombre(s):</th>
           <td><%= member.firstname %></td>
