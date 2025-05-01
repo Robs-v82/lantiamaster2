@@ -13,7 +13,11 @@
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css">
         <link rel="icon" type="image/png" href="/assets/favicon.png">
 
-        <%= wicked_pdf_stylesheet_link_tag "application" %>
+        <% if wicked_pdf? %>
+  <%= wicked_pdf_stylesheet_link_tag "application" %>
+<% else %>
+  <%= stylesheet_link_tag "application", media: "all" %>
+<% end %>
         <%= javascript_include_tag 'https://maps.googleapis.com/maps/api/js?key='+"AIzaSyBWd0Mv-5p6ARfMQTRyC3pmNPuMucGL2i4" %>
         <%= yield(:head_tags) %>
         <script src="https://code.highcharts.com/maps/highmaps.js"></script>
