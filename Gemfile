@@ -68,6 +68,7 @@ gem 'pg'
 gem 'csv-xlsx-converter'
 gem 'prawn'
 gem 'prawn-table'
+gem 'grover'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
