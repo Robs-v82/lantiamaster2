@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_30_222759) do
+ActiveRecord::Schema.define(version: 2025_05_02_115913) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -155,6 +155,7 @@ ActiveRecord::Schema.define(version: 2025_04_30_222759) do
     t.string "legacy_id"
     t.string "report"
     t.boolean "national"
+    t.boolean "protected_link", default: false, null: false
     t.index ["town_id"], name: "index_hits_on_town_id"
   end
 
