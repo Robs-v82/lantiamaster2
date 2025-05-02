@@ -47,7 +47,7 @@ myHits.each do |hit|
   rescue => e
     puts "⚠️ Error en Hit ##{hit.id}: #{e.message}"
   end
-  sleep 1
+  sleep 10
 end
 
 
