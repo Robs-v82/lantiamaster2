@@ -1,4 +1,9 @@
 <style>
+  .marked-text {
+    background-color: #FFF59D; /* amarillo pastel */
+    padding: 2px 4px;
+    font-weight: 500;t
+  }
 
   .members-outcome-heading {
     color: #33333C;
@@ -62,7 +67,7 @@
       </div>
       <div class="card paletton-grey z-depth-1 white-text" style="margin-bottom: 30px">
         <div class="card-content">
-          <table id="summary-table" class="" style="font-size: 14px;">
+          <table id="summary-table" class="" style="font-size: 17px;">
             <tbody>
               <tr>
                 <td colspan="2" style="font-weight: bold; padding-bottom: 15px; color: #EF4E50">
@@ -92,7 +97,6 @@
                 <th>Apellido Materno:</th>
                 <td><%= @myQuery.lastname2 %></td>
               </tr>
-    <tr>
       <tr>
         <th>Registros analizados:</th>
         <td><%= @myQuery.search %></td>
@@ -109,7 +113,6 @@
         %>
         <%= homonimo_label %>
       </td>
-    </tr>
     <tr>
       <td colspan="2" style="padding-top: 10px;">
         <% estimacion =
@@ -150,7 +153,7 @@
 <div class="col s12 m10 l8">
     <div id="outcome-card" class="card z-depth-1" style="background-color: white; margin-bottom: 30px; height:100%">
     <div class="card-content" style="color: #33333C">
-      <table id="outcome-table" class="animate__animated animate__fadeIn" style="font-size: 14px; width: 100%;">
+      <table id="outcome-table" class="animate__animated animate__fadeIn" style="font-size: 17px; width: 100%;">
         <tbody>
           <tr style="border-bottom: none;">
             <td colspan="2" style="font-weight: bold; padding-bottom: 15px; color: #EF4E50;">
@@ -182,14 +185,13 @@
           </td>
         </tr>
         <% unless member.media_score.nil? %>
-          <tr  style="border-top: 2px solid #33333C;">
+          <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold; padding-top: 10px;">Solidez de las fuentes:</th>
-            <td>
-              <% if member.media_score == true %>
-                Alta
-              <% else %>
-                Media
-              <% end %>
+            <td style="display: flex; align-items: center; gap: 8px;">
+              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: <%= member.media_score == true ? '#8bc34a' : '#ffeb3b' %>; flex-shrink: 0;"></span>
+              <span>
+                <%= member.media_score == true ? 'Alta' : 'Media' %>
+              </span>
             </td>
           </tr>
         <% end %>
@@ -237,17 +239,17 @@
           <% end %>
         <% end %>
 
-        <% fondo_alerta = cartel_designado.present? ? "background-color: #fff9c4;" : "" %>
-          <tr style="<%= fondo_alerta %>">
+        <%# <% fondo_alerta = cartel_designado.present? ? "background-color: #fff9c4;" : "" %>
+          <tr>
             <th style="font-weight: bold;">Designación del Departamento de Estado:</th>
               <td>
             <% if cartel_designado.present? && cartel_fuente.nil? %>
-              Cártel designado como terrorista.<br>
+              <span class="marked-text">Cártel designado como terrorista.</span><br>
               <%= cartel_designado.designation_date.strftime("%d/%m/%Y") %>
             <% elsif cartel_designado.present? && cartel_fuente_tipo.present? %>
               Organización <%= cartel_fuente_tipo %> <%= cartel_fuente %><br>
-              Cártel designado como terrorista.<br>
-              <%= cartel_designado.designation_date.strftime("%d/%m/%Y") %>
+              <span class="marked-text">Cártel designado como terrorista.</span><br>
+              <span style="padding: 2px 4px !important;"><%= cartel_designado.designation_date.strftime("%d/%m/%Y") %></span> 
             <% else %>
               Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas.
             <% end %>
@@ -257,13 +259,19 @@
           <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
           <td><%= member.role&.name || "Sin definir" %></td>
         </tr>
-
         <tr>
           <th style="font-weight: bold; vertical-align: top;">Actividad reportada:</th>
           <td>
-            <ul style="margin: 0; list-style-type: disc;">
+            <ul style="margin: 0; list-style-type: none; padding-left: 0;">
               <% member.hits.order(date: :desc).each do |hit| %>
                 <li style="margin-bottom: 6px;">
+                  <% if hit.pdf.attached? %>
+                    <a href="<%= url_for(hit.pdf) %>" target="_blank" style="margin-right: 8px;">
+                      <img src="<%= asset_path('pdf_icon.png') %>" alt="PDF" style="width: 16px; vertical-align: middle;">
+                    </a>
+                  <% else %>
+                    <span style="display: inline-block; width: 24px;"></span>
+                  <% end %>
                   <%= hit.date.strftime("%d/%m/%y") %> — 
                   <% unless hit.town.county.name == "Sin definir" %>
                     <%= hit.town.county.name %>,

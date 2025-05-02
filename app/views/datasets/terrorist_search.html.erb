@@ -1,7 +1,116 @@
 <div class="b-container">
 	<h5>Catálogo de personas vinculadas y personas expuestas</h5>
 	<br>
-		<div class="row">
+<div class="row">
+  <!-- Confiabilidad de las fuentes -->
+  <div class="col l4 m6 s12">
+    <div class="card-panel z-depth-1" style="height: 200px; display: flex; flex-direction: column; padding: 0;">
+      <table class="highlight" style="margin: 0;">
+        <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
+          <tr>
+            <th>Confiabilidad de las fuentes</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% confiables = @keyMembers.select { |m| m.media_score == true }.count %>
+          <% medias = @keyMembers.select { |m| m.media_score == false || m.media_score.nil? }.count %>
+          <tr>
+            <td>Alta</td>
+            <td><%= confiables %></td>
+          </tr>
+          <tr>
+            <td>Media</td>
+            <td><%= medias %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tipo de medio -->
+  <div class="col l4 m6 s12">
+    <div class="card-panel z-depth-1" style="height: 200px; display: flex; flex-direction: column; padding: 0;">
+      <table class="highlight" style="margin: 0;">
+        <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
+          <tr>
+            <th>Tipo de medio</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% total_nacional = 0 %>
+          <% total_local = 0 %>
+          <% total_interno = 0 %>
+
+          <% @keyMembers.each do |m| %>
+            <% m.hits.each do |h| %>
+              <% if h.link.present? && h.national == true %>
+                <% total_nacional += 1 %>
+              <% elsif h.link.present? %>
+                <% total_local += 1 %>
+              <% else %>
+                <% total_interno += 1 %>
+              <% end %>
+            <% end %>
+          <% end %>
+
+          <tr>
+            <td>Medios nacionales</td>
+            <td><%= total_nacional %></td>
+          </tr>
+          <tr>
+            <td>Medios locales</td>
+            <td><%= total_local %></td>
+          </tr>
+          <tr>
+            <td>Internos</td>
+            <td><%= total_interno %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Archivo adjunto -->
+  <div class="col l4 m12 s12">
+    <div class="card-panel z-depth-1" style="height: 200px; display: flex; flex-direction: column; padding: 0;">
+      <table class="highlight" style="margin: 0;">
+        <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
+          <tr>
+            <th>Archivo adjunto</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% con_pdf = 0 %>
+          <% sin_pdf = 0 %>
+
+          <% @keyMembers.each do |m| %>
+            <% m.hits.each do |h| %>
+              <% if h.pdf.attached? %>
+                <% con_pdf += 1 %>
+              <% else %>
+                <% sin_pdf += 1 %>
+              <% end %>
+            <% end %>
+          <% end %>
+
+          <tr>
+            <td>Con PDF</td>
+            <td><%= con_pdf %></td>
+          </tr>
+          <tr>
+            <td>Sin PDF</td>
+            <td><%= sin_pdf %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="row">
 <div class="col l4 m6 s12">
   <div class="card-panel z-depth-1" style="height: 500px; display: flex; flex-direction: column; padding: 0;">
     <table class="highlight" style="margin: 0;">

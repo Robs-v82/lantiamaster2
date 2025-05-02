@@ -36,6 +36,7 @@ myHits.each do |hit|
 
       pdf = WickedPdf.new.pdf_from_string(
         html_header + html_body,
+        disable_javascript: true,
         encoding: 'UTF-8',
         margin: { top: 20, bottom: 10 },
         javascript_delay: 3000, # da tiempo a que JS básico cargue
@@ -56,6 +57,9 @@ myHits.each do |hit|
   end
 
   sleep 5
+  puts "📊 Estado del sistema:"
+  puts `free -h`        # Muestra el uso de memoria RAM en formato legible
+  puts `df -h /`        # Muestra el uso de disco en la raíz (/) principal
 end
 
 
