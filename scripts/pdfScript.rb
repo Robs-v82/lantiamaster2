@@ -4,7 +4,7 @@ require 'open-uri'
 # Define el user agent que usarás en la descarga
 user_agent = "WickedPdf/1.0 (Lantia Intelligence)"
 
-myHits = Hit.left_outer_joins(:pdf_attachment).where(active_storage_attachments: { id: nil }).limit(10)
+myHits = Hit.left_outer_joins(:pdf_attachment).where(active_storage_attachments: { id: nil }).limit(100)
 myHits = myHits.where.not(:link => nil)
 
 myHits.each do |hit|
@@ -15,16 +15,16 @@ myHits.each do |hit|
 
     timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
 
-    image_url = ActionController::Base.helpers.asset_url('Lantia_LogoPositivo.png', type: :image)
+    image_url = "https://dashboard.lantiaintelligence.com/assets/Lantia_LogoPositivo.png"
 
     html_header = <<~HTML
       <div style='font-size: 14px; font-family: sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;'>
-        <img src='#{image_url}' style='width: 100px; display: block; margin-bottom: 10px;' alt='Lantia Logo'>
+        <img src='#{image_url}' style='width: 160px; display: block; margin-bottom: 10px;' alt='Lantia Logo'>
         <div style="display: block; font-size: 14px !important">
-          Fuente:<span style="font-weight: 800; padding-bottom: 5px">#{hit.link}</span><br>
-          Capturado:<span style="font-weight: 800; padding-bottom: 5px">#{timestamp}</span><br>
-          User-Agent:<span style="font-weight: 800; padding-bottom: 5px">#{user_agent}</span><br>
-          Organización:<span style="font-weight: 800; padding-bottom: 5px">Decisiones, Estrategias y Mejores Prácticas</span>
+          Fuente:<span style="font-weight: 800; padding-bottom: 5px !important;">#{hit.link}</span><br>
+          Capturado:<span style="font-weight: 800; padding-bottom: 5px !important;">#{timestamp}</span><br>
+          User-Agent:<span style="font-weight: 800; padding-bottom: 5px !important;">#{user_agent}</span><br>
+          Organización:<span style="font-weight: 800; padding-bottom: 5px !important;">Decisiones, Estrategias y Mejores Prácticas</span>
         </div>
       </div>
     HTML
