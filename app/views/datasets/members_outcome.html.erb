@@ -260,27 +260,136 @@
           <td><%= member.role&.name || "Sin definir" %></td>
         </tr>
         <tr>
-          <th style="font-weight: bold; vertical-align: top;">Actividad reportada:</th>
-          <td>
-            <ul style="margin: 0; list-style-type: none; padding-left: 0;">
+          <th style="vertical-align: top;">
+            <span style="font-weight: bold;">Actividad/menciones:</span>
+            <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
               <% member.hits.order(date: :desc).each do |hit| %>
                 <li style="margin-bottom: 6px;">
                   <% if hit.pdf.attached? %>
                     <a href="<%= url_for(hit.pdf) %>" target="_blank" style="margin-right: 8px;">
-                      <img src="<%= asset_path('pdf_icon.png') %>" alt="PDF" style="width: 16px; vertical-align: middle;">
+                      <img src="<%= asset_path('pdf_icon.png') %>" alt="PDF" style="width: 20px; vertical-align: middle;">
                     </a>
                   <% else %>
-                    <span style="display: inline-block; width: 24px;"></span>
+                    <span style="display: inline-block; width: 28px;"></span>
                   <% end %>
                   <%= hit.date.strftime("%d/%m/%y") %> — 
                   <% unless hit.town.county.name == "Sin definir" %>
-                    <%= hit.town.county.name %>,
+                    <span style="font-weight: 300;"><%= hit.town.county.name %>,</span>
                   <% end %>
                   <%= hit.town.county.state.shortname %>
                 </li>
               <% end %>
             </ul>
-          </td>
+          </th>
+<td>
+  <div id="map-container-<%= member.id %>" style="height: 280px; min-width: 280px;"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const hits = <%= raw(member.hits.map { |h| { 
+        state_code: h.town.county.state.code, 
+        county_code: h.town.county.full_code, 
+        name: h.town.county.name, 
+        state: h.town.county.state.name 
+      } }.uniq.to_json) %>;
+
+      const uniqueStates = [...new Set(hits.map(h => h.state_code))];
+      const mapTarget = document.getElementById("map-container-<%= member.id %>");
+
+      if (uniqueStates.length === 1) {
+        // Mapa estatal
+        const geojsonPath = `/maps/${uniqueStates[0]}.geojson`;
+        const data = hits.map(h => ({
+          full_code: `${h.county_code}`,
+          value: 1
+        }));
+        Highcharts.getJSON(geojsonPath, function (geojson) {
+          Highcharts.mapChart(mapTarget, {
+            chart: { map: geojson, height: 280 },
+            title: null,
+            credits: false,
+            legend: false,
+            mapNavigation: { enabled: false },
+            series: [{
+              data: data,
+              joinBy: 'full_code',
+              name: 'Actividad',
+              borderColor: '#fff',
+              nullColor: '#cfd8dc',
+              dataLabels: { enabled: false }
+            }],
+            navigation: {
+              buttonOptions: {
+                enabled: false
+              }
+            },
+            tooltip: {
+              useHTML: true,
+              formatter: function () {
+                return '<b>' + this.point.name + '</b>';
+              },
+              borderColor: '#EF4E50',
+              style: {
+                fontSize: '14px'
+              }
+            },
+            colorAxis: {
+              min: 1,
+              max: 1,
+              minColor: '#ff7575',
+              maxColor: '#ff7575'
+            }
+          });
+        });
+      } else {
+        // Mapa nacional
+        const geojsonPath = `/maps/national_map.json`;
+        const data = hits.map(h => ({
+          code: `${h.state_code}`,
+          value: 1
+        }));
+        Highcharts.getJSON(geojsonPath, function (geojson) {
+          Highcharts.mapChart(mapTarget, {
+            chart: { map: geojson, height: 280 },
+            title: null,
+            credits: false,
+            legend: false,
+            mapNavigation: { enabled: false },
+            series: [{
+              data: data,
+              joinBy: 'code',
+              name: 'Actividad',
+              borderColor: '#fff',
+              nullColor: '#cfd8dc',
+              dataLabels: { enabled: false }
+            }],      
+            navigation: {
+              buttonOptions: {
+                enabled: false
+              }
+            },
+            tooltip: {
+              useHTML: true,
+              formatter: function () {
+                return '<b>' + this.point.name + '</b>';
+              },
+              borderColor: '#EF4E50',
+              style: {
+                fontSize: '14px'
+              }
+            },
+            colorAxis: {
+              min: 1,
+              max: 1,
+              minColor: '#ff7575',
+              maxColor: '#ff7575'
+            }
+          });
+        });
+      }
+    });
+  </script>
+</td>
         </tr>
       <% end %>
     <% end %>
