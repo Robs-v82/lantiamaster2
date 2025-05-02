@@ -47,7 +47,7 @@ myHits.each do |hit|
   rescue => e
     puts "⚠️ Error en Hit ##{hit.id}: #{e.message}"
   end
-  sleep 2 if index % 5 == 0  # pequeño descanso cada 5 hits
+  sleep 1
 end
 
 
