@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_02_115913) do
+ActiveRecord::Schema.define(version: 2025_05_05_163002) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -156,7 +156,9 @@ ActiveRecord::Schema.define(version: 2025_05_02_115913) do
     t.string "report"
     t.boolean "national"
     t.boolean "protected_link", default: false, null: false
+    t.bigint "user_id"
     t.index ["town_id"], name: "index_hits_on_town_id"
+    t.index ["user_id"], name: "index_hits_on_user_id"
   end
 
   create_table "hits_members", id: false, force: :cascade do |t|
@@ -667,6 +669,7 @@ ActiveRecord::Schema.define(version: 2025_05_02_115913) do
   add_foreign_key "events", "organizations"
   add_foreign_key "events", "towns"
   add_foreign_key "hits", "towns"
+  add_foreign_key "hits", "users"
   add_foreign_key "keys", "users"
   add_foreign_key "killings", "events"
   add_foreign_key "leads", "events"

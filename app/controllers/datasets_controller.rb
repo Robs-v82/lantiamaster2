@@ -1468,7 +1468,8 @@ end
 			title: title,
 			link: link,
 			report: report,
-			town_id: town
+			town_id: town,
+			user_id: session[:user_id]
 	    )
 	    loaded += 1
 		rescue => e
