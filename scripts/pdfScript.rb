@@ -30,20 +30,19 @@ myHits.each do |hit|
       </div>
     HTML
 
-    # Timeout: 30 segundos para evitar cuelgues
-    Timeout.timeout(30) do
+    Timeout.timeout(45) do
       html_body = URI.open(hit.link, "User-Agent" => user_agent).read
 
       pdf = WickedPdf.new.pdf_from_string(
         html_header + html_body,
-        disable_javascript: true,
         encoding: 'UTF-8',
         margin: { top: 20, bottom: 10 },
-        javascript_delay: 3000, # da tiempo a que JS básico cargue
-        disable_smart_shrinking: true,
-        no_stop_slow_scripts: true,
+        disable_javascript: true,
+        javascript_delay: 3000,
         print_media_type: true,
-        dpi: 96
+        zoom: 1.25,
+        dpi: 150,
+        viewport_size: '1280x1024'
       )
 
       io = StringIO.new(pdf)
@@ -53,14 +52,15 @@ myHits.each do |hit|
 
   rescue => e
     puts "⚠️ Error en Hit ##{hit.id}: #{e.message}"
-    hit.update(protected_link: true) # marca como no procesable
+    hit.update(protected_link: true)
   end
 
   sleep 5
   puts "📊 Estado del sistema:"
-  puts `free -h`        # Muestra el uso de memoria RAM en formato legible
-  puts `df -h /`        # Muestra el uso de disco en la raíz (/) principal
+  puts `free -h`        # uso de memoria
+  puts `df -h /`        # espacio en disco
 end
+
 
 
 
