@@ -8,6 +8,9 @@ class DatasetsController < ApplicationController
 	require 'uri'
 	require 'json'
 	require 'nokogiri'
+	require 'wicked_pdf'
+	require 'open-uri'
+	require 'timeout'
 
 	layout false, only: [:year_victims, :state_victims, :county_victims, :county_victims_map]
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
@@ -1407,6 +1410,7 @@ end
 		loaded = 0
 		skipped = 0
 		errors = []
+		user_agent = "WickedPdf/1.0 (Lantia Intelligence)"
 		myFile = load_hit_params[:file]
 		CSV.foreach(myFile, headers: true, encoding: "bom|utf-8") do |row|
 			legacy_id = row["legacy_id"]&.strip
@@ -1472,6 +1476,51 @@ end
 			user_id: session[:user_id]
 	    )
 	    loaded += 1
+
+	    begin
+		    targetHit = Hit.last
+		    next unless targetHit.link.present? && targetHit.link.start_with?('http')
+		    puts "🌀 Generando PDF para: #{targetHit.link}"
+	    	timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+	    	image_url = "https://dashboard.lantiaintelligence.com/assets/Lantia_LogoPositivo.png"
+
+		    html_header = <<~HTML
+		      <div style='font-size: 14px; font-family: sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;'>
+		        <img src='#{image_url}' style='width: 160px; display: block; margin-bottom: 10px;' alt='Lantia Logo'>
+		        <div style="font-size: 14px;">
+		          Fuente:<span style="font-weight: 800;"> #{targetHit.link}</span><br>
+		          Capturado:<span style="font-weight: 800;"> #{timestamp}</span><br>
+		          User-Agent:<span style="font-weight: 800;"> #{user_agent}</span><br>
+		          Organización:<span style="font-weight: 800;"> Estrategias, Decisiones y Mejores Prácticas</span>
+		        </div>
+		      </div>
+		    HTML
+
+		    Timeout.timeout(45) do
+		      html_body = URI.open(targetHit.link, "User-Agent" => user_agent).read
+
+		      pdf = WickedPdf.new.pdf_from_string(
+		        html_header + html_body,
+		        encoding: 'UTF-8',
+		        margin: { top: 20, bottom: 10 },
+		        disable_javascript: true,
+		        javascript_delay: 3000,
+		        print_media_type: true,
+		        zoom: 1.25,
+		        dpi: 150,
+		        viewport_size: '1280x1024'
+		      )
+
+		      io = StringIO.new(pdf)
+		      targetHit.pdf.attach(io: io, filename: "targetHit_#{targetHit.id}.pdf", content_type: 'application/pdf')
+		      puts "✅ PDF adjuntado a Hit ##{targetHit.id}"
+		    end
+
+		  rescue => e
+		    puts "⚠️ Error en Hit ##{targetHit.id}: #{e.message}"
+		    targetHit.update(protected_link: true)
+		  end
+
 		rescue => e
 			errors << { legacy_id: legacy_id, error: e.message }
 			next
