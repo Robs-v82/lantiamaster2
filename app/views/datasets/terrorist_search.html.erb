@@ -179,6 +179,46 @@
     </table>
   </div>
 </div>
+      <div class="col l4 m6 s12">
+        <table class="highlight z-depth-1">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Hits cargados</th>
+              <th>Miembros únicos creados</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% User.includes(:member).each do |user| %>
+              <% user_hits = Hit.includes(:members).where(user_id: user.id) %>
+              <% seen_members = Set.new %>
+              <% first_time_members = 0 %>
+
+              <% user_hits.each do |hit| %>
+                <% hit.members.each do |member| %>
+                  <% next if seen_members.include?(member.id) %>
+                  <% seen_members << member.id %>
+
+                  <% first_hit = member.hits.order(:created_at).first %>
+                  <% if first_hit&.user_id == user.id %>
+                    <% first_time_members += 1 %>
+                  <% end %>
+                <% end %>
+              <% end %>
+
+              <% if user_hits.any? %>
+                <tr>
+                  <td>
+                    <%= user.member.present? ? "#{user.member.firstname.first.upcase}.#{user.member.lastname1.first.upcase}." : "Sin iniciales" %>
+                  </td>
+                  <td><%= user_hits.count %></td>
+                  <td><%= first_time_members %></td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
 </div>
 <div class="row">
 			<div class="col l4 m6 s12">
