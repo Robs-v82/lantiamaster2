@@ -1,5 +1,6 @@
 class QueriesController < ApplicationController
 	
+	before_action :authenticate_terrorist_access, only: [:files, :send_query_file]
 	after_action :remove_email_message, only: [:files]
 
 	def mapOff

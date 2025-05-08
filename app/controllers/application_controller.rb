@@ -92,6 +92,15 @@ class ApplicationController < ActionController::Base
 		redirect_to "/users/index" unless User.find(session[:user_id]).icon_access
 	end
 
+	def authenticate_terrorist_access
+		user = User.find_by(id: session[:user_id])
+		org_id = user&.member&.organization_id
+
+		unless [4283, 4284].include?(org_id)
+			redirect_to root_path, alert: "Acceso restringido a organizaciones autorizadas."
+		end
+	end
+
 	def form_header(icon,title)
 		myHeader = {
 			icon: icon,

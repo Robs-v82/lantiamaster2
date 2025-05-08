@@ -15,8 +15,8 @@ class DatasetsController < ApplicationController
 	layout false, only: [:year_victims, :state_victims, :county_victims, :county_victims_map]
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
 
-	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome, :terrorist_panel]
-	before_action :authenticate_terrorist_access, only: [:terrorist_search]
+	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome]
+	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel]
 
 	def show
 	end
@@ -1810,15 +1810,6 @@ end
 
 		unless org&.search_panel && org.search_level.to_i > 0
 			redirect_to root_path, alert: "Acceso no autorizado."
-		end
-	end
-
-	def authenticate_terrorist_access
-		user = User.find_by(id: session[:user_id])
-		org_id = user&.member&.organization_id
-
-		unless [4283, 4284].include?(org_id)
-			redirect_to root_path, alert: "Acceso restringido a organizaciones autorizadas."
 		end
 	end
 
