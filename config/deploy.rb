@@ -24,7 +24,6 @@ set :deploy_via, :remote_cache
 
 set :linked_dirs, fetch(:linked_dirs, []).push('public/briefings')
 
-
 set :linked_files, fetch(:linked_files, []).push(
   'public/TerminosYCondiciones.pdf',
   'public/AvisoDePrivacidad.pdf'
