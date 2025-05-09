@@ -64,7 +64,7 @@ end
 # Imprimir resultados
 puts "\n📋 Miembros agregados a nuevos hits:"
 all_added_members.each do |member|
-  puts "- #{member.firstname} #{member.lastname1} #{member.lastname2}"
+  puts "- #{member.id} #{member.firstname} #{member.lastname1} #{member.lastname2}"
 end
 
 puts "\n🔢 Total de nuevos miembros asociados a hits: #{all_added_members.size}"
