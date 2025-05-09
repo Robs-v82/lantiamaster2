@@ -140,6 +140,7 @@ Rails.application.routes.draw do
     get 'datasets/clear_members', to: 'datasets#clear_members'
     post 'datasets/merge_members', to: 'datasets#merge_members'
     post 'datasets/ignore_conflict', to: 'datasets#ignore_conflict'
+    get '/sesion', to: redirect('/')
 
 
 end

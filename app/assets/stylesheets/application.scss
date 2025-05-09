@@ -4,6 +4,12 @@
  *= require jquery-ui
  */
 
+
+.page-footer {
+  padding: 0 !important;
+  background: #ef4e50;
+}
+
 #state_filter_box a.disabled {
 	visibility: hidden;
 }
