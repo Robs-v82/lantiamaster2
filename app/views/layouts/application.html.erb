@@ -13,7 +13,7 @@
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css">
         <link rel="icon" type="image/png" href="/assets/favicon.png">
 
-<% if defined?(request) && request.format.pdf? && controller_name != "datasets" && action_name != "year_victims" %>
+<% if request.format.symbol == :pdf %>
   <%= wicked_pdf_stylesheet_link_tag "application" %>
 <% else %>
   <%= stylesheet_link_tag "application", media: "all" %>
