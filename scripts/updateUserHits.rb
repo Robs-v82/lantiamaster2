@@ -1,244 +1,14 @@
 require 'csv'
+require 'open-uri'
+require 'timeout'
 
-# 🔽 Pega aquí todo el contenido del archivo CSV (incluyendo los encabezados)
+user_agent = "WickedPdf/1.0 (Lantia Intelligence)"
+# USER_ID = 18
+USER_ID = 1164
+
+# ⚠️ Pega aquí todo el contenido CSV como string entre comillas triples
 csv_data = <<~CSV
 legacy_id,fecha,estado,municipio o localidad,clave INEGI,título,reporte,link
-BC-1,2018-01-20,Baja California,Tijuana,2004,Presunto integrante del CJNG es detenido por agentes de la PEP,,https://conexionsi.com/2018/01/20/presunto-integrante-del-cjng-es-detenido-por-agentes-de-la-pep/
-BC-2,2018-01-19,Baja California,Tijuana,2004,Detienen a presunto integrante del CJNG en Tijuana,,https://www.tijuanaenlinea.com/policiaca/2018/01/19/detienen-a-presunto-integrante-del-cjng-en-tijuana/
-BC-3,2018-09-01,Baja California,Tijuana,2004,Territorial Tensions: Explaining Baja California's Recent Wave of Violence,,https://www.strausscenter.org/wp-content/uploads/Territorial-Tensions-Explaining-Baja-Californias-Recent-Wave-of-Violence-2018.pdf
-BC-4,2018-02-08,Colima,Tecomán,6010,Fighting for the Plaza: CDS Vs CJNG in Pacific States,,https://www.borderlandbeat.com/2018/02/fighting-for-plaza-cds-vs-cjng-in.html
-BC-5,2018-03-15,Baja California,Tijuana,2004,Border Violence: The Most Wanted CJNG Sicarios in Baja California,,https://rightsidenews.com/us/homeland-security/border-violence-the-most-wanted-cjng-sicarios-in-baja-california/
-BC-6,2025-01-29,Baja California,Ensenada,2003,CJNG deja cabeza humana con narcomensaje para Los Mayos y Los Chapitos en Ensenada,,https://www.infobae.com/mexico/2025/01/29/cjng-deja-cabeza-humana-con-narcomensaje-para-los-mayos-y-los-chapitos-en-ensenada-no-son-bienvenidos/
-BC-7,2019-08-27,Baja California,Tecate,2005,Internal Strife Within the CJNG in Baja California; Mexico,,https://insightcrime.org/news/internal-strife-cjng-baja-california-mexico/
-BC-8,2025-04-15,Jalisco,Guadalajara,14039,CJNG: la ruta sangrienta con la que dominó México y cruzó fronteras,,https://www.milenio.com/policia/narcotrafico/cjng-por-que-se-expandio-en-mexico-ciudades-clave-eu
-BC-9,2018-03-01,Baja California,Tijuana,2004,El organigrama de líder del CJNG en Baja California,,https://www.narcoenmexico.com/2018/03/el-organigrama-de-lider-del-cjng-en.html
-BC-10,2019-08-29,Baja California,Tecate,2005,Pugnas en el CJNG y la aparición de otro grupo (Los Cabos) avivan ola violencia en Baja California,,https://www.sinembargo.mx/3636898/pugnas-en-el-cjng-y-la-aparicion-de-otro-grupo-los-cabos-avivan-ola-violencia-en-baja-california/
-BC-11,2018-04-15,Jalisco,Guadalajara,14039,The Strategic Implications of the Cartel de Jalisco Nueva Generacion,,https://www.researchgate.net/publication/324579843_The_Strategic_Implications_of_the_Cartel_de_Jalisco_Nueva_Generacion
-BC-12,2023-10-01,Jalisco,Guadalajara,14039,Cartel de Jalisco Nueva Generación: The most significant security challenge in the Mexico-United States relationship,,https://smallwarsjournal.com/2023/10/01/cartel-de-jalisco-nueva-generacion-most-significant-security-challenge-mexico-united/
-BC-13,2024-09-29,Jalisco,Guadalajara,14039,Presente y futuro del CJNG: Consolidación local; expansión militar y retórica de autodefensa,,https://insightcrime.org/es/noticias/analisis/cjng-consolidacion-local-expansion-militar-retorica-vigilante/
-BC-14,2024-09-29,Jalisco,Guadalajara,14039,Mexico's CJNG: Local Consolidation; Military Expansion and Vigilante Rhetoric,,https://insightcrime.org/news/mexico-cjng-local-consolidation-military-expansion-vigilante-rhetoric/
-BC-15,2019-08-27,Baja California,Tecate,2005,Internal Strife Within the CJNG in Baja California; Mexico,,https://compuseum.org/news/brief/internal-strife-cjng-baja-california-mexico/
-BC-16,2018-07-02,Baja California,Tijuana,2004,Los delincuentes trasnacionales del CJNG,,https://zetatijuana.com/2018/07/los-delincuentes-trasnacionales-del-cjng/
-BC-17,2018-06-22,Baja California,Tijuana,2004,CJNG increasing the violence in BC,,https://www.borderlandbeat.com/2018/06/cjng-increasing-violence-in-bc.html
-BC-18,2025-03-27,Baja California,Tecate,2005,Presuntos miembros del CJNG amenazan al alcalde de Tecate; Baja California,,https://www.infobae.com/mexico/2025/03/27/presuntos-miembros-del-cjng-amenazan-al-alcalde-de-tecate-baja-california-el-que-avisa-no-es-traidor/
-BC-19,2018-03-16,Baja California,Tijuana,2004,Capturan a 18 presuntos miembros del CJNG,,https://www.tijuanaenlinea.com/nacional/2018/03/16/capturan-a-18-presuntos-miembros-del-cjng/
-BC-20,2025-03-20,Jalisco,Guadalajara,14039,Cronología del CJNG en Jalisco: 12 años de terror que dejaron 13 mil desaparecidos,,https://www.infobae.com/mexico/2025/03/20/cronologia-del-cjng-en-jalisco-12-anos-de-terror-que-dejaron-13-mil-desaparecidos/
-BC-21,2022-08-23,Baja California,Tijuana,2004,¿Quiénes son los 20 integrantes del CJNG que desataron bloqueos y quemas en BC?,,https://www.sinembargo.mx/4242598/quienes-son-los-20-integrantes-del-cjng-que-desataron-bloqueos-y-quemas-en-bc/
-BC-22,2018-04-05,Baja California,Tijuana,2004,Los asesinatos del CJNG,,https://zetatijuana.com/2018/04/los-asesinatos-del-cjng/
-BC-23,2024-09-10,Jalisco,Guadalajara,14039,Where is the CJNG in Mexico,,https://www.seasonsofcrime.com/p/where-is-the-cjng-in-mexico
-BC-24,2025-03-19,Jalisco,Guadalajara,14039,Gerardo Ortiz: ¿quién es el intérprete que se declaró culpable de cantar en conciertos vinculados con el CJNG?,,https://www.proceso.com.mx/nacional/justicia/2025/3/19/gerardo-ortiz-quien-es-el-interprete-que-se-declaro-culpable-de-cantar-en-conciertos-vinculados-con-el-cjng-347708.html
-BC-25,2020-07-15,Baja California,Tijuana,2004,El CJNG se divide: células en BC brincan a los Arellano Félix y a Los Erres del Cártel de Sinaloa,,https://www.sinembargo.mx/3840371/el-cjng-se-divide-celulas-en-bc-brincan-a-los-arellano-felix-y-a-los-erres-del-cartel-de-sinaloa/
-BC-26,2018-01-01,Baja California,Tijuana,2004,CJNG avanza en 22 estados,,https://zetatijuana.com/2018/01/cjng-avanza-en-22-estados/
-BC-27,2022-08-15,Baja California,Tijuana,2004,CJNG: cómo la organización criminal habría utilizado a personas sin hogar para incendiar vehículos en Baja California,,https://www.prensalibre.com/internacional/cjng-como-la-organizacion-criminal-habria-utilizado-a-personas-sin-hogar-para-incendiar-vehiculos-en-baja-california-y-cuanto-les-pagaron-por-estos-ataques/
-BC-28,2018-08-10,Baja California,Tijuana,2004,El Mayo is behind division of CJNG,,https://www.borderlandbeat.com/2018/08/el-mayo-is-behind-division-of-cjng.html
-BC-29,2025-01-22,Baja California,Tijuana,2004,Narcomanta en Tijuana: CJNG y La Chapiza declaran guerra a La Mayiza,,https://laverdadnoticias.com/crimen/narcomanta-en-tijuana-cjng-y-la-chapiza-declaran-guerra-a-la-mayiza-20250122
-BC-30,2021-02-02,Baja California,Tijuana,2004,El desafío de los Chapitos en Baja California: reclutaron a operadores del Mencho y ejecutaron a los jefes de plaza del Mayo,,https://www.infobae.com/america/mexico/2021/02/02/el-desafio-de-los-chapitos-en-baja-california-reclutaron-a-operadores-del-mencho-y-ejecutaron-a-los-jefes-de-plaza-del-mayo/
-BC-31,2018-10-01,Baja California,Tijuana,2004,Matan a lugarteniente del CJNG; BC con más ejecuciones que en 2017,,https://zetatijuana.com/2018/10/matan-a-lugarteniente-del-cjng-bc-con-mas-ejecuciones-que-en-2017/
-BC-32,2018-08-08,Jalisco,Guadalajara,14039,Repunta casi 2000% violencia en estados bastiones del CJNG,,https://elblogdelnarco.com/2018/08/08/repunta-casi-2000-violencia-en-estados-bastiones-del-cjng/
-BC-33,2018-06-22,Baja California,Tijuana,2004,CJNG increasing the violence in BC,,https://www.borderlandbeat.com/2018/06/cjng-increasing-violence-in-bc.html?m=1
-BC-34,2018-06-15,Baja California,Tijuana,2004,La pugna del CJNG y CAF anda a punta de balazos,,https://www.narcoenmexico.com/2018/06/la-pugna-del-cjng-y-caf-anda-apunta-de.html
-BC-35,2022-08-13,Baja California,Tijuana,2004,Por violencia del CJNG en Baja California; piden a ciudadanos de EE. UU. que se refugien,,https://www.univision.com/local/los-angeles-kmex/violencia-baja-california-tijuana-consulado-de-estados-unidos-fotos
-BC-36,2018-10-16,Texas,El Paso,48041,Indictments against 11 high level Mexican drug cartel members unsealed,,https://www.dea.gov/press-releases/2018/10/16/indictments-against-11-high-level-mexican-drug-cartel-members-unsealed
-BC-37,2018-07-26,Veracruz,Veracruz,30119,Vídeo donde El Fredy de Los Zetas confiesa sus crímenes y después es ejecutado por El CJNG,,https://elblogdelnarco.com/2018/07/26/
-BC-38,2024-03-01,Quintana Roo,Cancún,23005,De Baja California a Quintana Roo: Así fue la expansión del CJNG en el gobierno de AMLO,,https://www.periodicobajacalifornia.info/nacional/de-baja-california-a-quintana-roo-asi-fue-la-expansion-del-cjng-en-el-gobierno-de-amlo-2
-BC-39,2023-07-12,Baja California,Tijuana,2004,Detienen a presuntos traficantes internacionales del CJNG,,https://www.telediario.mx/nacional/detienen-a-presuntos-traficantes-internacionales-del-cjng
-BC-40,2023-08-03,Baja California,Tijuana,2004,¿Quién es El Caimán; sanguinario líder del brazo armado del CJNG que fue extraditado a EE.UU.?,,https://www.infobae.com/mexico/2023/08/03/quien-es-el-caiman-sanguinario-lider-del-brazo-armado-del-cjng-que-fue-extraditado-a-eeuu/
-BC-41,2023-08-04,Baja California,Tijuana,2004,Edgar Herrera Pardo; alias El Caimán; también es conocido como El Cabo 8,,https://www.tvazteca.com/aztecanoticias/edgar-herrera-pardo-alias-el-caiman-tambien-es-conocido-como-el-cabo-8
-BC-42,2022-08-13,Baja California,Tijuana,2004,Detuvieron a 17 por violencia en Baja California; 3 son del CJNG,,https://www.tiempo.com.mx/noticia/bajacalifornia_detener_cjng_bloqueos_delitos_guardianacional/
-BC-43,2020-09-07,Baja California,Tijuana,2004,En la violenta guerra entre CJNG y CDS,,https://zetatijuana.com/2020/09/en-la-violenta-guerra-entre-cjng-y-cds/
-BC-44,2022-08-13,Baja California,Tijuana,2004,CJNG operó ataques en Baja California,,https://www.elmanana.com/noticias/nacional/cjng-opero-ataques-en-baja-california/5586918
-BC-45,2022-08-13,Baja California,Tijuana,2004,CJNG operó ataques en BC; afirman alcaldes,,https://www.elnorte.com/cjng-opero-ataques-en-bc-afirman-alcaldes/ar2453036
-BC-46,2018-10-16,Baja California,Tijuana,2004,Alleged Tijuana leader of powerful CJNG drug trafficking group named in wave of indictments,,https://www.sandiegouniontribune.com/2018/10/16/alleged-tijuana-leader-of-powerful-cjng-drug-trafficking-group-named-in-wave-of-indictments/
-BC-47,2024-09-02,Jalisco,Guadalajara,14039,Mexico Institutional Failures Allow CJNG to Thrive Unchecked,,https://insightcrime.org/news/mexico-failures-cjng-thrive/
-BC-48,2018-10-16,Washington,D.C.,0,Justice;Treasury; and State Departments announce coordinated enforcement efforts against Cartel Jalisco Nueva Generacion,,https://www.dea.gov/press-releases/2018/10/16/justice-treasury-and-state-departments-announce-coordinated-enforcement
-BC-49,2022-01-05,Baja California,Tijuana,2004,Tijuana: Human Head Left With Threats for CJNG's Cabo 30 and Cabo 50,,https://www.borderlandbeat.com/2022/01/tijuana-human-head-left-with-threats.html
-BC-50,2021-09-15,Baja California,Tijuana,2004,Golpe al CJNG: capturaron por segunda ocasión al Cabo 89; jefe de plaza en Baja California,,https://www.infobae.com/america/mexico/2021/09/15/golpe-al-cjng-capturaron-por-segunda-ocasion-al-cabo-89-jefe-de-plaza-en-baja-california/
-BC-51,2021-06-16,Baja California,Tijuana,2004,Los Cabos del Cártel Jalisco Nueva Generación: los rostros detrás de la violencia en el norte del país,,https://www.infobae.com/america/mexico/2021/06/16/los-cabos-del-cartel-jalisco-nueva-generacion-los-rostros-detras-de-la-violencia-en-el-norte-del-pais/
-BC-52,2022-08-13,Baja California,Tijuana,2004,Atribuyen al CJNG actos de violencia en Baja California; detienen a 15 presuntos responsables,,https://www.jorgecastronoriega.com/atribuyen-al-cjng-actos-de-violencia-en-baja-california-detienen-a-15-presuntos-responsables/
-BCS-01,2018-01-07,Baja California Sur,,3,Los grupos criminales que se disputan el control de BCS,,https://lasillarota.com/estados/2018/1/7/los-grupos-criminales-que-se-disputan-el-control-de-bcs-149098.html
-BCS-02,2018-01-13,México,,0,CJNG avanza en 22 estados,,https://zetatijuana.com/2018/01/cjng-avanza-en-22-estados/
-BCS-03,2018-02-04,Baja California,,2,PGR tras el CJNG en BC,,https://zetatijuana.com/2018/02/pgr-tras-el-cjng-en-bc/
-BCS-04,2018-02-06,Baja California,,2,Internal Strife Splinters CJNG in Baja California; Mexico,,https://insightcrime.org/news/internal-strife-cjng-baja-california-mexico/
-BCS-05,2018-06-18,Baja California,,2,CJNG Increasing Violence in BC,,https://www.borderlandbeat.com/2018/06/cjng-increasing-violence-in-bc.html
-BCS-06,2025-01-29,Baja California,Ensenada,2003,CJNG deja cabeza humana con narcomensaje para los Mayos y los Chapitos en Ensenada; 'No son bienvenidos',,https://www.infobae.com/mexico/2025/01/29/cjng-deja-cabeza-humana-con-narcomensaje-para-los-mayos-y-los-chapitos-en-ensenada-no-son-bienvenidos/
-BCS-07,2018-03-12,Jalisco,Guadalajara,14039,El organigrama del líder del CJNG en México,,https://www.narcoenmexico.com/2018/03/el-organigrama-de-lider-del-cjng-en.html
-BCS-08,2023-11-15,México,,0,Where is the CJNG in Mexico?,,https://www.seasonsofcrime.com/p/where-is-the-cjng-in-mexico
-BCS-09,2018-04-18,Baja California Sur,,3,The Strategic Implications of the Cartel de Jalisco Nueva Generación,,https://www.researchgate.net/publication/324579843_The_Strategic_Implications_of_the_Cartel_de_Jalisco_Nueva_Generacion
-BCS-10,2019-08-27,Baja California,,2,Pugna dentro del CJNG llega a Baja California; México,,https://insightcrime.org/es/noticias/pugna-cjng-baja-california-mexico/
-BCS-11,2018-02-08,Baja California,,2,Fighting for the Plaza: CDS Vs CJNG in Pacific States,,https://www.borderlandbeat.com/2018/02/fighting-for-plaza-cds-vs-cjng-in.html
-BCS-12,2018-02-10,Baja California,,2,CJNG lidera trasiego de drogas a EU; nació como Los Matazetas,,https://www.excelsior.com.mx/nacional/2018/02/10/1219402
-BCS-13,2018-02-08,Baja California Sur,,3,Mexico’s CJNG: Local Consolidation; Military Expansion and Vigilante Rhetoric,,https://www.academia.edu/35906462/Mexico_s_CJNG_Local_Consolidation_Military_Expansion_and_Vigilante_Rhetoric
-BCS-14,2018-03-06,Baja California Sur,,3,Propagación de violencia en México ahora golpea a Baja California Sur,,https://insightcrime.org/es/noticias/propagacion-de-violencia-en-mexico-ahora-golpea-baja-california-sur/
-BCS-15,2025-02-21,Baja California,,2,CJNG corresponsable de la crisis de credibilidad que sufren las policías y corporaciones de seguridad,,https://www.infobae.com/mexico/2025/02/21/cjng-corresponsable-de-la-crisis-de-credibilidad-que-sufren-las-policias-y-corporaciones-de-seguridad/
-BCS-16,2018-07-02,Baja California,,2,Los delincuentes trasnacionales del CJNG,,https://zetatijuana.com/2018/07/los-delincuentes-trasnacionales-del-cjng/
-BCS-17,2018-08-08,Baja California Sur,,3,Repunta casi 2000% violencia en estados bastiones del CJNG,,https://elblogdelnarco.com/2018/08/08/repunta-casi-2000-violencia-en-estados-bastiones-del-cjng/
-BCS-18,2018-03-19,México,,0,The Strategic Implications of the Cartel de Jalisco Nueva Generación,,https://justiceinmexico.org/wp-content/uploads/2018/03/180319-Policy_Brief-CJNG.pdf
-BCS-19,2018-04-04,Baja California,Mexicali,2002,PEP captura a presunto sicario del CJNG,,https://www.elimparcial.com/tij/policiaca/2018/04/04/pep-captura-a-presunto-sicario-del-cjng/
-BCS-20,2025-03-27,Baja California,Tecate,2004,Presuntos miembros del CJNG amenazan al alcalde de Tecate; Baja California: 'El que avisa no es traidor',,https://www.infobae.com/mexico/2025/03/27/presuntos-miembros-del-cjng-amenazan-al-alcalde-de-tecate-baja-california-el-que-avisa-no-es-traidor/
-BCS-21,2023-10-01,México,,0,Cartel de Jalisco Nueva Generación: Most Significant Security Challenge to Mexico and the United States,,https://smallwarsjournal.com/2023/10/01/cartel-de-jalisco-nueva-generacion-most-significant-security-challenge-mexico-united/
-BCS-22,2023-08-23,Baja California,,2,¿Quiénes son los 20 integrantes del CJNG que desataron bloqueos y quemas en BC?,,https://www.sinembargo.mx/4242598/quienes-son-los-20-integrantes-del-cjng-que-desataron-bloqueos-y-quemas-en-bc/
-BCS-23,2020-08-12,Baja California,,2,El CJNG se divide. Células en BC brincan a los Arellano Félix y a 'Los Erres'; del Cártel de Sinaloa,,https://www.sinembargo.mx/3840371/el-cjng-se-divide-celulas-en-bc-brincan-a-los-arellano-felix-y-a-los-erres-del-cartel-de-sinaloa/
-BCS-24,2023-03-16,México,,0,CJNG; la organización que domina el crimen en México,,https://news.culturacolectiva.com/noticias/mexico/cartel-jalisco-nueva-generacion-domina-crimen-organizado-en-mexico/
-BCS-25,2018-01-02,México,,0,CJNG advances in 22 states,,https://www.borderlandbeat.com/2018/01/cjng-advances-in-22-states.html
-BCS-26,2018-07-15,México,,0,La mancha expansiva del CJNG en México,,https://lasillarota.com/especiales-lsr/2018/7/15/la-mancha-expansiva-del-cjng-en-mexico-163979.html
-BCS-27,2019-10-01,México,,0,CJNG: Power and Violence Operating in 25 States,,https://www.borderlandbeat.com/2019/10/cjng-power-and-violence-operating-in-25.html
-BCS-28,2024-02-29,México,,0,De Baja California a Quintana Roo: así fue la expansión del CJNG en el gobierno de AMLO,,https://www.periodicobajacalifornia.info/nacional/de-baja-california-a-quintana-roo-asi-fue-la-expansion-del-cjng-en-el-gobierno-de-amlo-2
-BCS-29,2022-08-16,Baja California,,2,CJNG: cómo la organización criminal habría utilizado a personas sin hogar para incendiar vehículos en Baja California (y cuánto les pagaron),,https://www.prensalibre.com/internacional/cjng-como-la-organizacion-criminal-habria-utilizado-a-personas-sin-hogar-para-incendiar-vehiculos-en-baja-california-y-cuanto-les-pagaron-por-estos-ataques/
-BCS-30,2018-08-18,México,,0,CJNG: la PGR dice que es el único que opera; ¿pero es verdad?,,https://da21w.e-veracruz.mx/nota/2018-08-18/nacion/cjng-la-pgr-dice-que-es-el-unico-que-opera-pero-es-verdad
-BCS-31,2018-10-16,México,,0,Indictments against 11 high level Mexican drug cartel members unsealed,,https://www.dea.gov/press-releases/2018/10/16/indictments-against-11-high-level-mexican-drug-cartel-members-unsealed
-BCS-32,2018-02-08,México,,0,Presente y futuro del CJNG: Consolidación local; expansión militar y retórica de autodefensa,,https://insightcrime.org/es/noticias/analisis/cjng-consolidacion-local-expansion-militar-retorica-vigilante/
-BCS-33,2018-09-10,Baja California,,2,Las libertades del CJNG,,https://zetatijuana.com/2018/09/las-libertades-del-cjng/
-BCS-34,2018-10-08,Baja California,Tijuana,2004,Matan a lugarteniente del CJNG; BC;con más ejecuciones que en 2017,,https://zetatijuana.com/2018/10/matan-a-lugarteniente-del-cjng-bc-con-mas-ejecuciones-que-en-2017/
-BCS-35,2023-08-03,Baja California,Tijuana,2004,Quién es el Caimán; sanguinario líder del brazo armado del CJNG que fue extraditado a EEUU,,https://www.infobae.com/mexico/2023/08/03/quien-es-el-caiman-sanguinario-lider-del-brazo-armado-del-cjng-que-fue-extraditado-a-eeuu/
-BCS-36,2018-09-01,Baja California,,2,Territorial Tensions: Explaining Baja California's Recent Wave of Violence,,https://stage2323u9.strausscenter.org/wp-content/uploads/Territorial-Tensions-Explaining-Baja-Californias-Recent-Wave-of-Violence-2018.pdf
-BCS-37,2019-10-23,México,,0,CJNG: Power and Violence Operating in 25 States,,https://www.borderlandbeat.com/2019/10/cjng-power-and-violence-operating-in-25.html
-CAMP-01,2018,Quintana Roo,Playa del Carmen,23005,2018 Playa del Carmen shootout,,https://historica.fandom.com/wiki/2018_Playa_del_Carmen_shootout
-CAMP-02,2024-05-21,México,,,Where is the CJNG in Mexico?,,https://www.seasonsofcrime.com/p/where-is-the-cjng-in-mexico
-CAMP-03,2025-04-15,México,,,CJNG: así logró su expansión; principales zonas de operación,,https://www.milenio.com/policia/narcotrafico/cjng-por-que-se-expandio-en-mexico-ciudades-clave-eu
-CAMP-04,2019-06-13,Jalisco,,,The School of Terror: Inside a Jalisco Cartel Training Camp in Mexico,,https://insightcrime.org/news/training-grounds-mexico-jalisco-cartel/
-CAMP-05,2018-01-10,Yucatán,,,Dan 18 años de prisión a 11 integrantes del CJNG,,https://www.yucatan.com.mx/mexico/2018/01/10/dan-18-anos-prision-11-integrantes-del-cjng.html
-CAMP-06,2018-04,México,,,The Strategic Implications of the Cartel de Jalisco Nueva Generacion,,https://www.researchgate.net/publication/324579843_The_Strategic_Implications_of_the_Cartel_de_Jalisco_Nueva_Generacion
-CAMP-07,2025-04-18,Jalisco,Teocaltiche,14093,Teocaltiche; un pueblo abandonado a la violencia en México: No podemos ni debemos acostumbrarnos a vivir así,,https://elpais.com/mexico/2025-04-18/teocaltiche-un-pueblo-abandonado-a-la-violencia-en-mexico-no-podemos-ni-debemos-acostumbrarnos-a-vivir-asi.html
-CAMP-08,2021-11-26,Campeche,,,CJNG; Cártel del Pacífico y del Golfo; células delincuenciales con presencia en Campeche,,https://www.poresto.net/campeche/2021/11/26/cjng-cartel-del-pacifico-del-golfo-celulas-delincuenciales-con-presencia-en-campeche.html
-CAMP-09,2023-07-28,Campeche,,,Otorgan amparo al fundador del CJNG; pidió revertir prisión preventiva,,http://campechehoy.mx/tag/cjng/
-CAMP-10,2025-04-18,Campeche,,,El ascenso de 'La Firma' (2/7 partes),,https://solcampeche.mx/el-ascenso-de-la-firma-2-7-partes/
-CAMP-11,2018-02-07,Colima,,,Fighting for the Plaza: CDS Vs CJNG in Pacific States,,https://www.borderlandbeat.com/2018/02/fighting-for-plaza-cds-vs-cjng-in.html
-CAMP-12,2025-03-24,Jalisco,Teuchitlán,14091,Killing Camp Shows Horrors of CJNG Forced Recruitment,,https://insightcrime.org/news/killing-camp-in-mexico-shows-horrors-of-cjng-forced-recruitment/
-CAMP-13,2025-03-24,Jalisco,Teuchitlán,14091,Campo de exterminio en México expone los horrores del reclutamiento forzado,,https://insightcrime.org/es/noticias/campo-exterminio-mexico-expone-horrores-reclutamiento-forzado-cjng/
-CAMP-14,2022-10-23,Campeche,,,Ejecutado le robó millones al CJNG,,https://tribunacampeche.com/23/ejecutado-le-robo-millones-al-cjng/594728/
-CAMP-15,2025-02-05,Tabasco,Villahermosa,27017,Cambian en Tabasco a mando militar por presuntos nexos con el Cártel Nueva Generación,,https://tribunacampeche.com/05/cambian-en-tabasco-a-mando-militar-por-presuntos-nexos-con-el-cartel-nueva-generacion/705768/
-CAMP-16,2025-04-18,Campeche,,,CJNG – TELEMAR CAMPECHE,,https://telemarcampeche.com/tag/cjng/
-CAMP-17,2018-02-03,Jalisco,Ocotlán,14061,Arde Ocotlán por narcobloqueo de familiares del CJNG contra Policía Federal,,https://jaliscorojo.com/2018/02/03/arde-ocotlan-por-narcobloqueo-de-familiares-del-cjng-contra-policia-federal/
-CAMP-18,2023-08-11,Quintana Roo,Carmen,23003,Captura FGE a 'La Yolanda'; jefa de plaza del CJNG y responsable de reciente violencia en Q. Roo,,https://www.jorgecastronoriega.com/captura-fge-a-la-yolanda-jefa-de-plaza-del-cjng-y-responsable-de-reciente-violencia-en-q-roo/
-CAMP-19,2023-08-31,México,,,Mexico: The Jalisco New Generation Cartel (CJNG); its activities; areas of operation; and influence; ability of the CJNG to track and retaliate against people who move to other areas of Mexico; the profiles of people they would be motivated to track and target (2021–August 2023),,https://irb-cisr.gc.ca/en/country-information/rir/Pages/index.aspx?doc=458872&pls=1
-CAMP-20,2018-03-19,México,,,The Strategic Implications of the Cártel de Jalisco Nueva Generación,,https://digitalcommons.usf.edu/cgi/viewcontent.cgi?article=1661&context=jss
-CAMP-21,2021-08-01,México,,,Mexico: The Jalisco New Generation Cartel (CJNG); its activities; areas of operation and influence; the ability of the CJNG to track and retaliate against people who move to other areas of Mexico; including Mérida; Campeche; Mexico City; and Cabo San Lucas; the profiles of people they would be motivated to track and target (2019–August 2021),,https://www.ecoi.net/en/document/2061281.html
-CAMP-22,2020-06-01,México,,,The Violent Rise of Cártel de Jalisco Nueva Generación (CJNG),,https://digitalcommons.fiu.edu/srhreports/toc/toc/120/
-CAMP-23,2021-09-08,México,,,Mexico: The crime situation in Mérida; Mexico City; Campeche; and Cabo San Lucas; organized crime and cartel groups active in these cities; the ability and motivation of organized crime groups and cartels active in other areas of Mexico; including the CJNG; to track and retaliate against people who relocate to these areas (2019–August 2021),,https://irb-cisr.gc.ca/en/country-information/rir/Pages/index.aspx?doc=458425
-CAMP-24,2018-03-19,México,,,Policy Brief: The New Generation: Mexico’s Emerging Organized Crime Threat,,https://justiceinmexico.org/wp-content/uploads/2018/03/180319-Policy_Brief-CJNG.pdf
-CAMP-25,2018-04-19,México,,,CJNG: la organización criminal donde todo queda en familia,,https://lasillarota.com/nacion/2018/4/19/cjng-la-organizacion-criminal-donde-todo-queda-en-familia-156948.html
-CAMP-26,2018-04-23,México,,,CJNG: Los 5 casos de violencia que conmocionaron México,,https://www.jornada.com.mx/2018/04/23/politica/023n1pol
-CAMP-27,2018-04-24,México,,,CJNG: los casos de violencia que conmocionaron México,,https://lasillarota.com/estados/2018/4/24/cjng-los-casos-de-violencia-que-conmocionaron-mexico-157276.html
-CAMP-28,2024-10-02,Campeche,,,No fue una; sino tres presuntas narcomantas colocadas en distintos puntos de la ciudad capital,,https://tribunacampeche.com/02/no-fue-una-sino-tres-presuntas-narcomantas-colocadas-en-distintos-puntos-de-la-ciudad-capital/695234/
-CAMP-29,2024-04-12,Campeche,,,Deja CJNG manta con amenazas contra secretaria de seguridad de Campeche,,https://www.jorgecastronoriega.com/deja-cjng-manta-con-amenazas-contra-secretaria-de-seguridad-de-campeche/
-CAMP-30,2022-10-07,México,,,Problemas en el CJNG,,https://solcampeche.mx/problemas-en-el-cjng/
-CAMP-31,2018-10-15,México,,,How Nemesio 'El Mencho' Oseguera became Mexico's most wanted man,,https://www.borderlandbeat.com/2018/10/how-nemesio-el-mencho-oseguera.html
-CAMP-32,2018-08-20,México,,,El Mayo' is behind division of CJNG,,https://www.borderlandbeat.com/2018/08/el-mayo-is-behind-division-of-cjng.html
-CAMP-33,2021-09-01,México,,,Mexico: The Jalisco New Generation Cartel (CJNG); its activities; areas of operation and influence; the ability of the CJNG to track and retaliate against people who move to other areas of Mexico; including Mérida; Campeche;Mexico City; and Cabo San Lucas; the profiles of people they would be motivated to track and target (2019–August 2021),,https://irb-cisr.gc.ca/en/country-information/rir/Pages/index.aspx?doc=458419
-CAMP-34,2018-06-08,Campeche,Campeche,4001,Caen 6 chinos y 4 mexicanos del CJNG,,http://campechehoy.mx/2018/06/08/caen-6-chinos-y-4-mexicanos-del-cjng/
-CAMP-35,2025-03-11,Jalisco,Teuchitlán,14091,Rancho asegurado en Teuchitlán Jalisco operaba como campo de exterminio del CJNG,,https://www.afmedios.com/rancho-asegurado-en-teuchitlan-jalisco-operaba-como-campo-de-exterminio-del-cjng/
-CAMP-36,2019-05-23,Jalisco,Talpa de Allende,14092,Testigo revela detalles de los campos del CJNG: recluta niños; 'navys' y 'fuerzas Delta' de EU,,https://www.poresto.net/mexico/2019/5/23/testigo-revela-detalles-de-los-campos-del-cjng-recluta-ninos-navys-fuerzas-delta-de-eu.html
-CAMP-37,2025-03-11,Jalisco,Teuchitlán,14091,Cae líder de red de reclutamiento del CJNG; operaba centro de adiestramiento en Teuchitlán Jalisco,,https://www.afmedios.com/cae-lider-de-red-de-reclutamiento-del-cjng-operaba-centro-de-adiestramiento-en-teuchitlan-jalisco/
-CAMP-38,2018-10-16,México,,,Indictments against 11 high-level Mexican drug cartel members unsealed,,https://www.dea.gov/press-releases/2018/10/16/indictments-against-11-high-level-mexican-drug-cartel-members-unsealed
-CAMP-39,2025-04-18,México,,,Jalisco New Generation Cartel,,https://en.wikipedia.org/wiki/Jalisco_New_Generation_Cartel
-CAMP-40,2022-09-26,México,,,Mexico's New Generation Jalisco Cartel Coordinates Chaos in Bid to Free Comrades,,https://www.militantwire.com/p/mexicos-new-generation-jalisco-cartel
-CAMP-41,2018-08-08,México,,,Tierra de narcocampamentos,,https://www.reporteindigo.com/opinion/Tierra-de-narcocampamentos-20180808-0011.html
-CAMP-42,2025-03-20,Jalisco,,,Cronología del CJNG en Jalisco: 12 años de terror que dejaron 13 mil desaparecidos,,https://www.infobae.com/mexico/2025/03/20/cronologia-del-cjng-en-jalisco-12-anos-de-terror-que-dejaron-13-mil-desaparecidos/
-CAMP-43,2025-03-15,Jalisco,Teuchitlán,14091,Centro de exterminio del CJNG operaba desde 2018; pero el alcalde afirma que desconocían su existencia,,https://www.noroeste.com.mx/nacional/centro-de-exterminio-del-cjng-operaba-desde-2018-pero-el-alcalde-afirma-que-desconocian-su-existencia-PA11110593
-CAMP-44,2018-08-08,México,,,Tierra de narcocampamentos,,https://www.casede.org/BibliotecaCasede/casede-medios/Tierra-de-narcocampamentos-Reporte-Indigo.pdf
-CAMP-45,2018-10-16,Estados Unidos,,,Justice Treasury and State Departments Announce Coordinated Enforcement Actions Against Mexican Drug Cartels,,https://www.dea.gov/press-releases/2018/10/16/justice-treasury-and-state-departments-announce-coordinated-enforcement
-CAMP-46,2018-10-16,Campeche,,,Ofrece EE.UU. 10 mdd por 'El Mencho',,http://campechehoy.mx/2018/10/16/ofrece-ee-uu-10-mdd-por-el-mencho/
-CAMP-47,2021-04-12,México,,,El Cártel del Tabaco se expande de la mano del CJNG,,https://www.proceso.com.mx/nacional/2021/4/12/el-cartel-del-tabaco-se-expande-de-la-mano-del-cjng-261835.html
-CAMP-48,2025-03-15,México,,,El CJNG ya opera en 25 de los 32 estados y su poder está lejos de ser minado; muestran cifras,,https://www.sinembargo.mx/3665887/el-cjng-ya-opera-en-25-de-los-32-estados-y-su-poder-esta-lejos-de-ser-minado-muestran-cifras/
-CAMP-49,2023-06-20,México,,,CJNG perdió presencia en varias entidades del país en tres años; según estudios,,https://www.infobae.com/mexico/2023/06/20/cjng-perdio-presencia-en-varias-entidades-del-pais-en-tres-anos-segun-estudios/
-CAMP-50,2018-12-01,México,,,Crimen organizado y seguridad en México: Informe de diciembre de 2018,,https://www.gob.mx/cms/uploads/attachment/file/883801/CE_2018_12.pdf
-CAMP-51,2021-03-18,Jalisco,Tlaquepaque,14067,Trascende video de 'El Cholo' capturado por el CJNG por órdenes de 'El Mencho',,https://www.lapalabradelcaribe.com/trasciende-video-de-el-cholo-capturado-por-el-cjng-por-ordenes-del-mencho/
-CAMP-52,2018-11-02,Estado de México,,,La inminente incursión del CJNG en el Edomex,,https://lasillarota.com/metropoli/2018/11/2/la-inminente-incursion-del-cjng-en-el-edomex-172542.html
-CAMP-53,2019-08-14,Campeche,,,CJNG declara la guerra al Cártel de 'El Abuelo',,http://campechehoy.mx/2019/08/14/cjng-declara-la-guerra-al-cartel-de-el-abuelo/
-CAMP-54,2024-12-03,Campeche,Ciudad del Carmen,4002,Desplaza Pura Gente Nueva célula del Cártel Jalisco a Cártel de Sinaloa en Campeche,,https://tribunacampeche.com/03/desplaza-pura-gente-nueva-celula-del-cartel-jalisco-a-cartel-de-sinaloa-en-campeche/700783/
-CAMP-55,2024-04-12,Campeche,,,CJNG cuelga manta amenazando a secretaria de Seguridad de Campeche Marcela Muñoz,,https://www.debate.com.mx/estados/CJNG-cuelga-manta-amenazando-a-secretaria-de-Seguridad-de-Campeche-Marcela-Munoz-20240412-0146.html
-CAMP-56,2023-01-13,Campeche,Champotón,4003,CJNG: Cárteles se disputan plaza y llegan hasta Campeche,,https://www.informador.mx/mexico/CJNG-Carteles-se-disputan-plaza-y-llegan-hasta-Campeche-20230113-0113.html
-CAMP-57,2024-10-22,Campeche,,,Reconocen en Campeche aumento en las extorsiones,,https://www.poresto.net/campeche/2024/10/22/reconocen-en-campeche-aumento-en-las-extorsiones-.html
-CHH-01,2025-03-05,Chihuahua,Chihuahua,8020,Detienen y extraditan a EEUU a operador de La Línea y CJNG; habría participado en atentado contra Harfuch,,https://www.infobae.com/mexico/2025/03/05/detienen-y-extraditan-a-eeuu-a-operador-de-la-linea-y-cjng-habria-participado-en-atentado-contra-harfuch/
-CHH-02,2024-10-31,Chihuahua,Ciudad Juárez,8037,EEUU sanciona a cinco narcotraficantes de La Línea; grupo ligado al CJNG y al Cártel de Juárez,,https://www.infobae.com/mexico/2024/10/31/eeuu-sanciona-a-cinco-narcotraficantes-de-la-linea-grupo-ligado-al-cjng-y-al-cartel-de-juarez/
-CHH-03,2024-09-17,Jalisco,Tapalpa,14084,El 'Jaguar'; jefe de sicarios de 'El Chapo'; testifica en contra de 'El Menchito'; esto dijo,,https://lasillarota.com/nacion/2024/9/17/el-jaguar-jefe-de-sicarios-de-el-chapo-testifica-en-contra-de-el-menchito-esto-dijo-501844.html
-CHH-04,2022-02-13,Chihuahua,Chihuahua,8020,Detienen en Chihuahua a 'El Fantasma'; presunto líder regional del CJNG en Zacatecas,,https://latinus.us/mexico/2022/2/13/detienen-en-chihuahua-el-fantasma-presunto-lider-regional-del-cjng-en-zacatecas-58716.html
-CHH-05,2021-12-22,Chihuahua,Guadalupe y Calvo,8028,Dos nuevos cárteles en Chihuahua declaran la guerra al de Sinaloa: NCJNG y Nuevo Cártel de Juárez,,https://www.proceso.com.mx/reportajes/2021/12/22/dos-nuevos-carteles-en-chihuahua-declaran-la-guerra-al-de-sinaloa-ncjng-nuevo-cartel-de-juarez-277935.html
-CHH-06,2024-11-01,Chihuahua,Ciudad Juárez,8037,Trafica ‘La Línea’ fentanilo del CJNG,,https://www.eldiariodechihuahua.mx/estado/2024/nov/01/trafica-la-linea-fentanilo-del-cjng-654248.html
-CHH-07,2024-11-01,Chihuahua,Ciudad Juárez,8037,¿Quién es “El Chuyin”; presunto socio de La Línea sancionado por EEUU?,,https://www.infobae.com/mexico/2024/11/01/quien-es-el-chuyin-presunto-socio-de-la-linea-sancionado-por-eeuu/
-CHH-08,2022-07-04,Chihuahua,Urique,8066,Se exacerba el terror en la Sierra Tarahumara: El CJNG anuncia su llegada,,https://www.proceso.com.mx/reportajes/2022/7/4/se-exacerba-el-terror-en-la-sierra-tarahumara-el-cjng-anuncia-su-llegada-288916.html
-CHH-09,2017-05-27,Chihuahua,Ciudad Juárez,8037,El Cártel de Jalisco; el más poderoso en Chihuahua,,https://www.proceso.com.mx/reportajes/2017/5/27/el-cartel-de-jalisco-el-mas-poderoso-en-chihuahua-185013.html
-CHH-10,2024-01-19,Chihuahua,Guadalupe y Calvo,8028,Persiste desplazamiento forzado en municipios de Chiapas y Chihuahua,,https://www.jornada.com.mx/2024/01/19/estados/026n1est
-CHH-11,2021-02-16,Chihuahua,Jiménez,8036,Alertan alianza entre CJNG y La Línea contra el Cártel de Sinaloa,,https://lasillarota.com/nacion/2021/2/16/alertan-alianza-entre-cjng-la-linea-contra-el-cartel-de-sinaloa-267690.html
-CHH-12,2022-02-08,Chihuahua,Ciudad Juárez,8037,Extorsionadores en Juárez piden aportaciones en nombre del CJNG,,https://oem.com.mx/elheraldodechihuahua/local/extorsionadores-en-juarez-piden-aportaciones-en-nombre-del-cjng-15172245
-CHH-13,2017-04-19,Chihuahua,Ciudad Juárez,8037,Cártel de Jalisco Nueva Generación opera ya en Chihuahua,,https://oem.com.mx/elsoldemexico/mexico/cartel-de-jalisco-nueva-generacion-opera-ya-en-chihuahua-16601926
-CHH-14,2022-08-11,Chihuahua,Ciudad Juárez,8037,Ahora en Ciudad Juárez; atacan tiendas y gasolineras; matan al menos 10; incluido el locutor Allan González,,https://www.proceso.com.mx/nacional/2022/8/11/ahora-en-ciudad-juarez-atacan-tiendas-gasolineras-matan-al-menos-10-incluido-el-locutor-allan-gonzalez-291374.html
-CHH-15,2022-03-13,Chihuahua,Tuxtla Gutiérrez,7072,Capturan a líder de grupo delictivo 'Gente Nueva' y a miembro del CJNG,,https://www.tvazteca.com/aztecanoticias/lider-gente-nueva-cjng-jvgl
-CHH-16,2024-01-08,Chihuahua,Guadalajara,14039,¿Por qué acusan de fraude a la empresa Yox Holding en Jalisco y otros estados?,,https://www.debate.com.mx/guadalajara/Por-que-acusan-de-FRAUDE-a-la-empresa-Yox-Holding-En-Jalisco-y-otros-estados-20240108-0216.html
-CHH-17,2024-05-25,Chihuahua,Ciudad Juárez,8037,Detienen a dos presuntos criminales de lavado de dinero del Cártel de Sinaloa y CJNG en Estados Unidos,,https://oem.com.mx/elheraldodejuarez/local/detienen-a-dos-presuntos-criminales-de-lavado-de-dinero-del-cartel-de-sinaloa-y-cjng-en-estados-unidos-13654950
-CHH-18,2017-03-28,Chihuahua,Ciudad Juárez,8037,Cae 'El Cochi Ratón'; líder del Cártel de Jalisco,,https://www.debate.com.mx/mexico/Cae-El-Cochi-Raton-lider-del-Cartel-de-Jalisco-20170328-0077.html
-CHH-19,2017-09-27,Chihuahua,Chihuahua,8020,Asesinan a 14 personas en centro de adicciones de Chihuahua,,https://lasillarota.com/estados/2017/9/27/asesinan-14-personas-en-centro-de-adicciones-de-chihuahua-141069.html
-CHH-20,2015-11-15,Chihuahua,Chihuahua,8020,Consignan al segundo del CJNG a penal de Chihuahua,,https://josecardenas.com/2015/11/consigan-al-segundo-del-cjng-a-penal-de-chihuahua/
-CHH-21,2021-02-16,Chihuahua,Ciudad Juárez,8037,La violenta irrupción del CJNG en Chihuahua: estaría pactando con La Línea eliminar al Cártel de Sinaloa,,https://eldiariodelnoroeste.mx/noticias/2021/feb/16/la-violenta-irrupcion-del-cjng-en-chihuahua-estaria-pactando-con-la-linea-eliminar-al-cartel-de-sinaloa-598876.html
-CHH-22,2018-06-12,Chihuahua,Puerto Vallarta,14067,Detienen a presunto contador del CJNG,,https://segundoasegundo.com/detienen-a-presunto-contador-del-cjng/
-CHH-23,2020-07-02,Chihuahua,Hidalgo del Parral,8033,Atribuyen balaceras a ruptura entre el cártel Gente Nueva; Cártel de Sinaloa; Cártel de Juárez y CJNG,,https://oem.com.mx/elheraldodechihuahua/local/atribuyen-balaceras-a-ruptura-entre-el-cartel-gente-nueva-cartel-de-sinaloa-cartel-de-juarez-cjng-22724771
-CHH-24,2025-02-14,Chihuahua,Ciudad Juárez,8037,Detienen a 'El Viejón'; líder del Cártel de Sinaloa en Ciudad Juárez; era buscado por el FBI,,https://www.elfinanciero.com.mx/estados/2025/02/14/detienen-a-el-viejon-lider-del-cartel-de-sinaloa-en-ciudad-juarez-era-buscado-por-el-fbi/
-CHH-25,2023-10-31,Chihuahua,Ciudad Juárez,8037,El JL': esto se sabe del actual líder del Cártel de Juárez tras la captura de 'El Viceroy'; hermano de Amado Carrillo,,https://www.infobae.com/mexico/2023/10/31/el-jl-esto-se-sabe-del-actual-lider-del-cartel-de-juarez-tras-la-captura-de-el-viceroy-hermano-de-amado-carrillo/
-CHH-26,2023-03-23,Chihuahua,Toluca,15083,Cayó 'El Minimi'; presunto líder de La Línea; grupo que estaría vinculada al CJNG,,https://www.infobae.com/mexico/2023/03/23/cayo-el-minimi-presunto-lider-de-la-linea-grupo-que-estaria-vinculada-al-cjng/
-CHH-27,2024-07-31,Chihuahua,Ojinaga,8052,¿Quién es Alfredo “El PlayStation” Chávez; el narcotraficante buscado por la DEA que podría estar ocultándose en México?,,https://www.infobae.com/mexico/2024/07/31/quien-es-alfredo-el-playstation-chavez-el-narcotraficante-buscado-por-la-dea-que-podria-estar-ocultandose-en-mexico/
-CHH-28,2024-06-28,Chihuahua,Zapopan,14120,César Cazarin Molina; 'Comandante Tornado'; sentenciado a 60 años; ¿qué delitos cometió el CJNG?,,https://www.elfinanciero.com.mx/nacional/2024/06/28/cesar-cazarin-molina-comandante-tornado-sentenciado-a-60-anos-que-delitos-cometio-cjng/
-CHH-29,2022-03-03,Chihuahua,Colima,6004,¿Quién es 'La Vaca'; el narco liberado que declaró la guerra a sus aliadas del CJNG en Colima?,,https://www.infobae.com/america/mexico/2022/03/03/quien-es-la-vaca-el-narco-liberado-que-declaro-la-guerra-a-sus-aliadas-del-cjng-en-colima/
-CHH-30,2022-12-22,Chihuahua,Tepic,18017,Detienen al 'Borrego'; brazo derecho de uno de los líderes del CJNG,,https://www.eldiariodechihuahua.mx/nacional/2022/dec/22/detienen-al-borrego-brazo-derecho-de-uno-de-los-lideres-del-cjng-473223.html
-CHIS-01,2024-12-25,Chiapas,Cintalapa,7019,Operativos intensivos contra el CJNG en Chiapas resultan en aseguramientos clave,,https://www.contramuro.com/operativos-contra-cjng-chiapas/
-CHIS-02,2024-01-05,Chiapas,Frontera Comalapa,7034,CJNG' y el 'Cártel de Sinaloa' reactivan enfrentamientos en Chiapas,,https://www.jornada.com.mx/noticia/2024/01/05/estados/2018cjng2019-y-el-2018cartel-de-sinaloa2019-reactivan-enfrentamientos-en-chiapas-431
-CHIS-03,2023-05-30,Chiapas,Chicomuselo,7019,Violencia; desplazados y fosas: guerra entre CJNG y Chapos llega a Chiapas,,https://lasillarota.com/estados/2023/5/30/violencia-desplazados-fosas-guerra-entre-cjng-chapos-llega-chiapas-430955.html
-CHIS-04,2025-01-04,Chiapas,Frontera Comalapa,7034,CJNG: Catean cinco ranchos de la organización criminal y rescatan a extranjeros cautivos,,https://www.informador.mx/mexico/CJNG-Catean-cinco-ranchos-de-la-organizacion-criminal-y-rescatan-a-extranjeros-cautivos-20250104-0044.html
-CHIS-05,2018-08-15,Chiapas,Frontera Comalapa,7034,Fuerzas federales y estatales capturan en Chiapas a 30 presuntos integrantes del CJNG,,https://www.proceso.com.mx/nacional/2018/8/15/fuerzas-federales-estatales-capturan-en-chiapas-30-presuntos-integrantes-del-cjng-210503.html
-CHIS-06,2025-03-15,Chiapas,Tuxtla Gutiérrez,7019,Cártel de Jalisco Nueva Generación fortalece su dominio en Chiapas tras caída de Cártel de Sinaloa,,https://www.sinaloahoy.com.mx/portal/cartel-de-jalisco-nueva-generacion-fortalece-su-dominio-en-chiapas-tras-caida-de-cartel-de-sinaloa/
-CHIS-07,2025-01-05,Chiapas,Puerto Chiapas,7019,Cártel de Sinaloa y CJNG; los amos de Chiapas,,https://solyucatan.mx/cartel-de-sinaloa-y-cjng-los-amos-de-chiapas/
-CHIS-08,2018-08-16,Chiapas,Frontera Comalapa,7034,Caen 30 presuntos integrantes del CJNG en Chiapas,,https://eldiariony.com/2018/08/16/caen-30-presuntos-integrantes-del-cjng-en-chiapas/
-CHIS-09,2018-08-17,Chiapas,Frontera Comalapa,7034,Capturan en Chiapas a 48 del Cártel de Jalisco Nueva Generación,,https://www.razon.com.mx/mexico/2018/08/17/capturan-en-chiapas-a-48-del-cartel-de-jalisco-nueva-generacion/
-CHIS-10,2023-09-18,Chiapas,,7000,Gary Monje; CJNG; extradición Chiapas,,https://www.dallasnews.com/espanol/al-dia/estados-unidos/2023/09/18/gary-monje-cjng-extradicion-chiapas/
-CHIS-11,2018-08-16,Chiapas,Frontera Comalapa,7034,Detienen en Chiapas a presunta célula del Cártel Jalisco Nueva Generación (CJNG),,https://www.chiapasparalelo.com/noticias/chiapas/2018/08/detienen-en-chiapas-a-presunta-celula-del-cartel-jalisco-nueva-generacion-cjng/
-CHIS-12,2018-08-16,Chiapas,Frontera Comalapa,7034,Detienen a 48 personas vinculadas con el CJNG en Chiapas,,https://www.yucatan.com.mx/mexico/2018/08/16/detienen-a-48-personas-vinculadas-con-el-cjng-en-chiapas.html
-CHIS-13,2018-08-15,Chiapas,Frontera Comalapa,7034,Capturan a 30 presuntos integrantes del CJNG en Chiapas,,https://riodoce.mx/2018/08/15/capturan-a-30-presuntos-integrantes-del-cjng-en-chiapas/
-CHIS-14,2018-08-16,Chiapas,Frontera Comalapa,7034,Detienen a 48 presuntos integrantes del CJNG en Chiapas,,https://www.ntv.com.mx/2018/08/16/detienen-a-48-presuntos-integrantes-del-cjng-en-chiapas/
-CHIS-15,2025-03-25,Jalisco,Teuchitlán,14093,Campo de exterminio en México expone los horrores del reclutamiento forzado,,https://insightcrime.org/es/noticias/campo-exterminio-mexico-expone-horrores-reclutamiento-forzado-cjng/
-CHIS-16,2025-03-14,Chiapas,,7000,Alianzas con grupos locales: la clave del CJNG para adentrarse en Chiapas y confrontar al Cártel de Sinaloa,,https://www.infobae.com/mexico/2025/03/14/alianzas-con-grupos-locales-la-clave-del-cjng-para-adentrarse-en-chiapas-y-confrontar-al-cartel-de-sinaloa/
-CHIS-17,2018-08-15,Chiapas,Frontera Comalapa,7034,Capturan a 30 presuntos integrantes del CJNG en Chiapas,,https://www.debate.com.mx/policiacas/Capturan-a-30-presuntos-integrantes-del-CJNG-en-Chiapas-20180815-0278.html
-CHIS-18,2025-04-09,Chiapas,Tuxtla Gutiérrez,7019,Desarticulan célula del CJNG en Chiapas,,https://www.jornada.com.mx/noticia/2025/04/09/estados/desarticulan-celula-del-cjng-en-chiapas
-CHIS-19,2024-02-26,Chiapas,Frontera Comalapa,7034,Así fue como el CJNG se infiltró en Chiapas pese al dominio del Cártel de Sinaloa; según WSJ,,https://www.infobae.com/mexico/2024/02/26/asi-fue-como-el-cjng-se-infiltro-en-chiapas-pese-al-dominio-del-cartel-de-sinaloa-segun-wsj/
-CHIS-20,2018-08-16,Chiapas,Frontera Comalapa,7034,Capturan en Chiapas 48 presuntos integrantes de una célula del CJNG,,https://mvsnoticias.com/nacional/2018/8/16/capturan-en-chiapas-48-presuntos-integrantes-de-una-celula-del-cjng-383445.html
-CHIS-21,2023-09-15,Chiapas,Altamirano,7004,CJNG; la brutal masacre contra una familia de catequistas católicos en Chiapas,,https://www.prensalibre.com/internacional/cjng-la-brutal-masacre-contra-una-familia-de-catequistas-catolicos-en-chiapas/
-CHIS-22,2024-10-10,Chiapas,Altos de Chiapas,7000,Gobierno niega conflicto armado en Chiapas mientras violencia exacerba crisis humanitaria,,https://avispa.org/gobierno-niega-conflicto-armado-en-chiapas-mientras-violencia-exacerba-crisis-humanitaria/
-CHIS-23,2025-01-10,Chiapas,Ocosingo,7058,Chiapas nuevamente: términos de la conflictividad actual; el nuevo eje dominante: CDS vs CJNG (Parte II),,https://www.sdpnoticias.com/opinion/chiapas-nuevamente-terminos-de-la-conflictividad-actual-el-nuevo-eje-dominante-cds-vs-cjng-parte-ii/
-CHIS-24,2018-08-16,Chiapas,Frontera Comalapa,7034,Detienen a 48 presuntos integrantes del CJNG en Chiapas,,https://www.zonacentronoticias.com/2018/08/detienen-a-48-presuntos-integrantes-del-cjng-en-chiapas/
-CHIS-25,2018-08-16,Chiapas,Frontera Comalapa,7034,Suman 48 detenidos vinculados con el CJNG en Chiapas,,https://www.eluniversal.com.mx/estados/suman-48-detenidos-vinculados-con-el-cjng-en-chiapas/
-CHIS-26,2018-08-16,Chiapas,Frontera Comalapa,7034,Desarticulan célula del CJNG que operaba en Chiapas,,https://gabycoutino.com/2018/08/16/desarticulan-celula-del-cjng-que-operaba-en-chiapas/
-CHIS-27,2018-08-16,Chiapas,Frontera Comalapa,7034,Detienen en Chiapas a 48 presuntos integrantes del Cártel Jalisco Nueva Generación,,https://www.sinembargo.mx/3458006/detienen-en-chiapas-a-48-presuntos-integrantes-del-cartel-jalisco-nueva-generacion/
-CHIS-28,2018-08-16,Chiapas,Frontera Comalapa,7034,Grupo interinstitucional detiene a 48 supuestos integrantes del CJNG,,https://chiapas.quadratin.com.mx/sucesos/grupo-interistitucional-detiene-a-48-supuestos-integrantes-del-cjng/
-CHIS-29,2018-08-16,Chiapas,Frontera Comalapa,7034,Capturan en Chiapas a 30 presuntos integrantes del CJNG,,https://www.diaadiatamaulipas.com/2018/08/capturan-en-chiapas-30-presuntos.html
-CHIS-30,2023-09-24,Chiapas,Chicomuselo,7019,Crece tensión en Chiapas por disputa entre CJNG y el ‘Cártel de Sinaloa’,,https://www.jornada.com.mx/noticia/2023/09/24/estados/crece-tension-en-chiapas-por-disputa-entre-cjng-y-el-2018cartel-de-sinaloa2019-8724
-CHIS-31,2023-11-06,Chiapas,Chicomuselo,7019,Cuatro integrantes del CJNG fueron vinculados a proceso en Chiapas,,https://www.capitalmexico.com.mx/estados/chiapas/cuatro-integrantes-del-cjng-fueron-vinculados-a-proceso-en-chiapas/
-CHIS-32,2025-04-18,Chiapas,Tuxtla Gutiérrez,7019,Comisión de DDHH de México acusa al Ejército de graves violaciones por matar a 6 migrantes,,https://es-us.noticias.yahoo.com/comisi%C3%B3n-ddhh-m%C3%A9xico-acusa-ej%C3%A9rcito-163623928.html
-CHIS-33,2023-03-15,Chiapas,Tapachula,7089,Sedena revela el mapa criminal en Chiapas: operan cárteles y Mara Salvatrucha,,https://contralinea.com.mx/interno/semana/sedena-revela-el-mapa-criminal-en-chiapas-operan-carteles-y-mara-salvatrucha/
-CHIS-34,2023-11-06,Chiapas,Chicomuselo,7019,¿Cómo ha logrado expandirse el CJNG? Evidencia reciente de Chiapas,,https://www.elfinanciero.com.mx/opinion/eduardo-guerrero-gutierrez/2023/11/06/como-ha-logrado-expandirse-el-cjng-evidencia-reciente-de-chiapas/
-CHIS-35,2025-01-30,Chiapas,Bella Vista,7013,CJNG: Cae segundo alcalde en Chiapas; ahora por presuntos nexos con el narco,,https://www.informador.mx/mexico/CJNG-Cae-segundo-alcalde-en-Chiapas-ahora-por-presuntos-nexos-con-el-narco-20250130-0084.html
-CHIS-36,2025-03-24,Chiapas,Tuxtla Gutiérrez,7019,LASTRA; detenido en CDMX por reclutar y adiestrar para el CJNG; había sido reportado como desaparecido en Chiapas en 2020,,https://elsoldechiapas.com/lastra-detenido-en-cdmx-por-reclutar-y-adiestrar-para-el-cjng-habia-sido-reportado-como-desaparecido-en-chiapas-en-2020/
-CHIS-37,2025-04-06,Chiapas,Tuxtla Gutiérrez,7019,LIGAN con el CJNG buques de huachicol,,https://elsoldechiapas.com/ligan-con-el-cjng-buques-de-huachicol/
-CHIS-38,2025-04-16,Chiapas,Tuxtla Gutiérrez,7019,ASÍ LAVABAN millones de dólares el Cártel de Sinaloa y CJNG con envíos a China; revela EE.UU.,,https://elsoldechiapas.com/asi-lavaban-millones-de-dolares-el-cartel-de-sinaloa-y-cjng-con-envios-a-china-revela-ee-uu/
-CHIS-39,2024-11-21,Chiapas,Tuxtla Gutiérrez,7019,Cártel de Jalisco Nueva Generación en Chiapas: Un desafío para la seguridad,,https://tuxtladigital.com/2024/11/21/cartel-de-jalisco-nueva-generacion-en-chiapas-un-desafio-para-la-seguridad/
-CHIS-40,2024-11-18,Chiapas,Jaltenango,7019,Bloqueos en Chiapas: el CJNG presiona para sacar al Ejército del estado,,https://laverdadnoticias.com/crimen/bloqueos-en-chiapas-el-cjng-presiona-para-sacar-al-ejercito-del-estado-20241118
-CHIS-41,2024-11-15,Chiapas,Jaltenango,7019,Ahora es al revés: el CJNG presiona pero para al Ejército de Chiapas,,https://www.narcoenmexico.com/2024/11/ahora-es-al-reves-el-cjng-presiona-pero.html
-CHIS-42,2024-05-07,Chiapas,Tuxtla Gutiérrez,7019,Violencia y corrupción: la herencia de Rutilio Escandón en Chiapas,,https://reportemaya.mx/2024/05/07/violencia-y-corrupcion-la-herencia-de-rutilio-escandon-en-chiapas/
-CHIS-43,2025-03-24,Chiapas,Frontera Comalapa,7034,Caen dos en Chiapas que llevaban armas; cocaína y una gorra del CJNG,,https://www.infobae.com/mexico/2025/03/24/caen-dos-en-chiapas-que-llevaban-armas-cocaina-y-una-gorra-del-cjng/
-CHIS-44,2025-03-22,Chiapas,Cintalapa,7019,Ranchos El Zapote y sicarios fueron asegurados por fuerzas federales en Cintalapa; presumiblemente usados por el CJNG,,https://elsoldechiapas.com/ranchos-el-zapote-y-sicarios-fueron-asegurados-por-fuerzas-federales-en-cintalapa-presumiblemente-usados-por-el-cjng/
-CHIS-45,2025-03-21,Chiapas,Tonalá,7093,Incautan en Chiapas vehículo que transportaba más 4 millones de pesos en cocaína,,https://elsoldechiapas.com/incautan-en-chiapas-vehiculo-que-transportaba-mas-4-millones-de-pesos-en-cocaina/
-CHIS-46,2025-03-20,Chiapas,Villaflores,7058,Guardia Nacional abate a sicarios del Cártel de Chiapas tras agresión en Villaflores,,https://elsoldechiapas.com/guardia-nacional-abate-a-sicarios-del-cartel-de-chiapas-tras-agresion-en-villaflores/
-CHIS-47,2025-03-19,Chiapas,Marqués de Comillas,7057,Emboscan convoy de la Sedena en Marqués de Comillas; Chiapas; se reporta la muerte de un militar,,https://elsoldechiapas.com/emboscan-convoy-de-la-sedena-en-marques-de-comillas-chiapas-se-reporta-la-muerte-de-un-militar/
-CHIS-48,2025-03-15,Chiapas,Frontera Comalapa,7034,Más de 100 personas han desaparecido en Frontera Comalapa; Chiapas; por la actividad delincuencial de los últimos años,,https://elsoldechiapas.com/mas-de-100-personas-han-desaparecido-en-frontera-comalapa-chiapas-por-la-actividad-delincuencial-de-los-ultimos-anos/
-CHIS-49,2025-03-14,Chiapas,Tapachula,7089,Chiapas rompe récord de violencia: tuvo 22 homicidios en un día,,https://oem.com.mx/elsoldemexico/mexico/chiapas-rompe-record-de-violencia-tuvo-22-homicidios-en-un-dia-13092635
-CHIS-50,2025-03-13,Chiapas,Tuxtla Gutiérrez,7019,Pese a ola de violencia; solo un líder criminal en Chiapas ha sido detenido,,https://oem.com.mx/elsoldemexico/mexico/pese-a-ola-de-violencia-solo-un-lider-criminal-en-chiapas-ha-sido-detenido-16609051
-CHIS-51,2025-03-10,Chiapas,Comitán,7028,Gatilleros de 'El Mayo'; el azote de Chiapas,,https://solyucatan.mx/gatilleros-de-el-mayo-el-azote-de-chiapas/
-CHIS-52,2025-01-08,Chiapas,Tuxtla Gutiérrez,7019,Detienen a cinco presuntos integrantes del CJNG en Tuxtla Gutiérrez; Chiapas,,https://www.debate.com.mx/estados/Detienen-a-cinco-presuntos-integrantes-del-CJNG-en-Tuxtla-Gutierrez-Chiapas-20250108-0127.html
-CHIS-53,2025-01-12,Chiapas,Frontera Sierra,7000,Nueva cartografía del crimen en Chiapas; los cárteles que operan en el estado,,https://oem.com.mx/elsoldemexico/mexico/nueva-cartografia-del-crimen-en-chiapas-los-carteles-que-operan-en-el-estado-15425441
-CHIS-54,2025-01-10,Chiapas,Frontera Comalapa,7034,Chiapas otra vez en guerra,,https://oem.com.mx/elsoldemexico/mexico/chiapas-otra-vez-en-guerra-15403686
-CHIS-55,2025-01-09,Chiapas,Tapachula,7089,Extorsiona crimen ahora a plataneros de Chiapas,,https://elsoldechiapas.com/extorsiona-crimen-ahora-a-plataneros-de-chiapas/
-CHIS-56,2025-01-08,Chiapas,Ocosingo,7058,Narcoviolencia en Chiapas: Hombre suplicó a todos los varones de Chejel que regresen a defender su comunidad,,https://elsoldechiapas.com/narcoviolencia-en-chiapas-hombre-suplico-a-todos-los-varones-de-chejel-que-regresen-a-defender-su-comunidad/
-CHIS-57,2024-05-14,Chiapas,Chicomuselo,7019,CJNG y de Sinaloa atacan CFE Chiapas; 11 muertos en Chicomuselo,,https://www.yucatan.com.mx/mexico/2024/05/14/cjng-y-de-sinaloa-atacan-cfe-chiapas-11-muertos-en-chicomuselo.html
-CHIS-58,2025-01-13,Chiapas,Sierra Madre,7000,Mantienen al Ejército sin acceso a Sierra de Chiapas,,https://oem.com.mx/elsoldemexico/mexico/mantienen-al-ejercito-sin-acceso-a-sierra-de-chiapas-13093332
-CHIS-59,2018-08-16,Chiapas,Frontera Comalapa,7034,Detienen en Chiapas a presunta célula del Cártel Jalisco Nueva Generación (CJNG),,https://www.chiapasparalelo.com/noticias/chiapas/2018/08/detienen-en-chiapas-a-presunta-celula-del-cartel-jalisco-nueva-generacion-cjng/
-CHIS-60,2019-10-10,Veracruz,Xalapa,30067,Liberan a presunto líder del CJNG en Veracruz; ahora dirige un diario respaldado por Morena,,https://www.chiapasparalelo.com/noticias/chiapas/2019/10/liberan-a-presunto-lider-del-cjng-en-veracruz-ahora-dirige-un-diario-respaldado-por-morena/
 23-04-25-NOTA-01,2024-11-11,Jalisco,Guadalajara,14039,En Jalisco SSPC detiene a La Güera presunta operadora de los Mayos en Colima,,https://www.angulo7.com.mx/2024/nacional/en-jalisco-sspc-detiene-a-la-guera-presunta-operadora-de-los-mayos-en-colima/591346/
 23-04-25-NOTA-02,2024-12-28,Guerrero,Acapulco,12001,Detenido en Acapulco El Panadero líder de una célula criminal en la ciudad del Pacífico,,https://elpais.com/mexico/2024-12-28/detenido-en-acapulco-el-panadero-lider-de-una-celula-criminal-en-la-ciudad-del-pacifico.html
 23-04-25-NOTA-03,2015-11-06,Baja California Sur,Los Cabos,3008,Detienen a El Gus,,https://www.noroeste.com.mx/nacional/detienen-a-el-gus-CVNO19105
@@ -311,26 +81,281 @@ CHIS-60,2019-10-10,Veracruz,Xalapa,30067,Liberan a presunto líder del CJNG en V
 24-04-25-NOTA-43,2024-04-09,CDMX,Xochimilco,9016,Vinculan a proceso a ‘El Cindy’; presunto líder del Cártel de Tláhuac,,https://www.jornada.com.mx/noticia/2024/04/09/capital/vinculan-a-proceso-a-2018el-cindy2019-presunto-lider-del-cartel-de-tlahuac-7722
 24-04-25-NOTA-44,2024-04-18,Ciudad de México,Cuauhtémoc,9002,Cae integrante de La Unión Tepito identificado como El Yerson,,https://www.milenio.com/policia/cae-integrante-de-la-union-tepito-identificado-como-el-yerson
 24-04-25-NOTA-45,2024-10-16,Ciudad de México,Cuauhtémoc,9002,Así es como la UIF y la SEIDO buscan acabar de raíz con La Unión Tepito en la CDMX,,https://www.infobae.com/mexico/2024/10/16/asi-es-como-la-uif-y-la-seido-buscan-acabar-de-raiz-con-la-union-tepito-en-la-cdmx/
+21-04-25-OFAC-01,12/02/2022,Jalisco,Puente Grande,140000001,Juez concede suspensión provisional a El Elvis; cuñado de El Mencho; contra orden de captura,,https://www.eluniversal.com.mx/nacion/cjng-juez-concede-suspension-provisional-el-elvis-cunado-de-el-mencho-contra-orden-de-captura/
+21-04-25-OFAC-02,09/08/2017,Jalisco,Guadalajara,140000001,EE.UU. incluye en lista ‘negra’ a nueve miembros de CJNG y Los Cuinis,,https://www.contramuro.com/ee-uu-incluye-en-lista-negra-a-nueve-miembros-de-cjng-y-los-cuinis/
+21-04-25-OFAC-03,25/05/2017,Sinaloa,Choix,250060001,Cártel de los Ruelas Torres es incluido en lista negra,,https://www.debate.com.mx/mexico/Cartel-de-los-Ruelas-Torres--es-incluido-en-lista-negra-20170524-0294.html
+21-04-25-OFAC-04,12/01/2024,Jalisco,Guadalajara,140000001,Condenan a 21 años de cárcel al mexicano Raúl Flores por narcotráfico en EU,,https://abcnoticias.mx/global/2024/1/12/condenan-21-anos-de-carcel-al-mexicano-raul-flores-por-narcotrafico-en-eu-207172.html
+21-04-25-OFAC-05,09/08/2017,Jalisco,Guadalajara,140000001,El capo desconocido que enlodó a Márquez y a Álvarez,,https://zetatijuana.com/2017/08/el-capo-desconocido-que-enlodo-a-marquez-y-a-alvarez/
+21-04-25-OFAC-06,10/08/2017,Ciudad de México,Ciudad de México,90000001,De muy bajo perfil; pero con alto poder,,https://www.reforma.com/de-muy-bajo-perfil-pero-con-alto-poder/ar1182209
+21-04-25-OFAC-07,06/03/2018,Sinaloa,Guasave,250120001,EU sanciona a 8 personas y 8 empresas ligadas a grupo del narco Los Ruelas,,https://www.eluniversal.com.mx/nacion/seguridad/eu-sanciona-8-personas-y-8-empresas-ligadas-grupo-del-narco-los-ruelas/
+21-04-25-OFAC-08,14/09/2017,Jalisco,Guadalajara,140390001,Tesoro de EU vincula a empresas e individuos con CJNG y los Cuinis,,https://www.elimparcial.com/mundo/2017/09/14/tesoro-de-eu-vincula-a-empresas-e-individuos-con-cjng-y-los-cuinis/
+21-04-25-OFAC-09,12/05/2021,Sinaloa,Batamote,250250001,Quién es Chuy González Peñuelas y cómo es su vínculo con los Mazatlecos y Caro Quintero,,https://www.infobae.com/america/mexico/2021/05/13/quien-es-chuy-gonzalez-penuelas-y-cual-es-su-vinculo-con-los-mazatlecos-y-caro-quintero/
+21-04-25-OFAC-10,12/05/2021,Sinaloa,Batamote,250250001,Jesús González Peñuelas narcotraficante mexicano Quién es y qué hizo,,https://www.milenio.com/policia/jesus-gonzalez-penuelas-narcotraficante-mexicano-quien-es-y-que-hizo
+21-04-25-OFAC-11,14/09/2017,Jalisco,Guadalajara,140390001,EU sanciona a empresas ligadas a Los Cuinis y al CJNG,,https://www.zocalo.com.mx/eu-sanciona-a-empresas-ligadas-a-los-cuinis-y-al-cjng/
+21-04-25-OFAC-12,25/12/2024,Ciudad de México,Polanco,90000001,Jesús Pérez Alvear promotor musical asesinado en Polanco y ligado al CJNG era testigo colaborador en EEUU,,https://www.infobae.com/mexico/2024/12/25/jesus-perez-alvear-promotor-musical-asesinado-en-polanco-y-ligado-al-cjng-era-testigo-colaborador-en-eeuu/
+21-04-25-OFAC-13,06/03/2018,Sinaloa,Desconocido,250000000,Tesoro sanciona a 16 personas y empresas por tráfico de heroína desde México,,https://www.latimes.com/espanol/noticas-mas/articulo/2018-03-06/efe-3544534-13922709-20180306
+21-04-25-OFAC-14,17/05/2019,Nayarit,Tepic,180390001,Esposa e hijos de Roberto Sandoval en la mira de EU por ser prestanombres,,https://www.eluniversal.com.mx/nacion/esposa-e-hijos-de-roberto-sandoval-en-la-mira-de-eu-por-ser-prestanombres/
+21-04-25-OFAC-15,17/05/2019,Nayarit,Tepic,180390001,Lidy Alejandra quien es la hija del exgobernador de Nayarit Roberto Sandoval,,https://www.eluniversal.com.mx/nacion/lidy-alejandra-quien-es-la-hija-del-exgobernador-de-nayarit-roberto-sandoval/
+21-04-25-OFAC-16,17/05/2019,Nayarit,Tepic,180390001,OFAC sanciona a Pablo Roberto Sandoval López por actuar en nombre de su padre,,https://home.treasury.gov/news/press-releases/sm692
+21-04-25-OFAC-17,13/06/2023,Nayarit,Tepic,180390001,Fiscalía de Nayarit gira orden de aprehensión contra exgobernador Roberto Sandoval,,https://www.noroeste.com.mx/nacional/fiscalia-de-nayarit-gira-orden-de-aprehension-contra-ex-gobernador-roberto-sandoval-GANO1214534
+21-04-25-OFAC-18,03/03/2024,Jalisco,Tecalitlán,140930001,Fiscalía Jalisco apunta a El Sapo por operar narcorrancho CJNG,,https://www.milenio.com/estados/fiscalia-jalisco-apunta-a-el-sapo-por-operar-narcorrancho-cjng
+21-04-25-OFAC-19,10/01/2023,Jalisco,Guadalajara,140390001,Las mujeres dentro del Cártel de Jalisco Nueva Generación,,https://www.mural.com.mx/las-mujeres-dentro-del-cartel-de-jalisco-nueva-generacion/ar2055794
+21-04-25-OFAC-20,10/10/2022,Sinaloa,Bacayopa,260530001,Adelmo Núñez Molina señalado por la DEA como miembro de González Peñuelas DTO,,https://www.dea.gov/es/node/214661
+21-04-25-OFAC-21,12/10/2022,Sinaloa,Desconocido,260000000,El Tesoro identifica a mexicano traficante de narcóticos con sede en Sinaloa que ayuda a alimentar la epidemia de opioides en EEUU,,https://mx.usembassy.gov/es/el-tesoro-identifica-a-mexicano-traficante-de-narcoticos-con-sede-en-sinaloa-que-ayuda-a-alimentar-la-epidemia-de-opioides-en-los-estados-unidos/
+21-04-25-OFAC-22,23/01/2024,Sinaloa,Mazatlán,260230001,Dónde está Lucio Rodríguez Serrano la mano derecha de Caro Quintero que EEUU anhela atrapar,,https://www.infobae.com/mexico/2024/01/23/donde-esta-lucio-rodriguez-serrano-la-mano-derecha-de-caro-quintero-que-eeuu-anhela-atrapar/
+21-04-25-OFAC-23,23/01/2024,Sinaloa,Mazatlán,260230001,Lucio Rodríguez Serrano mano derecha de Caro Quintero,,https://www.excelsior.com.mx/nacional/lucio-rodriguez-serrano-mano-derecha-caro-quintero/1527472
+21-04-25-OFAC-24,06/04/2021,Oregon,Desconocido,0,Cae presunto integrante de un cártel mexicano en Oregon,,https://kunptv.com/news/local/cae-presunto-integrante-de-un-crtel-mexicano-en-oregon
+21-04-25-OFAC-25,06/04/2021,Jalisco,Guadalajara,140390001,Quién es Alejandro Chacón el supuesto agente de viajes del CJNG,,https://lasillarota.com/nacion/2021/4/6/quien-es-alejandro-chacon-el-supuesto-agente-de-viajes-del-cjng-274553.html
+21-04-25-OFAC-26,01/03/2024,Jalisco,Guadalajara,140390001,Extraditan a Estados Unidos a El Escorpión miembro de alto rango del Cartel Jalisco Nueva Generacion,,https://oem.com.mx/eloccidental/policiaca/extraditan-a-estados-unidos-a-el-escorpion-miembro-de-alto-rango-del-cartel-jalisco-nueva-generacion-13149402
+21-04-25-OFAC-27,21/08/2024,Colima,Colima,60010001,Dan prision preventiva a Aldrin Miguel El Chaparrito del CJNG que operaba en Colima,,https://www.infobae.com/mexico/2024/08/21/dan-prision-preventiva-a-aldrin-miguel-el-chaparrito-del-cjng-que-operaba-en-colima/
+21-04-25-OFAC-28,20/08/2024,Colima,Colima,60010001,Quien es El Chaparrito y por que su detencion es un duro golpe para El Mencho y el CJNG,,https://www.infobae.com/mexico/2024/08/20/quien-es-el-chaparrito-y-por-que-su-detencion-es-un-duro-golpe-para-el-mencho-y-el-cjng/
+21-04-25-OFAC-29,11/04/2024,Sinaloa,Culiacan,250060001,Cual es la falsa identidad de El Gigio jefe del Cartel de Sinaloa responsable del 44 por ciento de fentanilo enviado a EEUU,,https://www.infobae.com/mexico/2024/04/11/cual-es-la-falsa-identidad-de-el-gigio-jefe-del-cartel-de-sinaloa-responsable-del-44-de-fentanilo-enviado-a-eeuu/
+21-04-25-OFAC-30,10/04/2024,Colima,Colima,60010001,Va EEUU contra jefes de plaza de los carteles de Sinaloa y Jalisco Nueva Generacion,,https://diariodecolima.com/noticias/detalle/2024-04-10-va-eeuu-contra-jefes-de-plaza-de-los-crteles-de-sinaloa-y-jalisco-nueva-generacin
+21-04-25-OFAC-31,15/04/2024,Sonora,Nogales,260390001,EU investiga a presunto narcotraficante de El Mayo Zambada en Nogales Sonora,,https://oem.com.mx/elsoldemexico/mexico/eu-investiga-a-presunto-narcotraficante-de-el-mayo-zambada-en-nogales-sonora-16602836
+21-04-25-OFAC-32,12/03/2024,Yucatan,Merida,310500001,Capturan en Yucatan a presunto lider del CJNG,,https://es-us.noticias.yahoo.com/capturan-yucatán-presunto-líder-cjng-125810811.html
+21-04-25-OFAC-33,25/02/2025,Sinaloa,Culiacan,250060001,Extraditan a EEUU a presunto colaborador de Dona Lupe la lider de una grupo criminal ligado al Cartel de Sinaloa,,https://www.infobae.com/mexico/2025/02/25/extraditan-a-eeuu-a-presunto-colaborador-de-dona-lupe-la-lider-de-una-grupo-criminal-ligado-al-cartel-de-sinaloa/
+21-04-25-OFAC-34,15/03/2024,Estados Unidos,Desconocido,0,Mexicana ligada al Cartel de Sinaloa se declara culpable en EU lideraba red de trafico de personas,,https://www.eluniversal.com.mx/mundo/mexicana-ligada-al-cartel-de-sinaloa-se-declara-culpable-en-eu-lideraba-red-de-trafico-de-personas/
+21-04-25-OFAC-34,19/12/2024,Baja California,Mexicali,20020001,Doña Lupe se declaró culpable en EU de traficar miles de migrantes desde Mexicali,,https://www.enlineabc.com.mx/2024/12/19/dona-lupe-se-declaro-culpable-en-eu-de-traficar-miles-de-migrantes-desde-mexicali/
+21-04-25-OFAC-35,19/12/2024,Ciudad de México,Ciudad de México,90000001,Sanción del Tesoro a importantes narcotraficantes ecuatoriano y mexicano con lazos al Cartel de Sinaloa y CJNG,,https://mx.usembassy.gov/es/sancion-del-tesoro-a-importantes-narcotraficantes-ecuatoriano-y-mexicano-con-lazos-al-cartel-de-sinaloa-y-cartel-jalisco-nueva-generacion/
+21-04-25-OFAC-36,19/12/2024,Ciudad de México,Ciudad de México,90000001,Ella es la mexicana que se declaró culpable de tráfico de personas en EU,,https://lasillarota.com/nacion/2024/12/19/ella-es-la-mexicana-que-se-declaro-culpable-de-trafico-de-personas-en-eu-515142.html
+21-04-25-OFAC-37,19/10/2022,Sinaloa,Culiacán,250060001,EU va contra red de fentanilo de Juan Francisco Valenzuela operador del Cartel de Sinaloa,,https://www.proceso.com.mx/nacional/2022/10/19/eu-va-contra-red-de-fentanilo-de-juan-francisco-valenzuela-operador-del-cartel-de-sinaloa-295397.html
+21-04-25-OFAC-38,02/06/2022,Ciudad de México,Ciudad de México,90000001,Tesoro sanciona a importante red de transportistas de drogas del Cartel de Sinaloa,,https://mx.usembassy.gov/es/tesoro-sanciona-a-importante-red-de-transportistas-de-drogas-del-cartel-de-sinaloa/
+21-04-25-OFAC-39,02/06/2022,Ciudad de México,Ciudad de México,90000001,Congelan activos a cabecillas de célula de Cartel de Sinaloa,,https://www.reforma.com/congelan-activos-a-cabecillas-de-celula-de-cartel-de-sinaloa/ar2489189
+21-04-25-OFAC-40,15/06/2022,Jalisco,Guadalajara,140390001,Quién es El Rey Mago el jefe policial señalado en EEUU por vínculos con el CJNG,,https://www.infobae.com/america/mexico/2022/06/15/quien-es-el-rey-mago-el-jefe-policial-senalado-en-eeuu-por-vinculos-con-el-cjng/
+21-04-25-OFAC-41,01/09/2024,Jalisco,Guadalajara,140390001,Sentencian a El Moy miembro del CJNG vinculado al asesinato del exgobernador Aristóteles Sandoval,,https://www.infobae.com/mexico/2024/09/01/sentencian-a-el-moy-miembro-del-cjng-vinculado-al-asesinato-del-exgobernador-aristoteles-sandoval/
+21-04-25-OFAC-42,01/04/2024,Jalisco,Guadalajara,140390001,CJNG ocho brazos armados y una estructura casi intacta,,https://contralinea.com.mx/interno/semana/cjng-ocho-brazos-armados-y-una-estructura-casi-intacta/
+21-04-25-OFAC-43,02/06/2022,Ciudad de México,Ciudad de México,90000001,EU incluye en lista negra a seis mexicanos acusados de nexos con CJNG,,https://www.jornada.com.mx/notas/2022/06/02/politica/eu-incluye-en-lista-negra-a-seis-mexicanos-acusados-de-nexos-con-cjng/
+21-04-25-OFAC-44,02/06/2022,Ciudad de México,Ciudad de México,90000001,EU México imponen sanciones a miembros del CJNG y un policía municipal,,https://www.proceso.com.mx/nacional/2022/6/2/eu-mexico-imponen-sanciones-miembros-del-cjng-un-policia-municipal-286929.html
+21-04-25-OFAC-45,24/09/2024,Ciudad de México,Ciudad de México,90000001,Detecta EU nieves y farmacia Cartel Sinaloa,,https://www.eleconomista.com.mx/politica/detecta-eu-nieves-y-farmacia-cartel-sinaloa-20240924-727127.html
+21-04-25-OFAC-46,11/11/2023,Sonora,Nogales,260390001,Funcionario de Nogales vinculado al Cartel de Sinaloa es investigado por la FGR fue acusado por EEUU,,https://www.infobae.com/mexico/2023/11/11/funcionario-de-nogales-vinculado-al-cartel-de-sinaloa-es-investigado-por-la-fgr-fue-acusado-por-eeuu/
+21-04-25-OFAC-47,07/11/2023,Sinaloa,Culiacán,250060001,Quiénes son los Morgan Huerta el clan familiar del Cartel de Sinaloa que trafica fentanilo a EEUU,,https://www.infobae.com/mexico/2023/11/07/quienes-son-los-morgan-huerta-el-clan-familiar-del-cartel-de-sinaloa-que-trafica-fentanilo-a-eeuu/
+21-04-25-OFAC-48,07/11/2023,Sinaloa,Culiacán,250060001,EEUU sanciona a empresas y miembros del Cartel de Sinaloa por tráfico de fentanilo,,https://www.swissinfo.ch/spa/ee-uu-sanciona-a-empresas-y-miembros-del-c%C3%A1rtel-de-sinaloa-por-tr%C3%A1fico-de-fentanilo/48959952
+21-04-25-OFAC-49,20/02/2024,Sonora,Nogales,260390001,Ficha EU a funcionario de Nogales por tráfico de fentanilo,,https://www.reforma.com/ficha-eu-a-funcionario-de-nogales-por-trafico-de-fentanilo/ar2707368
+21-04-25-OFAC-50,08/11/2023,Sonora,Hermosillo,260300001,EU sanciona a cuatro empresas de Sonora y a 13 presuntos miembros del Cártel de Sinaloa por tráfico de fentanilo,,https://aristeguinoticias.com/0811/mexico/eu-sanciona-a-cuatro-empresas-de-sonora-y-a-13-presuntos-miembros-del-cartel-de-sinaloa-por-trafico-de-fentanilo/
+21-04-25-OFAC-51,06/06/2023,Jalisco,Guadalajara,140390001,EEUU sancionó a traficantes de armas y una empresa mexicana que lavaba dinero para el CJNG,,https://www.infobae.com/mexico/2023/06/06/eeuu-sanciono-a-traficantes-de-armas-y-una-empresa-mexicana-que-lavaba-dinero-para-el-cjng/
+21-04-25-OFAC-52,02/05/2024,Ciudad de México,Ciudad de México,90000001,Cártel de Sinaloa Quién es El Flaco el principal operador de El Mayo Zambada en la CDMX,,https://www.infobae.com/mexico/2024/05/02/cartel-de-sinaloa-quien-es-el-flaco-el-principal-operador-de-el-mayo-zambada-en-la-cdmx/
+21-04-25-OFAC-53,31/01/2023,Sonora,Hermosillo,260300001,Dos mexicanos a la lista negra de EU por tráfico de fentanilo Quiénes son,,https://www.elfinanciero.com.mx/nacional/2023/01/31/dos-mexicanos-a-la-lista-negra-de-eu-por-trafico-de-fentanilo-quienes-son/
+21-04-25-OFAC-54,17/11/2023,Jalisco,Guadalajara,140390001,Estados Unidos sanciona a jalisciense por traficar armas para el CJNG pesan sobre él 22 cargos relacionados a ese delito,,https://oem.com.mx/eloccidental/policiaca/estados-unidos-sanciona-a-jalisciense-por-traficar-armas-para-el-cjng-pesan-sobre-el-22-cargos-relacionados-a-ese-delito-15746888
+21-04-25-OFAC-55,21/11/2024,Sinaloa,Culiacán,250060001,Revelan investigación de la FGR contra Joaquín Guzmán López y su red para traficar precursores químicos,,https://www.infobae.com/mexico/2024/11/21/revelan-investigacion-de-la-fgr-contra-joaquin-guzman-lopez-y-su-red-para-traficar-precursores-quimicos/
+22-04-25-OFAC-01,2023-04-14,Sinaloa,Culiacán,25006,EEUU sanciona a seis mexicanos por tráfico de metanfetaminas y fentanilo,,https://www.swissinfo.ch/spa/eeuu-sanciona-a-seis-mexicanos-por-tr%C3%A1fico-de-metanfetaminas-y-fentanilo/48307396
+22-04-25-OFAC-02,2023-05-09,Sinaloa,Culiacán,25006,Quiénes son los socios de Los Chapitos que sancionó EEUU por el trasiego de drogas sintéticas,,https://www.infobae.com/mexico/2023/05/09/quienes-son-los-socios-de-los-chapitos-que-sanciono-eeuu-por-el-trasiego-de-drogas-sinteticas/
+22-04-25-OFAC-03,2023-08-16,Veracruz,Vega de Alatorre,30192,Mary Cruz Rodríguez Aguirre dejó la política para lavar dinero para el CJNG,,https://www.univision.com/noticias/narcotrafico/mary-cruz-rodriguez-aguirre-dejo-politica-lavar-dinero-cartel-jalisco-nueva-generacion-cjng
+22-04-25-OFAC-04,2023-10-24,Jalisco,Puerto Vallarta,14067,EEUU sanciona empresas del CJNG que operan desde Puerto Vallarta,,https://www.meganoticias.mx/los-mochis/noticia/eeuu-sanciona-empresas-del-cjng-que-operan-desde-puerto-vallarta/419467
+22-04-25-OFAC-05,2023-12-14,Sonora,Sin dato,26000,Sanciona EU a organización criminal vinculada al Cártel de Sinaloa,,https://www.jornada.com.mx/noticia/2023/12/14/politica/sanciona-eu-a-organizacion-criminal-vinculada-al-cartel-de-sinaloa-6223
+22-04-25-OFAC-06,2024-12-15,Baja California,Mexicali,2002,Doña Lupe pollera de Mexicali ligada al Cártel de Sinaloa se declara culpable en EU,,https://zetatijuana.com/2024/12/dona-lupe-pollera-de-mexicali-ligada-al-cartel-de-sinaloa-se-declara-culpable-en-eu/
+22-04-25-OFAC-07,2023-04-27,Jalisco,Puerto Vallarta,14067,Estados Unidos incluye en lista negra a siete personas ligadas al CJNG,,https://cntamaulipas.mx/2023/04/27/estados-unidos-incluye-en-lista-negra-a-siete-personas-ligadas-al-cjng/
+22-04-25-OFAC-08,2024-11-21,Sinaloa,Culiacán,25006,Joaquín Guzmán López el narcojunior que dio la estocada final al Cártel de Sinaloa,,https://www.infobae.com/mexico/2024/11/21/joaquin-guzman-lopez-el-narcojunior-que-dio-la-estocada-final-al-cartel-de-sinaloa/
+22-04-25-OFAC-09,2023-05-10,Sinaloa,Culiacán,25006,Estados Unidos sancionó al hijo del Chapo Guzmán y miembros del Cártel de Sinaloa,,https://www.france24.com/es/ee-uu-y-canad%C3%A1/20230510-estados-unidos-sancion%C3%B3-al-hijo-del-chapo-guzm%C3%A1n-y-miembros-del-c%C3%A1rtel-de-sinaloa
+22-04-25-OFAC-10,2023-06-22,Chihuahua,Chihuahua,8026,Mexpacking la empresa de los Chapitos para producir fentanilo con máquinas de prensas,,https://www.univision.com/noticias/narcotrafico/mexpacking-empresa-chapitos-produccion-fentanilo-maquinas-prensas-cartel-sinaloa
+22-04-25-OFAC-11,2023-05-30,Jalisco,Puerto Vallarta,14067,El CJNG recurre a las estafas con los tiempos compartidos alerta Estados Unidos,,https://www.proceso.com.mx/nacional/estados/2023/5/30/el-cjng-recurre-las-estafas-con-los-tiempos-compartidos-alerta-estados-unidos-307937.html
+22-04-25-OFAC-12,2023-06-15,Guerrero,Sin dato,12000,El Tesoro sanciona a narcotraficante afiliado con La Nueva Familia Michoacana,,https://mx.usembassy.gov/es/el-tesoro-sanciona-narcotraficante-afiliada-con-la-nueva-familia-michoacana/
+22-04-25-OFAC-13,2023-11-30,Sinaloa,Culiacán,25006,Por qué Óscar Noe Medina El Panu miembro del Cártel de Sinaloa es el próximo objetivo de EU,,https://www.elfinanciero.com.mx/nacional/2023/11/30/por-que-oscar-noe-medina-el-panu-miembro-del-cartel-de-sinaloa-es-el-proximo-objetivo-de-eu/
+22-04-25-OFAC-14,2025-04-04,Ciudad de México,Tlalpan,9010,Albergó al Chapo Guzmán en su primera fuga y fue socio del Mayo Zambada el perfil criminal de Leo,,https://www.infobae.com/mexico/2025/04/04/albergo-al-chapo-guzman-en-su-primera-fuga-y-fue-socio-del-mayo-zambada-el-perfil-criminal-de-leo/
+22-04-25-OFAC-15,2024-08-18,Sinaloa,Elota,25008,Quién era Martin García Corrales exsocio del Mayo Zambada que habría sido ejecutado al sur de Sinaloa,,https://www.infobae.com/mexico/2024/08/18/quien-era-martin-garcia-corrales-exsocio-del-mayo-zambada-que-habria-sido-ejecutado-al-sur-de-sinaloa/
+22-04-25-OFAC-16,2024-11-05,Sinaloa,Culiacán,25006,Extraditan a El Nini EU lo procesará por tráfico de fentanilo,,https://emeequis.com/al-dia/extraditan-a-el-nini-estados-unidos-lo-procesara-por-trafico-de-fentanilo/
+22-04-25-OFAC-17,2024-09-22,Sinaloa,Culiacán,25006,Humberto Figueroa La Perris El 27 sicario de Los Chapitos escapa por una alcantarilla en Culiacán,,https://www.elfinanciero.com.mx/nacional/2024/09/22/humberto-figueroa-la-perris-el-27-quien-es-sicario-de-los-chapitos-escapa-por-una-alcantarilla-en-culiacan/
+22-04-25-OFAC-18,2025-02-07,Sinaloa,Culiacán,25006,Qué se sabe de Samuel León Alvarado operador de los Chapitos cuya casa habría sido incendiada en Culiacán,,https://www.infobae.com/mexico/2025/02/07/que-se-sabe-de-samuel-leon-alvarado-operador-de-los-chapitos-cuya-casa-habria-sido-incendiada-en-culiacan/
+22-04-25-OFAC-19,2023-12-20,Sinaloa,Culiacán,25006,EEUU vs Cártel de Sinaloa DEA ofrece más de mil 200 mdp por la captura de 18 líderes y operadores,,https://www.infobae.com/mexico/2023/12/20/eeuu-vs-cartel-de-sinaloa-dea-ofrece-mas-de-mil-200-mdp-por-la-captura-de-18-lideres-y-operadores/
+22-04-25-OFAC-20,2023-08-13,Sinaloa,Culiacán,25006,EU liga a exdirector del Hospital General de Culiacán con Los Chapitos y es líder sindical,,https://aristeguinoticias.com/1308/investigaciones-especiales/eu-liga-a-exdirector-del-hospital-general-de-culiacan-con-los-chapitos-y-es-lider-sindical/
+22-04-25-OFAC-21,2023-07-15,Sinaloa,Culiacán,25006,EU sanciona red ilícita de fentanilo dirigida por familiares cercanos de Los Chapitos y El Chapo,,https://zetatijuana.com/2023/07/eu-sanciona-red-ilicita-de-fentanilo-dirigida-por-familiares-cercanos-de-los-chapitos-y-el-chapo/
+22-04-25-OFAC-22,2024-04-18,Sinaloa,Culiacán,25006,EU sanciona a familiares de Los Chapitos por tráfico de fentanilo,,https://oem.com.mx/elsoldemexico/mexico/eu-sanciona-a-familiares-de-los-chapitos-por-trafico-de-fentanilo-16608329
+22-04-25-OFAC-23,2024-04-16,Estado de México,Calimaya,15018,Asesinan a El Kastor presunto operador de Los Chapitos,,https://www.eluniversal.com.mx/metropoli/asesinan-a-el-kastor-presunto-operador-de-los-chapitos-eu-ofrecia-recompensa-de-un-millon-de-dolares-por-su-captura/
+22-04-25-OFAC-24,2024-04-10,Sinaloa,Culiacán,25006,Tesoro actúa contra operaciones de tráfico de fentanilo del Cártel de Sinaloa y líder colombiano,,https://cl.usembassy.gov/es/tesoro-actua-contra-operaciones-de-trafico-de-fentanilo-del-cartel-de-sinaloa-y-contra-lider-de-cartel-colombiano/
+22-04-25-OFAC-25,2023-11-30,Jalisco,Puerto Vallarta,14067,EU sanciona por fraude mediante tiempos compartidos en Puerto Vallarta,,https://latinus.us/eu/2023/11/30/eu-sanciona-por-fraude-mediante-tiempos-compartidos-en-puerto-vallarta-tres-mexicanos-13-empresas-102475.html
+22-04-25-OFAC-26,2023-12-07,Ciudad de México,Ciudad de México,9000,Quién es El Músico vinculado a los Beltrán Leyva y sancionado por EE.UU.,,https://lasillarota.com/nacion/2023/12/7/quien-es-el-musico-vinculado-los-beltran-leyva-sancionado-por-estados-unidos-460210.html
+22-04-25-OFAC-27,2024-01-20,Jalisco,Guadalajara,14039,Estados Unidos boletina a presunta red familiar de los Beltrán Leyva en Sinaloa,,https://oem.com.mx/elsoldesinaloa/local/estados-unidos-boletina-a-presunta-red-familiar-de-los-beltran-leyva-en-sinaloa-13289564
+22-04-25-OFAC-28,2023-12-06,Ciudad de México,Ciudad de México,9000,Golpe a los Beltrán Leyva EEUU sanciona a jefes de plaza y traficantes,,https://www.infobae.com/mexico/2023/12/06/golpe-a-los-beltran-leyva-eeuu-sanciona-a-empresas-jefes-de-plaza-y-traficantes-de-drogas/
+22-04-25-OFAC-29,2023-12-26,Sinaloa,Culiacán,25006,Por qué las autoridades de EEUU apodaron Methzilla a un cargamento de drogas ligado a los Beltrán Leyva,,https://www.infobae.com/mexico/2023/12/26/por-que-las-autoridades-de-eeuu-apodaron-methzilla-a-un-cargamento-de-drogas-ligado-a-los-beltran-leyva/
+22-04-25-OFAC-30,2023-12-06,Ciudad de México,Ciudad de México,9000,Golpe a los Beltrán Leyva EEUU sanciona a jefes de plaza y traficantes de drogas,,https://www.infobae.com/mexico/2023/12/06/golpe-a-los-beltran-leyva-eeuu-sanciona-a-empresas-jefes-de-plaza-y-traficantes-de-drogas/
+22-04-25-OFAC-31,2024-10-31,Chihuahua,Ciudad Juárez,8037,Quién es Josefa Carrasco Leyva la Wera de Palenque sancionada por el Tesoro de EEUU por vínculos con La Línea,,https://www.infobae.com/mexico/2024/10/31/quien-es-josefa-carrasco-leyva-la-wera-de-palenque-mujer-sancionada-por-el-departamento-del-tesoro-de-eeuu-por-vinculos-con-la-linea/
+22-04-25-OFAC-32,2024-06-06,Sinaloa,Culiacán,25006,Quiénes son los más jóvenes en la cúpula del Cártel de Sinaloa según EEUU,,https://www.infobae.com/mexico/2024/06/06/quienes-son-los-mas-jovenes-en-la-cupula-del-cartel-de-sinaloa-segun-eeuu/
+22-04-25-OFAC-33,2024-03-24,Durango,Sierra,10033,Quién es El Güero de las Trancas operador de Los Chapitos que controla laboratorios de fentanilo,,https://www.infobae.com/mexico/2024/03/24/quien-es-el-guero-de-las-trancas-el-operador-de-los-chapitos-que-controla-laboratorios-de-fentanilo/
+22-04-25-OFAC-34,2024-03-25,Sinaloa,Culiacán,25006,Quiénes son los operadores de El Mayo Zambada y El Chapo Isidro sancionados por EEUU,,https://www.infobae.com/mexico/2024/03/25/quienes-son-los-operadores-de-el-mayo-zambada-y-el-chapo-isidro-sancionados-por-eeuu/
+22-04-25-OFAC-35,2024-03-22,Sonora,San Luis Río Colorado,26055,Así es como el Cártel de Sinaloa lava las ganancias del tráfico de fentanilo a través de equipos celulares,,https://www.infobae.com/mexico/2024/03/22/asi-es-como-el-cartel-de-sinaloa-lava-las-ganancias-del-trafico-de-fentanilo-a-traves-de-equipos-celulares/
+22-04-25-OFAC-36,2024-07-03,Guerrero,Zihuatanejo,12094,Quién es Don José alto mando de La Nueva Familia Michoacana por quien el CJNG ofrecía 5 millones de pesos,,https://www.infobae.com/mexico/2024/07/03/quien-es-don-jose-alto-mando-de-la-nueva-familia-michoacana-por-quien-el-cjng-ofrecia-5-millones-de-pesos/
+22-04-25-OFAC-37,2024-06-26,Ciudad de México,Ciudad de México,9000,Quién es El Tuerto jefe de El Comandante Pecha de La Familia Michoacana detenido en el Edomex,,https://www.infobae.com/mexico/2024/06/26/quien-es-el-tuerto-jefe-de-el-comandante-pecha-de-la-familia-michoacana-detenido-en-el-edomex/
+22-04-25-OFAC-38,2024-06-20,Michoacán,Sin dato,16000,Estados Unidos sanciona a líderes del cártel La Nueva Familia Michoacana,,https://www.debate.com.mx/mundo/Estados-Unidos-sanciona-a-lideres-del-cartel-La-Nueva-Familia-Michoacana-20240620-0158.html
+28-04-25-NOTA-01,2025-04-28,Zacatecas,Apulco,32004,Piden desafuero al alcalde de Zacatecas ligado al CJNG,,https://www.milenio.com/policia/piden-desafuero-alcalde-zacatecas-ligado-cjng
+28-04-25-NOTA-02,2025-04-28,Chihuahua,Ciudad Juárez,8037,Detuvieron al Abuelo jefe de plaza del Cártel del Noreste en Coahuila Nuevo León y Zacatecas,,https://www.infobae.com/america/mexico/2022/01/23/detuvieron-al-abuelo-jefe-de-plaza-del-cartel-del-noreste-en-coahuila-nuevo-leon-y-zacatecas/
+28-04-25-NOTA-03,2025-04-28,Jalisco,Tequila,14093,Vincularon a proceso al F25 jefe de plaza del CJNG en Zacatecas y Jalisco,,https://www.infobae.com/america/mexico/2022/12/21/vincularon-a-proceso-al-f25-jefe-de-plaza-del-cjng-en-zacatecas-y-jalisco/
+28-04-25-NOTA-04,2025-04-28,Estado de México,,,Quién es El Guerito líder del CJNG que trafica fentanilo y tiene vínculos con El Jardinero,,https://www.infobae.com/mexico/2024/07/24/quien-es-el-guerito-lider-del-cjng-que-trafica-fentanilo-y-tiene-vinculos-con-el-jardinero/
+28-04-25-NOTA-05,2025-04-28,Ciudad de México,,,El Mudo narco del Cártel de Sinaloa que distribuía metanfetamina en EEUU fue detenido y extraditado,,https://www.infobae.com/america/mexico/2023/01/01/el-mudo-narco-del-cartel-de-sinaloa-quien-distribuia-metanfetamina-en-eeuu-fue-detenido-y-extraditado/
+28-04-25-NOTA-06,2025-04-28,Estado de México,,,Quién es El Tilico presunta cabecilla del CJNG que fue detenido después de amenazar a una periodista,,https://www.infobae.com/mexico/2023/12/22/quien-es-el-tilico-presunta-cabecilla-del-cjng-que-fue-detenido-despues-de-amenazar-a-una-periodista/
+28-04-25-NOTA-07,2025-04-28,Aguascalientes,Rincón de Romos,1009,Ejército y Guardia Nacional capturan a cabecilla del CJNG,,https://www.heraldo.mx/ejercito-y-guardia-nacional-capturan-a-cabecilla-del-c-j/
+28-04-25-NOTA-08,2025-04-28,Aguascalientes,Rincón de Romos,1009,Procesan a El Kike del CJNG amenazas a periodista Aguascalientes,,https://www.excelsior.com.mx/nacional/procesan-el-kike-cjng-amenazas-periodista-aguascalientes/1655693
+28-04-25-NOTA-09,2025-04-28,Colima,,,En qué zonas de Colima opera El Chorro yerno de El Mencho que ha librado la prisión dos veces,,https://www.infobae.com/mexico/2024/04/16/en-que-zonas-de-colima-opera-el-chorro-yerno-de-el-mencho-que-ha-librado-la-prision-dos-veces/
+28-04-25-NOTA-10,2025-04-28,Nayarit,,,Capturan en Nayarit al F1 operaba en Zacatecas,,https://oem.com.mx/la-prensa/mexico/capturan-en-nayarit-al-f1-operaba-en-zacatecas-15482199
+28-04-25-NOTA-11,2025-04-28,Zacatecas,,,Batalla en Zacatecas por pacto Jalisco Golfo,,https://laopiniondemexico.mx/batalla-en-zacatecas-por-pacto-jalisco-golfo-2/
+28-04-25-NOTA-12,2020-11-03,Guanajuato,,,Capturan a El Yeyo sicario de El Marro que se fue con el CJNG,,https://lasillarota.com/guanajuato/estado/2020/11/3/capturan-el-yeyo-sicario-de-el-marro-que-se-fue-con-el-cjng-253100.html
+28-04-25-NOTA-13,2012-09-03,Zacatecas,Guadalupe,32022,Detienen a El Cochiloco jefe de plaza de Los Zetas,,https://www.excelsior.com.mx/2012/09/03/nacional/857072
+28-04-25-NOTA-14,2023-11-29,Tamaulipas,Nuevo Laredo,28025,Detienen en Nuevo Laredo a El Tartas jefe de plaza del Cártel del Noreste,,https://www.jornada.com.mx/noticia/2023/11/29/politica/detienen-en-nuevo-laredo-a-el-tartas-jefe-de-plaza-del-cartel-del-noreste-7089
+28-04-25-NOTA-15,2016-05-04,Jalisco,Zapopan,14066,PGR detiene a José Pineda El Avispón del CJNG,,https://www.eleconomista.com.mx/ultimas-noticias/PGR-detiene-Jose-Pineda--El-Avispon-del-CJNG-20160504-0199.html
+28-04-25-NOTA-16,2022-04-01,Puebla,Amozoc,21015,El Pino del CJNG fue detenido por el asesinato de un periodista veracruzano,,https://www.infobae.com/america/mexico/2022/04/01/el-pino-del-cjng-fue-detenido-por-el-asesinato-de-un-periodista-veracruzano/
+28-04-25-NOTA-17,2025-04-27,Veracruz,,,Detienen en Veracruz a El Comandante Meca miembro del CJNG y a El Gordo,,https://lopezdoriga.com/entretenimiento/mana-queda-fuera-salon-fama-rock-roll-2025-agradecen-historica-nominacion/
+28-04-25-NOTA-18,2025-04-04,Tabasco,Cárdenas,27003,Quién es La Geisha operador del CJNG detenido en Cárdenas Tabasco,,https://www.infobae.com/mexico/2025/04/04/quien-es-la-geisha-operador-del-cjng-detenido-en-cardenas-tabasco/
+28-04-25-NOTA-19,2025-03-25,Jalisco,Santa María del Oro,14078,Condenan a 11 integrantes del CJNG a 18 años de prisión por atacar al Ejército en 2022,,https://www.infobae.com/mexico/2025/03/25/condenan-a-11-integrantes-del-cjng-a-18-anos-de-prision-por-atacar-al-ejercito-en-2022/
+28-04-25-NOTA-20,2025-04-25,Veracruz,Omealca,30111,Captura SSP a Gregorio alias Wester jefe de plaza del CJNG de los 10 más buscados,,https://www.excelsior.com.mx/nacional/captura-ssp-a-gregorio-alias-wester-jefe-de-plaza-del-cjng-de-los-10-mas-buscados-en
+28-04-25-NOTA-21,2019-02-11,Coahuila,Saltillo,5029,Cae El Tucán Zeta ligado a desapariciones en Piedras Negras,,https://www.excelsior.com.mx/nacional/cae-el-tucan-zeta-ligado-a-desapariciones-en-piedras-negras/1301825
+28-04-25-NOTA-22,2025-04-20,Veracruz,,,Quién es El Comandante 80 el ex policía que se unió al CJNG,,https://vanguardia.com.mx/noticias/nacional/quien-es-el-comandante-80-el-ex-policia-que-se-unio-al-cartel-jalisco-nueva-generacion-y-es-NRVG3454779
+28-04-25-NOTA-23,2020-04-30,Veracruz,Tlalnehuayocan,30158,Detuvieron a La Cuija jefe de plaza del CJNG en el sur de Veracruz,,https://www.infobae.com/america/mexico/2020/04/30/detuvieron-a-la-cuija-jefe-de-plaza-del-cjng-en-el-sur-de-veracruz/
+28-04-25-NOTA-24,2020-04-30,Veracruz,Coatzacoalcos,30021,El 50 presunto jefe de plaza del CJNG en Coatzacoalcos y ligado a masacre en un bar es detenido,,https://www.noroeste.com.mx/nacional/el-50-presunto-jefe-de-plaza-del-cjng-en-coatzacoalcos-y-ligado-a-masacre-en-un-bar-es-detenido-por-la-marina-KTNO1183786
+28-04-25-NOTA-25,2025-04-27,Ciudad de México,,,Detienen a El Cabezón líder de La Unión Tepito y generador de violencia en CDMX,,https://www.nmas.com.mx/ciudad-de-mexico/detienen-a-el-cabezon-lider-de-la-union-tepito-y-generador-de-violencia-en-cdmx/
+28-04-25-NOTA-26,2021-10-20,Ciudad de México,Cuauhtémoc,9002,Así fue la captura en Garibaldi de El Rex líder de Los Hades y cabecilla del CJNG,,https://www.infobae.com/america/mexico/2021/10/20/asi-fue-la-captura-en-garibaldi-del-rex-lider-de-los-hades-y-cabecilla-del-cjng/
+28-04-25-NOTA-27,2022-09-13,Veracruz,Orizaba,30111,El Momo líder criminal que el gobierno liga a balacera en Orizaba,,https://lasillarota.com/veracruz/estado/2022/9/13/el-momo-lider-criminal-que-el-gobierno-liga-balacera-en-orizaba-392522.html
+28-04-25-NOTA-28,2023-06-01,Veracruz,,,Sentenciaron con 34 años de cárcel al Comandante Kalim jefe de plaza de Los Zetas en Veracruz,,https://www.infobae.com/mexico/2023/06/01/setenciaron-con-34-anos-de-carcel-al-comandante-kalim-jefe-de-plaza-de-los-zetas-en-veracruz/
+28-04-25-NOTA-29,2025-03-01,Veracruz,,,Quién es El Compa Playa narco enviado a EU tenía un amparo y había librado la justicia en varias ocasiones,,https://www.elfinanciero.com.mx/nacional/2025/03/01/quien-es-el-compa-playa-narco-enviado-a-eu-tenia-un-amparo-y-habia-librado-la-justicia-en-varias-ocasiones/
+28-04-25-NOTA-30,2023-01-08,Nuevo León,San José de las Boquillas,,Detuvieron a El Gato jefe regional de los Beltrán Leyva en Nuevo León era buscado por el FBI,,https://www.infobae.com/america/mexico/2023/01/08/detuvieron-a-el-gato-jefe-regional-de-los-beltran-leyva-en-nuevo-leon-era-buscado-por-el-fbi/
+28-04-25-NOTA-31,2018-05-23,Nuevo León,,,Cae El Mon operador financiero de los Beltrán Leyva,,https://lasillarota.com/estados/2018/5/23/cae-el-mon-operador-financiero-de-los-beltran-leyva-159438.html
+28-04-25-NOTA-32,2020-12-15,Veracruz,Pueblo Viejo,30073,El Cuñado quien es el peligroso operador del Cártel del Golfo sentenciado a 544 años de prisión,,https://www.infobae.com/america/mexico/2020/12/15/el-cunado-quien-es-el-peligroso-operador-del-cartel-del-golfo-sentenciado-a-544-anos-de-prision/
+28-04-25-NOTA-33,2022-02-09,Tamaulipas,Reynosa,28032,El Barbas líder del Cártel del Golfo fue condenado a 20 años de cárcel,,https://www.infobae.com/america/mexico/2022/02/09/el-barbas-lider-del-cartel-del-golfo-fue-condenado-a-20-anos-de-carcel/
+28-04-25-NOTA-34,2025-03-06,Estado de México,Atizapán de Zaragoza,15012,Socialitos operador financiero de los Beltrán Leyva se declara no culpable en EEUU,,https://www.infobae.com/mexico/2025/03/06/socialitos-operador-financiero-de-los-beltran-leyva-se-declara-no-culpable-en-eeuu/
+29-04-25-NOTA-01,2012-01-27,Jalisco,Zapopan,14066,Detienen en Jalisco a El Güero Abundio,,https://www.eleconomista.com.mx/ultimas-noticias/Detienen-en-Jalisco-a-El-Guero-Abundio-20120127-0035.html
+29-04-25-NOTA-02,2021-02-06,Nayarit,Compostela,18007,Detienen al M3 presunto líder del CJNG en Nayarit,,https://www.excelsior.com.mx/nacional/detienen-al-m3-presunto-lider-del-cjng-en-nayarit/1438926
+29-04-25-NOTA-03,2021-05-06,Nayarit,Compostela,18007,Vincularon a proceso a tres miembros del CJNG entre ellos El M3 presunto lugarteniente del Mencho en Nayarit,,https://www.infobae.com/america/mexico/2021/05/06/vincularon-a-proceso-a-tres-miembros-del-cjng-entre-ellos-el-m3-presunto-lugarteniente-del-mencho-en-nayarit/
+29-04-25-NOTA-04,2025-04-29,Estado de México,Toluca,15093,Detienen a 27 presuntos miembros de la Nueva Familia Michoacana en Toluca,,https://www.noroeste.com.mx/nacional/detienen-a-27-presuntos-miembros-de-la-familia-BCNO214041
+29-04-25-NOTA-05,2025-04-29,Nayarit,,,Caen cuatro presuntos integrantes del Cártel de Sinaloa en Nayarit,,https://www.noroeste.com.mx/nacional/caen-cuatro-presuntos-integrantes-del-cartel-de-sinaloa-KPNO975690
+29-04-25-NOTA-06,2020-09-22,Nayarit,Bahía de Banderas,18009,Juez vincula a proceso a El Manotas presunto líder del CJNG en Vallarta,,https://www.eleconomista.com.mx/politica/Juez-vincula-a-proceso-a-El-Manotas-presunto-lider-del-CJNG-en-Vallarta-20200922-0062.html
+29-04-25-NOTA-07,2025-04-29,Jalisco,Tlajomulco de Zúñiga,14098,Detienen en Jalisco a compadre de El Mencho líder del CJNG,,https://www.elfinanciero.com.mx/nacional/detienen-en-jalisco-a-compadre-de-el-mencho-lider-del-cjng/
+29-04-25-NOTA-08,2025-04-29,Nayarit,Bahía de Banderas,18009,Caen 18 por asesinato de 2 agentes en Nayarit,,https://www.milenio.com/policia/caen-18-asesinato-2-agentes-nayarit
+29-04-25-NOTA-09,2025-04-29,Sinaloa,Los Mochis,25017,Cae otro integrante de la banda Los Mazatlecos,,https://www.noroeste.com.mx/seguridad/cae-otro-integrante-de-la-banda-los-mazatlecos-AGNO346879
+29-04-25-NOTA-10,2025-04-29,Sinaloa,Culiacán,25006,Recapturan a integrante del Cártel de Sinaloa,,https://www.elsoldenayarit.mx/nota-roja/31024-recapturan-a-integrante-del-cartel-de-sinaloa
+29-04-25-NOTA-11,2018-04-19,Jalisco,Puerto Vallarta,14067,Cae en Nayarit El Tolín cuñado de El Menchito operador del CJNG en Puerto Vallarta,,https://www.proceso.com.mx/nacional/2018/4/19/cae-en-nayarit-el-tolin-cunado-de-el-menchito-operador-del-cjng-en-puerto-vallarta-203543.html
+29-04-25-NOTA-12,2025-04-29,Jalisco,Zapopan,14066,PGR detienen a El Sobrino por atentado a exfiscal de Jalisco,,https://www.diariodemexico.com/mi-nacion/pgr-detienen-el-sobrino-por-atentado-exfiscal-de-jalisco
+29-04-25-NOTA-13,2025-04-29,Ciudad de México,,,Se fuga El Vic hijo del consuegro de El Chapo Guzmán del Reclusorio Sur de la CDMX,,https://www.noroeste.com.mx/culiacan/se-fuga-el-vic-hijo-del-consuegro-de-el-chapo-guzman-del-reclusorio-sur-de-la-cdmx-CTNO1186015
+29-04-25-NOTA-14,2021-12-22,Nayarit,,,Condena a 29 y 31 años de prisión a dos mujeres integrantes del Cártel del Poniente,,https://www.eleconomista.com.mx/politica/Condena-a-29-y-31-anos-de-prision-a-dos-mujeres-integrantes-del-Cartel-del-Poniente-20211222-0040.html
+29-04-25-NOTA-15,2018-05-28,Jalisco,Zapopan,14066,Dan golpe al CJNG,,https://www.am.com.mx/news/2018/5/28/dan-golpe-al-cjng-346174.html
+29-04-25-NOTA-16,2018-05-21,Michoacán,Tepalcatepec,16090,Detienen a El Abuelo miembro del CJNG en Tepalcatepec,,https://www.reforma.com/aplicaciones/articulo/default.aspx?id=1404778
+29-04-25-NOTA-17,2024-03-16,Sonora,San Luis Río Colorado,26061,Vincularon a proceso al hijo de El Pía líder de una célula criminal ligada a Los Chapitos en Sonora,,https://www.infobae.com/mexico/2024/03/16/vincularon-a-proceso-al-hijo-de-el-pia-lider-de-una-celula-criminal-ligada-a-los-chapitos-en-sonora/
+29-04-25-NOTA-18,2025-04-29,Nayarit,Tepic,18018,Juez impone casi medio siglo de sentencia a integrante de la Familia Michoacana,,https://www.excelsior.com.mx/nacional/juez-impone-casi-medio-siglo-sentencia-integrante-familia-michoacana/1701452
+29-04-25-NOTA-19,2025-01-11,Jalisco,Tonalá,14098,FGR recaptura a integrante del CJNG fugado de penal en diciembre,,https://diariodecolima.com/noticias/detalle/2025-01-11-fgr-recaptura-a-integrante-del-cjng-fugado-de-penal-en-diciembre
+29-04-25-NOTA-20,2020-06-28,Colima,Colima,6003,Tras asesinato de juez en Colima capturan a dos vinculados con el CJNG,,https://www.reporteindigo.com/opinion/Tras-asesinato-de-juez-en-Colima-capturan-a-dos-vinculados-con-el-CJNG-20200628-0018.html
+29-04-25-NOTA-21,2020-06-29,Colima,Colima,6003,Capturan a 2 sospechosos por asesinatos de juez y diputada,,https://diariodecolima.com/noticias/detalle/2020-06-29-capturan-a-2-sospechosos-por-asesinatos-de-juez-y-diputada
+29-04-25-NOTA-22,2022-07-06,Colima,Tecomán,6010,Dieron 16 años de cárcel al Chochis y al Roño de los Caballeros Templarios,,https://www.infobae.com/america/mexico/2022/07/06/dieron-16-anos-de-carcel-al-chochis-y-al-rono-de-los-caballeros-templarios/
+29-04-25-NOTA-23,2021-05-18,Colima,Manzanillo,6007,Ejército y FGR capturan a seis operadores del CJNG en el puerto de Manzanillo,,https://www.eleconomista.com.mx/politica/Ejercito-y-FGR-capturan-a-seis-operadores-del-CJNG-en-el-puerto-de-Manzanillo-20210518-0075.html
+29-04-25-NOTA-24,2025-04-29,Colima,Colima,6003,PGJE captura en Colima a operadores del CJNG en Guerrero y Michoacán,,https://www.afmedios.com/pgje-captura-en-colima-a-operador-del-cjng-en-guerrero-y-michoacan/
+29-04-25-NOTA-25,2018-05-28,Jalisco,Guadalajara,14039,Cae El Peque principal proveedor de químicos para el CJNG,,https://www.proceso.com.mx/nacional/2018/5/28/cae-el-peque-principal-proveedor-de-quimicos-para-el-cjng-205804.html
+29-04-25-NOTA-26,2012-08-06,Colima,Manzanillo,6007,Arrestan al presunto líder de grupo criminal en Manzanillo,,https://www.informador.mx/Mexico/Arrestan-al-presunto-lider-de-grupo-criminal-en-Manzanillo-20120806-0047.html
+29-04-25-NOTA-27,2025-04-29,Jalisco,Guadalajara,14039,14 integrantes del CJNG fueron vinculados a proceso por diversos delitos,,https://www.capitalmexico.com.mx/politica/14-integrantes-del-cjng-fueron-vinculados-a-proceso-por-diversos-delitos/
+30-04-25-NOTA-01,2024-12-02,Michoacán,Tacámbaro,16080,Alcalde de Tacámbaro organizó reuniones habituales con líderes del CJNG según pesquisa de la FGR,,https://latinus.us/mexico/2024/12/2/alcalde-de-tacambaro-organizo-reuniones-habituales-con-lideres-del-cjng-segun-pesquisa-de-la-fgr-129671.html
+30-04-25-NOTA-02,2021-03-31,Michoacán,Aguililla,16003,Cayó en Guatemala Adalberto Comparán ex alcalde de Aguililla acusado de narcotráfico y de nexos con Cárteles Unidos,,https://www.infobae.com/america/mexico/2021/03/31/cayo-en-guatemala-adalberto-comparan-ex-alcalde-de-aguililla-acusado-de-narcotrafico-y-de-nexos-con-carteles-unidos/
+30-04-25-NOTA-03,2021-03-18,Guerrero,Zirándaro,12088,Gregorio Portillo Mendoza el alcalde de Zirándaro presuntamente vinculado al CJNG fue levantado por un comando armado,,https://www.infobae.com/america/mexico/2021/03/18/gregorio-portillo-mendoza-el-alcalde-de-zirandaro-presuntamente-vinculado-al-cjng-fue-levantado-por-un-comando-armado/
+30-04-25-NOTA-04,2022-03-08,Michoacán,Marcos Castellanos,16052,Alcalde habría asistido al funeral de una víctima de El Pelón en San José de Gracia,,https://www.infobae.com/america/mexico/2022/03/08/alcalde-habria-asistido-al-funeral-de-una-victima-de-el-pelon-en-san-jose-de-gracia/
+30-04-25-NOTA-05,2016-11-19,Coahuila,Allende,5002,Autoridad coludida liberado Sergio Lozano Rodríguez alcalde de Allende Coahuila coludido con Los Zetas,,https://www.jornada.com.mx/2016/11/19/estados/027n1est
+30-04-25-NOTA-06,2012-04-19,Veracruz,Minatitlán,30110,Detienen en Minatitlán a alcalde de Chinameca y a integrantes de Los Zetas,,https://www.excelsior.com.mx/2012/04/19/nacional/827728
+30-04-25-NOTA-07,2020-06-16,Jalisco,Ixtlahuacán de los Membrillos,14044,Congelaron las cuentas del edil de Ixtlahuacán por presuntos nexos con el Cártel Jalisco Nueva Generación,,https://www.infobae.com/america/mexico/2020/06/16/congelaron-las-cuentas-del-edil-de-ixtlahuacan-por-presuntos-nexos-con-el-cartel-jalisco-nueva-generacion/
+30-04-25-NOTA-08,2017-09-13,Oaxaca,,,Narcofamilia quiere su partido en Oaxaca,,https://oaxaca.eluniversal.com.mx/politica/13-09-2017/narcofamilia-quiere-su-partido-en-oaxaca/
+30-04-25-NOTA-09,2025-04-29,Chiapas,Benemérito de las Américas,7018,Procesan a 12 del Cártel de Sinaloa que operaban en Chiapas,,https://www.reforma.com/procesan-a-12-del-cartel-de-sinaloa-que-operaban-en-chiapas/ar2866876
+30-04-25-NOTA-10,2024-09-30,Chiapas,Villa de Corzo,7115,Vinculan a proceso a integrantes de una célula delictiva en Chiapas,,https://www.jornada.com.mx/noticia/2024/09/30/estados/vinculan-a-proceso-a-integrantes-de-una-celula-delictiva-en-chiapas-8933
 CSV
 
+puts "⏳ Iniciando proceso de actualización/carga de hits..."
+loaded = 0
 updated = 0
-not_found = []
+errors = []
 
-CSV.parse(csv_data, headers: true) do |row|
-  link = row['link']&.strip
-  next if link.blank?
+CSV.parse(csv_data, headers: true).each do |row|
+  legacy_id = row["legacy_id"]&.strip
+  date      = Date.parse(row["fecha"]) rescue nil
+  state_name = row["estado"]&.strip
+  municipio = row["municipio o localidad"]&.strip
+  clave = row["clave INEGI"]&.strip
+  clave = clave.rjust(5, "0") if clave.present?
+  title = row["título"]&.strip
+  report = row["reporte"]&.strip
+  link = row["link"]&.strip
 
-  hit = Hit.find_by(link: link)
+  next if link.blank? && report.blank?
 
-  if hit
-    hit.update(user_id: 1164)
-    puts "✅ Hit ##{hit.id} actualizado con user_id 1164"
+  existing_by_link = Hit.find_by(link: link)
+  if existing_by_link
+    existing_by_link.update(user_id: USER_ID)
     updated += 1
-  else
-    puts "❌ Hit no encontrado para link: #{link}"
-    not_found << link
+    next
+  end
+
+  existing_by_legacy = Hit.find_by(legacy_id: legacy_id)
+  if existing_by_legacy
+    existing_by_legacy.update(legacy_id: "#{legacy_id}EA")
+  end
+
+  if date.nil?
+    errors << { legacy_id: legacy_id, error: "Fecha inválida" }
+    next
+  end
+
+  town = nil
+  if clave.present?
+    clave_full = clave + "0000"
+    town = Town.find_by(full_code: clave_full)
+  end
+
+  if town.nil? && state_name.present?
+    state = State.find_by(name: state_name)
+    if state
+      clave_fallback = state.code + "0000000"
+      town = Town.find_by(full_code: clave_fallback)
+    end
+  end
+
+  unless town
+    errors << { legacy_id: legacy_id, error: "No se encontró municipio ni estado" }
+    next
+  end
+
+  new_hit = Hit.create!(
+    legacy_id: legacy_id,
+    date: date,
+    title: title,
+    link: link,
+    report: report,
+    town_id: town.id,
+    user_id: USER_ID
+  )
+  loaded += 1
+
+  begin
+    next unless new_hit.link.present? && new_hit.link.start_with?('http')
+    puts "🌀 Generando PDF para: #{new_hit.link}"
+    timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+    image_url = "https://dashboard.lantiaintelligence.com/assets/Lantia_LogoPositivo.png"
+
+    html_header = <<~HTML
+      <div style='font-size: 14px; font-family: sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;'>
+        <img src='#{image_url}' style='width: 160px; display: block; margin-bottom: 10px;' alt='Lantia Logo'>
+        <div style="font-size: 14px;">
+          Fuente:<span style="font-weight: 800;"> #{new_hit.link}</span><br>
+          Capturado:<span style="font-weight: 800;"> #{timestamp}</span><br>
+          User-Agent:<span style="font-weight: 800;"> #{user_agent}</span><br>
+          Organización:<span style="font-weight: 800;"> Estrategias, Decisiones y Mejores Prácticas</span>
+        </div>
+      </div>
+    HTML
+
+    Timeout.timeout(45) do
+      html_body = URI.open(new_hit.link, "User-Agent" => user_agent).read
+      pdf = WickedPdf.new.pdf_from_string(
+        html_header + html_body,
+        encoding: 'UTF-8',
+        margin: { top: 20, bottom: 10 },
+        disable_javascript: true,
+        javascript_delay: 3000,
+        print_media_type: true,
+        zoom: 1.25,
+        dpi: 150,
+        viewport_size: '1280x1024'
+      )
+      io = StringIO.new(pdf)
+      new_hit.pdf.attach(io: io, filename: "hit_#{new_hit.id}.pdf", content_type: 'application/pdf')
+      puts "✅ PDF adjuntado a Hit ##{new_hit.id}"
+    end
+  rescue => e
+    puts "⚠️ Error generando PDF para Hit ##{new_hit.id}: #{e.message}"
+    new_hit.update(protected_link: true)
   end
 end
 
-puts "🎯 Total de hits actualizados: #{updated}"
-puts "🔍 Links no encontrados: #{not_found.count}"
+puts "✅ Hits cargados: #{loaded}"
+puts "🔁 Hits actualizados: #{updated}"
+puts "❌ Errores:"
+errors.each { |e| puts e.inspect }
+
