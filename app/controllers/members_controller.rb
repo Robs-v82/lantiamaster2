@@ -11,10 +11,10 @@ class MembersController < ApplicationController
 	require 'pp'
 
 	def detentions
-		Detention.all.each{|i|
-			i.detainees.destroy_all
-			i.destroy
-		}
+		# Detention.all.each{|i|
+		# 	i.detainees.destroy_all
+		# 	i.destroy
+		# }
 		myFile = detention_params[:file]
 		table = CSV.parse(File.read(myFile))
 		table.each{|x|
