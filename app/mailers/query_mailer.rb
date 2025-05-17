@@ -213,14 +213,14 @@ class QueryMailer < ApplicationMailer
 				end
 			end
 			if caption == "municipios"
-				headers = %w{id state.code name full_code city.code city.name}
+				headers = %w{id state.name state.code name full_code}
 				CSV.open(myFile, 'w:UTF-8', write_headers: true, headers: headers) do |writer|
 					records.each do |record|
-						if record.city
-							writer << [record.id, record.state.code, record.name, record.full_code, record.city.code, record.city.name]
-						else
-							writer << [record.id, record.state.code, record.name, record.full_code,]
-						end
+						# if record.city
+						# 	writer << [record.id, record.state.name, record.state.code, record.name, record.full_code, record.city.code, record.city.name]
+						# else
+							writer << [record.id, record.state.name, record.state.code, record.name, record.full_code,]
+						# end
 					end
 				end
 			end
