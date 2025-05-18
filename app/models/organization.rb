@@ -5,6 +5,7 @@ class Organization < ApplicationRecord
 	has_and_belongs_to_many :detentions
 	has_many :detainees, :through => :detentions
 	has_many :members
+	has_many :members_as_criminal_link, class_name: 'Member', foreign_key: 'criminal_link_id'
 	has_many :users, :through => :members
 	has_many :events, dependent: :destroy
 	has_many :leads, :through => :events

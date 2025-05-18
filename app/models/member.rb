@@ -1,5 +1,6 @@
 class Member < ApplicationRecord
 	belongs_to :organization, optional: true
+	belongs_to :criminal_link, class_name: 'Organization', optional: true
 	belongs_to :role, optional: true
 	belongs_to :detention, optional: true
 	has_many :accounts
