@@ -174,7 +174,7 @@
       </tr>
       <% registros = @keyMembers.first(10) %>
       <% registros.each_with_index do |member, index| %>
-        <% if member.criminal_link; cartel = member.criminal_link; else cartel = member.organization; end %>
+        <% if member.involved == false; cartel = member.criminal_link; else cartel = member.organization; end %>
         <tr class="white-text" style="background-color: #33333C;">
           <td colspan="2" style="padding-top: 15px;" class="center-align">
             <% if registros.size == 1 %>
@@ -218,13 +218,13 @@
           <td>
             <span style="display: inline-block; margin-right: 20px;">
               <i class="material-icons" style="vertical-align: middle;">
-                <%= member.criminal_link.present? ? 'check_box_outline_blank' : 'check_box' %>
+                <%= member.involved == false ? 'check_box_outline_blank' : 'check_box' %>
               </i>
               <span style="vertical-align: middle;">Persona señalada</span>
             </span>
             <span style="display: inline-block;">
               <i class="material-icons" style="vertical-align: middle;">
-                <%= member.criminal_link.present? ? 'check_box' : 'check_box_outline_blank' %>
+                <%= member.involved == false ? 'check_box' : 'check_box_outline_blank' %>
               </i>
               <span style="vertical-align: middle;">Persona expuesta</span>
             </span>
