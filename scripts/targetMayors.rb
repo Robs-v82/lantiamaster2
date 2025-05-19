@@ -122,14 +122,21 @@ def target_mayors
       user_id = User.where(mail: "roberto@lantiaintelligence.com").last&.id
 
       if town && user_id
-        legacy_id = "#{Time.now.strftime('%Y%m%d%H%M%S')}#{SecureRandom.hex(3)}"
-        hit = Hit.create!(
-          date: member.start_date,
-          town_id: town.id,
-          user_id: user_id,
-          legacy_id: legacy_id
-        )
-        hit.members << member
+        existing_hit = Hit.joins(:members)
+                          .where(date: member.start_date, town_id: town.id, user_id: user_id)
+                          .where(members: { id: member.id })
+                          .first
+
+        unless existing_hit
+          legacy_id = "#{Time.now.strftime('%Y%m%d%H%M%S')}#{SecureRandom.hex(3)}"
+          hit = Hit.create!(
+            date: member.start_date,
+            town_id: town.id,
+            user_id: user_id,
+            legacy_id: legacy_id
+          )
+          hit.members << member
+        end
       end
 
       # CSV
@@ -146,4 +153,3 @@ def target_mayors
 end
 
 target_mayors
-
