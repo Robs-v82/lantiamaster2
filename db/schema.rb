@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_18_224850) do
+ActiveRecord::Schema.define(version: 2025_05_19_224458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -379,6 +379,7 @@ ActiveRecord::Schema.define(version: 2025_05_18_224850) do
     t.date "start_date"
     t.date "end_date"
     t.integer "criminal_link_id"
+    t.boolean "involved"
     t.index ["arrest_id"], name: "index_members_on_arrest_id"
     t.index ["detention_id"], name: "index_members_on_detention_id"
     t.index ["member_id"], name: "index_members_on_member_id"

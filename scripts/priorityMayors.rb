@@ -141,3 +141,4 @@ def alcaldes_prioritarios_con_hits
 end
 
 alcaldes_prioritarios_con_hits
+Member.where.not(criminal_link_id: nil).where.not(start_date: nil).each{|x| x.update(:media_score=>true)}
