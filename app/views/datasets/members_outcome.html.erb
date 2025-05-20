@@ -174,7 +174,7 @@
       </tr>
       <% registros = @keyMembers.first(10) %>
       <% registros.each_with_index do |member, index| %>
-        <% if member.involved == false; cartel = member.criminal_link; else cartel = member.organization; end %>
+        <% if member.criminal_link.present? ; cartel = member.criminal_link; else cartel = member.organization; end %>
         <tr class="white-text" style="background-color: #33333C;">
           <td colspan="2" style="padding-top: 15px;" class="center-align">
             <% if registros.size == 1 %>

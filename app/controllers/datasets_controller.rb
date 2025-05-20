@@ -1697,34 +1697,38 @@ end
 			end
 	end
 
-def clear_members
-  @key_members = Member.joins(:hits).distinct
-  session[:ignored_conflicts] ||= []
+	def clear_members
+	  @key_members = Member.joins(:hits).distinct.includes(:role)
 
-  conflict_found = false
+	  # Ordenar primero los miembros con rol "Autoridad"
+	  @key_members = @key_members.sort_by { |m| m.role&.name == "Autoridad" ? 0 : 1 }
 
-  @key_members.each_with_index do |member1, idx1|
-    @key_members.each_with_index do |member2, idx2|
-      next if idx2 <= idx1
+	  session[:ignored_conflicts] ||= []
+	  conflict_found = false
 
-      if members_similar?(member1, member2) &&
-         !session[:ignored_conflicts].include?([member1.id, member2.id].sort)
+	  @key_members.each_with_index do |member1, idx1|
+	    @key_members.each_with_index do |member2, idx2|
+	      next if idx2 <= idx1
 
-        @member1 = member1
-        @member2 = member2
-        conflict_found = true
-        break
-      end
-    end
-    break if conflict_found
-  end
+	      if members_similar?(member1, member2) &&
+	         !session[:ignored_conflicts].include?([member1.id, member2.id].sort)
 
-  unless conflict_found
-    session.delete(:ignored_conflicts)
-    flash[:notice] = "No hay más miembros en conflicto."
-    redirect_to datasets_terrorist_panel_path # ← o root_path
-  end
-end
+	        @member1 = member1
+	        @member2 = member2
+	        conflict_found = true
+	        break
+	      end
+	    end
+	    break if conflict_found
+	  end
+
+	  unless conflict_found
+	    session.delete(:ignored_conflicts)
+	    flash[:notice] = "No hay más miembros en conflicto."
+	    redirect_to datasets_terrorist_panel_path # ← o root_path
+	  end
+	end
+
 
 def ignore_conflict
   member1_id = params[:member1_id].to_i
@@ -1736,7 +1740,6 @@ def ignore_conflict
   redirect_to datasets_clear_members_path
 end
 
-
 def merge_members
   keep = Member.find(params[:keep_id])
   remove = Member.find(params[:remove_id])
@@ -1744,6 +1747,16 @@ def merge_members
   # Transferir hits
   remove.hits.each do |hit|
     keep.hits << hit unless keep.hits.include?(hit)
+  end
+
+  # Solo aplicar si el que se conserva tiene rol "Autoridad"
+  if keep.role&.name == "Autoridad" && remove.involved == true
+    nueva_role_id = Role.where(name: "Autoridad cooptada").last&.id
+    keep.update(
+      involved: true,
+      role_id: nueva_role_id,
+      criminal_link_id: remove.organization_id
+    ) if nueva_role_id
   end
 
   remove.destroy

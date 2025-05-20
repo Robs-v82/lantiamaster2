@@ -14,9 +14,9 @@
 
 <div class="row center-align">
   <%= button_to "Fusionar en el Primer Registro", datasets_merge_members_path(keep_id: @member1.id, remove_id: @member2.id), method: :post, class: "btn waves-effect waves-light" %>
-
+<br>
   <%= button_to "Fusionar en el Segundo Registro", datasets_merge_members_path(keep_id: @member2.id, remove_id: @member1.id), method: :post, class: "btn waves-effect waves-light" %>
-
+<br>
 <%= button_to "Ignorar", datasets_ignore_conflict_path(member1_id: @member1.id, member2_id: @member2.id), method: :post, class: "btn grey lighten-1" %>
 
 </div>
