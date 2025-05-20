@@ -1706,6 +1706,24 @@ end
 	  session[:ignored_conflicts] ||= []
 	  conflict_found = false
 
+# Calcular número total de pares similares
+@similar_pairs_count = 0
+evaluated_pairs = Set.new
+
+		@key_members.each_with_index do |member1, idx1|
+		  @key_members.each_with_index do |member2, idx2|
+		    next if idx2 <= idx1
+		    pair_key = [member1.id, member2.id].sort
+
+		    unless evaluated_pairs.include?(pair_key)
+		      if members_similar?(member1, member2)
+		        @similar_pairs_count += 1
+		      end
+		      evaluated_pairs << pair_key
+		    end
+		  end
+		end
+
 	  @key_members.each_with_index do |member1, idx1|
 	    @key_members.each_with_index do |member2, idx2|
 	      next if idx2 <= idx1

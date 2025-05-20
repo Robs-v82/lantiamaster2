@@ -1,5 +1,10 @@
 <% if @member1 && @member2 %>
   <div class="container">
+    <% if @similar_pairs_count %>
+      <div class="row center-align">
+        <p><strong>Total de pares posiblemente duplicados:</strong> <%= @similar_pairs_count %></p>
+      </div>
+    <% end %>
     <h4>Conflicto de Miembros</h4>
     <div class="row">
       <div class="col s6">
