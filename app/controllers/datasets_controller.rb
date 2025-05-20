@@ -575,6 +575,7 @@ end
 		  media_score_value = hits.size >= 2 && hits.any? { |h| h.national }
 		  member.update_column(:media_score, media_score_value)
 		end
+		Member.joins(:role).where(roles: { name: ["Alcalde", "Policía"] }, involved: false).update_all(media_score: true)
 		puts "✅ media_score actualizado para miembros clave."
 
 		redirect_to '/datasets/terrorist_panel'
@@ -1697,55 +1698,40 @@ end
 			end
 	end
 
-	def clear_members
-	  @key_members = Member.joins(:hits).distinct.includes(:role)
+def clear_members
+  @key_members = Member.joins(:hits).distinct.includes(:role, :organization)
+  @key_members = @key_members.sort_by { |m| m.role&.name == "Autoridad" ? 0 : 1 }
 
-	  # Ordenar primero los miembros con rol "Autoridad"
-	  @key_members = @key_members.sort_by { |m| m.role&.name == "Autoridad" ? 0 : 1 }
+  session[:ignored_conflicts] ||= []
 
-	  session[:ignored_conflicts] ||= []
-	  conflict_found = false
+  @similar_pairs_count = 0
+  evaluated_pairs = Set.new
 
-# Calcular número total de pares similares
-@similar_pairs_count = 0
-evaluated_pairs = Set.new
+  @key_members.each_with_index do |member1, idx1|
+    @key_members.each_with_index do |member2, idx2|
+      next if idx2 <= idx1
 
-		@key_members.each_with_index do |member1, idx1|
-		  @key_members.each_with_index do |member2, idx2|
-		    next if idx2 <= idx1
-		    pair_key = [member1.id, member2.id].sort
+      pair_key = member1.id < member2.id ? [member1.id, member2.id] : [member2.id, member1.id]
+      next if evaluated_pairs.include?(pair_key)
 
-		    unless evaluated_pairs.include?(pair_key)
-		      if members_similar?(member1, member2)
-		        @similar_pairs_count += 1
-		      end
-		      evaluated_pairs << pair_key
-		    end
-		  end
-		end
+      evaluated_pairs << pair_key
 
-	  @key_members.each_with_index do |member1, idx1|
-	    @key_members.each_with_index do |member2, idx2|
-	      next if idx2 <= idx1
+      if members_similar?(member1, member2)
+        @similar_pairs_count += 1
 
-	      if members_similar?(member1, member2) &&
-	         !session[:ignored_conflicts].include?([member1.id, member2.id].sort)
+        unless session[:ignored_conflicts].include?(pair_key)
+          @member1 = member1
+          @member2 = member2
+          return
+        end
+      end
+    end
+  end
 
-	        @member1 = member1
-	        @member2 = member2
-	        conflict_found = true
-	        break
-	      end
-	    end
-	    break if conflict_found
-	  end
-
-	  unless conflict_found
-	    session.delete(:ignored_conflicts)
-	    flash[:notice] = "No hay más miembros en conflicto."
-	    redirect_to datasets_terrorist_panel_path # ← o root_path
-	  end
-	end
+  session.delete(:ignored_conflicts)
+  flash[:notice] = "No hay más miembros en conflicto."
+  redirect_to datasets_terrorist_panel_path
+end
 
 
 def ignore_conflict
@@ -1767,13 +1753,14 @@ def merge_members
     keep.hits << hit unless keep.hits.include?(hit)
   end
 
-  # Solo aplicar si el que se conserva tiene rol "Autoridad"
+  # Solo aplicar si el que se conserva tiene rol "Alcalde"
   if keep.role&.name == "Alcalde" && remove.involved == true
     # nueva_role_id = Role.where(name: "Autoridad cooptada").last&.id
     keep.update(
       involved: true,
       role_id: nueva_role_id,
-      criminal_link_id: remove.organization_id
+      criminal_link_id: remove.organization_id,
+      media_score: remove.media_score,
     ) if nueva_role_id
   end
 
