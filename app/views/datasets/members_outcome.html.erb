@@ -272,8 +272,12 @@
         <tr style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
           <td>
-            <% if member.role.name == "Alcalde" %>
-              Autoridad expuesta
+            <% if ["Alcalde", "Policía"].include?(member.role&.name) %>
+              <% if member.involved?  %>
+                Autoridad cooptada
+              <%else%>
+                Autoridad expuesta
+              <% end %>  
               <br>
               <%= member.role.name %>, 
               <%= member.organization.county.name %>,

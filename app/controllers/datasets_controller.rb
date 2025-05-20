@@ -1751,7 +1751,7 @@ def merge_members
 
   # Solo aplicar si el que se conserva tiene rol "Autoridad"
   if keep.role&.name == "Alcalde" && remove.involved == true
-    nueva_role_id = Role.where(name: "Autoridad cooptada").last&.id
+    # nueva_role_id = Role.where(name: "Autoridad cooptada").last&.id
     keep.update(
       involved: true,
       role_id: nueva_role_id,
