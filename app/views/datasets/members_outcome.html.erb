@@ -279,10 +279,10 @@
                 Autoridad expuesta
               <% end %>  
               <br>
-              <%= member.role.name %>,
+              <%= member.role.name %>
               <% if ["Delegado estatal"].include?(member.role&.name) %>
-                <%= member.organization.name %> en <%= member.hits.where(:title=>"Nombramiento PGR/FGR").first.town.county.state.name %>
-              <% else %>               
+                 en <%= member.hits.where(:title=>"Nombramiento PGR/FGR").first.town.county.state.name %>, <%= member.organization.name %>
+              <% else %>,               
                 <%= member.organization.county.name %>,
                 <%= member.organization.county.state.shortname %>
               <% end %>
