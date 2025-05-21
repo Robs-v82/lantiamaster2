@@ -272,16 +272,20 @@
         <tr style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
           <td>
-            <% if ["Alcalde", "Policía"].include?(member.role&.name) %>
+            <% if ["Alcalde", "Policía", "Delegado estatal"].include?(member.role&.name) %>
               <% if member.involved?  %>
                 Autoridad cooptada
               <%else%>
                 Autoridad expuesta
               <% end %>  
               <br>
-              <%= member.role.name %>, 
-              <%= member.organization.county.name %>,
-              <%= member.organization.county.state.shortname %>
+              <%= member.role.name %>,
+              <% if ["Delegado estatal"].include?(member.role&.name) %>
+                <%= member.organization.name %> en <%= member.hits.where(:title=>"Nombramiento PGR/FGR").first.town.county.state.name %>
+              <% else %>               
+                <%= member.organization.county.name %>,
+                <%= member.organization.county.state.shortname %>
+              <% end %>
               <br>
               <%= member.start_date.strftime("%d/%m/%Y") %> a <%= member.end_date.strftime("%d/%m/%Y") %>
             <% else %>

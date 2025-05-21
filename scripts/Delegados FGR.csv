@@ -1,0 +1,39 @@
+state.name,state.code,member.firstname,member.lastname1,member.lastname2,member.start_date,member.end_date
+Tamaulipas,28,José Rolando,Gómez,Llanos Aispuro,2009-11-01,2010-01-29
+Tamaulipas,28,José Francisco,Rivera,Rodríguez,2010-01-30,2011-08-23
+Tamaulipas,28,María del Rocío,Sandoval,Sánchez,2011-08-24,2015-09-03
+Tamaulipas,28,Miguel Ángel,Campos,Ortiz,2015-09-04,2017-08-31
+Tamaulipas,28,Federico,González,Scott,2017-09-01,2018-12-31
+Sinaloa,25,Miguel Ángel,Campos,Ortiz,2005-07-19,2010-09-04
+Sinaloa,25,Mauricio,Saad,Viveros,2010-09-05,2015-09-11
+Sinaloa,25,Jesús Gerardo,Rodríguez,Prado,2015-09-12,2018-03-14
+Sinaloa,25,Víctor Manuel,Martínez,Mendoza,2018-03-15,2018-12-31
+Michoacán,16,Abraham,Rubio,Martínez,2011-08-01,2012-05-01
+Michoacán,16,Ambrosio,Romero,Robles,2012-05-02,2014-12-31
+Michoacán,16,Guadalupe Alfredo,Becerril,Almazán,2015-01-01,2015-01-20
+Michoacán,16,Berta,Paredes,Garduño,2015-01-21,2018-02-15
+Michoacán,16,Jesús,López,Trujillo,2018-02-16,2018-12-31
+Jalisco,14,Manuel,Guevara,Ortiz,2007-08-01,2010-02-28
+Jalisco,14,Verónica Isabel,Batres,Jiménez,2010-03-01,2011-03-31
+Jalisco,14,Tereza,García,Chávez,2011-04-01,2012-07-31
+Jalisco,14,Damaris,Baglietto,Hernández,2012-08-01,2013-07-17
+Jalisco,14,Gerardo Octavio,Solís,Gómez,2013-07-18,2014-02-23
+Jalisco,14,Gerardo,Vázquez,Alatriste,2014-02-24,2014-11-25
+Jalisco,14,Raúl,Martínez,Hernández,2014-11-26,2015-09-17
+Jalisco,14,Ramón Ernesto,Badillo,Aguilar,2015-09-18,2017-03-15
+Jalisco,14,Jaime,Rodríguez,Aguilar,2017-03-16,2018-12-31
+Guerrero,12,Estela,Cadena,Azcona,2010-08-01,2011-07-31
+Guerrero,12,Iñaki,Blanco,Cabrera,2011-08-01,2012-05-02
+Guerrero,12,Alejandro,Muñoz,Ramírez,2012-05-03,2015-11-09
+Guerrero,12,José Juan,Monroy,García,2015-11-10,2018-02-15
+Guerrero,12,Fernando,García,Fernández,2018-02-16,2018-12-31
+Chihuahua,08,Héctor,García,Rodríguez,2008-07-21,2010-11-02
+Chihuahua,08,César Augusto,Peniche,Espejel,2010-11-03,2015-09-30
+Chihuahua,08,Édgar,Pineda,Ramírez,2015-10-01,2017-04-10
+Chihuahua,08,Adonaí,Carreón,Estrada,2017-04-11,2018-02-18
+Chihuahua,08,Julio César Ulises,Chávez,Ramos,2018-02-19,2018-11-04
+Chihuahua,08,Ramón Ernesto,Badillo,Aguilar,2018-11-05,2018-12-31
+Baja California,02,María del Carmen,Martínez,Valdés,2008-01-01,2011-08-10
+Baja California,02,Luis Fermín,Gómez,Gómez,2011-08-11,2015-09-03
+Baja California,02,Pedro Jesús,Torres,Salazar,2015-09-04,2018-02-15
+Baja California,02,Victorino,Porcayo,Domínguez,2018-02-16,2025-05-20
