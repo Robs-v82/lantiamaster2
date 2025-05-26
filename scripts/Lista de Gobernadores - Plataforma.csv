@@ -80,15 +80,15 @@ state.code,state.name,member.firstname,member.lastname1,member.lastname2,member.
 10,Durango,Jorge,Herrera,Caldera,2010-09-01,2016-09-01
 10,Durango,José Rosas,Aispuro,Torres,2016-09-01,2022-09-01
 10,Durango,Esteban,Villegas,Villarreal,2022-09-01,2028-08-30
-15,Estado de México,Mario,Ramón,Beteta,1987-09-01,1989-03-01
-15,Estado de México,Ignacio,Pichardo,Pagaza,1989-03-01,1993-09-01
-15,Estado de México,Emilio,Chuayffet,Chemor,1993-09-01,1995-07-01
-15,Estado de México,César,Camacho,Quiroz,1995-07-01,1999-09-01
-15,Estado de México,Arturo,Montiel,Rojas,1999-09-01,2005-09-01
-15,Estado de México,Enrique,Peña,Nieto,2005-09-01,2011-09-01
-15,Estado de México,Eruviel,Ávila,Villegas,2011-09-01,2017-09-01
-15,Estado de México,Alfredo,Del Mazo,Maza,2017-09-01,2023-09-01
-15,Estado de México,Delfina,Gómez,Álvarez,2023-09-01,2029-08-30
+15,México,Mario,Ramón,Beteta,1987-09-01,1989-03-01
+15,México,Ignacio,Pichardo,Pagaza,1989-03-01,1993-09-01
+15,México,Emilio,Chuayffet,Chemor,1993-09-01,1995-07-01
+15,México,César,Camacho,Quiroz,1995-07-01,1999-09-01
+15,México,Arturo,Montiel,Rojas,1999-09-01,2005-09-01
+15,México,Enrique,Peña,Nieto,2005-09-01,2011-09-01
+15,México,Eruviel,Ávila,Villegas,2011-09-01,2017-09-01
+15,México,Alfredo,Del Mazo,Maza,2017-09-01,2023-09-01
+15,México,Delfina,Gómez,Álvarez,2023-09-01,2029-08-30
 11,Guanajuato,Armandodel,Castillo,Franco,1986-09-01,1992-09-01
 11,Guanajuato,Maximiliano,Silerio,Esparza,1992-09-01,1998-09-01
 11,Guanajuato,Ángel Sergio,Guerrero,Mier,1998-09-01,2004-09-01
