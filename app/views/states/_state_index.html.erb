@@ -136,25 +136,28 @@
 											</div>
 											<div class="col l12 m12 s6">
 												<div class="left-large-margin"><span class="slim">Población: </span><%= number_with_delimiter(State.where(:code=>row["code"]).last.population) %></div>
-												<% if State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.any? %>
+												<% if State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.where("start_date <= ? AND (end_date IS NULL OR end_date >= ?)", Date.today, Date.today).any? %>
 													<div class="valign-wrapper">
 														<div class="governor-box right-extra-margin">
-															<div id="avatar-circle" class="tiny-thumb z-depth-1 circle">
-															<%= image_tag(State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.avatar, :class=> "avatar-image") %>
-															</div>
+															<% myGovernor = State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.where("start_date <= ? AND (end_date IS NULL OR end_date >= ?)", Date.today, Date.today).last %>
+															<% if myGovernor.avatar.attached? %>	
+																<div id="avatar-circle" class="tiny-thumb z-depth-1 circle">
+																<%= image_tag(myGovernor.avatar, :class=> "avatar-image") %>
+																</div>
+															<% end %>
 														</div>
 														<div>
 															<p class="slim">
 																<% if row["code"] == "09" %>
 																	Jefe de Gobierno:
-																<% elsif State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.gender == "FEMENINO"
+																<% elsif myGovernor.gender == "FEMENINO"
 																	%>
 																Gobernadora:
 																<% else %>
 																	Gobernador:
 																<% end %>
 															</p>
-															<p><span class="slim"></span><%= State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.firstname+" "+State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.lastname1+" "+State.where(:code=>row["code"]).last.organizations.where(:league=>"CONAGO").last.members.last.lastname2 %>
+															<p><span class="slim"></span><%= myGovernor.firstname+" "+myGovernor.lastname1+" "+myGovernor.lastname2 %>
 															</p>
 														</div>
 													</div>

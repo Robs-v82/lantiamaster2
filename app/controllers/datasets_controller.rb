@@ -482,19 +482,23 @@ end
 
 				# 🆕 Si se marca como detenido
 				if row["detention"].to_s.strip == "1" && myHit.present?
-					hit_date = myHit.date
-					town_id = myHit.town_id
-					detention = Detention.find_by(legacy_id: myHit.legacy_id)
+				  # ✅ Asegurar que el hit esté asociado al miembro
+				  myMember.hits << myHit unless myMember.hits.exists?(myHit.id)
 
-					if detention.nil?
-						new_event = Event.create!(event_date: hit_date, town_id: town_id)
-						detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
-					end
+				  hit_date = myHit.date
+				  town_id = myHit.town_id
+				  detention = Detention.find_by(legacy_id: myHit.legacy_id)
 
-					if myMember.detention.nil? || myMember.detention.event.event_date < hit_date
-						myMember.update!(detention: detention)
-					end
+				  if detention.nil?
+				    new_event = Event.create!(event_date: hit_date, town_id: town_id)
+				    detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
+				  end
+
+				  if myMember.detention.nil? || myMember.detention.event.event_date < hit_date
+				    myMember.update!(detention: detention)
+				  end
 				end
+
 				next
 			end
 
