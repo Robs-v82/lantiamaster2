@@ -16,9 +16,41 @@ class DatasetsController < ApplicationController
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
 
 	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome]
-	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel]
+	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel, :state_members]
 
 	def show
+	end
+	
+	def state_members
+	  state = State.find_by(code: params[:code])
+	  hits = Hit.joins(town: { county: :state }).where(states: { id: state.id })
+	  members = Member.joins(:hits).where(hits: { id: hits.pluck(:id) }).distinct
+
+	  @state = state
+	  @hits = hits
+	  @members = members
+
+	  # Tabla por usuario
+	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
+	  hits.includes(:user, :members).each do |hit|
+	    key = hit.user&.id || :undefined
+	    por_usuario_raw[key][:hits] += 1
+	    hit.members.each { |m| por_usuario_raw[key][:miembros] << m.id }
+	  end
+	  @por_usuario = por_usuario_raw.sort_by { |_, data| -data[:miembros].size }.to_h
+
+	  # Tabla por tipo de exposición
+	  exposicion_raw = { true => [], false => [], nil => [] }
+	  members.each do |m|
+	    exposicion_raw[m.involved] << m
+	  end
+	  @por_exposicion = exposicion_raw
+
+	  # Tabla por rol
+	  @por_rol = members.group_by(&:role).sort_by { |_, v| -v.size }.to_h
+
+	  # Tabla por organización
+	  @por_organizacion = members.group_by(&:organization).sort_by { |_, v| -v.size }.to_h
 	end
 
 	def members_query

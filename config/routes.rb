@@ -129,6 +129,7 @@ Rails.application.routes.draw do
     get 'datasets/terrorist_search'
     get 'datasets/search'
     get 'datasets/members_search'
+    get 'datasets/state_members/:code' => 'datasets#state_members'
     post 'datasets/members_query'
     get 'datasets/members_outcome'
     post '/web_scrape', to: 'datasets#web_scrape', as: :web_scrape
