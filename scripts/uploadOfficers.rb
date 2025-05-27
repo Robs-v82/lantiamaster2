@@ -55,7 +55,7 @@ ActiveRecord::Base.transaction do
 
         # 2) Asignar criminal_link
         if member.organization_id.present?
-          governor.criminal_link_id ||= member.organization_id
+          governor.criminal_link ||= member.organization_id
         end
 
         # 3) Transferencia de hits
@@ -76,7 +76,7 @@ ActiveRecord::Base.transaction do
         puts "- Gobernador ID: #{governor.id} | #{governor.firstname} #{governor.lastname1} #{governor.lastname2} (#{governor.organization&.name})"
         puts "- Eliminado Member ID: #{member_id}"
         puts "- Hits transferidos: #{member.hits.size}"
-        puts "- criminal_link_id asignado: #{governor.criminal_link_id}" if governor.criminal_link_id
+        puts "- criminal_link asignado: #{governor.criminal_link}" if governor.criminal_link
         puts "- member_id asignado: #{governor.member_id}" if governor.member_id
         puts "- start_date: #{governor.start_date}, end_date: #{governor.end_date}"
         puts "- involved: #{governor.involved}"
@@ -299,7 +299,7 @@ ActiveRecord::Base.transaction do
         chief.involved = true if member.involved
 
         # 2) Asignar criminal_link
-        chief.criminal_link_id ||= member.organization_id if member.organization_id.present?
+        chief.criminal_link ||= member.organization_id if member.organization_id.present?
 
         # 3) Transferencia de hits
         member.hits.each do |hit|
@@ -317,7 +317,7 @@ ActiveRecord::Base.transaction do
         puts "- Secretario ID: #{chief.id} | #{chief.firstname} #{chief.lastname1} #{chief.lastname2} (#{chief.organization&.name})"
         puts "- Eliminado Member ID: #{member_id}"
         puts "- Hits transferidos: #{member.hits.size}"
-        puts "- criminal_link_id asignado: #{chief.criminal_link_id}" if chief.criminal_link_id
+        puts "- criminal_link asignado: #{chief.criminal_link}" if chief.criminal_link
         puts "- member_id asignado: #{chief.member_id}" if chief.member_id
         puts "- media_score: #{chief.media_score}, involved: #{chief.involved}"
         puts "-------------------------------------------------------------"
@@ -331,4 +331,104 @@ end
 
 puts "Total de fusiones realizadas: #{fusionados.size}"
 puts "Cuarta etapa completada."
+
+puts "Iniciando quinta etapa: creación de hits para titulares sin cobertura"
+
+target_states = ["Baja California", "Guerrero", "Morelos", "Michoacán", "Sinaloa", "Tamaulipas"]
+fecha_corte = Date.parse("2010-01-01")
+
+targetMembers = Member.joins(:organization)
+  .where(role_id: Role.where(name: ["Gobernador", "Secretario de Seguridad"]))
+  .where("members.start_date > ?", fecha_corte)
+  .where("organizations.name IN (?)", target_states.map { |s| "Gobierno de #{s}" })
+  .left_outer_joins(:hits)
+  .group("members.id")
+  .having("COUNT(hits.id) = 0")
+
+puts "Miembros sin hits encontrados: #{targetMembers.length}"
+
+
+# 2) Mapeo de códigos para generar town_id
+state_codes = {
+  "Baja California" => "02",
+  "Guerrero" => "12",
+  "Morelos" => "17",
+  "Michoacán" => "16",
+  "Sinaloa" => "25",
+  "Tamaulipas" => "28"
+}
+
+# 3) Mapeo de organizaciones históricas pre-2020
+historical_links = {
+  "Guerrero" => "Guerreros Unidos",
+  "Morelos" => "Los Rojos",
+  "Michoacán" => "Los Caballeros Templarios",
+  "Sinaloa" => "Cártel de Sinaloa",
+  "Tamaulipas" => "Cártel del Golfo"
+}
+
+nuevos_hits = 0
+
+targetMembers.each do |member|
+  puts "Creando hit para ✅ "+member.firstname+" "+member.lastname1
+  state = State.find_by(name: member.organization&.name&.sub("Gobierno de ", ""))
+  next unless state
+  code = state_codes[state.name]
+
+  town_id = Town.find_by(full_code: "#{code}0000000").id
+  unless town_id
+    puts "⚠️ No se encontró town para #{state.name} con código #{code}0000000"
+    next
+  end
+
+  # Crear hit
+
+  legacy_prefix = member.start_date.strftime("%Y%m%d")
+  legacy_random = SecureRandom.hex(4)  # genera 8 caracteres hex
+
+  legacy_id = "AUTO-#{legacy_prefix}-#{legacy_random}"
+
+  
+  hit = Hit.create!(
+    date: member.start_date,
+    town_id: town_id,
+    title: "Nombramiento/toma de protesta",
+    legacy_id: legacy_id
+  )
+
+  hit.members << member
+  hit.save!
+
+  # Marcar como persona expuesta
+  member.involved = false
+
+  # Asignar criminal_link
+  if member.start_date > Date.parse("2020-01-01")
+    year = member.start_date.year
+    org_id = Organization.joins(events: [:leads, :town => { county: :state }])
+                         .where(states: { id: state.id })
+                         .where("EXTRACT(YEAR FROM events.event_date) = ?", year)
+                         .group("organizations.id")
+                         .order("COUNT(leads.id) DESC")
+                         .limit(1)
+                         .pluck(:id).first
+    member.criminal_link_id = org_id if org_id
+  else
+    org_name = historical_links[state.name]
+    if org_name
+      org_id = Organization.find_by(name: org_name).id
+
+      member.criminal_link_id = org_id if org_id
+    end
+  end
+
+  member.save!
+  nuevos_hits += 1
+
+  puts "✅ Hit creado para #{member.firstname} #{member.lastname1} (#{member.role&.name}, #{state.name})"
+  puts "→ Involved: false, Criminal link ID: #{member.criminal_link}, Town ID: #{town_id}"
+end
+
+puts "Total de hits creados: #{nuevos_hits}"
+puts "Quinta etapa completada."
 
