@@ -67,6 +67,7 @@ class StatesController < ApplicationController
     end
 
     def load_irco
+        @governorRole = Role.where(:name=>"Gobernador").last.id
         myName = load_irco_params[:year]+"_"+load_irco_params[:quarter]
         myQuarter = Quarter.where(:name=>myName).last
         back_one_quarter = helpers.back_one_q(myQuarter)
@@ -147,6 +148,8 @@ class StatesController < ApplicationController
     end
 
     def irco
+        @governorRole = Role.where(:name=>"Gobernador").last.id
+        @chiefRole = Role.where(:name=>"Secretario de Seguridad").last.id
         @irco = true
         @indexName = "IRCO"
         @myModel = State
@@ -195,6 +198,8 @@ class StatesController < ApplicationController
     end
 
     def icon
+        @governorRole = Role.where(:name=>"Gobernador").last.id
+        @chiefRole = Role.where(:name=>"Secretario de Seguridad").last.id
         @icon = true
         @indexName = "ICon"
         @myModel = State

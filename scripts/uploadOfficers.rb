@@ -143,9 +143,9 @@ CSV.foreach(csv_path, headers: true) do |row|
   state_code = row["state.code"].to_s.strip
   state_name = row["state.name"].to_s.strip
 
-  organization = Organization.find_by(name: "Gubernatura de #{state_name}")
+  organization = Organization.find_by(name: "Gobierno de #{state_name}")
   if organization.nil?
-    puts "⚠️ Organización no encontrada: Gubernatura de #{state_name}"
+    puts "⚠️ Organización no encontrada: Gobierno de #{state_name}"
     next
   end
 
@@ -189,4 +189,146 @@ end
 
 puts "Segunda etapa completada."
 
+puts "Iniciando tercera etapa: procesamiento de secretarios de seguridad desde CSV"
+
+csv_path = Rails.root.join("scripts", "Secretarios de seguridad - Plataforma.csv")
+unless File.exist?(csv_path)
+  puts "❌ Archivo no encontrado: #{csv_path}"
+  exit
+end
+
+# Asegurar existencia del rol "Secretario de Seguridad"
+chief_role = Role.find_or_create_by!(name: "Secretario de Seguridad")
+
+# Cargar al autor del registro
+author_member_id = User.find_by(mail: "roberto@lantiaintelligence.com")&.member_id
+if author_member_id.nil?
+  puts "❌ Usuario con mail 'roberto@lantiaintelligence.com' no encontrado"
+  exit
+end
+
+# Cargar secretarios ya existentes
+myChiefs = Member.joins(:role).where(roles: { name: "Secretario de Seguridad" })
+
+creados = []
+actualizados = []
+
+CSV.foreach(csv_path, headers: true) do |row|
+  firstname = row["member.firstname"].to_s.strip
+  lastname1 = row["member.lastname1"].to_s.strip
+  lastname2 = row["member.lastname2"].to_s.strip
+  start_date = row["member.start_date"].present? ? Date.parse(row["member.start_date"]) : nil
+  end_date = row["member.end_date"].present? ? Date.parse(row["member.end_date"]) : nil
+  state_name = row["state.name"].to_s.strip
+
+  organization = Organization.find_by(name: "Gobierno de #{state_name}")
+  if organization.nil?
+    puts "⚠️ Organización no encontrada: Gobierno de #{state_name}"
+    next
+  end
+
+  # Buscar duplicado
+  match = myChiefs.find do |chief|
+    chief.firstname == firstname && chief.lastname1 == lastname1 && chief.lastname2 == lastname2
+  end
+
+  match ||= myChiefs.find do |chief|
+    members_similar?(chief, OpenStruct.new(firstname: firstname, lastname1: lastname1, lastname2: lastname2))
+  end
+
+  if match
+    match.update(start_date: start_date, end_date: end_date)
+    actualizados << match
+  else
+    new_member = Member.create!(
+      firstname: firstname,
+      lastname1: lastname1,
+      lastname2: lastname2,
+      start_date: start_date,
+      end_date: end_date,
+      role_id: chief_role.id,
+      organization_id: organization.id,
+      member_id: author_member_id
+    )
+    creados << new_member
+  end
+end
+
+# Imprimir resultados
+puts "Miembros creados (Secretarios de Seguridad): #{creados.size}"
+creados.each do |m|
+  puts "- [Nuevo] #{m.firstname} #{m.lastname1} #{m.lastname2} (#{m.organization&.name})"
+end
+
+puts "Miembros actualizados (Secretarios de Seguridad): #{actualizados.size}"
+actualizados.each do |m|
+  puts "- [Actualizado] #{m.firstname} #{m.lastname1} #{m.lastname2} (#{m.organization&.name})"
+end
+
+puts "Tercera etapa completada."
+
+puts "Iniciando cuarta etapa: fusión de duplicados con secretarios de seguridad"
+
+# Paso 1: Miembros con al menos un hit
+myMembers = Member.joins(:hits).distinct
+puts "Miembros con hits: #{myMembers.size}"
+
+# Paso 2: Secretarios de Seguridad (reutilizando si ya está creado)
+myChiefs = Member.joins(:role).where(roles: { name: "Secretario de Seguridad" })
+puts "Secretarios de Seguridad identificados: #{myChiefs.size}"
+
+fusionados = []
+
+ActiveRecord::Base.transaction do
+  myMembers.each do |member|
+    myChiefs.each do |chief|
+      next if member.id == chief.id
+
+      exact_match = member.firstname == chief.firstname &&
+                    member.lastname1 == chief.lastname1 &&
+                    member.lastname2 == chief.lastname2
+
+      similar_match = !exact_match && members_similar?(member, chief)
+
+      if exact_match || similar_match
+        tipo = exact_match ? "Idéntico" : "Similar"
+
+        # 1) Transferir atributos si existen
+        chief.member_id ||= member.member_id if member.member_id.present?
+        chief.media_score ||= member.media_score unless member.media_score.nil?
+        chief.involved = true if member.involved
+
+        # 2) Asignar criminal_link
+        chief.criminal_link_id ||= member.organization_id if member.organization_id.present?
+
+        # 3) Transferencia de hits
+        member.hits.each do |hit|
+          chief.hits << hit unless chief.hits.include?(hit)
+        end
+
+        chief.save!
+
+        # 4) Eliminar al miembro original
+        member_id = member.id
+        member.destroy
+
+        # 5) Imprimir resultados
+        puts "Fusionado y eliminado duplicado (#{tipo}):"
+        puts "- Secretario ID: #{chief.id} | #{chief.firstname} #{chief.lastname1} #{chief.lastname2} (#{chief.organization&.name})"
+        puts "- Eliminado Member ID: #{member_id}"
+        puts "- Hits transferidos: #{member.hits.size}"
+        puts "- criminal_link_id asignado: #{chief.criminal_link_id}" if chief.criminal_link_id
+        puts "- member_id asignado: #{chief.member_id}" if chief.member_id
+        puts "- media_score: #{chief.media_score}, involved: #{chief.involved}"
+        puts "-------------------------------------------------------------"
+
+        fusionados << chief
+        break # evita duplicar el mismo member con múltiples chiefs
+      end
+    end
+  end
+end
+
+puts "Total de fusiones realizadas: #{fusionados.size}"
+puts "Cuarta etapa completada."
 
