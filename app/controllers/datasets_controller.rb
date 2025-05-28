@@ -1848,7 +1848,7 @@ def merge_members
   remove.destroy
 
   # Redirigir al siguiente conflicto recalculado
-  if session[:clear_members]
+  if session[:clear_state]
   	redirect_to "/datasets/clear_state_members/#{session[:clear_state]}"
   end
   redirect_to datasets_clear_members_path
