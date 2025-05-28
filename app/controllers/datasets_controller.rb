@@ -1774,10 +1774,16 @@ end
 
 
 def clear_state_members
-  state = State.find_by(code: params[:code])
-
-  @key_members = Member.joins(:hits => { town: { county: :state } }).where(states: { code: state }).distinct
+  print "XX"*100
+  print params[:code]
+  print "XX"*100
+  state = State.where(:code=>params[:code]).last
+  @key_members = Member.joins(:hits => { town: { county: :state } }).where(states: { code: params[:code] }).distinct
   @key_members = @key_members.sort_by { |m| m.role&.name == "Autoridad" ? 0 : 1 }
+  print "REGISTROS DE: " + state.name
+  @key_members.each{|m|
+  	print m.firstname
+  }
 
   session[:ignored_conflicts] ||= []
 
