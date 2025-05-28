@@ -1738,6 +1738,9 @@ end
 	end
 
 def clear_members
+  if session[:clear_state]
+  	session.delete(:clear_state)
+  end
   @key_members = Member.joins(:hits).distinct.includes(:role, :organization)
   @key_members = @key_members.sort_by { |m| m.role&.name == "Autoridad" ? 0 : 1 }
 
@@ -1774,15 +1777,11 @@ end
 
 
 def clear_state_members
-  print "XX"*100
-  print params[:code]
-  print "XX"*100
+	session[:clear_state] = params[:code]
   state = State.where(:code=>params[:code]).last
   @key_members = Member.joins(:hits => { town: { county: :state } }).where(states: { code: params[:code] }).distinct
   @key_members = @key_members.sort_by { |m| m.role&.name == "Autoridad" ? 0 : 1 }
-  print "REGISTROS DE: " + state.name
   @key_members.each{|m|
-  	print m.firstname
   }
 
   session[:ignored_conflicts] ||= []
@@ -1849,6 +1848,9 @@ def merge_members
   remove.destroy
 
   # Redirigir al siguiente conflicto recalculado
+  if session[:clear_members]
+  	redirect_to "/datasets/clear_state_members/#{session[:clear_state]}"
+  end
   redirect_to datasets_clear_members_path
 end
 
