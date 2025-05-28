@@ -1,0 +1,32 @@
+<h5>Hola</h5>
+
+<% if @member1 && @member2 %>
+  <div class="container">
+    <% if @similar_pairs_count %>
+      <div class="row center-align">
+        <p><strong>Total de pares posiblemente duplicados:</strong> <%= @similar_pairs_count %></p>
+      </div>
+    <% end %>
+    <h4>Conflicto de Miembros</h4>
+    <div class="row">
+      <div class="col s6">
+        <h5><%= @member1.firstname %> <%= @member1.lastname1 %> <%= @member1.lastname2 %></h5>
+        <p><strong>Organización:</strong> <%= @member1.organization&.name || "Sin organización" %></p>
+      </div>
+      <div class="col s6">
+        <h5><%= @member2.firstname %> <%= @member2.lastname1 %> <%= @member2.lastname2 %></h5>
+        <p><strong>Organización:</strong> <%= @member2.organization&.name || "Sin organización" %></p>
+      </div>
+    </div>
+
+<div class="row center-align">
+  <%= button_to "Fusionar en el Primer Registro", datasets_merge_members_path(keep_id: @member1.id, remove_id: @member2.id), method: :post, class: "btn waves-effect waves-light" %>
+<br>
+  <%= button_to "Fusionar en el Segundo Registro", datasets_merge_members_path(keep_id: @member2.id, remove_id: @member1.id), method: :post, class: "btn waves-effect waves-light" %>
+<br>
+<%= button_to "Ignorar", datasets_ignore_conflict_path(member1_id: @member1.id, member2_id: @member2.id), method: :post, class: "btn grey lighten-1" %>
+
+</div>
+
+  </div>
+<% end %>

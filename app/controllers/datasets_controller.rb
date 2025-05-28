@@ -1773,6 +1773,43 @@ def clear_members
 end
 
 
+def clear_state_members
+  state = State.find_by(code: params[:code])
+
+  @key_members = Member.joins(:hits => { town: { county: :state } }).where(states: { code: state }).distinct
+  @key_members = @key_members.sort_by { |m| m.role&.name == "Autoridad" ? 0 : 1 }
+
+  session[:ignored_conflicts] ||= []
+
+  @similar_pairs_count = 0
+  evaluated_pairs = Set.new
+
+  @key_members.each_with_index do |member1, idx1|
+    @key_members.each_with_index do |member2, idx2|
+      next if idx2 <= idx1
+
+      pair_key = member1.id < member2.id ? [member1.id, member2.id] : [member2.id, member1.id]
+      next if evaluated_pairs.include?(pair_key)
+
+      evaluated_pairs << pair_key
+
+      if members_similar?(member1, member2)
+        @similar_pairs_count += 1
+
+        unless session[:ignored_conflicts].include?(pair_key)
+          @member1 = member1
+          @member2 = member2
+          return
+        end
+      end
+    end
+  end
+
+  session.delete(:ignored_conflicts)
+  flash[:notice] = "No hay más miembros en conflicto."
+end
+
+
 def ignore_conflict
   member1_id = params[:member1_id].to_i
   member2_id = params[:member2_id].to_i
