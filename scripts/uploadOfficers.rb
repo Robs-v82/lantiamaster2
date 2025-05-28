@@ -95,7 +95,7 @@ require 'csv'
 puts "Iniciando segunda etapa: procesamiento de gobernadores desde CSV"
 
 # Ruta del archivo
-csv_path = Rails.root.join("scripts", "Lista de Gobernadores - Plataforma.csv")
+csv_path = Rails.root.join("scripts", "Gobernadores - Plataforma.csv")
 
 unless File.exist?(csv_path)
   puts "❌ Archivo no encontrado: #{csv_path}"

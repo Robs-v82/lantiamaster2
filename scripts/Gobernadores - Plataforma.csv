@@ -1,0 +1,253 @@
+state.code,state.name,member.firstname,member.lastname1,member.lastname2,member.start_date,member.end_date
+01,Aguascalientes,Miguel Ángel,Barberena,Vega,1986-12-01,1992-11-01
+01,Aguascalientes,Otto,Granados,Roldán,1992-12-01,1998-11-01
+01,Aguascalientes,Felipe,González,González,1998-12-01,2004-08-01
+01,Aguascalientes,Juan José,León,Rubio,2004-08-01,2004-11-01
+01,Aguascalientes,Luis Armando,Reynoso,Femat,2004-12-01,2010-11-01
+01,Aguascalientes,Carlos,Lozano,de la Torre,2010-12-01,2016-11-01
+01,Aguascalientes,Martín,Orozco,Sandoval,2016-12-01,2022-09-01
+01,Aguascalientes,María Teresa,Jiménez,Esquivel,2022-10-01,2028-09-29
+02,Baja California,Ernesto,Ruffo,Appel,1989-11-01,1995-10-01
+02,Baja California,Héctor,Terán,Terán,1995-11-01,1998-10-01
+02,Baja California,Alejandro,González,Alcocer,1998-10-01,2001-10-01
+02,Baja California,Eugenio,Elorduy,Walther,2001-11-01,2007-10-01
+02,Baja California,José Guadalupe,Osuna,Millán,2007-11-01,2013-10-01
+02,Baja California,Francisco Vega,Vega,De Lamadrid,2013-11-01,2019-10-01
+02,Baja California,Jaime,Bonilla,Valdez,2019-11-01,2021-10-01
+02,Baja California,Marina del Pilar,Ávila,Olmeda,2021-11-01,2027-10-31
+03,Baja California Sur,Víctor Manuel,Liceaga,Ruibal,1987-04-01,1993-04-01
+03,Baja California Sur,Guillermo,Mercado,Romero,1993-04-01,1999-04-01
+03,Baja California Sur,Leonel,Cota,Montaño,1999-04-01,2005-04-01
+03,Baja California Sur,Narciso,Agúndez,Montaño,2005-04-01,2011-04-01
+03,Baja California Sur,Marcos,Covarrubias,Villaseñor,2011-04-01,2015-09-01
+03,Baja California Sur,Carlos,Mendoza,Davis,2015-09-01,2021-09-01
+03,Baja California Sur,Víctor Manuel,Castro,Cosío,2021-09-01,2027-08-31
+04,Campeche,Jorge Salomón,Azar,García,1991-09-01,1997-09-01
+04,Campeche,José Antonio,González,Curi,1997-09-01,2003-09-01
+04,Campeche,Jorge Carlos,Hurtado,Valdez,2003-09-01,2009-09-01
+04,Campeche,Fernando,Ortega,Bernés,2009-09-01,2015-09-01
+04,Campeche,Alejandro,Moreno,Cárdenas,2015-09-01,2019-06-01
+04,Campeche,Carlos Miguel,Aysa,González,2019-06-01,2021-09-01
+04,Campeche,Layda,Sansores,San Román,2021-09-01,2027-08-31
+07,Chiapas,José Patrocinio,González,Garrido,1988-12-01,1993-01-01
+07,Chiapas,Elmar Harald,Setzer,Marseille,1993-01-01,1994-01-01
+07,Chiapas,Javier,López,Moreno,1994-01-01,1994-12-01
+07,Chiapas,Eduardo,Robledo,Rincón,1995-01-01,1995-12-01
+07,Chiapas,Julio César,Ruiz,Ferro,1996-01-01,1998-01-01
+07,Chiapas,Roberto,Albores,Guillén,1998-01-01,2000-12-01
+07,Chiapas,Pablo,Salazar,Mendiguchía,2001-01-01,2006-12-01
+07,Chiapas,Juan,Sabines,Guerrero,2007-01-01,2012-12-01
+07,Chiapas,Manuel,Velasco,Coello,2012-12-01,2018-12-01
+07,Chiapas,Rutilio,Escandón,Cadenas,2018-12-01,2024-12-01
+07,Chiapas,Eduardo,Ramírez,Aguilar,2024-12-01,2030-11-30
+08,Chihuahua,Fernando,Baeza,Meléndez,1986-10-01,1992-10-01
+08,Chihuahua,Francisco,Barrio,Terrazas,1992-10-01,1998-10-01
+08,Chihuahua,Patricio,Martínez,García,1998-10-01,2004-10-01
+08,Chihuahua,José Reyes,Baeza,Terrazas,2004-10-01,2010-10-01
+08,Chihuahua,César,Duarte,Jáquez,2010-10-01,2016-10-01
+08,Chihuahua,Javier,Corral,Jurado,2016-10-01,2021-09-01
+08,Chihuahua,María Eugenia,Campos,Galván,2021-09-01,2027-08-31
+09,Ciudad de México,Cuauhtémoc,Cárdenas,Solórzano,1997-12-01,1999-09-01
+09,Ciudad de México,Rosario,Robles,Berlanga,1999-09-01,2000-12-01
+09,Ciudad de México,Andrés Manuel,López,Obrador,2000-12-01,2005-07-01
+09,Ciudad de México,Alejandro,Encinas,Rodríguez,2005-07-01,2006-12-01
+09,Ciudad de México,Marcelo,Ebrard,Casaubón,2006-12-01,2012-12-01
+09,Ciudad de México,Miguel Ángel,Mancera,Espinosa,2012-12-01,2018-12-01
+09,Ciudad de México,Claudia,Sheinbaum,Pardo,2018-12-01,2023-06-01
+09,Ciudad de México,Martí,Batres,Guadarrama,2023-06-01,2024-12-01
+09,Ciudad de México,Clara Marina,Brugada,Molina,2024-12-01,2030-11-30
+05,Coahuila,Eliseo,Mendoza,Berrueto,1987-12-01,1993-11-01
+05,Coahuila,Rogelio,Montemayor,Seguy,1993-12-01,1999-11-01
+05,Coahuila,Enrique,Martínez,Martínez,1999-12-01,2005-11-01
+05,Coahuila,Humberto,Moreira,Valdés,2005-12-01,2011-01-01
+05,Coahuila,Jorge,Torres,López,2011-01-01,2011-11-01
+05,Coahuila,Rubén,Moreira,Valdés,2011-12-01,2017-11-01
+05,Coahuila,Miguel Ángel,Riquelme,Solís,2017-12-01,2023-11-01
+05,Coahuila,Manolo,Jiménez,Salinas,2023-12-01,2029-11-29
+06,Colima,Carlos,De la Madrid,Virgen,1985-11-01,1991-10-01
+06,Colima,Gustavo,Vázquez,Montes,1991-11-01,1997-10-01
+06,Colima,Fernando,Moreno,Peña,1997-11-01,2003-10-01
+06,Colima,Gustavo,Vázquez,Montes,2003-11-01,2005-02-01
+06,Colima,Arnoldo,Ochoa,González,2005-02-01,2005-04-01
+06,Colima,Silverio,Cavazos,Ceballos,2005-04-01,2009-10-01
+06,Colima,Mario,Anguiano,Moreno,2009-11-01,2015-10-01
+06,Colima,José Ignacio,Peralta,Sánchez,2015-11-01,2021-10-01
+06,Colima,Indira,Vizcaíno,Silva,2021-11-01,2027-10-31
+10,Durango,Armando,Del Castillo,Franco,1986-09-01,1992-09-01
+10,Durango,Maximiliano,Silerio,Esparza,1992-09-01,1998-09-01
+10,Durango,Ángel Sergio,Guerrero,Mier,1998-09-01,2004-09-01
+10,Durango,Ismael,Hernández,Deras,2004-09-01,2010-09-01
+10,Durango,Jorge,Herrera,Caldera,2010-09-01,2016-09-01
+10,Durango,José Rosas,Aispuro,Torres,2016-09-01,2022-09-01
+10,Durango,Esteban,Villegas,Villarreal,2022-09-01,2028-08-30
+15,México,Mario,Ramón,Beteta,1987-09-01,1989-03-01
+15,México,Ignacio,Pichardo,Pagaza,1989-03-01,1993-09-01
+15,México,Emilio,Chuayffet,Chemor,1993-09-01,1995-07-01
+15,México,César,Camacho,Quiroz,1995-07-01,1999-09-01
+15,México,Arturo,Montiel,Rojas,1999-09-01,2005-09-01
+15,México,Enrique,Peña,Nieto,2005-09-01,2011-09-01
+15,México,Eruviel,Ávila,Villegas,2011-09-01,2017-09-01
+15,México,Alfredo,Del Mazo,Maza,2017-09-01,2023-09-01
+15,México,Delfina,Gómez,Álvarez,2023-09-01,2029-08-30
+13,Hidalgo,Adolfo,Lugo,Verduzco,1987-08-01,1993-03-01
+13,Hidalgo,Jesús,Murillo,Karam,1993-04-01,1998-03-01
+13,Hidalgo,Manuel Ángel,Núñez,Soto,1999-04-01,2005-03-01
+13,Hidalgo,Miguel Ángel,Osorio,Chong,2005-04-01,2011-03-01
+13,Hidalgo,Francisco,Olvera,Ruiz,2011-04-01,2016-03-01
+13,Hidalgo,Omar,Fayad,Meneses,2016-04-01,2022-09-01
+13,Hidalgo,Julio Ramón,Menchaca,Salazar,2022-09-01,2028-08-30
+14,Jalisco,Guillermo,Cosío,Vidaurri,1989-03-01,1992-11-01
+14,Jalisco,Carlos,Rivera,Aceves,1992-11-01,1995-03-01
+14,Jalisco,Alberto,Cárdenas,Jiménez,1995-03-01,2001-03-01
+11,Guanajuato,Rafael,Corrales,Ayala,1985-09-01,1991-09-01
+11,Guanajuato,Carlos,Medina,Plascencia,1991-09-01,1995-06-01
+11,Guanajuato,Vicente,Fox,Quesada,1995-06-01,1999-08-01
+11,Guanajuato,Ramón,Martín,Huerta,1999-08-01,2000-09-01
+11,Guanajuato,Carlos,Romero,Hicks,2000-09-01,2006-09-01
+11,Guanajuato,Juan Manuel,Oliva,Ramírez,2006-09-01,2012-03-01
+11,Guanajuato,Héctor,López,Santillana,2012-03-01,2012-09-01
+11,Guanajuato,Miguel,Márquez,Márquez,2012-09-01,2018-09-01
+11,Guanajuato,Diego Sinhué,Rodríguez,Vallejo,2018-09-01,2024-09-01
+11,Guanajuato,Libia,García,Muñoz Ledo,2024-09-01,2030-08-31
+12,Guerrero,José Francisco,Ruiz,Massieu,1987-04-01,1993-04-01
+12,Guerrero,Rubén,Figueroa,Alcocer,1993-04-01,1996-03-01
+12,Guerrero,Ángel,Aguirre,Rivero,1996-04-01,1999-03-01
+12,Guerrero,René,Juárez,Cisneros,1999-04-01,2005-03-01
+12,Guerrero,Zeferino,Torreblanca,Galindo,2005-04-01,2011-03-01
+12,Guerrero,Ángel,Aguirre,Rivero,2011-04-01,2014-10-01
+12,Guerrero,Rogelio,Ortega,Martínez,2014-10-01,2015-10-01
+12,Guerrero,Héctor,Astudillo,Flores,2015-10-01,2021-10-01
+12,Guerrero,Evelyn,Salgado,Pineda,2021-10-01,2027-09-30
+14,Jalisco,Francisco Javier,Ramírez,Acuña,2001-03-01,2006-11-01
+14,Jalisco,Emilio,González,Márquez,2007-03-01,2013-03-01
+14,Jalisco,Aristóteles,Sandoval,Díaz,2013-03-01,2019-03-01
+14,Jalisco,Enrique,Alfaro,Ramírez,2019-03-01,2024-12-01
+14,Jalisco,Pablo,Lemus,Navarro,2024-12-01,2030-11-30
+16,Michoacán,Genovevo,Figueroa,Zamudio,1993-02-01,1996-02-01
+16,Michoacán,Víctor Manuel,Tinoco,Rubí,1996-02-01,2002-02-01
+16,Michoacán,Lázaro,Cárdenas,Batel,2002-02-01,2008-02-01
+16,Michoacán,Leonel,Godoy,Rangel,2008-02-01,2012-02-01
+16,Michoacán,Fausto,Vallejo,Figueroa,2012-02-01,2014-06-01
+16,Michoacán,Salvador,Jara,Guerrero,2014-06-01,2015-02-01
+16,Michoacán,Silvano,Aureoles,Conejo,2015-02-01,2021-10-01
+16,Michoacán,Alfredo,Ramírez,Bedolla,2021-10-01,2027-09-30
+17,Morelos,Antonio,Riva Palacio,López,1988-05-01,1994-05-01
+17,Morelos,Jorge,Carrillo,Olea,1994-05-01,1998-05-01
+17,Morelos,Jorge,Morales,Barud,1998-05-01,1998-10-01
+17,Morelos,Sergio Alberto,Estrada Cajigal,Ramírez,1998-10-01,2004-10-01
+17,Morelos,Marco Antonio,Adame,Castillo,2006-10-01,2012-10-01
+17,Morelos,Graco Ramírez,Garrido,Abreu,2012-10-01,2018-10-01
+17,Morelos,Cuauhtémoc,Blanco,Bravo,2018-10-01,2024-10-01
+17,Morelos,Margarita,González,Saravia,2024-10-01,2030-09-30
+18,Nayarit,Celso Humberto,Delgado,Ramírez,1987-09-01,1993-09-01
+18,Nayarit,Rigoberto,Ochoa,Zaragoza,1993-09-01,1999-09-01
+18,Nayarit,Antonio,Echevarría,Domínguez,1999-09-01,2005-09-01
+18,Nayarit,Ney,González,Sánchez,2005-09-01,2011-09-01
+18,Nayarit,Roberto,Sandoval,Castañeda,2011-09-01,2017-09-01
+18,Nayarit,Antonio,Echevarría,García,2017-09-01,2021-09-01
+18,Nayarit,Miguel Ángel,Navarro,Quintero,2021-09-01,2027-08-31
+19,Nuevo León,Socrates,Rizzo,García,1991-03-01,1996-04-01
+18,Nuevo León,Benjamín,Clariond,Reyes-Retana,1996-04-01,1997-10-01
+18,Nuevo León,Fernando,Canales,Clariond,1997-10-01,2003-01-01
+18,Nuevo León,Fernando,Elizondo,Barragán,2003-01-01,2003-10-01
+18,Nuevo León,José Natividad,González,Parás,2003-10-01,2009-10-01
+18,Nuevo León,Rodrigo,Medina,De la Cruz,2009-10-01,2015-10-01
+18,Nuevo León,Jaime,Rodríguez,Calderón,2015-10-01,2021-10-01
+18,Nuevo León,Samuel,García,Sepúlveda,2021-10-01,2027-09-30
+20,Oaxaca,Heladio,Ramírez,López,1986-12-01,1992-11-01
+20,Oaxaca,Diódoro,Carrasco,Altamirano,1992-12-01,1998-11-01
+20,Oaxaca,José,Murat,Casab,1998-12-01,2004-11-01
+20,Oaxaca,Ulises,Ruiz,Ortiz,2004-12-01,2010-11-01
+20,Oaxaca,Gabino,Cué,Monteagudo,2010-12-01,2016-11-01
+20,Oaxaca,Alejandro,Murat,Hinojosa,2016-12-01,2022-11-01
+20,Oaxaca,Salomón,Jara,Cruz,2022-12-01,2028-11-29
+21,Puebla,Manuel,Bartlett,Díaz,1993-02-01,1999-01-01
+21,Puebla,Melquiades,Morales,Flores,1999-02-01,2005-01-01
+21,Puebla,Mario,Marín,Torres,2005-02-01,2011-01-01
+21,Puebla,Rafael Moreno,Valle,Rosas,2011-02-01,2017-01-01
+21,Puebla,José Antonio,Gali,Fayad,2017-02-01,2018-01-01
+21,Puebla,Guillermo,Pacheco,Pulido,2019-01-01,2019-08-01
+21,Puebla,Miguel,Barbosa,Huerta,2019-08-01,2022-12-01
+21,Puebla,Sergio Salomón,Céspedes,Peregrina,2022-12-01,2024-12-01
+21,Puebla,Alejandro,Armenta,Mier,2024-12-01,2030-11-30
+22,Querétaro,Mariano,Palacios,Alcocer,1985-10-01,1991-10-01
+22,Querétaro,Enrique,Burgos,García,1991-10-01,1997-10-01
+22,Querétaro,Ignacio,Loyola,Vera,1997-10-01,2003-10-01
+22,Querétaro,Francisco,Garrido,Patrón,2003-10-01,2009-10-01
+22,Querétaro,José,Calzada,Rovirosa,2009-10-01,2015-10-01
+22,Querétaro,Francisco,Domínguez,Servién,2015-10-01,2021-10-01
+22,Querétaro,Mauricio,Kuri,González,2021-10-01,2027-09-30
+23,Quintana Roo,Miguel,Borge,Martín,1987-04-01,1993-04-01
+23,Quintana Roo,Mario,Villanueva,Madrid,1993-04-01,1999-04-01
+23,Quintana Roo,Joaquín,Hendricks,Díaz,1999-04-01,2005-04-01
+23,Quintana Roo,Félix,González,Canto,2005-04-01,2011-04-01
+23,Quintana Roo,Roberto,Borge,Angulo,2011-04-01,2016-04-01
+23,Quintana Roo,Carlos,Joaquín,González,2016-04-01,2022-09-01
+23,Quintana Roo,Mara,Lezama,Espinosa,2022-09-01,2028-08-30
+24,San Luis Potosí,Leopoldo,Stevens,Amaro,1985-09-01,1991-09-01
+24,San Luis Potosí,Fausto,Zapata,Loredo,1991-09-01,1991-10-01
+24,San Luis Potosí,Gonzalo,Martínez,Corbalá,1991-10-01,1997-09-01
+24,San Luis Potosí,Fernando,Silva,Nieto,1997-09-01,2003-09-01
+24,San Luis Potosí,Marcelo,De los Santos,Fraga,2003-09-01,2009-09-01
+24,San Luis Potosí,Fernando,Toranzo,Fernández,2009-09-01,2015-09-01
+24,San Luis Potosí,Juan Manuel,Carreras,López,2015-09-01,2021-09-01
+24,San Luis Potosí,Ricardo,Gallardo,Cardona,2021-09-01,2027-08-31
+25,Sinaloa,Renato,Vega,Alvarado,1987-01-01,1993-01-01
+25,Sinaloa,Alfonso Genaro,Calderón,Velarde,1993-01-01,1999-01-01
+25,Sinaloa,Juan Sigfrido,Millán,Lizárraga,1999-01-01,2005-01-01
+25,Sinaloa,Jesús,Aguilar,Padilla,2005-01-01,2011-01-01
+25,Sinaloa,Mario,López,Valdez,2011-01-01,2017-01-01
+25,Sinaloa,Quirino,Ordaz,Coppel,2017-01-01,2021-01-01
+25,Sinaloa,Rubén,Rocha,Moya,2021-11-01,2027-10-31
+26,Sonora,Rodolfo,Félix,Valdés,1985-09-01,1991-09-01
+26,Sonora,Manlio Fabio,Beltrones,Rivera,1991-09-01,1997-09-01
+26,Sonora,Armando,López,Nogales,1997-09-01,2003-09-01
+26,Sonora,Eduardo,Bours,Castelo,2003-09-01,2009-09-01
+26,Sonora,Guillermo,Padrés,Elías,2009-09-01,2015-09-01
+26,Sonora,Claudia,Pavlovich,Arellano,2015-09-01,2021-09-01
+26,Sonora,Alfonso,Durazo,Montaño,2021-09-01,2027-08-31
+27,Tabasco,Salvador,Neme,Castillo,1989-01-01,1992-01-01
+27,Tabasco,Manuel,Gurría,Ordóñez,1992-01-01,1995-01-01
+27,Tabasco,Roberto,Madrazo,Pintado,1995-01-01,2000-06-01
+27,Tabasco,Víctor Manuel,Barceló,Rodríguez,2000-06-01,2000-12-01
+27,Tabasco,Manuel,Andrade,Díaz,2001-01-01,2007-01-01
+27,Tabasco,Andrés,Granier,Melo,2007-01-01,2013-01-01
+27,Tabasco,Arturo,Núñez,Jiménez,2013-01-01,2019-01-01
+27,Tabasco,Adán Augusto,López,Hernández,2019-01-01,2021-08-01
+27,Tabasco,Carlos Manuel,Merino,Campos,2021-08-01,2024-09-01
+27,Tabasco,Javier,May,Rodríguez,2024-10-01,2030-09-30
+28,Tamaulipas,Américo,Villarreal,Guerra,1987-01-01,1993-01-01
+28,Tamaulipas,Manuel,Cavazos,Lerma,1993-01-01,1999-01-01
+28,Tamaulipas,Tomás,Yarrington,Ruvalcaba,1999-01-01,2005-01-01
+28,Tamaulipas,Eugenio,Hernández,Flores,2005-01-01,2011-01-01
+28,Tamaulipas,Egidio,Torre,Cantú,2011-01-01,2016-01-01
+28,Tamaulipas,Francisco Javier,García,Cabeza de Vaca,2016-01-01,2022-10-01
+28,Tamaulipas,Américo,Villarreal,Anaya,2022-10-01,2028-09-29
+29,Tlaxcala,JoséAntonio,Álvarez,Lima,1993-01-01,1999-01-01
+29,Tlaxcala,Alfonso,Sánchez,Anaya,1999-01-01,2005-01-01
+29,Tlaxcala,Héctor,Ortiz,Ortiz,2005-01-01,2011-01-01
+29,Tlaxcala,Mariano,González,Zarur,2011-01-01,2017-01-01
+29,Tlaxcala,Marco Antonio,Mena,Rodríguez,2017-01-01,2021-08-01
+29,Tlaxcala,Lorena,Cuéllar,Cisneros,2021-09-01,2027-08-31
+30,Veracruz,Dante,Delgado,Rannauro,1988-12-01,1992-11-01
+30,Veracruz,Patricio,Chirinos,Calero,1992-12-01,1998-11-01
+30,Veracruz,Miguel,Alemán,Velasco,1998-12-01,2004-11-01
+30,Veracruz,Fidel,Herrera,Beltrán,2004-12-01,2010-11-01
+30,Veracruz,Javier,Duarte de,Ochoa,2010-12-01,2016-10-01
+30,Veracruz,Flavino,Ríos,Alvarado,2016-10-01,2016-11-01
+30,Veracruz,Miguel Ángel,Yunes,Linares,2016-12-01,2018-11-01
+30,Veracruz,Cuitláhuac,García,Jiménez,2018-12-01,2024-11-01
+30,Veracruz,Rocío,Nahle,García,2024-12-01,2030-11-30
+31,Yucatán,Víctor,Cervera,Pacheco,1995-01-01,2001-01-01
+31,Yucatán,Patricio,Patrón,Laviada,2001-01-01,2007-01-01
+31,Yucatán,Ivonne,Ortega,Pacheco,2007-01-01,2012-01-01
+31,Yucatán,Rolando,Zapata,Bello,2012-01-01,2018-01-01
+31,Yucatán,Mauricio,Vila,Dosal,2018-01-01,2024-09-01
+31,Yucatán,Joaquín,Díaz,Mena,2024-10-01,2030-09-30
+32,Zacatecas,Genaro,Borrego,Estrada,1986-09-01,1992-09-01
+32,Zacatecas,Pedro,De León,Sánchez,1992-09-01,1998-09-01
+32,Zacatecas,Ricardo,Monreal,Ávila,1998-09-01,2004-09-01
+32,Zacatecas,Amalia,García,Medina,2004-09-01,2010-09-01
+32,Zacatecas,Miguel,Alonso,Reyes,2010-09-01,2016-09-01
+32,Zacatecas,Alejandro,Tello,Cristerna,2016-09-01,2021-09-01
+32,Zacatecas,David,Monreal,Ávila,2021-09-01,2027-08-31
