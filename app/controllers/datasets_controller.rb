@@ -16,7 +16,7 @@ class DatasetsController < ApplicationController
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
 
 	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome]
-	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel, :state_members]
+	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel, :state_members, :clear_members, :clear_state_members]
 
 	def show
 	end
@@ -259,9 +259,13 @@ end
 		roles_permitidos = [
 		  "Líder",
 		  "Operador",
-		  "Familiar",
 		  "Autoridad cooptada",
-		  "Socio"
+		  "Socio",
+		  "Familiar",
+		  "Autoridad expuesta",
+		  "Abogado defensor",
+		  "Comunicador",
+		  "Servicios lícitos"
 		]
 
 		# Crear el hash con valores iniciales en cero
@@ -402,9 +406,13 @@ end
 		roles_permitidos = [
 		  "Líder",
 		  "Operador",
-		  "Familiar",
 		  "Autoridad cooptada",
-		  "Socio"
+		  "Socio",
+		  "Familiar",
+		  "Autoridad expuesta",
+		  "Abogado defensor",
+		  "Comunicador",
+		  "Servicios lícitos"
 		]
 
 		# 🗂️ Contenedores por categoría
@@ -477,64 +485,86 @@ end
 
 			myOrganization = find_organization_by_name_or_alias(org_name)
 
-			# Buscar posibles miembros con mismo nombre completo
-			miembros_potenciales = Member.joins(:organization)
-				.where(
-					firstname: firstname,
-					lastname1: lastname1,
-					lastname2: lastname2
-				)
-			# Verificar si alguno tiene la misma organización (resuelta por name, alias o acronym)
-			repetido = miembros_potenciales.any? { |m| m.organization_id == myOrganization&.id }
-			if repetido
-				repetidos << row.to_h
-				myMember = miembros_potenciales.reverse.find { |m| m.organization_id == myOrganization.id }
+			# Buscar posibles miembros con nombre similar o idéntico (sin importar la organización)
+			miembros_potenciales = Member.where(
+			  firstname: firstname,
+			  lastname1: lastname1,
+			  lastname2: lastname2
+			)
 
-				if myMember && myMember.role_id.nil?
-					rol = Role.find_or_create_by!(name: role)
-					myMember.update(role: rol)
-				end
+			# Buscar match exacto
+			match = miembros_potenciales.find do |m|
+			  m.firstname == firstname && m.lastname1 == lastname1 && m.lastname2 == lastname2
+			end
 
-				# Asignar rol si no tiene
-				if myMember.role_id.nil?
-					rol = Role.find_or_create_by!(name: role)
-					myMember.update(role: rol)
-				end
-				legacy_id_valida = Hit.exists?(legacy_id: legacy_id)
-				if legacy_id_valida
-					myHit = Hit.find_by(legacy_id: legacy_id) 
-					myMember.hits << myHit unless myMember.hits.exists?(myHit.id)
-				end
-				if alias_array.any?
-					# Evitar nulos
-					myMember.alias ||= []
-					nuevos_alias = alias_array - myMember.alias
-					if nuevos_alias.any?
-						myMember.alias += nuevos_alias
-						myMember.save!
-					end
-				end
+			# Si no hay match exacto, buscar similar sólo en miembros con nombres completos
+			match ||= Member.where.not(firstname: [nil, ''], lastname1: [nil, ''], lastname2: [nil, '']).find do |m|
+			  members_similar?(m, OpenStruct.new(firstname: firstname, lastname1: lastname1, lastname2: lastname2))
+			end
 
-				# 🆕 Si se marca como detenido
-				if row["detention"].to_s.strip == "1" && myHit.present?
-				  # ✅ Asegurar que el hit esté asociado al miembro
-				  myMember.hits << myHit unless myMember.hits.exists?(myHit.id)
+			if match
+			  repetidos << row.to_h
 
-				  hit_date = myHit.date
-				  town_id = myHit.town_id
-				  detention = Detention.find_by(legacy_id: myHit.legacy_id)
+			  # Asignar rol si no tiene
+				case role
+				when "Líder", "Operador", "Socio"
+				  rol = Role.find_or_create_by!(name: role)
+				  match.update(role: rol, involved: true)
 
-				  if detention.nil?
-				    new_event = Event.create!(event_date: hit_date, town_id: town_id)
-				    detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
+				when "Autoridad cooptada"
+					match.update(involved: true)
+					match.update(criminal_link: myOrganization) if myOrganization.present?
+
+				when "Autoridad expuesta"
+				  if match.role_id.nil?
+				    rol = Role.find_or_create_by!(name: role)
+				    match.update(role: rol)
 				  end
+			    if match.involved.nil?
+			    	match.update(:involved=>false)
+			    end
+				  match.update(criminal_link: myOrganization) if myOrganization.present?
 
-				  if myMember.detention.nil? || myMember.detention.event.event_date < hit_date
-				    myMember.update!(detention: detention)
-				  end
+				else
+				  # No se actualiza rol ni involved
 				end
 
-				next
+			  # Asociar hit si aplica
+			  legacy_id_valida = Hit.exists?(legacy_id: legacy_id)
+			  if legacy_id_valida
+			    myHit = Hit.find_by(legacy_id: legacy_id) 
+			    match.hits << myHit unless match.hits.exists?(myHit.id)
+			  end
+
+			  # Asignar alias si hay nuevos
+			  if alias_array.any?
+			    match.alias ||= []
+			    nuevos_alias = alias_array - match.alias
+			    if nuevos_alias.any?
+			      match.alias += nuevos_alias
+			      match.save!
+			    end
+			  end
+
+			  # 🆕 Si se marca como detenido
+			  if row["detention"].to_s.strip == "1" && myHit.present?
+			    match.hits << myHit unless match.hits.exists?(myHit.id)
+
+			    hit_date = myHit.date
+			    town_id = myHit.town_id
+			    detention = Detention.find_by(legacy_id: myHit.legacy_id)
+
+			    if detention.nil?
+			      new_event = Event.create!(event_date: hit_date, town_id: town_id)
+			      detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
+			    end
+
+			    if match.detention.nil? || match.detention.event.event_date < hit_date
+			      match.update!(detention: detention)
+			    end
+			  end
+
+			  next
 			end
 
 			# Verificar si los datos básicos son válidos
@@ -546,14 +576,16 @@ end
 			if datos_completos && organizacion_valida && legacy_id_valida
 				validos << row.to_h
 				rol = Role.find_or_create_by!(name: role)
+				valor_involved = ["Líder", "Operador", "Autoridad cooptada", "Socio"].include?(role)
 				myMember = Member.create!(
-					firstname: firstname,
-			    	lastname1: lastname1,
-			    	lastname2: lastname2,
-			    	organization: myOrganization, 
-			    	alias: alias_array,
-			    	role: rol
-			    )
+				  firstname: firstname,
+				  lastname1: lastname1,
+				  lastname2: lastname2,
+				  organization: myOrganization, 
+				  alias: alias_array,
+				  role: rol,
+				  involved: valor_involved
+				)
 
 			    myMember.hits << myHit
 
