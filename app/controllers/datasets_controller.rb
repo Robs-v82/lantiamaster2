@@ -263,8 +263,8 @@ end
 		  "Socio",
 		  "Familiar",
 		  "Autoridad expuesta",
-		  "Abogado defensor",
-		  "Comunicador",
+		  "Abogado",
+		  "Periodista",
 		  "Servicios lícitos"
 		]
 
@@ -410,8 +410,8 @@ end
 		  "Socio",
 		  "Familiar",
 		  "Autoridad expuesta",
-		  "Abogado defensor",
-		  "Comunicador",
+		  "Abogado",
+		  "Periodista",
 		  "Servicios lícitos"
 		]
 
