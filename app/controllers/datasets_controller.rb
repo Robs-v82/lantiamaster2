@@ -46,8 +46,44 @@ class DatasetsController < ApplicationController
 	  end
 	  @por_exposicion = exposicion_raw
 
-	  # Tabla por rol
-	  @por_rol = members.group_by(&:role).sort_by { |_, v| -v.size }.to_h
+		# Clasificación personalizada de roles
+		def clasificar_rol(member)
+		  role_name = member.role&.name.to_s.strip
+		  involved = member.involved
+
+		  miembros = [
+		    "Operador", "Jefe regional u operador", "Extorsionador-narcomenudista", "Jefe de sicarios", "Sicario",
+		    "Jefe de plaza", "Jefe de célula", "Extorsionador", "Secuestrador", "Traficante o distribuidor",
+		    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional"
+		  ]
+
+		  autoridades = ["Gobernador", "Alcalde", "Delegado estatal", "Secretario de seguridad"]
+
+		  return "Líder" if role_name == "Líder"
+		  return "Socio" if role_name == "Socio"
+		  return "Familiar" if role_name == "Familiar"
+		  return "Periodista" if role_name == "Periodista"
+		  return "Abogado" if role_name == "Abogado"
+		  return "Servicios lícitos" if role_name == "Servicios lícitos"
+		  return "Autoridad cooptada" if role_name == "Autoridad cooptada"
+		  return "Autoridad expuesta" if role_name == "Autoridad expuesta"
+
+		  if autoridades.include?(role_name)
+		    return involved ? "Autoridad cooptada" : "Autoridad expuesta"
+		  end
+
+		  return "Miembro" if miembros.include?(role_name)
+
+		  "Sin clasificar"
+		end
+
+		# Agrupar según clasificación personalizada
+		rol_raw = Hash.new { |h, k| h[k] = [] }
+		members.each do |m|
+		  categoria = clasificar_rol(m)
+		  rol_raw[categoria] << m
+		end
+		@por_rol = rol_raw.sort_by { |_, v| -v.size }.to_h
 
 	  # Tabla por organización
 	  @por_organizacion = members.group_by(&:organization).sort_by { |_, v| -v.size }.to_h

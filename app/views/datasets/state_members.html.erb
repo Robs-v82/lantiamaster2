@@ -76,7 +76,7 @@
           <% total_roles = 0 %>
           <% @por_rol.each do |rol, miembros| %>
             <tr>
-              <td><%= rol&.name || "Sin definir" %></td>
+              <td><%= rol.presence || "Sin definir" %></td>
               <td><%= miembros.count %></td>
               <% total_roles += miembros.count %>
             </tr>
