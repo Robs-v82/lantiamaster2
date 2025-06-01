@@ -54,10 +54,10 @@ class DatasetsController < ApplicationController
 		  miembros = [
 		    "Operador", "Jefe regional u operador", "Extorsionador-narcomenudista", "Jefe de sicarios", "Sicario",
 		    "Jefe de plaza", "Jefe de célula", "Extorsionador", "Secuestrador", "Traficante o distribuidor",
-		    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional"
+		    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional","Sin definir"
 		  ]
 
-		  autoridades = ["Gobernador", "Alcalde", "Delegado estatal", "Secretario de seguridad"]
+		  autoridades = ["Gobernador", "Alcalde", "Delegado estatal", "Secretario de Seguridad"]
 
 		  return "Líder" if role_name == "Líder"
 		  return "Socio" if role_name == "Socio"
