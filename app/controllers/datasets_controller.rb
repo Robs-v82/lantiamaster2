@@ -21,6 +21,74 @@ class DatasetsController < ApplicationController
 	def show
 	end
 	
+	# Clasificación personalizada de roles
+	def clasificar_rol(member)
+	  role_name = member.role&.name.to_s.strip
+	  involved = member.involved
+
+	  miembros = [
+	    "Operador", "Jefe regional u operador", "Extorsionador-narcomenudista", "Jefe de sicarios", "Sicario",
+	    "Jefe de plaza", "Jefe de célula", "Extorsionador", "Secuestrador", "Traficante o distribuidor",
+	    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional","Sin definir"
+	  ]
+
+	  autoridades = ["Gobernador", "Alcalde", "Delegado estatal", "Secretario de Seguridad"]
+
+	  return "Líder" if role_name == "Líder"
+	  return "Socio" if role_name == "Socio"
+	  return "Familiar" if role_name == "Familiar"
+	  return "Periodista" if role_name == "Periodista"
+	  return "Abogado" if role_name == "Abogado"
+	  return "Servicios lícitos" if role_name == "Servicios lícitos"
+	  return "Autoridad cooptada" if role_name == "Autoridad cooptada"
+	  return "Autoridad expuesta" if role_name == "Autoridad expuesta"
+
+	  if autoridades.include?(role_name)
+	    return involved ? "Autoridad cooptada" : "Autoridad expuesta"
+	  end
+
+	  return "Miembro" if miembros.include?(role_name)
+
+	  "Sin clasificar"
+	end
+
+
+	def terrorist_search
+		hits = Hit.all
+		members = Member.joins(:hits).where(hits: { id: hits.pluck(:id) }).distinct
+		@hits = hits
+	  @members = members
+
+
+	  # Tabla por usuario
+	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
+	  hits.includes(:user, :members).each do |hit|
+	    key = hit.user&.id || :undefined
+	    por_usuario_raw[key][:hits] += 1
+	    hit.members.each { |m| por_usuario_raw[key][:miembros] << m.id }
+	  end
+	  @por_usuario = por_usuario_raw.sort_by { |_, data| -data[:miembros].size }.to_h
+
+	  # Tabla por tipo de exposición
+	  exposicion_raw = { true => [], false => [], nil => [] }
+	  members.each do |m|
+	    exposicion_raw[m.involved] << m
+	  end
+	  @por_exposicion = exposicion_raw
+
+		# Agrupar según clasificación personalizada
+		rol_raw = Hash.new { |h, k| h[k] = [] }
+		members.each do |m|
+		  categoria = clasificar_rol(m)
+		  rol_raw[categoria] << m
+		end
+		@por_rol = rol_raw.sort_by { |_, v| -v.size }.to_h
+
+	  # Tabla por organización
+	  @por_organizacion = members.group_by(&:organization).sort_by { |_, v| -v.size }.to_h
+
+	end
+
 	def state_members
 	  state = State.find_by(code: params[:code])
 	  hits = Hit.joins(town: { county: :state }).where(states: { id: state.id })
@@ -45,37 +113,6 @@ class DatasetsController < ApplicationController
 	    exposicion_raw[m.involved] << m
 	  end
 	  @por_exposicion = exposicion_raw
-
-		# Clasificación personalizada de roles
-		def clasificar_rol(member)
-		  role_name = member.role&.name.to_s.strip
-		  involved = member.involved
-
-		  miembros = [
-		    "Operador", "Jefe regional u operador", "Extorsionador-narcomenudista", "Jefe de sicarios", "Sicario",
-		    "Jefe de plaza", "Jefe de célula", "Extorsionador", "Secuestrador", "Traficante o distribuidor",
-		    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional","Sin definir"
-		  ]
-
-		  autoridades = ["Gobernador", "Alcalde", "Delegado estatal", "Secretario de Seguridad"]
-
-		  return "Líder" if role_name == "Líder"
-		  return "Socio" if role_name == "Socio"
-		  return "Familiar" if role_name == "Familiar"
-		  return "Periodista" if role_name == "Periodista"
-		  return "Abogado" if role_name == "Abogado"
-		  return "Servicios lícitos" if role_name == "Servicios lícitos"
-		  return "Autoridad cooptada" if role_name == "Autoridad cooptada"
-		  return "Autoridad expuesta" if role_name == "Autoridad expuesta"
-
-		  if autoridades.include?(role_name)
-		    return involved ? "Autoridad cooptada" : "Autoridad expuesta"
-		  end
-
-		  return "Miembro" if miembros.include?(role_name)
-
-		  "Sin clasificar"
-		end
 
 		# Agrupar según clasificación personalizada
 		rol_raw = Hash.new { |h, k| h[k] = [] }
@@ -286,93 +323,6 @@ def members_outcome_pdf
 
   send_data pdf.render, filename: "#{clave}.pdf", type: "application/pdf", disposition: "attachment"
 end
-
-	def terrorist_search
-		@keyMembers = Member.joins(:hits).distinct
-		@keyMembers = @keyMembers.order(:lastname1).order(:lastname2).order(:firstname)
-
-		# Definir roles permitidos
-		roles_permitidos = [
-		  "Líder",
-		  "Operador",
-		  "Autoridad cooptada",
-		  "Socio",
-		  "Familiar",
-		  "Autoridad expuesta",
-		  "Abogado",
-		  "Periodista",
-		  "Servicios lícitos"
-		]
-
-		# Crear el hash con valores iniciales en cero
-		@conteo_por_rol = roles_permitidos.index_with { 0 }
-
-		# Consultar y agrupar miembros con al menos un hit, cuyo rol esté en roles_permitidos
-		Member.joins(:hits, :role)
-		      .where(roles: { name: roles_permitidos })
-		      .distinct
-		      .group("roles.name")
-		      .count
-		      .each do |rol, total|
-		        @conteo_por_rol[rol] = total
-		      end
-
-		@conteo_por_organizacion = {}
-
-		# Organizaciones principales por nombre
-		principales = [
-		  "Cártel Jalisco Nueva Generación",
-		  "Cártel de Sinaloa",
-		  "Cártel del Golfo",
-		  "Cártel del Noreste",
-		  "La Nueva Familia Michoacana",
-		  "Cárteles Unidos"
-		]
-
-		usadas = []
-
-		principales.each do |nombre|
-		  principal = Organization.find_by(name: nombre)
-		  next unless principal
-
-		  aliadas = Organization.where(name: principal.allies).to_a
-		  subordinadas = principal.subordinates.to_a
-
-		  bloque = [principal] + aliadas + subordinadas
-
-		  @conteo_por_organizacion[nombre] = bloque
-		  usadas += bloque
-		end
-
-		# Otras organizaciones
-		restantes = Organization.where.not(id: usadas.map(&:id))
-		@conteo_por_organizacion["Otras organizaciones"] = restantes.to_a
-
-		# Conteo de hits por estado (ordenado de mayor a menor)
-			@hits_por_estado = Hit.joins(town: { county: :state })
-        .group("states.name")
-        .order("COUNT(states.name) DESC")
-        .count
-
-@conteo_por_dominio = {}
-
-Hit.all.each do |hit|
-  next unless hit.link.present?
-
-  begin
-    dominio = URI.parse(hit.link).host&.sub(/^www\./, '')
-    if dominio
-      @conteo_por_dominio[dominio] ||= 0
-      @conteo_por_dominio[dominio] += 1
-    end
-  rescue URI::InvalidURIError
-    next
-  end
-end
-
-@conteo_por_dominio = @conteo_por_dominio.sort_by { |_, v| -v }.to_h
-
-	end
 
 	def members_search
 		@names_data = Name.all.pluck(:word, :freq).map { |word, freq| [word.capitalize, freq] }.to_h

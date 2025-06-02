@@ -1,317 +1,158 @@
 <div class="b-container">
-	<h5>Catálogo de personas vinculadas y personas expuestas</h5>
-	<br>
-<div class="row">
-  <!-- Confiabilidad de las fuentes -->
-  <div class="col l4 m6 s12">
-    <div class="card-panel z-depth-1" style="height: 200px; display: flex; flex-direction: column; padding: 0;">
-      <table class="highlight" style="margin: 0;">
-        <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
+  <h5>Catálogo de personas</h5>
+  <p><strong>Total de hits:</strong> <%= @hits.count %> | <strong>Total de miembros:</strong> <%= @members.count %></p>
+
+  <div class="row">
+    <div class="col l6 m12 s12">
+      <table class="highlight z-depth-1">
+        <thead>
           <tr>
-            <th>Confiabilidad de las fuentes</th>
-            <th>Total</th>
+            <th>Usuario</th>
+            <th>Total de hits</th>
+            <th>Miembros únicos</th>
           </tr>
         </thead>
         <tbody>
-          <% confiables = @keyMembers.select { |m| m.media_score == true }.count %>
-          <% medias = @keyMembers.select { |m| m.media_score == false || m.media_score.nil? }.count %>
-          <tr>
-            <td>Alta</td>
-            <td><%= confiables %></td>
-          </tr>
-          <tr>
-            <td>Media</td>
-            <td><%= medias %></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Tipo de medio -->
-  <div class="col l4 m6 s12">
-    <div class="card-panel z-depth-1" style="height: 200px; display: flex; flex-direction: column; padding: 0;">
-      <table class="highlight" style="margin: 0;">
-        <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
-          <tr>
-            <th>Tipo de medio</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% total_nacional = 0 %>
-          <% total_local = 0 %>
-          <% total_interno = 0 %>
-
-          <% @keyMembers.each do |m| %>
-            <% m.hits.each do |h| %>
-              <% if h.link.present? && h.national == true %>
-                <% total_nacional += 1 %>
-              <% elsif h.link.present? %>
-                <% total_local += 1 %>
-              <% else %>
-                <% total_interno += 1 %>
-              <% end %>
-            <% end %>
-          <% end %>
-
-          <tr>
-            <td>Medios nacionales</td>
-            <td><%= total_nacional %></td>
-          </tr>
-          <tr>
-            <td>Medios locales</td>
-            <td><%= total_local %></td>
-          </tr>
-          <tr>
-            <td>Internos</td>
-            <td><%= total_interno %></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Archivo adjunto -->
-  <div class="col l4 m12 s12">
-    <div class="card-panel z-depth-1" style="height: 200px; display: flex; flex-direction: column; padding: 0;">
-      <table class="highlight" style="margin: 0;">
-        <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
-          <tr>
-            <th>Archivo adjunto</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% con_pdf = 0 %>
-          <% sin_pdf = 0 %>
-
-          <% @keyMembers.each do |m| %>
-            <% m.hits.each do |h| %>
-              <% if h.pdf.attached? %>
-                <% con_pdf += 1 %>
-              <% else %>
-                <% sin_pdf += 1 %>
-              <% end %>
-            <% end %>
-          <% end %>
-
-          <tr>
-            <td>Con PDF</td>
-            <td><%= con_pdf %></td>
-          </tr>
-          <tr>
-            <td>Sin PDF</td>
-            <td><%= sin_pdf %></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-<div class="col l4 m6 s12">
-  <div class="card-panel z-depth-1" style="height: 500px; display: flex; flex-direction: column; padding: 0;">
-    <table class="highlight" style="margin: 0;">
-      <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
-        <tr>
-          <th>Estado</th>
-          <th>Total de hits</th>
-        </tr>
-      </thead>
-    </table>
-    <div style="overflow-y: auto; flex: 1;">
-      <table class="highlight" style="margin: 0;">
-        <tbody>
-          <% total_hits = 0 %>
-          <% @hits_por_estado.each do |estado, total| %>
+          <% total_hits = 0; total_members = Set.new %>
+          <% @por_usuario.each do |id, data| %>
             <tr>
-              <td><%= estado %></td>
-              <td><%= total %></td>
-            </tr>
-            <% total_hits += total %>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-    <table class="highlight" style="margin: 0;">
-      <tfoot style="position: sticky; bottom: 0; background-color: white; z-index: 2;">
-        <tr>
-          <th>Total general</th>
-          <th><%= total_hits %></th>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-</div>
-<div class="col l4 m6 s12">
-  <div class="card-panel z-depth-1" style="height: 500px; display: flex; flex-direction: column; padding: 0;">
-    <table class="highlight" style="margin: 0;">
-      <thead style="position: sticky; top: 0; background-color: white; z-index: 2;">
-        <tr>
-          <th>Dominio</th>
-          <th>Hits</th>
-        </tr>
-      </thead>
-    </table>
-    <div style="overflow-y: auto; flex: 1;">
-      <table class="highlight" style="margin: 0;">
-        <tbody>
-          <% total_hits_dominio = 0 %>
-          <% @conteo_por_dominio.each do |dominio, total| %>
-            <tr>
-              <td><%= dominio %></td>
-              <td><%= total %></td>
-            </tr>
-            <% total_hits_dominio += total %>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-    <table class="highlight" style="margin: 0;">
-      <tfoot style="position: sticky; bottom: 0; background-color: white; z-index: 2;">
-        <tr>
-          <th>Total general</th>
-          <th><%= total_hits_dominio %></th>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-</div>
-      <div class="col l4 m6 s12">
-        <table class="highlight z-depth-1">
-          <thead>
-            <tr>
-              <th>Usuario</th>
-              <th>Hits cargados</th>
-              <th>Miembros únicos creados</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% User.includes(:member).each do |user| %>
-              <% user_hits = Hit.includes(:members).where(user_id: user.id) %>
-              <% seen_members = Set.new %>
-              <% first_time_members = 0 %>
-
-              <% user_hits.each do |hit| %>
-                <% hit.members.each do |member| %>
-                  <% next if seen_members.include?(member.id) %>
-                  <% seen_members << member.id %>
-
-                  <% first_hit = member.hits.order(:created_at).first %>
-                  <% if first_hit&.user_id == user.id %>
-                    <% first_time_members += 1 %>
-                  <% end %>
+              <td>
+                <% if id == :undefined %>Sin definir<% else %>
+                  <%= User.find(id).member&.firstname.first.upcase rescue 'U' %>.
+                  <%= User.find(id).member&.lastname1.first.upcase rescue 'N' %>.
                 <% end %>
-              <% end %>
+              </td>
+              <td><%= data[:hits] %></td>
+              <td><%= data[:miembros].count %></td>
+              <% total_hits += data[:hits]; total_members.merge(data[:miembros]) %>
+            </tr>
+          <% end %>
+          <tr>
+            <th>Total</th>
+            <th><%= total_hits %></th>
+            <th><%= total_members.count %></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-              <% if user_hits.any? %>
-                <tr>
-                  <td>
-                    <%= user.member.present? ? "#{user.member.firstname.first.upcase}.#{user.member.lastname1.first.upcase}." : "Sin iniciales" %>
-                  </td>
-                  <td><%= user_hits.count %></td>
-                  <td><%= first_time_members %></td>
-                </tr>
-              <% end %>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-</div>
-<div class="row">
-			<div class="col l4 m6 s12">
-				<table class="highlight z-depth-1" style="padding: 20px;">
-					<thead>
-						<tr>
-							<th>Coalición</th>
-							<th>Total de miembros</th>
-						</tr>
-					</thead>
-					<tbody>
-						<% total_organizaciones = 0 %>
-						<% @conteo_por_organizacion.each do |nombre, organizaciones| %>
-						<% miembros = @keyMembers.select { |m| organizaciones.include?(m.organization) } %>
-						<tr>
-							<td><%= nombre %></td>
-							<td><%= miembros.count %></td>
-						</tr>
-						<% total_organizaciones += miembros.count %>
-						<% end %>
-						<tr>
-							<th>Total general</th>
-							<th><%= total_organizaciones %></th>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			<div class="col l4 m6 s12">
-				<table class="highlight z-depth-1" style="padding: 20px !important;">
-					<thead>
-						<tr>
-							<th>Rol</th>
-							<th>Total de miembros</th>
-						</tr>
-					</thead>
-					<tbody>
-						<% total_general = 0 %>
-						<% @conteo_por_rol.each do |rol, total| %>
-						<tr>
-							<td><%= rol %></td>
-							<td><%= total %></td>
-						</tr>
-						<% total_general += total %>
-						<% end %>
-						<tr>
-							<th>Total general</th>
-							<th><%= total_general %></th>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	<br>
-	<div class="row">
-		<div class="col s12">
-			<table class="table highlight z-depth-1">
-				<thead>
-					<tr>
-						<th>ID</th>
-						<th>Nombres</th>
-						<th>Apellido Paterno</th>
-						<th>Apellido Materno</th>
-						<th>Alias</th>
-						<th>Rol</th>
-						<th>Organización</th>
-						<th>Último registro</th>
-						<th>Lugar</th>
-					</tr>
-				</thead>
-			<tbody>
-				<% @keyMembers.limit(100).each do |member| %>
-					<tr>
-						<td><%= member.id %></td>
-						<td><%= member.firstname %></td>
-						<td><%= member.lastname1 %></td>
-						<td><%= member.lastname2 %></td>
-						<td><%= member.alias.first %></td>
-						<td><% if member.role %>
-								<%= member.role.name %>
-							<% end %>
-						</td>
-						<td><%= member.organization&.name %></td>
-						<td><%= member.hits.last.date.strftime("%d/%m/%y")%></td>
-						<td>
-							<% unless member.hits.last.town.county.name == "Sin definir" %>
-							<%= member.hits.last.town.county.name %>,
-							<% end %>
-							<%= member.hits.last.town.county.state.shortname %>
-						</td>
-					</tr>
-				<% end %>
-			</tbody>
-			</table>
-		</div>
-	</div>
+    <div class="col l6 m12 s12">
+      <table class="highlight z-depth-1">
+        <thead>
+          <tr>
+            <th>Tipo de exposición</th>
+            <th>Total de miembros</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% total_expuestos = 0 %>
+          <% tipos = { true => "Personas señaladas", false => "Personas expuestas", nil => "Sin definir" } %>
+          <% tipos.each do |clave, etiqueta| %>
+            <tr>
+              <td><%= etiqueta %></td>
+              <td><%= @por_exposicion[clave].count %></td>
+              <% total_expuestos += @por_exposicion[clave].count %>
+            </tr>
+          <% end %>
+          <tr>
+            <th>Total</th>
+            <th><%= total_expuestos %></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col l6 m12 s12">
+      <table class="highlight z-depth-1">
+        <thead>
+          <tr>
+            <th>Rol</th>
+            <th>Total de miembros</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% total_roles = 0 %>
+          <% @por_rol.each do |rol, miembros| %>
+            <tr>
+              <td><%= rol.presence || "Sin definir" %></td>
+              <td><%= miembros.count %></td>
+              <% total_roles += miembros.count %>
+            </tr>
+          <% end %>
+          <tr>
+            <th>Total</th>
+            <th><%= total_roles %></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col l6 m12 s12">
+      <table class="highlight z-depth-1">
+        <thead>
+          <tr>
+            <th>Organización</th>
+            <th>Total de miembros</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% total_orgs = 0 %>
+          <% @por_organizacion.each do |org, miembros| %>
+            <tr>
+              <td><%= org&.name || "Sin definir" %></td>
+              <td><%= miembros.count %></td>
+              <% total_orgs += miembros.count %>
+            </tr>
+          <% end %>
+          <tr>
+            <th>Total</th>
+            <th><%= total_orgs %></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col s12">
+      <table class="highlight z-depth-1">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombres</th>
+            <th>Apellido Paterno</th>
+            <th>Apellido Materno</th>
+            <th>Alias</th>
+            <th>Rol</th>
+            <th>Organización</th>
+            <th>Último registro</th>
+            <th>Lugar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @members.each do |member| %>
+            <% last_hit = member.hits.order(:date).last %>
+            <tr>
+              <td><%= member.id %></td>
+              <td><%= member.firstname %></td>
+              <td><%= member.lastname1 %></td>
+              <td><%= member.lastname2 %></td>
+              <td><%= member.alias.first %></td>
+              <td><%= member.role&.name %></td>
+              <td><%= member.organization&.name %></td>
+              <td><%= last_hit&.date&.strftime("%d/%m/%y") %></td>
+              <td>
+                <% if last_hit&.town&.county&.name && last_hit.town.county.name != "Sin definir" %>
+                  <%= last_hit.town.county.name %>,
+                <% end %>
+                <%= last_hit&.town&.county&.state&.shortname %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
