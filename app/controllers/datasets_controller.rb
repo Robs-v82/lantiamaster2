@@ -97,6 +97,7 @@ class DatasetsController < ApplicationController
 	  @state = state
 	  @hits = hits
 	  @members = members
+	  @rackets = @state.rackets.distinct.order(:name)
 
 	  # Tabla por usuario
 	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
@@ -114,17 +115,38 @@ class DatasetsController < ApplicationController
 	  end
 	  @por_exposicion = exposicion_raw
 
-		# Agrupar según clasificación personalizada
-		rol_raw = Hash.new { |h, k| h[k] = [] }
-		members.each do |m|
-		  categoria = clasificar_rol(m)
-		  rol_raw[categoria] << m
-		end
-		@por_rol = rol_raw.sort_by { |_, v| -v.size }.to_h
+	  # Agrupar según clasificación personalizada
+	  rol_raw = Hash.new { |h, k| h[k] = [] }
+	  members.each do |m|
+	    categoria = clasificar_rol(m)
+	    rol_raw[categoria] << m
+	  end
+	  @por_rol = rol_raw.sort_by { |_, v| -v.size }.to_h
 
-	  # Tabla por organización
-	  @por_organizacion = members.group_by(&:organization).sort_by { |_, v| -v.size }.to_h
+	  # Tabla por organización: incluir todas las organizaciones del estado, incluso si no tienen miembros
+	  organizaciones_del_estado = Organization.joins(:states).where(states: { id: state.id }).distinct
+
+	  @por_organizacion = organizaciones_del_estado.map do |org|
+	    miembros = members.select { |m| m.organization_id == org.id }
+	    [org, miembros]
+	  end.to_h.sort_by { |_, miembros| -miembros.size }.to_h
 	end
+
+
+	def download_state_rackets
+	  state = State.find_by(code: params[:code])
+	  rackets = state.rackets.distinct.order(:name)
+
+	  csv_data = CSV.generate(headers: true) do |csv|
+	    csv << ["NOMBRE", "ESTATUS"]
+	    rackets.each do |r|
+	      csv << [r.name, r.active == false ? "Inactiva" : "Activa"]
+	    end
+	  end
+
+	  # send_data csv_data.encode('UTF-8'), filename: "rackets_estado_#{state.code}.csv"
+	end
+
 
 	def members_query
 		query_params = members_query_params

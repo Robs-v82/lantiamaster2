@@ -143,6 +143,8 @@ Rails.application.routes.draw do
     post 'datasets/merge_members', to: 'datasets#merge_members'
     post 'datasets/ignore_conflict', to: 'datasets#ignore_conflict'
     get '/sesion', to: redirect('/')
+    get 'datasets/download_state_rackets/:code', to: 'datasets#download_state_rackets', as: 'download_state_rackets'
+
 
 
 end

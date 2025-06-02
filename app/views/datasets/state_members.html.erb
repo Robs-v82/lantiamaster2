@@ -88,12 +88,12 @@
         </tbody>
       </table>
     </div>
-
     <div class="col l6 m12 s12">
       <table class="highlight z-depth-1">
         <thead>
           <tr>
             <th>Organización</th>
+            <th>Estatus</th>
             <th>Total de miembros</th>
           </tr>
         </thead>
@@ -102,12 +102,14 @@
           <% @por_organizacion.each do |org, miembros| %>
             <tr>
               <td><%= org&.name || "Sin definir" %></td>
+              <td><%= org&.active == false ? "Inactiva" : "Activa" %></td>
               <td><%= miembros.count %></td>
               <% total_orgs += miembros.count %>
             </tr>
           <% end %>
           <tr>
             <th>Total</th>
+            <th></th>
             <th><%= total_orgs %></th>
           </tr>
         </tbody>
