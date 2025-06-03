@@ -32,7 +32,7 @@ class DatasetsController < ApplicationController
 	    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional","Sin definir"
 	  ]
 
-	  autoridades = ["Gobernador", "Alcalde", "Delegado estatal", "Secretario de Seguridad"]
+	  autoridades = ["Gobernador", "Alcalde", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad"]
 
 	  return "Líder" if role_name == "Líder"
 	  return "Socio" if role_name == "Socio"
@@ -193,7 +193,7 @@ class DatasetsController < ApplicationController
 
 	def members_outcome
 		@all_officers = ["Gobernador","Alcalde", "Secretario de Seguridad", "Delegado estatal"]
-		@federal_officers = ["Delegado estatal"]
+		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
 		@state_officers = ["Gobernador", "Secretario de Seguridad"]
 		@myQuery = if session[:query_id]
 			Query.find_by(id: session[:query_id])
