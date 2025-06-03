@@ -281,7 +281,7 @@
               <br>
               <%= member.role.name %>
               <% if @federal_officers.include?(member.role&.name) %>
-                 en <%= member.hits.where(:title=>"Nombramiento PGR/FGR").first.town.county.state.name %>, <%= member.organization.name %>
+                 en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
               <% elsif @state_officers.include?(member.role&.name) %>
                  de <%= member.organization.county.state.name %>
               <% else %>
@@ -289,7 +289,10 @@
                 <%= member.organization.county.state.shortname %>.
             <% end %>
               <br>
-              <%= member.start_date.strftime("%d/%m/%Y") %> a <%= member.end_date.strftime("%d/%m/%Y") %>
+              <%= member.start_date.strftime("%d/%m/%Y") %>
+                <% if member.end_date? %>
+                a <%= member.end_date.strftime("%d/%m/%Y") %>
+                <% end %>
             <% else %>
               <%= member.role&.name || "Sin definir" %>
             <% end %>

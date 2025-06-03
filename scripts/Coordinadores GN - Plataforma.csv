@@ -1,0 +1,165 @@
+state.code,state.name,member.firstname,member.lastname1,member.lastname2,member.start_date,member.end_date
+01,Aguascalientes,Arturo,Olguín,Miguel,2019-10-29,2021-06-01
+01,Aguascalientes,Víctor Manuel,Lomelí,Carrera,2021-06-02,2023-10-15
+01,Aguascalientes,Leonel,Alcaraz,Alarcón,2023-10-16,2024-07-04
+01,Aguascalientes,Arody Salvador,Lorenzo,Bautista,2024-07-05,2024-11-20
+01,Aguascalientes,Homero Edmundo,Blanco,Lozada,2024-11-21,2025-06-03
+02,Baja California,Edgar,Segura,Ruiz,2019-10-29,2021-05-01
+02,Baja California,Francisco Javier,Hernández,Almanza,2021-05-01,2022-06-01
+02,Baja California,Jorge Enrique,Martínez,Medina,2022-06-01,2024-05-01
+02,Baja California,Marco Antonio,Hernández,Chávez,2024-05-01,2024-11-14
+02,Baja California,Héctor,Jiménez,Báez,2024-11-14,
+03,Baja California Sur,Salvador,Naranjo,Armendáriz,2019-10-29,2021-07-29
+03,Baja California Sur,Luis Gerardo,Meraz,Cuevas,2022-10-05,2022-10-05
+03,Baja California Sur,Sinesio,Magaña,Ortiz,2022-10-05,2023-10-09
+03,Baja California Sur,Homero Edmundo,Blanco,Lozada,2023-10-09,2024-08-02
+03,Baja California Sur,Carlos Salvador,Hernández,Carvajal,2024-08-02,
+04,Campeche,Federico,Prieto,Anota,2019-10-29,2022-09-01
+04,Campeche,Francisco,Alvarado,Terán,2022-09-01,2023-08-22
+04,Campeche,Israel,Caro,Martínez,2023-08-22,2025-04-30
+04,Campeche,Omar,Díaz,Alcaraz,2025-04-30,
+05,Coahuila,Joaquín David,Vázquez,Orozco,2019-07-30,2020-05-06
+05,Coahuila,Gerardo,Serna,Melchor,2020-05-06,2022-11-07
+05,Coahuila,Noé,Valdés,López,2022-11-07,2025-04-03
+05,Coahuila,José Luis,Sedano,Ramírez,2025-04-04,
+06,Colima,Domingo Tito,Bahena,Salgado,2019-10-29,2022-04-04
+06,Colima,Francisco,Díaz,González,2022-04-04,2022-09-02
+06,Colima,Miguel Ángel,Aragón,Vázquez,2022-09-02,2023-12-04
+06,Colima,José Benito,Romero,Líbano,2023-12-04,2024-06-17
+06,Colima,Juan Carlos,Guzmán,Giadans,2024-06-17,2025-04-04
+06,Colima,Víctor Hugo,Chávez,Martínez,2025-04-04,
+07,Chiapas,Félix,González,Lara,2019-10-29,2020-11-09
+07,Chiapas,Manuel,García,Morcillo,2022-04-16,2023-03-21
+07,Chiapas,Víctor,Fernández,Mondragón,2023-03-21,2024-02-08
+07,Chiapas,Antonio,Hernández,Tejeda,2024-02-08,2025-05-02
+07,Chiapas,José Inés,Meléndez,Estrada,2025-05-02,
+08,Chihuahua,Agustín,Reyna,Mendoza,2019-10-29,2020-02-25
+08,Chihuahua,Martín,Álvarez,Maldonado,2020-02-25,2021-12-06
+08,Chihuahua,Víctor,Fernández,Mondragón,2021-12-06,2023-04-03
+08,Chihuahua,Ernesto,Gutiérrez,Tapia,2023-04-03,2023-10-09
+08,Chihuahua,Jesús Gabriel,López,Gutiérrez,2023-10-09,2024-05-17
+08,Chihuahua,Fernando,Colchado,Gómez,2024-05-17,2024-10-18
+08,Chihuahua,Alejandro,Rivas,Salgado,2024-10-18,
+09,Ciudad de México,Martín Salvador,Morfín,Ruiz,2019-10-29,2021-09-01
+09,Ciudad de México,José Luis,Bucio,Quiroz,2021-09-01,2023-09-09
+09,Ciudad de México,Alberto Miguel,Rodríguez,Granada,2023-10-09,
+10,Durango,Francisco Javier,Moreno,Carrillo,2019-10-29,2020-11-01
+10,Durango,Lucio,Vergara,Gómez,2020-11-01,2023-10-11
+10,Durango,Miguel Ángel,Aragón,Vázquez,2023-10-11,2024-04-09
+10,Durango,Manuel,Bravo,Alonso,2024-04-09,2025-04-09
+10,Durango,Alfredo,Montiel,Godínez,2025-04-09,
+11,Guanajuato,José Martín,Luna,de la Luz,2019-10-29,2020-05-01
+11,Guanajuato,Héctor,Ortiz,Caletty,2020-05-01,2022-09-01
+11,Guanajuato,José Felipe,Andrade,Medina,2022-09-01,2023-08-14
+11,Guanajuato,Vicente,Dimayuga,Canales,2023-08-14,2023-10-03
+11,Guanajuato,Rogelio,García,Pérez,2023-10-03,2025-01-11
+11,Guanajuato,Gerardo,Serna,Melchor,2025-01-11,2025-04-05
+11,Guanajuato,Juan,Manríquez,Moreno,2025-04-05,
+12,Guerrero,Antonio,Ramos,Argüello,2019-09-02,2022-04-28
+12,Guerrero,Marcos,Burgos,Legorreta,2022-04-28,2022-08-16
+12,Guerrero,Andrés,Ramírez,Xochicali,2022-08-16,2023-10-04
+12,Guerrero,Luis Valentín,Iglesias,Solórzano,2023-10-04,2024-01-16
+12,Guerrero,Víctor,Fernández,Mondragón,2024-01-16,2024-08-16
+12,Guerrero,Ulises,Orduña,Campos,2024-08-16,2024-11-14
+12,Guerrero,Gregorio,Espinosa,Toledo,2024-11-14,
+13,Hidalgo,Martín Enrique,García,Ordoñez,2019-07-03,2019-11-04
+13,Hidalgo,Sergio Armando,Moreno,González,2019-11-04,2021-02-02
+13,Hidalgo,Ramiro,Ramírez,López,2021-02-02,2022-02-21
+13,Hidalgo,José Francisco,González,Hernández,2022-02-21,2025-01-07
+13,Hidalgo,Julices Julián Tadeo,González,Calzada,2025-01-07,
+14,Jalisco,Marco,Burgos,Legorreta,2019-10-29,2021-01-20
+14,Jalisco,Avigai,Vargas,Tirado,2021-01-20,2021-09-01
+14,Jalisco,Armando,Toscano,Yáñez,2021-09-01,2023-04-17
+14,Jalisco,Jesús,Guerrero,Arreola,2023-04-17,2023-07-03
+14,Jalisco,Jesús Rafael,Taboada,González,2023-07-03,2023-10-14
+14,Jalisco,Armando,Gómez,Mendoza,2023-10-14,2024-03-27
+14,Jalisco,Oswaldo Iván,Galicia,Galicia,2024-03-27,2025-05-02
+14,Jalisco,Antonio,Hernández,Tejeda,2025-05-02,
+15,Estado de México,Guillermo,Arellano,Morales,2019-10-29,2021-09-01
+15,Estado de México,Jesús Rafael,Taboada,González,2021-09-01,
+16,Michoacán,Fidel,Mondragón,Rivero,2019-10-29,2020-10-24
+16,Michoacán,Ignacio,Murillo,Rodríguez,2020-10-24,2021-01-21
+16,Michoacán,José Luis,Fernández,Gutiérrez,2021-01-21,2022-01-05
+16,Michoacán,Gregorio Francisco,López,Carreño,2022-01-05,2022-08-01
+16,Michoacán,Luis Ernesto,López,Heredia,2022-08-01,2024-09-17
+16,Michoacán,Eugenio Leonardo,López,Arellanes,2024-09-17,2025-04-09
+16,Michoacán,Roberto Eduardo,Molina,García,2025-04-09,
+17,Morelos,Carlos Alberto,Thompson,Ehuan,2019-07-02,2019-10-29
+17,Morelos,Félix,González,Lara,2019-10-29,2020-03-03
+17,Morelos,Álvaro,García,Álvarez,2020-03-03,2020-07-16
+17,Morelos,Osvaldo,Béjar,Méndez,2020-07-16,2021-12-06
+17,Morelos,Valentín,Pedroza,Gutiérrez,2021-12-06,2023-03-09
+17,Morelos,Noé,Rodríguez,Jaramillo,2023-03-09,2025-04-11
+17,Morelos,Francisco Javier,Hernández,Almanza,2025-04-11,
+18,Nayarit,Carlos,Rodríguez,Quirarte,2019-10-29,2021-02-26
+18,Nayarit,Ramón,Durán,Quiroz,2021-02-26,2023-05-05
+18,Nayarit,Gabriel,Bautista,Tapia,2023-05-05,2024-02-02
+18,Nayarit,Anastasio,Santos,Álvarez,2024-02-02,
+19,Nuevo León,José Luis,Cruz,Aguilar,2019-10-29,2020-10-01
+19,Nuevo León,Filiberto,Mondragón,Polo,2020-10-01,2021-10-17
+19,Nuevo León,Miguel Alberto,Rodríguez,Granada,2021-10-17,2023-10-17
+19,Nuevo León,Juan José,Montiel,Maldonado,2023-10-17,2024-11-16
+19,Nuevo León,Arody Salvador,Lorenzo,Bautista,2024-11-16,
+20,Oaxaca,Rogelio,García,Pérez,2019-10-16,2020-06-05
+20,Oaxaca,Rosalino,Barrios,Barrios,2020-06-05,2024-11-12
+20,Oaxaca,Israel,Caro,Rodríguez,2024-11-12,
+21,Puebla,José Silvestre,Urzúa,Padilla,2019-10-29,2021-11-24
+21,Puebla,Ignacio,Delgado,Álvarez,2021-11-24,2023-10-09
+21,Puebla,Arturo,Salinas,Valdés,2023-10-09,
+22,Querétaro,Alfredo,Alvarado,Rojas,2019-11-01,2022-11-17
+22,Querétaro,Pedro Alberto,Hernández,Gallardo,2022-11-17,2024-05-20
+22,Querétaro,Héctor,Jiménez,Báez,2024-05-20,2024-11-14
+22,Querétaro,Filiberto,Oropeza,Fabián,2024-11-14,2025-02-21
+22,Querétaro,Rubén,Torres,Martínez,2025-02-21,
+23,Quintana Roo,Alejandro,Estrada,Pérez,2019-10-29,2021-01-01
+23,Quintana Roo,Francisco Justo,Toscano,Camacho,2021-01-01,2022-01-01
+23,Quintana Roo,Alberto,Román,González Fernández,2022-01-01,2023-02-16
+23,Quintana Roo,Israel Noé,Castillo,Pérez,2023-02-16,2024-07-16
+23,Quintana Roo,José Luis,Martínez,Rojas,2024-07-16,2025-01-04
+23,Quintana Roo,David,Morales,Hernández,2025-01-04,
+24,San Luis Potosí,José Adrián,Simón,Serrano,2019-07-05,2019-11-01
+24,San Luis Potosí,Martín,Vázquez,Orozco,2019-11-01,2020-05-07
+24,San Luis Potosí,Héctor,Aldape,Gallegos,2020-05-07,2020-08-12
+24,San Luis Potosí,Roberto Eduardo,Molina,García,2023-05-11,2025-04-10
+24,San Luis Potosí,Gaudencio,Ramos,Jiménez,2025-04-10,
+25,Sinaloa,Francisco Cuauhtémoc,Arellano,Ávila,2019-10-29,2023-05-22
+25,Sinaloa,Fructuoso,López,Vallejo,2023-05-22,2024-06-12
+25,Sinaloa,Héctor,Jiménez,Aldana,2024-06-12,2024-08-12
+25,Sinaloa,José Luis,Chiñas,Silva,2024-08-12,2024-11-04
+25,Sinaloa,Jorge Enrique,Martínez,Medina,2024-11-04,
+26,Sonora,Benedicto,Santamaría,González,2019-10-29,2021-03-11
+26,Sonora,Juan,González,Alvarado,2021-03-11,2022-09-05
+26,Sonora,Isaac,Guzmán,Rojas,2022-09-05,2024-12-01
+26,Sonora,Anastacio,Santos,Álvarez,2024-12-01,
+27,Tabasco,Ernesto,García,Sánchez,2019-10-29,2020-12-22
+27,Tabasco,José Felipe,Padilla,Castañeda,2020-12-22,2022-09-13
+27,Tabasco,Alejandro,Domínguez,Robles,2022-09-13,2023-10-11
+27,Tabasco,Miguel Ángel,Aragón,Vázquez,2023-10-11,2024-11-04
+27,Tabasco,Ignacio,Murillo,Rodríguez,2024-11-04,2025-04-01
+27,Tabasco,Manuel,Bravo,Alonso,2025-04-07,
+28,Tamaulipas,Pedro,Ventura,Vargas,2019-10-29,2021-02-24
+28,Tamaulipas,Bernardo,Reyes,Herrera,2021-02-24,2022-04-04
+28,Tamaulipas,Adalberto Sergio,Rojas,Mira,2022-04-04,2024-10-04
+28,Tamaulipas,Fernando,Colchado,Gómez,2024-10-04,
+30,Veracruz,Marcos,Burgos,Legorreta,2019-10-29,2020-02-25
+30,Veracruz,Sergio Armando,Moreno,González,2020-02-25,2022-11-07
+30,Veracruz,Rogelio,García,Pérez,2023-05-19,2023-10-13
+30,Veracruz,Vicente,Dimayuga,Canales,2023-10-13,2025-04-08
+30,Veracruz,Iván,Navarrete,Torres,2025-04-08,
+31,Yucatán,Francisco,Díaz,González,2019-10-29,2022-03-01
+31,Yucatán,Domingo Tito,Bahena,Salgado,2022-03-01,2022-10-26
+31,Yucatán,José Inés,Meléndez,Estrada,2022-10-26,2024-02-01
+31,Yucatán,Ramón,Guardado,Sánchez,2024-02-01,2025-01-04
+31,Yucatán,David,Morales,Hernández,2025-01-04,
+32,Zacatecas,Oscar,Zavala,Barrera,2019-10-29,2021-05-17
+32,Zacatecas,Francisco,Arroyo,Pilerio,2021-05-17,2022-01-04
+32,Zacatecas,José Silvestre,Urzúa,Padilla,2022-01-04,2022-11-24
+32,Zacatecas,Leonel,Alcaraz,Alarcón,2022-12-09,2023-10-04
+32,Zacatecas,Juan,Manríquez,Moreno,2023-10-04,2025-03-31
+32,Zacatecas,Vicente,Dimayuga,Canales,2025-04-01,
+29,Tlaxcala,Víctor Manuel,Román,Solares,2019-10-29,2020-08-13
+29,Tlaxcala,Jaime,Contreras,Chávez,2020-08-13,2021-12-07
+29,Tlaxcala,Vinicio,Perea,Alcaraz,2021-12-07,2023-01-16
+29,Tlaxcala,Jorge Antonio,Rebolledo,Zaragoza,2023-01-16,2023-10-01
+29,Tlaxcala,Alfredo,Montiel,Godínez,2023-10-01,2025-04-01
+29,Tlaxcala,Raúl,Martínez,González,2025-04-01,
