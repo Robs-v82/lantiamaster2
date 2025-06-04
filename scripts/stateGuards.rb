@@ -37,11 +37,11 @@ CSV.foreach(file_path, headers: true) do |row|
 
   if member
     member.update(
-      start_date: start_date,
-      end_date: end_date,
+      # start_date: start_date,
+      # end_date: end_date,
       organization: gn,
       role: delegado_role,
-      involved: false
+      # involved: false
     )
     if member.end_date?
       member.update(:end_date=>end_date)
@@ -50,9 +50,6 @@ CSV.foreach(file_path, headers: true) do |row|
     end
     updated_members << "#{firstname} #{lastname1} #{lastname2}"
   else
-    criminal_name = CRIMINAL_MAP[state_name]
-    criminal_org = Organization.find_by(name: criminal_name)
-
     member = Member.create(
       firstname: firstname,
       lastname1: lastname1,
@@ -69,8 +66,12 @@ CSV.foreach(file_path, headers: true) do |row|
   end
 
   if CRIMINAL_MAP.include? state_name
+    criminal_name = CRIMINAL_MAP[state_name]
+    criminal_org = Organization.find_by(name: criminal_name).id
     member.update(
-      criminal_link: criminal_org 
+      start_date: start_date,
+      end_date: end_date, 
+      criminal_link_id: criminal_org,
     )
     state = State.find_by(code: state_code)
     full_code = state.capital.full_code + "0000"
@@ -92,7 +93,7 @@ CSV.foreach(file_path, headers: true) do |row|
 end
 
 puts "Carga completa de coordinadores estatales de la Guardia Nacional."
-puts "\nCoordinadores que ya existían y fueron actualizados:"
+puts "\nCoordinadores que ya existían:"
 updated_members.each { |name| puts "- #{name}" }
 
 
