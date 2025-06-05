@@ -32,7 +32,7 @@ class DatasetsController < ApplicationController
 	    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional","Sin definir"
 	  ]
 
-	  autoridades = ["Gobernador", "Alcalde", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad"]
+	  autoridades = ["Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad"]
 
 	  return "Líder" if role_name == "Líder"
 	  return "Socio" if role_name == "Socio"
@@ -192,7 +192,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def members_outcome
-		@all_officers = ["Gobernador","Alcalde", "Secretario de Seguridad", "Delegado estatal", "Coordinador estatal"]
+		@all_officers = ["Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal"]
 		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
 		@state_officers = ["Gobernador", "Secretario de Seguridad"]
 		@myQuery = if session[:query_id]
@@ -418,6 +418,7 @@ end
 		  "Socio",
 		  "Familiar",
 		  "Autoridad expuesta",
+		  "Regidor",
 		  "Abogado",
 		  "Periodista",
 		  "Servicios lícitos"
@@ -523,7 +524,7 @@ end
 					match.update(involved: true)
 					match.update(criminal_link: myOrganization) if myOrganization.present?
 
-				when "Autoridad expuesta"
+				when "Autoridad expuesta", "Regidor"
 				  if match.role_id.nil?
 				    rol = Role.find_or_create_by!(name: role)
 				    match.update(role: rol)
@@ -654,7 +655,7 @@ end
 		  media_score_value = hits.size >= 2 && hits.any? { |h| h.national }
 		  member.update_column(:media_score, media_score_value)
 		end
-		Member.joins(:role).where(roles: { name: ["Alcalde", "Policía"] }, involved: false).update_all(media_score: true)
+		Member.joins(:role).where(roles: { name: ["Alcalde","Regidor","Policía"] }, involved: false).update_all(media_score: true)
 		puts "✅ media_score actualizado para miembros clave."
 
 		redirect_to '/datasets/terrorist_panel'
