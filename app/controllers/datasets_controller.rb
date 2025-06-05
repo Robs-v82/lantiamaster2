@@ -32,7 +32,7 @@ class DatasetsController < ApplicationController
 	    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional","Sin definir"
 	  ]
 
-	  autoridades = ["Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad"]
+	  autoridades = ["Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad", "Policía", "Militar"]
 
 	  return "Líder" if role_name == "Líder"
 	  return "Socio" if role_name == "Socio"
@@ -419,6 +419,8 @@ end
 		  "Familiar",
 		  "Autoridad expuesta",
 		  "Regidor",
+		  "Policía",
+		  "Militar",
 		  "Abogado",
 		  "Periodista",
 		  "Servicios lícitos"
@@ -655,7 +657,7 @@ end
 		  media_score_value = hits.size >= 2 && hits.any? { |h| h.national }
 		  member.update_column(:media_score, media_score_value)
 		end
-		Member.joins(:role).where(roles: { name: ["Alcalde","Regidor","Policía"] }, involved: false).update_all(media_score: true)
+		Member.joins(:role).where(roles: { name: ["Alcalde","Regidor","Policía","Militar"] }, involved: false).update_all(media_score: true)
 		puts "✅ media_score actualizado para miembros clave."
 
 		redirect_to '/datasets/terrorist_panel'
