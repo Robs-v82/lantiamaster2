@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  member_a: one
+  member_b: one
+  role_a: MyString
+  role_b: MyString
+  notes: MyText
+
+two:
+  member_a: two
+  member_b: two
+  role_a: MyString
+  role_b: MyString
+  notes: MyText

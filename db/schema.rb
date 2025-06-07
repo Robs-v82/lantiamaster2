@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_19_224458) do
+ActiveRecord::Schema.define(version: 2025_06_06_230356) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -359,6 +359,19 @@ ActiveRecord::Schema.define(version: 2025_05_19_224458) do
     t.datetime "deleted_at", precision: 0
   end
 
+  create_table "member_relationships", force: :cascade do |t|
+    t.bigint "member_a_id", null: false
+    t.bigint "member_b_id", null: false
+    t.string "role_a", null: false
+    t.string "role_b", null: false
+    t.text "notes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["member_a_id", "member_b_id", "role_a", "role_b"], name: "index_member_relationships_uniqueness", unique: true
+    t.index ["member_a_id"], name: "index_member_relationships_on_member_a_id"
+    t.index ["member_b_id"], name: "index_member_relationships_on_member_b_id"
+  end
+
   create_table "members", force: :cascade do |t|
     t.string "firstname"
     t.string "lastname1"
@@ -686,6 +699,8 @@ ActiveRecord::Schema.define(version: 2025_05_19_224458) do
   add_foreign_key "lrvl_payments", "users", name: "lrvl_payments_user_id_foreign"
   add_foreign_key "lrvl_publications", "users", name: "lrvl_publications_user_id_foreign"
   add_foreign_key "lrvl_videos", "users", name: "lrvl_videos_user_id_foreign"
+  add_foreign_key "member_relationships", "members", column: "member_a_id"
+  add_foreign_key "member_relationships", "members", column: "member_b_id"
   add_foreign_key "members", "arrests"
   add_foreign_key "members", "detentions"
   add_foreign_key "members", "members"
