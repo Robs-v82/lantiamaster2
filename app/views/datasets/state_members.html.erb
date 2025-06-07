@@ -1,3 +1,9 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.collapsible');
+    M.Collapsible.init(elems, { accordion: false });
+  });
+</script>
 <div class="b-container">
   <h5><%= @state.name %></h5>
   <p><strong>Total de hits:</strong> <%= @hits.count %> | <strong>Total de miembros:</strong> <%= @members.count %></p>
@@ -133,27 +139,40 @@
             <th>Lugar</th>
           </tr>
         </thead>
-        <tbody>
-          <% @members.each do |member| %>
-            <% last_hit = member.hits.order(:date).last %>
-            <tr>
-              <td><%= member.id %></td>
-              <td><%= member.firstname %></td>
-              <td><%= member.lastname1 %></td>
-              <td><%= member.lastname2 %></td>
-              <td><%= member.alias.first %></td>
-              <td><%= member.role&.name %></td>
-              <td><%= member.organization&.name %></td>
-              <td><%= last_hit&.date&.strftime("%d/%m/%y") %></td>
-              <td>
-                <% if last_hit&.town&.county&.name && last_hit.town.county.name != "Sin definir" %>
-                  <%= last_hit.town.county.name %>,
-                <% end %>
-                <%= last_hit&.town&.county&.state&.shortname %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
+          <ul class="collapsible expandable">
+            <% @members.each do |member| %>
+              <% last_hit = member.hits.order(:date).last %>
+              <li>
+                <div class="collapsible-header">
+                  <%= member.id %> -&nbsp;<span><strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong></span>
+                  &nbsp; – <%= member.role.name %>
+                  – <%= member.organization&.name %> | <%= last_hit&.town&.county&.state&.shortname %>
+                </div>
+                <div class="collapsible-body">
+                  <div class="row">
+                    <%= form_with model: member, url: update_member_name_path(member), local: true do |f| %>
+                      <div class="input-field col s4">
+                        <%= f.label :firstname, "Nombre" %>
+                        <%= f.text_field :firstname, class: "validate", value: member.firstname %>
+                      </div>
+                      <div class="input-field col s4">
+                        <%= f.label :lastname1, "Apellido paterno" %>
+                        <%= f.text_field :lastname1, class: "validate", value: member.lastname1 %>
+                      </div>
+                      <div class="input-field col s4">
+                        <%= f.label :lastname2, "Apellido materno" %>
+                        <%= f.text_field :lastname2, class: "validate", value: member.lastname2 %>
+                      </div>
+                      <div class="col s12">
+                        <%= hidden_field_tag :state_code, @state.code %>
+                        <%= f.submit "Actualizar", class: "btn blue" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+          </ul>
       </table>
     </div>
   </div>

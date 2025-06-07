@@ -132,6 +132,16 @@ class DatasetsController < ApplicationController
 	  end.to_h.sort_by { |_, miembros| -miembros.size }.to_h
 	end
 
+	def update_name
+	  @member = Member.find(params[:id])
+
+	  if @member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2))
+	    redirect_to "/datasets/state_members/#{params[:state_code]}", notice: "Nombre actualizado correctamente"
+	  else
+	    redirect_to "/datasets/state_members/#{params[:state_code]}", alert: "Error al actualizar"
+	  end
+	end
+
 
 	def download_state_rackets
 	  state = State.find_by(code: params[:code])

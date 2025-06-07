@@ -144,6 +144,7 @@ Rails.application.routes.draw do
     post 'datasets/ignore_conflict', to: 'datasets#ignore_conflict'
     get '/sesion', to: redirect('/')
     get 'datasets/download_state_rackets/:code', to: 'datasets#download_state_rackets', as: 'download_state_rackets'
+    patch 'datasets/:id/update_name', to: 'datasets#update_name', as: :update_member_name
 
 
 
