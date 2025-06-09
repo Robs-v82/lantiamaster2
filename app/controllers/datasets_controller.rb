@@ -441,261 +441,289 @@ def terrorist_panel
   end
 end
 
-	def upload_members
-		myFile = load_members_params[:file]
+def upload_members
+	myFile = load_members_params[:file]
 
-		# 🔍 Roles que queremos conservar
-		roles_permitidos = [
-		  "Líder",
-		  "Operador",
-		  "Autoridad cooptada",
-		  "Socio",
-		  "Familiar",
-		  "Autoridad expuesta",
-		  "Regidor",
-		  "Policía",
-		  "Militar",
-		  "Abogado",
-		  "Periodista",
-		  "Servicios lícitos"
-		]
+	# 🔍 Roles que queremos conservar
+	roles_permitidos = [
+	  "Líder",
+	  "Operador",
+	  "Autoridad cooptada",
+	  "Socio",
+	  "Familiar",
+	  "Autoridad expuesta",
+	  "Regidor",
+	  "Policía",
+	  "Militar",
+	  "Abogado",
+	  "Periodista",
+	  "Servicios lícitos"
+	]
 
-		# 🗂️ Contenedores por categoría
-		repetidos = []
-		validos = []
-		invalidos = []
-		correcciones_nombres = 0
+	# 🗂️ Contenedores por categoría
+	repetidos = []
+	validos = []
+	invalidos = []
+	correcciones_nombres = 0
 
-		reemplazos_roles = {
-			"Líder criminal" => "Líder",
-			"Familiar de un criminal" => "Familiar",
-			"Miembro de un grupo criminal" => "Operador",
-			"Autoridad coludida" => "Autoridad cooptada",
-			"Socio de un grupo criminal" => "Socio"
-		}
+	reemplazos_roles = {
+		"Líder criminal" => "Líder",
+		"Familiar de un criminal" => "Familiar",
+		"Miembro de un grupo criminal" => "Operador",
+		"Autoridad coludida" => "Autoridad cooptada",
+		"Socio de un grupo criminal" => "Socio"
+	}
 
-		# 🔎 Función auxiliar para encontrar la organización
-		def find_organization_by_name_or_alias(name)
-			return nil if name.blank?
-			normalized = name.to_s.strip.downcase
+	# 🔎 Función auxiliar para encontrar la organización
+	def find_organization_by_name_or_alias(name)
+		return nil if name.blank?
+		normalized = name.to_s.strip.downcase
 
-			Organization.find do |org|
-				org.name.to_s.downcase == normalized ||
-				org.acronym.to_s.downcase == normalized ||
-				Array(org.alias).map { |a| a.downcase.strip }.include?(normalized)
-			end
+		Organization.find do |org|
+			org.name.to_s.downcase == normalized ||
+			org.acronym.to_s.downcase == normalized ||
+			Array(org.alias).map { |a| a.downcase.strip }.include?(normalized)
+		end
+	end
+
+	def corregir_nombres(fn, ln1, ln2)
+		if fn.to_s.strip.split.size == 1 && ln1.to_s.strip.split.size == 1 && ln2.to_s.strip.split.size == 2
+			nuevo_fn = "#{fn.strip} #{ln1.strip}"
+			nuevo_ln1, nuevo_ln2 = ln2.strip.split
+			return [nuevo_fn, nuevo_ln1, nuevo_ln2]
+		end
+		[fn, ln1, ln2] # si no aplica la heurística, devolver tal cual
+	end
+
+	CSV.foreach(myFile, headers: true, encoding: "bom|utf-8") do |row|
+		role = row["role"]&.strip
+		role = reemplazos_roles[role] || role
+
+		next unless roles_permitidos.include?(role)
+		original_fn  = row["firstname"]&.strip
+		original_ln1 = row["lastname1"]&.strip
+		original_ln2 = row["lastname2"]&.strip
+		firstname, lastname1, lastname2 = corregir_nombres(original_fn, original_ln1, original_ln2)
+		org_name   = row["organization"]&.strip
+		legacy_id = row["legacy_id"]&.strip
+
+		if [firstname, lastname1, lastname2] != [original_fn, original_ln1, original_ln2]
+				correcciones_nombres += 1
 		end
 
-		def corregir_nombres(fn, ln1, ln2)
-			if fn.to_s.strip.split.size == 1 && ln1.to_s.strip.split.size == 1 && ln2.to_s.strip.split.size == 2
-				nuevo_fn = "#{fn.strip} #{ln1.strip}"
-				nuevo_ln1, nuevo_ln2 = ln2.strip.split
-				return [nuevo_fn, nuevo_ln1, nuevo_ln2]
-			end
-			[fn, ln1, ln2] # si no aplica la heurística, devolver tal cual
+		# Extraer los alias
+		alias_string = row["alias"]&.strip
+		alias_array = alias_string.present? ? alias_string.split(";").map(&:strip).uniq : []
+
+		datos_completos = firstname.present? && lastname1.present? && lastname2.present?
+
+		unless datos_completos
+			invalidos << row.to_h
+			next
 		end
 
-		CSV.foreach(myFile, headers: true, encoding: "bom|utf-8") do |row|
-			role = row["role"]&.strip
-			role = reemplazos_roles[role] || role
+		myOrganization = find_organization_by_name_or_alias(org_name)
+			unless myOrganization.present?
+			invalidos << row.to_h
+			next
+		end
 
-			next unless roles_permitidos.include?(role)
-			original_fn  = row["firstname"]&.strip
-			original_ln1 = row["lastname1"]&.strip
-			original_ln2 = row["lastname2"]&.strip
-			firstname, lastname1, lastname2 = corregir_nombres(original_fn, original_ln1, original_ln2)
-			org_name   = row["organization"]&.strip
-			legacy_id = row["legacy_id"]&.strip
+		myOrganization = find_organization_by_name_or_alias(org_name)
 
-			if [firstname, lastname1, lastname2] != [original_fn, original_ln1, original_ln2]
-  				correcciones_nombres += 1
-			end
+		# Buscar posibles miembros con nombre similar o idéntico (sin importar la organización)
+		miembros_potenciales = Member.where(
+		  firstname: firstname,
+		  lastname1: lastname1,
+		  lastname2: lastname2
+		)
 
-			# Extraer los alias
-			alias_string = row["alias"]&.strip
-			alias_array = alias_string.present? ? alias_string.split(";").map(&:strip).uniq : []
+		# Buscar match exacto
+		match = miembros_potenciales.find do |m|
+		  m.firstname == firstname && m.lastname1 == lastname1 && m.lastname2 == lastname2
+		end
 
-			datos_completos = firstname.present? && lastname1.present? && lastname2.present?
+		# Si no hay match exacto, buscar similar sólo en miembros con nombres completos
+		match ||= Member.where.not(firstname: [nil, ''], lastname1: [nil, ''], lastname2: [nil, '']).find do |m|
+		  members_similar?(m, OpenStruct.new(firstname: firstname, lastname1: lastname1, lastname2: lastname2))
+		end
 
-			unless datos_completos
-				invalidos << row.to_h
-				next
-			end
+		if match
+		  repetidos << row.to_h
 
-			myOrganization = find_organization_by_name_or_alias(org_name)
-				unless myOrganization.present?
-				invalidos << row.to_h
-				next
-			end
+		  # Asignar rol si no tiene
+			case role
+			when "Líder", "Operador", "Socio"
+			  rol = Role.find_or_create_by!(name: role)
+			  match.update(role: rol, involved: true)
 
-			myOrganization = find_organization_by_name_or_alias(org_name)
+			when "Autoridad cooptada"
+				match.update(involved: true)
+				match.update(criminal_link: myOrganization) if myOrganization.present?
 
-			# Buscar posibles miembros con nombre similar o idéntico (sin importar la organización)
-			miembros_potenciales = Member.where(
-			  firstname: firstname,
-			  lastname1: lastname1,
-			  lastname2: lastname2
-			)
-
-			# Buscar match exacto
-			match = miembros_potenciales.find do |m|
-			  m.firstname == firstname && m.lastname1 == lastname1 && m.lastname2 == lastname2
-			end
-
-			# Si no hay match exacto, buscar similar sólo en miembros con nombres completos
-			match ||= Member.where.not(firstname: [nil, ''], lastname1: [nil, ''], lastname2: [nil, '']).find do |m|
-			  members_similar?(m, OpenStruct.new(firstname: firstname, lastname1: lastname1, lastname2: lastname2))
-			end
-
-			if match
-			  repetidos << row.to_h
-
-			  # Asignar rol si no tiene
-				case role
-				when "Líder", "Operador", "Socio"
-				  rol = Role.find_or_create_by!(name: role)
-				  match.update(role: rol, involved: true)
-
-				when "Autoridad cooptada"
-					match.update(involved: true)
-					match.update(criminal_link: myOrganization) if myOrganization.present?
-
-				when "Autoridad expuesta", "Regidor"
-				  if match.role_id.nil?
-				    rol = Role.find_or_create_by!(name: role)
-				    match.update(role: rol)
-				  end
-			    if match.involved.nil?
-			    	match.update(:involved=>false)
-			    end
-				  match.update(criminal_link: myOrganization) if myOrganization.present?
-
-				else
-				  # No se actualiza rol ni involved
-				end
-
-			  # Asociar hit si aplica
-			  legacy_id_valida = Hit.exists?(legacy_id: legacy_id)
-			  if legacy_id_valida
-			    myHit = Hit.find_by(legacy_id: legacy_id) 
-			    match.hits << myHit unless match.hits.exists?(myHit.id)
+			when "Autoridad expuesta", "Regidor"
+			  if match.role_id.nil?
+			    rol = Role.find_or_create_by!(name: role)
+			    match.update(role: rol)
 			  end
+		    if match.involved.nil?
+		    	match.update(:involved=>false)
+		    end
+			  match.update(criminal_link: myOrganization) if myOrganization.present?
 
-			  # Asignar alias si hay nuevos
-			  if alias_array.any?
-			    match.alias ||= []
-			    nuevos_alias = alias_array - match.alias
-			    if nuevos_alias.any?
-			      match.alias += nuevos_alias
-			      match.save!
-			    end
-			  end
-
-			  # 🆕 Si se marca como detenido
-			  if row["detention"].to_s.strip == "1" && myHit.present?
-			    match.hits << myHit unless match.hits.exists?(myHit.id)
-
-			    hit_date = myHit.date
-			    town_id = myHit.town_id
-			    detention = Detention.find_by(legacy_id: myHit.legacy_id)
-
-			    if detention.nil?
-			      new_event = Event.create!(event_date: hit_date, town_id: town_id)
-			      detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
-			    end
-
-			    if match.detention.nil? || match.detention.event.event_date < hit_date
-			      match.update!(detention: detention)
-			    end
-			  end
-
-			  next
-			end
-
-			# Verificar si los datos básicos son válidos
-			organizacion_valida = myOrganization.present?
-			legacy_id_valida = Hit.exists?(legacy_id: legacy_id)
-			if legacy_id_valida
-				myHit = Hit.find_by(legacy_id: legacy_id) 
-			end
-			if datos_completos && organizacion_valida && legacy_id_valida
-				validos << row.to_h
-				rol = Role.find_or_create_by!(name: role)
-				valor_involved = ["Líder", "Operador", "Autoridad cooptada", "Socio"].include?(role)
-				myMember = Member.create!(
-				  firstname: firstname,
-				  lastname1: lastname1,
-				  lastname2: lastname2,
-				  organization: myOrganization, 
-				  alias: alias_array,
-				  role: rol,
-				  involved: valor_involved
-				)
-
-			    myMember.hits << myHit
-
-				if row["detention"].to_s.strip == "1" && myHit.present?
-					hit_date = myHit.date
-					town_id = myHit.town_id
-					detention = Detention.find_by(legacy_id: myHit.legacy_id)
-					if detention.nil?
-						new_event = Event.create!(event_date: hit_date, town_id: town_id)
-						detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
-					end
-					myMember.update!(detention: detention)
-				end
 			else
-				invalidos << row.to_h
+			  # No se actualiza rol ni involved
 			end
+
+		  # Asociar hit si aplica
+		  legacy_id_valida = Hit.exists?(legacy_id: legacy_id)
+		  if legacy_id_valida
+		    myHit = Hit.find_by(legacy_id: legacy_id) 
+		    match.hits << myHit unless match.hits.exists?(myHit.id)
+		  end
+
+		  # Asignar alias si hay nuevos
+		  if alias_array.any?
+		    match.alias ||= []
+		    nuevos_alias = alias_array - match.alias
+		    if nuevos_alias.any?
+		      match.alias += nuevos_alias
+		      match.save!
+		    end
+		  end
+
+		  # 🆕 Si se marca como detenido
+		  if row["detention"].to_s.strip == "1" && myHit.present?
+		    match.hits << myHit unless match.hits.exists?(myHit.id)
+
+		    hit_date = myHit.date
+		    town_id = myHit.town_id
+		    detention = Detention.find_by(legacy_id: myHit.legacy_id)
+
+		    if detention.nil?
+		      new_event = Event.create!(event_date: hit_date, town_id: town_id)
+		      detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
+		    end
+
+		    if match.detention.nil? || match.detention.event.event_date < hit_date
+		      match.update!(detention: detention)
+		    end
+		  end
+
+		  next
 		end
 
-		session[:filename] = load_members_params[:file].original_filename
-		session[:load_success] = true
-		session[:message] = "🔁 Repetidos: #{repetidos.count}"+"\n"+
-			"✅ Válidos:   #{validos.count}"+"\n"+
-			"⚠️ Inválidos: #{invalidos.count}" + "\n" +
-			"✏️ Nombres corregidos: #{correcciones_nombres}"
+		# Verificar si los datos básicos son válidos
+		organizacion_valida = myOrganization.present?
+		legacy_id_valida = Hit.exists?(legacy_id: legacy_id)
+		if legacy_id_valida
+			myHit = Hit.find_by(legacy_id: legacy_id) 
+		end
+		if datos_completos && organizacion_valida && legacy_id_valida
+			validos << row.to_h
+			rol = Role.find_or_create_by!(name: role)
+			valor_involved = ["Líder", "Operador", "Autoridad cooptada", "Socio"].include?(role)
+			
+		# Ruta del archivo de géneros
+		gender_file = Rails.root.join("scripts", "names_by_gender.csv")
+		gender_data = CSV.read(gender_file, headers: true)
 
+		# Buscar el género estimado
+		gender_row = gender_data.find { |row| row["firstname"].to_s.strip.downcase == firstname.strip.downcase }
 
-		csv_string = CSV.generate(headers: true) do |csv|
-		  csv << ["legacy_id", "firstname", "lastname1", "lastname2", "alias", "role", "organization", "detention"]
-		  invalidos.each do |row|
-		    csv << [
-		      row["legacy_id"],
-		      row["firstname"],
-		      row["lastname1"],
-		      row["lastname2"],
-		      row["alias"],
-		      row["role"],
-		      row["organization"],
-		      row["detention"]
-		    ]
+		# Estimar género
+		estimated_gender = gender_row&.[]("genero_estimado")
+		assignable_gender = case estimated_gender&.downcase
+		                    when "masculino"
+		                      "MASCULINO"
+		                    when "femenino"
+		                      "FEMENINO"
+		                    else
+		                      nil
+		                    end
+
+		# Crear el nuevo miembro con género estimado (si existe)
+		myMember = Member.create!(
+		  firstname: firstname,
+		  lastname1: lastname1,
+		  lastname2: lastname2,
+		  organization: myOrganization, 
+		  alias: alias_array,
+		  role: rol,
+		  involved: valor_involved,
+		  gender: assignable_gender
+		)
+
+		# Agregar el nombre al archivo si no existía
+		if gender_row.nil?
+		  CSV.open(gender_file, "a+") do |csv|
+		    csv << [firstname, "Desconocido"]
 		  end
 		end
 
-		# Guardar CSV en archivo temporal
-		filename = "invalid_members_#{Time.now.to_i}.csv"
-		filepath = Rails.root.join("tmp", filename)
-		File.write(filepath, csv_string)
+		    myMember.hits << myHit
 
-		# Guardar el nombre en sesión para usarlo en la vista
-		session[:invalid_members_csv] = filename
-
-		# Obtener miembros con al menos un hit
-		targetMembers = Member.joins(:hits).distinct
-
-		# Evaluar media_score de cada miembro
-		puts "⏳ Evaluando media_score..."
-		targetMembers.find_each do |member|
-		  hits = member.hits
-		  media_score_value = hits.size >= 2 && hits.any? { |h| h.national }
-		  member.update_column(:media_score, media_score_value)
+			if row["detention"].to_s.strip == "1" && myHit.present?
+				hit_date = myHit.date
+				town_id = myHit.town_id
+				detention = Detention.find_by(legacy_id: myHit.legacy_id)
+				if detention.nil?
+					new_event = Event.create!(event_date: hit_date, town_id: town_id)
+					detention = Detention.create!(event: new_event, legacy_id: myHit.legacy_id)
+				end
+				myMember.update!(detention: detention)
+			end
+		else
+			invalidos << row.to_h
 		end
-		Member.joins(:role).where(roles: { name: ["Alcalde","Regidor","Policía","Militar"] }, involved: false).update_all(media_score: true)
-		puts "✅ media_score actualizado para miembros clave."
-
-		redirect_to '/datasets/terrorist_panel'
 	end
+
+	session[:filename] = load_members_params[:file].original_filename
+	session[:load_success] = true
+	session[:message] = "🔁 Repetidos: #{repetidos.count}"+"\n"+
+		"✅ Válidos:   #{validos.count}"+"\n"+
+		"⚠️ Inválidos: #{invalidos.count}" + "\n" +
+		"✏️ Nombres corregidos: #{correcciones_nombres}"
+
+
+	csv_string = CSV.generate(headers: true) do |csv|
+	  csv << ["legacy_id", "firstname", "lastname1", "lastname2", "alias", "role", "organization", "detention"]
+	  invalidos.each do |row|
+	    csv << [
+	      row["legacy_id"],
+	      row["firstname"],
+	      row["lastname1"],
+	      row["lastname2"],
+	      row["alias"],
+	      row["role"],
+	      row["organization"],
+	      row["detention"]
+	    ]
+	  end
+	end
+
+	# Guardar CSV en archivo temporal
+	filename = "invalid_members_#{Time.now.to_i}.csv"
+	filepath = Rails.root.join("tmp", filename)
+	File.write(filepath, csv_string)
+
+	# Guardar el nombre en sesión para usarlo en la vista
+	session[:invalid_members_csv] = filename
+
+	# Obtener miembros con al menos un hit
+	targetMembers = Member.joins(:hits).distinct
+
+	# Evaluar media_score de cada miembro
+	puts "⏳ Evaluando media_score..."
+	targetMembers.find_each do |member|
+	  hits = member.hits
+	  media_score_value = hits.size >= 2 && hits.any? { |h| h.national }
+	  member.update_column(:media_score, media_score_value)
+	end
+	Member.joins(:role).where(roles: { name: ["Alcalde","Regidor","Policía","Militar"] }, involved: false).update_all(media_score: true)
+	puts "✅ media_score actualizado para miembros clave."
+
+	redirect_to '/datasets/terrorist_panel'
+end
 
 	def download_invalid_members
 		filename = params[:filename]
