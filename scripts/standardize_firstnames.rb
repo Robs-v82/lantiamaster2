@@ -24,7 +24,8 @@ CORRECCIONES = {
   "Veronica" => "Verónica",
   "Patricia" => "Patricia",
   "Adriana" => "Adriana",
-  "Damian" => "Damián"
+  "Damian" => "Damián",
+  "Ivan" => "Iván"
 }
 
 Member.where.not(firstname: nil).find_each(batch_size: 500) do |member|

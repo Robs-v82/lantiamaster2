@@ -133,15 +133,38 @@ class DatasetsController < ApplicationController
 	end
 
 	def update_name
-	  @member = Member.find(params[:id])
+	  member = Member.find(params[:id])
+	  nombre = member.firstname.strip
+	  nuevo_genero = params[:member][:gender]&.strip&.capitalize
 
-	  if @member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2))
-	    redirect_to "/datasets/state_members/#{params[:state_code]}", notice: "Nombre actualizado correctamente"
+	  if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :gender))
+	    
+	    # Ruta al archivo CSV
+	    path = Rails.root.join('scripts', 'names_by_gender.csv')
+	    table = CSV.read(path, headers: true)
+
+	    # Buscar si el nombre ya está
+	    row = table.find { |r| r['firstname'].to_s.strip.casecmp(nombre).zero? }
+
+	    if row.nil?
+	      # Agregar nuevo nombre
+	      table << [nombre, nuevo_genero]
+	    elsif row['genero_estimado'].strip.downcase == "desconocido"
+	      row['genero_estimado'] = nuevo_genero
+	    end
+
+	    # Guardar archivo actualizado
+	    CSV.open(path, 'w') do |csv|
+	      csv << ["firstname", "genero_estimado"]
+	      table.each { |row| csv << row }
+	    end
+
+	    redirect_to controller: :datasets, action: :state_members, code: params[:state_code]
 	  else
-	    redirect_to "/datasets/state_members/#{params[:state_code]}", alert: "Error al actualizar"
+	    flash[:error] = "No se pudo actualizar el miembro"
+	    redirect_to controller: :datasets, action: :state_members, code: params[:state_code]
 	  end
 	end
-
 
 	def download_state_rackets
 	  state = State.find_by(code: params[:code])

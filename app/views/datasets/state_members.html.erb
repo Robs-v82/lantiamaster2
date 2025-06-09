@@ -147,29 +147,54 @@
                   <%= member.id %> -&nbsp;<span><strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong></span>
                   &nbsp; – <%= member.role.name %>
                   – <%= member.organization&.name %> | <%= last_hit&.town&.county&.state&.shortname %>
-                </div>
-                <div class="collapsible-body">
-                  <div class="row">
-                    <%= form_with model: member, url: update_member_name_path(member), local: true do |f| %>
-                      <div class="input-field col s4">
-                        <%= f.label :firstname, "Nombre" %>
-                        <%= f.text_field :firstname, class: "validate", value: member.firstname %>
-                      </div>
-                      <div class="input-field col s4">
-                        <%= f.label :lastname1, "Apellido paterno" %>
-                        <%= f.text_field :lastname1, class: "validate", value: member.lastname1 %>
-                      </div>
-                      <div class="input-field col s4">
-                        <%= f.label :lastname2, "Apellido materno" %>
-                        <%= f.text_field :lastname2, class: "validate", value: member.lastname2 %>
-                      </div>
-                      <div class="col s12">
-                        <%= hidden_field_tag :state_code, @state.code %>
-                        <%= f.submit "Actualizar", class: "btn blue" %>
-                      </div>
+                  <div stlye="width: 100%" class="right-align red-text">
+                    <% if member.gender == nil %>
+                      &nbsp; – Seleccionar género
                     <% end %>
                   </div>
                 </div>
+                  <div class="collapsible-body">
+                    <div class="row">
+                      <%= form_with model: member, url: update_member_name_path(member), local: true do |f| %>
+                        <div class="input-field col s3">
+                          <%= f.label :firstname, "Nombre" %>
+                          <%= f.text_field :firstname, class: "validate", value: member.firstname %>
+                        </div>
+                        <div class="input-field col s3">
+                          <%= f.label :lastname1, "Apellido paterno" %>
+                          <%= f.text_field :lastname1, class: "validate", value: member.lastname1 %>
+                        </div>
+                        <div class="input-field col s3">
+                          <%= f.label :lastname2, "Apellido materno" %>
+                          <%= f.text_field :lastname2, class: "validate", value: member.lastname2 %>
+                        </div>
+                        <div class="input-field col s3">
+                          <label for="member_gender">Género</label>
+                          <select name="member[gender]" id="member_gender">
+                            <option value="Masculino" <%= 'selected' if member.gender == 'Masculino' %>>MASCULINO</option>
+                            <option value="Femenino" <%= 'selected' if member.gender == 'Femenino' %>>FEMENINO</option>
+                            <option value="No identificado" <%= 'selected' if member.gender == 'No identificado' %>>No identificado</option>
+                          </select>
+                        </div>
+                        <div class="input-field col s6">
+                          <label for="member_role_id">Rol</label>
+                          <select name="member[role_id]" id="member_role_id">
+                            <% Role.where(name: [
+                              "Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde",
+                              "Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos",
+                              "Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar"
+                            ]).order(:name).each do |role| %>
+                              <option value="<%= role.id %>" <%= 'selected' if member.role_id == role.id %>><%= role.name %></option>
+                            <% end %>
+                          </select>
+                        </div>
+                        <div class="col s12">
+                          <%= hidden_field_tag :state_code, @state.code %>
+                          <%= f.submit "Actualizar", class: "btn blue" %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
               </li>
             <% end %>
           </ul>
