@@ -142,7 +142,8 @@ class DatasetsController < ApplicationController
 	    # Ruta al archivo CSV
 
 			if Rails.env.production?
-			  gender_file = Rails.root.join("..", "shared", "names_by_gender.csv").expand_path
+			  # gender_file = Rails.root.join("..", "shared", "names_by_gender.csv").expand_path
+			  gender_file = "/var/www/lantiamaster/shared/names_by_gender.csv"
 			else
 			  gender_file = Rails.root.join("scripts", "names_by_gender.csv")
 			end
@@ -635,7 +636,8 @@ def upload_members
 			
 		# Ruta del archivo de géneros
 		if Rails.env.production?
-		  gender_file = Rails.root.join("..", "shared", "names_by_gender.csv").expand_path
+		  # gender_file = Rails.root.join("..", "shared", "names_by_gender.csv").expand_path
+		  gender_file = "/var/www/lantiamaster/shared/names_by_gender.csv"
 		else
 		  gender_file = Rails.root.join("scripts", "names_by_gender.csv")
 		end
