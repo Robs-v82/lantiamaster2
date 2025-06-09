@@ -140,8 +140,18 @@ class DatasetsController < ApplicationController
 	  if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :gender))
 	    
 	    # Ruta al archivo CSV
-	    path = Rails.root.join('scripts', 'names_by_gender.csv')
-	    table = CSV.read(path, headers: true)
+
+			if Rails.env.production?
+			  gender_file = Rails.root.join("..", "shared", "names_by_gender.csv").expand_path
+			else
+			  gender_file = Rails.root.join("scripts", "names_by_gender.csv")
+			end
+
+			unless File.exist?(gender_file)
+			  raise "No se encontró el archivo de géneros en #{gender_file}"
+			end
+
+	    table = CSV.read(gender_file, headers: true)
 
 	    # Buscar si el nombre ya está
 	    row = table.find { |r| r['firstname'].to_s.strip.casecmp(nombre).zero? }
@@ -154,7 +164,7 @@ class DatasetsController < ApplicationController
 	    end
 
 	    # Guardar archivo actualizado
-	    CSV.open(path, 'w') do |csv|
+	    CSV.open(gender_file, 'w') do |csv|
 	      csv << ["firstname", "genero_estimado"]
 	      table.each { |row| csv << row }
 	    end
@@ -624,7 +634,16 @@ def upload_members
 			valor_involved = ["Líder", "Operador", "Autoridad cooptada", "Socio"].include?(role)
 			
 		# Ruta del archivo de géneros
-		gender_file = Rails.root.join("scripts", "names_by_gender.csv")
+		if Rails.env.production?
+		  gender_file = Rails.root.join("..", "shared", "names_by_gender.csv").expand_path
+		else
+		  gender_file = Rails.root.join("scripts", "names_by_gender.csv")
+		end
+
+		unless File.exist?(gender_file)
+		  raise "No se encontró el archivo de géneros en #{gender_file}"
+		end
+
 		gender_data = CSV.read(gender_file, headers: true)
 
 		# Buscar el género estimado
