@@ -154,6 +154,7 @@ class StatesController < ApplicationController
         @indexName = "IRCO"
         @myModel = State
         myCookie = Cookie.where(:category=>"irco").last
+        # myCookie = Cookie.joins(:quarter).where(category: "irco", quarters: { name: "2024_Q1" }).last
         myQuarter = myCookie.quarter
         @myQuarter = myQuarter
         @current_quarter_strings = helpers.quarter_strings(myQuarter)
@@ -435,6 +436,7 @@ class StatesController < ApplicationController
         downloadCounter += 1
         recipient.update(:downloads=>downloadCounter)
         myCookie = Cookie.where(:category=>"irco").last
+        # myCookie = Cookie.joins(:quarter).where(category: "irco", quarters: { name: "2024_Q4" }).last
         q = Quarter.find(myCookie[:quarter_id]).name
         file_name = "IRCO_"+q+"_.csv"
         @icon_table = myCookie.data
@@ -477,7 +479,8 @@ class StatesController < ApplicationController
         downloadCounter = recipient.downloads
         downloadCounter += 1
         recipient.update(:downloads=>downloadCounter)
-        myCookie = Cookie.where(:category=>"icon").last
+        # myCookie = Cookie.where(:category=>"icon").last
+        myCookie = Cookie.joins(:quarter).where(category: "icon", quarters: { name: "2024_Q4" }).last
         q = Quarter.find(myCookie[:quarter_id]).name
         file_name = "ICON_"+q+"_.csv"
         @icon_table = myCookie.data

@@ -7,7 +7,24 @@
     var elems = document.querySelectorAll('select');
     M.FormSelect.init(elems); // Esto activa los selects de Materialize
   });
+
+  function copyToClipboard(event, text) {
+    event.stopPropagation();  // 👈 esto evita que el collapsible se abra/cierre
+    navigator.clipboard.writeText(text).then(function() {
+      M.toast({ html: 'ID copiado: ' + text });
+    }, function(err) {
+      M.toast({ html: 'Error al copiar ID' });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var tooltipped = document.querySelectorAll('.tooltipped');
+    M.Tooltip.init(tooltipped);
+  });
 </script>
+
+
+
 <div class="b-container">
   <h5><%= @state.name %></h5>
   <p><strong>Total de hits:</strong> <%= @hits.count %> | <strong>Total de miembros:</strong> <%= @members.count %></p>
@@ -147,16 +164,34 @@
             <% @members.each do |member| %>
               <% last_hit = member.hits.order(:date).last %>
               <li>
-                <div class="collapsible-header">
-                  <%= member.id %> -&nbsp;<span><strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong></span>
-                  &nbsp; – <%= member.role.name %>
-                  – <%= member.organization&.name %> | <%= last_hit&.town&.county&.state&.shortname %>
-                  <div stlye="width: 100%" class="right-align red-text">
-                    <% if member.gender == nil %>
-                      &nbsp; – Seleccionar género
-                    <% end %>
-                  </div>
-                </div>
+<div class="collapsible-header" style="display: flex; align-items: center; gap: 12px;">
+  <div style="display: flex; align-items: center; width: 100px; min-width: 100px;">
+      <i class="material-icons tooltipped"
+         data-tooltip="Copiar ID"
+         style="cursor: pointer; margin-right: 4px;"
+         onclick="copyToClipboard(event, '<%= member.id %>')">content_copy</i>
+    <span><%= member.id %></span>
+  </div>
+
+  <div style="flex: 1;">
+    <strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong>
+    – <%= member.role.name %>
+    – <%= member.organization&.name %>
+    | <%= last_hit&.town&.county&.state&.shortname %>
+  </div>
+
+  <div class="right-align red-text" style="min-width: 200px;">
+    <% if member.gender.nil? %>
+      – Seleccionar género
+    <% end %>
+
+    <% if ["Familiar", "Abogado"].include?(member.role&.name) &&
+          MemberRelationship.where("member_a_id = :id OR member_b_id = :id", id: member.id).none? %>
+      – Añadir vínculo
+    <% end %>
+  </div>
+</div>
+
                   <div class="collapsible-body member_edit">
                     <div class="row grey lighten-2">
                       <%= form_with model: member, url: update_member_name_path(member), local: true do |f| %>
@@ -173,13 +208,13 @@
                           <%= f.text_field :lastname2, class: "validate", value: member.lastname2 %>
                         </div>
                         <div class="input-field col m2 s3">
-                          <%= f.label :gender, "Género", class: "active"  %>
+                          <%= f.label :gender, "Género", class: "active" %>
                           <%= f.select :gender, 
                                 options_for_select([
                                   ["MASCULINO", "MASCULINO"], 
                                   ["FEMENINO", "FEMENINO"], 
                                   ["No identificado", "No identificado"]
-                                ], selected: member.gender), 
+                                ], selected: member.gender.presence || "No identificado"), 
                                 {}, 
                                 class: "browser-default" %>
                         </div>
@@ -201,7 +236,7 @@
                         </div>
                       <% end %>
                     </div>
-                    <div class="row grey lighten-3">
+                    <div class="row grey lighten-2">
                       <div class="col s12">
                         <h6>Añadir vínculo</h6>
                         <%= form_with url: add_member_link_path, method: :post, local: true do |lf| %>
@@ -209,7 +244,7 @@
                             <span><strong><%= member.firstname %></strong> es</span>
                           </div>
 
-                          <div class="input-field col s4">
+                          <div class="input-field col m2 s4">
                             <%= label_tag :link_type, "Tipo de vínculo", class: "active" %>
                             <%= select_tag :link_type, options_for_select([
                               "Hermano", "Esposo", "Padre", "Hijo", "Tio", "Sobrino", "Compadre",
@@ -220,8 +255,8 @@
 
                           <div class="col s1 center-align" style="margin-top: 2.5rem;">de</div>
 
-                          <div class="input-field col s6">
-                            <%= label_tag :target_member_id, "ID del miembro destino" %>
+                          <div class="input-field col m2 s6">
+                            <%= label_tag :target_member_id, "ID del miembro destino",  class: "active" %>
                             <%= number_field_tag :target_member_id, nil, placeholder: "Ej. 153204", class: "validate" %>
                           </div>
 
@@ -229,11 +264,41 @@
                           <%= hidden_field_tag :state_code, @state.code %>
 
                           <div class="col s12">
-                            <%= lf.submit "Crear vínculo", class: "btn green" %>
+                            <%= lf.submit "Crear vínculo", class: "btn blue" %>
                           </div>
                         <% end %>
                       </div>
                     </div>
+
+                    <% relaciones = MemberRelationship
+                                     .includes(:member_a, :member_b)
+                                     .where("member_a_id = :id OR member_b_id = :id", id: member.id) %>
+
+                    <% if relaciones.any? %>
+                      <div class="row grey lighten-5" style="margin-top: 1rem;">
+                        <div class="col s12">
+                          <h6>Relaciones registradas</h6>
+                          <ul class="collection">
+                            <% relaciones.each do |rel| %>
+                              <% if rel.member_a_id == member.id %>
+                                <% otro = rel.member_b %>
+                                <li class="collection-item">
+                                  <strong><%= member.firstname %></strong> es <strong><%= rel.role_a %></strong> de
+                                  <strong><%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %></strong>
+                                </li>
+                              <% else %>
+                                <% otro = rel.member_a %>
+                                <li class="collection-item">
+                                  <strong><%= member.firstname %></strong> es <strong><%= rel.role_b %></strong> de
+                                  <strong><%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %></strong>
+                                </li>
+                              <% end %>
+                            <% end %>
+                          </ul>
+                        </div>
+                      </div>
+                    <% end %>
+
 
                   </div>
               </li>
