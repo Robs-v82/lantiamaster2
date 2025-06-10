@@ -131,6 +131,48 @@ class DatasetsController < ApplicationController
 	    [org, miembros]
 	  end.to_h.sort_by { |_, miembros| -miembros.size }.to_h
 	end
+	
+	def add_member_link
+	  member_a = Member.find_by(id: params[:source_member_id])
+	  member_b = Member.find_by(id: params[:target_member_id])
+	  role_a = params[:link_type].to_s.strip
+	  state_code = params[:state_code]
+
+	  if member_a.nil? || member_b.nil?
+	    flash[:error] = "No se encontró uno de los miembros"
+	    return redirect_to controller: :datasets, action: :state_members, code: state_code
+	  end
+
+	  # Evitar autovínculos
+	  if member_a.id == member_b.id
+	    flash[:error] = "No puedes crear un vínculo con el mismo miembro"
+	    return redirect_to controller: :datasets, action: :state_members, code: state_code
+	  end
+
+	  role_b = reciprocal_link_type(role_a)
+
+	  # Evitar duplicados
+	  unless MemberRelationship.exists?(member_a_id: member_a.id, member_b_id: member_b.id, role_a: role_a, role_b: role_b)
+	    MemberRelationship.create!(
+	      member_a: member_a,
+	      member_b: member_b,
+	      role_a: role_a,
+	      role_b: role_b
+	    )
+	  end
+
+	  unless MemberRelationship.exists?(member_a_id: member_b.id, member_b_id: member_a.id, role_a: role_b, role_b: role_a)
+	    MemberRelationship.create!(
+	      member_a: member_b,
+	      member_b: member_a,
+	      role_a: role_b,
+	      role_b: role_a
+	    )
+	  end
+
+	  flash[:notice] = "Vínculo creado exitosamente"
+	  redirect_to controller: :datasets, action: :state_members, code: state_code
+	end
 
 	def update_name
 	  member = Member.find(params[:id])
@@ -1981,6 +2023,18 @@ def merge_members
 end
 
 private
+
+def reciprocal_link_type(type)
+  map = {
+    "Padre" => "Hijo",     "Hijo" => "Padre",
+    "Tio" => "Sobrino",    "Sobrino" => "Tio",
+    "Padrino" => "Ahijado","Ahijado" => "Padrino",
+    "Abogado" => "Defendido","Defendido" => "Abogado",
+    "Jefe" => "Colaborador","Colaborador" => "Jefe"
+  }
+  map[type] || type # Si es recíproco como "Hermano" o "Compañero", se repite igual
+end
+
 
 def members_similar?(member1, member2)
   fn1 = I18n.transliterate(member1.firstname.to_s.downcase)

@@ -1,7 +1,11 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    
     var elems = document.querySelectorAll('.collapsible');
     M.Collapsible.init(elems, { accordion: false });
+
+    var elems = document.querySelectorAll('select');
+    M.FormSelect.init(elems); // Esto activa los selects de Materialize
   });
 </script>
 <div class="b-container">
@@ -153,40 +157,43 @@
                     <% end %>
                   </div>
                 </div>
-                  <div class="collapsible-body">
-                    <div class="row">
+                  <div class="collapsible-body member_edit">
+                    <div class="row grey lighten-2">
                       <%= form_with model: member, url: update_member_name_path(member), local: true do |f| %>
-                        <div class="input-field col s3">
+                        <div class="input-field col m2 s3">
                           <%= f.label :firstname, "Nombre" %>
                           <%= f.text_field :firstname, class: "validate", value: member.firstname %>
                         </div>
-                        <div class="input-field col s3">
+                        <div class="input-field col m2 s3">
                           <%= f.label :lastname1, "Apellido paterno" %>
                           <%= f.text_field :lastname1, class: "validate", value: member.lastname1 %>
                         </div>
-                        <div class="input-field col s3">
+                        <div class="input-field col m2 s3">
                           <%= f.label :lastname2, "Apellido materno" %>
                           <%= f.text_field :lastname2, class: "validate", value: member.lastname2 %>
                         </div>
-                        <div class="input-field col s3">
-                          <label for="member_gender">Género</label>
-                          <select name="member[gender]" id="member_gender">
-                            <option value="MASCULINO" <%= 'selected' if member.gender == 'MASCULINO' %>>MASCULINO</option>
-                            <option value="FEMENINO" <%= 'selected' if member.gender == 'FEMENINO' %>>FEMENINO</option>
-                            <option value="No identificado" <%= 'selected' if member.gender == nil %>>No identificado</option>
-                          </select>
+                        <div class="input-field col m2 s3">
+                          <%= f.label :gender, "Género", class: "active"  %>
+                          <%= f.select :gender, 
+                                options_for_select([
+                                  ["MASCULINO", "MASCULINO"], 
+                                  ["FEMENINO", "FEMENINO"], 
+                                  ["No identificado", "No identificado"]
+                                ], selected: member.gender), 
+                                {}, 
+                                class: "browser-default" %>
                         </div>
-                        <div class="input-field col s6">
-                          <label for="member_role_id">Rol</label>
-                          <select name="member[role_id]" id="member_role_id">
-                            <% Role.where(name: [
-                              "Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde",
-                              "Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos",
-                              "Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar"
-                            ]).order(:name).each do |role| %>
-                              <option value="<%= role.id %>" <%= 'selected' if member.role_id == role.id %>><%= role.name %></option>
-                            <% end %>
-                          </select>
+
+                        <div class="input-field col m2 s3">
+                          <%= f.label :role_id, "Rol", class: "active"  %>
+                          <%= f.select :role_id,
+                                Role.where(name: [
+                                  "Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde",
+                                  "Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos",
+                                  "Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar"
+                                ]).order(:name).pluck(:name, :id),
+                                { include_blank: "Selecciona un rol" }, 
+                                class: "browser-default" %>
                         </div>
                         <div class="col s12">
                           <%= hidden_field_tag :state_code, @state.code %>
@@ -194,6 +201,40 @@
                         </div>
                       <% end %>
                     </div>
+                    <div class="row grey lighten-3">
+                      <div class="col s12">
+                        <h6>Añadir vínculo</h6>
+                        <%= form_with url: add_member_link_path, method: :post, local: true do |lf| %>
+                          <div class="col s12">
+                            <span><strong><%= member.firstname %></strong> es</span>
+                          </div>
+
+                          <div class="input-field col s4">
+                            <%= label_tag :link_type, "Tipo de vínculo", class: "active" %>
+                            <%= select_tag :link_type, options_for_select([
+                              "Hermano", "Esposo", "Padre", "Hijo", "Tio", "Sobrino", "Compadre",
+                              "Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador",
+                              "Compañero", "Allegado"
+                            ]), prompt: "Selecciona vínculo", class: "browser-default" %>
+                          </div>
+
+                          <div class="col s1 center-align" style="margin-top: 2.5rem;">de</div>
+
+                          <div class="input-field col s6">
+                            <%= label_tag :target_member_id, "ID del miembro destino" %>
+                            <%= number_field_tag :target_member_id, nil, placeholder: "Ej. 153204", class: "validate" %>
+                          </div>
+
+                          <%= hidden_field_tag :source_member_id, member.id %>
+                          <%= hidden_field_tag :state_code, @state.code %>
+
+                          <div class="col s12">
+                            <%= lf.submit "Crear vínculo", class: "btn green" %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+
                   </div>
               </li>
             <% end %>

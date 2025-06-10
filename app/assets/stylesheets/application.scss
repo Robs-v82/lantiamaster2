@@ -4,6 +4,14 @@
  *= require jquery-ui
  */
 
+.collapsible-body.member_edit input[type="text"],
+.collapsible-body.member_edit input.select-dropdown,
+.collapsible-body.member_edit select {
+border: 1px solid #ccc !important;
+padding: 4px 8px;
+background-color: white;
+}
+
 
 .page-footer {
   position: fixed;
