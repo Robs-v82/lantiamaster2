@@ -173,7 +173,7 @@
                           <select name="member[gender]" id="member_gender">
                             <option value="MASCULINO" <%= 'selected' if member.gender == 'MASCULINO' %>>MASCULINO</option>
                             <option value="FEMENINO" <%= 'selected' if member.gender == 'FEMENINO' %>>FEMENINO</option>
-                            <option value="No identificado" <%= 'selected' if member.gender == 'No identificado' %>>No identificado</option>
+                            <option value="No identificado" <%= 'selected' if member.gender == nil %>>No identificado</option>
                           </select>
                         </div>
                         <div class="input-field col s6">
