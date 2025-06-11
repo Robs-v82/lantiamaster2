@@ -151,8 +151,14 @@ class DatasetsController < ApplicationController
 
 	  role_b = reciprocal_link_type(role_a)
 
-	  # Evitar duplicados
-	  unless MemberRelationship.exists?(member_a_id: member_a.id, member_b_id: member_b.id, role_a: role_a, role_b: role_b)
+	  # Verifica si la relación ya existe en cualquier orden
+	  existe = MemberRelationship.exists?(
+	    member_a_id: member_a.id, member_b_id: member_b.id, role_a: role_a, role_b: role_b
+	  ) || MemberRelationship.exists?(
+	    member_a_id: member_b.id, member_b_id: member_a.id, role_a: role_b, role_b: role_a
+	  )
+
+	  unless existe
 	    MemberRelationship.create!(
 	      member_a: member_a,
 	      member_b: member_b,
@@ -161,18 +167,10 @@ class DatasetsController < ApplicationController
 	    )
 	  end
 
-	  unless MemberRelationship.exists?(member_a_id: member_b.id, member_b_id: member_a.id, role_a: role_b, role_b: role_a)
-	    MemberRelationship.create!(
-	      member_a: member_b,
-	      member_b: member_a,
-	      role_a: role_b,
-	      role_b: role_a
-	    )
-	  end
-
 	  flash[:notice] = "Vínculo creado exitosamente"
 	  redirect_to controller: :datasets, action: :state_members, code: state_code
 	end
+
 
 	def update_name
 	  member = Member.find(params[:id])
