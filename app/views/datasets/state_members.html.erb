@@ -146,7 +146,7 @@
 
   <div class="row">
     <div class="col s12">
-      <table class="highlight z-depth-1">
+<%#       <table class="highlight z-depth-1">
         <thead>
           <tr>
             <th>ID</th>
@@ -160,38 +160,38 @@
             <th>Lugar</th>
           </tr>
         </thead>
-          <ul class="collapsible expandable">
+        <tbody> %>
+          <ul class="collapsible expandable z-depth-1">
             <% @members.each do |member| %>
               <% last_hit = member.hits.order(:date).last %>
               <li>
-<div class="collapsible-header" style="display: flex; align-items: center; gap: 12px;">
-  <div style="display: flex; align-items: center; width: 100px; min-width: 100px;">
-      <i class="material-icons tooltipped"
-         data-tooltip="Copiar ID"
-         style="cursor: pointer; margin-right: 4px;"
-         onclick="copyToClipboard(event, '<%= member.id %>')">content_copy</i>
-    <span><%= member.id %></span>
-  </div>
+                <div class="collapsible-header" style="display: flex; align-items: center; gap: 12px;">
+                  <div style="display: flex; align-items: center; width: 100px; min-width: 100px;">
+                      <i class="material-icons tooltipped"
+                         data-tooltip="Copiar ID"
+                         style="cursor: pointer; margin-right: 4px;"
+                         onclick="copyToClipboard(event, '<%= member.id %>')">content_copy</i>
+                    <span><%= member.id %></span>
+                  </div>
 
-  <div style="flex: 1;">
-    <strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong>
-    – <%= member.role.name %>
-    – <%= member.organization&.name %>
-    | <%= last_hit&.town&.county&.state&.shortname %>
-  </div>
+                  <div style="flex: 1;">
+                    <strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong>
+                    – <%= member.role.name %>
+                    – <%= member.organization&.name %>
+                    | <%= last_hit&.town&.county&.state&.shortname %>
+                  </div>
 
-  <div class="right-align red-text" style="min-width: 200px;">
-    <% if member.gender.nil? %>
-      – Seleccionar género
-    <% end %>
+                  <div class="right-align red-text" style="min-width: 200px;">
+                    <% if member.gender.nil? %>
+                      – Seleccionar género
+                    <% end %>
 
-    <% if ["Familiar", "Abogado"].include?(member.role&.name) &&
-          MemberRelationship.where("member_a_id = :id OR member_b_id = :id", id: member.id).none? %>
-      – Añadir vínculo
-    <% end %>
-  </div>
-</div>
-
+                    <% if ["Familiar", "Abogado"].include?(member.role&.name) &&
+                          MemberRelationship.where("member_a_id = :id OR member_b_id = :id", id: member.id).none? %>
+                      – Añadir vínculo
+                    <% end %>
+                  </div>
+                </div>
                   <div class="collapsible-body member_edit">
                     <div class="row grey lighten-2">
                       <%= form_with model: member, url: update_member_name_path(member), local: true do |f| %>
@@ -298,13 +298,10 @@
                         </div>
                       </div>
                     <% end %>
-
-
                   </div>
               </li>
             <% end %>
           </ul>
-      </table>
     </div>
   </div>
 </div>
