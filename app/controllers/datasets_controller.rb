@@ -98,7 +98,7 @@ class DatasetsController < ApplicationController
 	  @hits = hits
 	  @members = members
 	  @rackets = @state.rackets.distinct.order(:name)
-	  @link_types = ["Hermano", "Esposo", "Padre", "Hijo", "Tio", "Sobrino", "Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado"]
+	  @link_types = ["Hermano","Esposo","Padre","Hijo","Abuelo","Nieto","Tio","Sobrino","Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado"]
 
 	  # Tabla por usuario
 	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
