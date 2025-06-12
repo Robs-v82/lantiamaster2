@@ -246,11 +246,7 @@
 
                           <div class="input-field col m2 s4">
                             <%= label_tag :link_type, "Tipo de vínculo", class: "active" %>
-                            <%= select_tag :link_type, options_for_select([
-                              "Hermano", "Esposo", "Padre", "Hijo", "Tio", "Sobrino", "Compadre",
-                              "Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador",
-                              "Compañero", "Allegado"
-                            ]), prompt: "Selecciona vínculo", class: "browser-default" %>
+                            <%= select_tag :link_type, options_for_select(@link_types), prompt: "Selecciona vínculo", class: "browser-default" %>
                           </div>
 
                           <div class="col s1 center-align" style="margin-top: 2.5rem;">de</div>

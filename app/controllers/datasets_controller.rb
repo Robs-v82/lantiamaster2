@@ -98,6 +98,7 @@ class DatasetsController < ApplicationController
 	  @hits = hits
 	  @members = members
 	  @rackets = @state.rackets.distinct.order(:name)
+	  @link_types = ["Hermano", "Esposo", "Padre", "Hijo", "Tio", "Sobrino", "Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado"]
 
 	  # Tabla por usuario
 	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
@@ -2024,8 +2025,9 @@ private
 
 def reciprocal_link_type(type)
   map = {
-    "Padre" => "Hijo",     "Hijo" => "Padre",
-    "Tio" => "Sobrino",    "Sobrino" => "Tio",
+    "Padre" => "Hijo","Hijo" => "Padre",
+    "Abuelo" => "Nieto","Nieto" => "Abuelo",
+    "Tio" => "Sobrino","Sobrino" => "Tio",
     "Padrino" => "Ahijado","Ahijado" => "Padrino",
     "Abogado" => "Defendido","Defendido" => "Abogado",
     "Jefe" => "Colaborador","Colaborador" => "Jefe"
