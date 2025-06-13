@@ -96,6 +96,7 @@ class OrganizationsController < ApplicationController
     elsif session[:membership] < 2
       @checkedStates = helpers.demo_states.pluck(:id)
     else
+      @national_file = true
       @checkedStates = State.pluck(:id)
     end
 
@@ -1192,6 +1193,57 @@ class OrganizationsController < ApplicationController
         format.html
         format.csv { send_data myFile, filename: file_name}
       end        
+  end
+
+  def send_national_file
+      recipient = User.find(session[:user_id])
+      current_date = Date.today.strftime
+      downloadCounter = recipient.downloads
+      downloadCounter += 1
+      recipient.update(:downloads=>downloadCounter)
+      file_name = "Organizaciones_por municipio_"+downloadCounter.to_s+"_"+current_date+".csv"
+      
+      def build_file_cartels_by_county
+        # Pre-carga de datos
+        my_counties = County.includes(:state, :rackets).sort_by(&:full_code)
+        my_cartels = Sector.where(scian2: 98).last.organizations.where(active: true).distinct.order(:name).to_a
+
+        # Encabezados
+        header1 = ["-","-","-","MUNICIPIO"] + my_counties.map { |c| "#{c.name} - #{c.state.shortname}" }
+        header2 = ["-","-","-","CLAVE INEGI"] + my_counties.map(&:full_code)
+        header3 = ["NOMBRE","TIPO","SUBTIPO","COALICIÓN"]
+
+        # Generación CSV
+        CSV.generate do |writer|
+          writer.to_io.write "\uFEFF" # Byte Order Mark para Excel
+          writer << header1
+          writer << header2
+          writer << header3
+
+          my_cartels.each do |cartel|
+            row = [cartel.name]
+            row.push(cartel.league)
+            if cartel.subleague
+              row.push(cartel.subleague)
+            else 
+              row.push('N.D.') 
+            end
+            row.push(cartel.coalition)
+
+            my_counties.each do |county|
+              racket_ids = county.rackets.map(&:id).to_set
+              row << (racket_ids.include?(cartel.id) ? 1 : 0)
+            end
+            writer << row
+          end
+        end
+      end
+
+      myFile = build_file_cartels_by_county
+      respond_to do |format|
+        format.html
+        format.csv { send_data myFile, filename: file_name}
+      end    
   end
 
 

@@ -168,7 +168,34 @@
 					">
 						<div class="card-content">
 						<% if session[:membership] > 3 %>
-							<%= render "shared/downloadbutton" %>
+							
+						<div class="row short-row right-extra-margin">
+							<div class="right">
+								<% if User.find(session[:user_id]).promo && User.find(session[:user_id]).downloads > 0 %>
+									<a class="tooltipped" data-tooltip="Las descargas para membresías promocionales están limitadas. Para descargar más datos escríbenos a contacto@lantiaintelligence.com"><i class="small material-icons grey-text text-lighten-2 right-extra-margin">download</i></a>
+								<% else %>
+									<a id="freq-download-trigger" class="dropdown-trigger" href='#' data-target='files-dropdown' href=""><i class="small material-icons paletton-red-text right-extra-margin">download</i></a>
+									<ul id='files-dropdown' class='dropdown-content center-align'>
+										<% if @national_file %>
+											<li class="dropdown-item">
+												<p class="center-align" style="font-size: 13px; padding-top: 8px;">Por estado</p>
+												<a href="/organizations/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size" %></a>
+											</li>
+											<div class="divider"></div>
+											<li class="dropdown-item">
+												<p class="center-align" style="font-size: 13px; padding-top: 8px;">Por municipio</p>
+												<a href="/organizations/send_national_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size" %></a>
+											</li>
+										<% else %>
+											<li class="dropdown-item">
+												<a href="/organizations/send_file.csv"><%= image_tag "csv_icon.png", :class => "center small-icon-size" %></a>
+											</li>
+										<% end %>
+									</ul>
+								<% end %>
+							</div>
+						</div>							
+
 						<% end %>
 							<div class="row card-narrow">
 								<% if session[:membership] > 3 %>

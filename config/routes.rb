@@ -121,6 +121,7 @@ Rails.application.routes.draw do
     get 'counties/send_file.csv' => 'counties#send_file'
     get 'states/send_icon.csv' => 'states#send_icon'
     get 'organizations/send_file.csv' => 'organizations#send_file'
+    get 'organizations/send_national_file.csv' => 'organizations#send_national_file'
     get 'datasets/downloads'
     get 'datasets/terrorist_panel'
     post 'datasets/upload_hits'

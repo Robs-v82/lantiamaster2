@@ -60,6 +60,10 @@ class ApplicationController < ActionController::Base
 		helpers.clear_session
 	end
 
+	def clear_this_member_session
+		helpers.clear_member_session
+	end	
+
 	def require_pro
 		redirect_to "/users/index" unless session[:membership] > 3
 	end

@@ -6,7 +6,7 @@ class MembersController < ApplicationController
 
 	before_action :require_pro, only: [:detainees]
 	before_action :require_detention_access, only: [:detainees]
-	before_action :clear_this_session, only: [:query]
+	before_action :clear_this_member_session, only: [:query]
 
 	require 'pp'
 
@@ -173,16 +173,16 @@ class MembersController < ApplicationController
 		# if detainee_freq_params[:freq_organizations]
 		# 	paramsCookie[4] = detainee_freq_params[:freq_organizations]
 		# end
-		# if detainee_freq_params[:freq_states]
-		# 	if paramsStates == 32
-		# 		paramsCookie[5] = false
-		# 	else
-		# 		paramsCookie[5] = true				
-		# 	end
-		# 	myArr = detainee_freq_params[:freq_states].map(&:to_i)
-		# 	Cookie.create(:data=>myArr)
-		# 	session[:checkedStates] = Cookie.last.id
-		# end
+		if detainee_freq_params[:freq_states]
+			if paramsStates == 32
+				paramsCookie[5] = false
+			else
+				paramsCookie[5] = true				
+			end
+			myArr = detainee_freq_params[:freq_states].map(&:to_i)
+			Cookie.create(:data=>myArr)
+			session[:checkedStates] = Cookie.last.id
+		end
 		# if detainee_freq_params[:freq_organizations]
 		# 	paramsCookie[6] = detainee_freq_params[:freq_organizations]
 		# 	session[:checkedOrganizations] = paramsCookie[6]

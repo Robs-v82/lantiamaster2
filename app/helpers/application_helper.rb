@@ -678,6 +678,54 @@ module ApplicationHelper
 		if session[:checkedYearsArr]
 			session.delete(:checkedYearsArr)
 		end
+		if session[:checkedStates]
+			session.delete(:checkedStates)
+		end
+		if session[:checkedStatesArr]
+			session.delete(:checkedStatesArr)
+		end
+		if session[:checkedCitiesArr]
+			session.delete(:checkedCitiesArr)
+		end
+		if session[:checkedGenderOptions]
+			session.delete(:checkedGenderOptions)
+		end
+		if session[:victim_freq_params]
+			session.delete(:victim_freq_params)
+		end
+		if session[:checkedCounties]
+			session.delete(:checkedCounties)
+		end
+		if session[:filename]
+			session.delete(:filename)
+		end
+		if session[:detainee_freq_params]
+			session.delete(:detainee_freq_params)
+		end
+		if session[:checkedOrganizations]
+			session.delete(:checkedOrganizations)
+		end
+		if session[:checkedRoles]
+			session.delete(:checkedRoles)
+		end
+		if session[:indexPage]
+			session.delete(:indexPage)
+		end
+		if session[:destinations]
+			session.delete(:destinations)
+		end
+	end
+	
+	def clear_member_session			
+		if session[:years]
+			session.delete(:years)
+		end
+		if session[:victim_freq_params]
+			session.delete(:victim_freq_params)
+		end
+		if session[:checkedYearsArr]
+			session.delete(:checkedYearsArr)
+		end
 		# if session[:checkedStates]
 		# 	session.delete(:checkedStates)
 		# end
