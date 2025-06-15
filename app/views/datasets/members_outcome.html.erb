@@ -213,6 +213,18 @@
             <td><%= member.alias.join(", ") %></td>
           </tr>
         <% end %>
+        <% if member.birthday? %>
+          <tr>
+            <th style="font-weight: bold;">Fecha de nacimiento:</th>
+            <td>
+              <% if member.birthday_aprox? %>
+                <span style="font-style: italic">circa</span><%= member.birthday.strftime(" %Y") %>
+              <% else %>
+                <%= member.birthday.strftime("%d/%m/%Y") %>
+              <% end %>  
+              </td>
+          </tr>
+        <% end %>
         <tr  style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold;">Clasificación:</th>
           <td>
