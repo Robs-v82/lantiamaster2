@@ -306,7 +306,7 @@
                 a <%= member.end_date.strftime("%d/%m/%Y") %>
                 <% end %>
             <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
-              , <%= member.organization.name %>
+              <%= member.role.name %>, <%= member.organization.name %>
             <% else %>
               <%= member.role&.name || "Sin definir" %>
             <% end %>
