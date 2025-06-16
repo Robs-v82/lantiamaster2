@@ -222,11 +222,7 @@
                         <div class="input-field col m2 s3">
                           <%= f.label :role_id, "Rol", class: "active"  %>
                           <%= f.select :role_id,
-                                Role.where(name: [
-                                  "Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde",
-                                  "Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos",
-                                  "Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar"
-                                ]).order(:name).pluck(:name, :id),
+                                Role.where(name: @all_roles).order(:name).pluck(:name, :id),
                                 { include_blank: "Selecciona un rol" }, 
                                 class: "browser-default" %>
                         </div>

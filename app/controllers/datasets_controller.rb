@@ -90,6 +90,8 @@ class DatasetsController < ApplicationController
 	end
 
 	def state_members
+	  @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical"]
+
 	  state = State.find_by(code: params[:code])
 	  hits = Hit.joins(town: { county: :state }).where(states: { id: state.id })
 	  members = Member.joins(:hits).where(hits: { id: hits.pluck(:id) }).distinct
