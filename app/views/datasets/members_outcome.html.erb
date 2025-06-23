@@ -225,6 +225,18 @@
               </td>
           </tr>
         <% end %>
+        <% if member.fake_identities.any? %>
+          <tr>
+            <th style="font-weight: bold;">Identidades falsas/alternativas:</th>
+              <td>
+                <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
+                  <% member.fake_identities.each do |ide|  %>
+                    <li>-<%= ide.firstname %> <%= ide.lastname1 %> <%= ide.lastname2 %></li>
+                  <% end %>
+                </ul>  
+              </td>
+          </tr>
+        <% end %>
         <tr  style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold;">Clasificación:</th>
           <td>

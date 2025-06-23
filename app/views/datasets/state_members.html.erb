@@ -146,154 +146,181 @@
 
   <div class="row">
     <div class="col s12">
-<%#       <table class="highlight z-depth-1">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombres</th>
-            <th>Apellido Paterno</th>
-            <th>Apellido Materno</th>
-            <th>Alias</th>
-            <th>Rol</th>
-            <th>Organización</th>
-            <th>Último registro</th>
-            <th>Lugar</th>
-          </tr>
-        </thead>
-        <tbody> %>
-          <ul class="collapsible expandable z-depth-1">
-            <% @members.each do |member| %>
-              <% last_hit = member.hits.order(:date).last %>
-              <li>
-                <div class="collapsible-header" style="display: flex; align-items: center; gap: 12px;">
-                  <div style="display: flex; align-items: center; width: 100px; min-width: 100px;">
-                      <i class="material-icons tooltipped"
-                         data-tooltip="Copiar ID"
-                         style="cursor: pointer; margin-right: 4px;"
-                         onclick="copyToClipboard(event, '<%= member.id %>')">content_copy</i>
-                    <span><%= member.id %></span>
-                  </div>
+      <ul class="collapsible expandable z-depth-1">
+        <% @members.each do |member| %>
+          <% last_hit = member.hits.order(:date).last %>
+          <li>
+            <div class="collapsible-header" style="display: flex; align-items: center; gap: 12px;">
+              <div style="display: flex; align-items: center; width: 100px; min-width: 100px;">
+                  <i class="material-icons tooltipped"
+                     data-tooltip="Copiar ID"
+                     style="cursor: pointer; margin-right: 4px;"
+                     onclick="copyToClipboard(event, '<%= member.id %>')">content_copy</i>
+                <span><%= member.id %></span>
+              </div>
 
-                  <div style="flex: 1;">
-                    <strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong>
-                    – <%= member.role.name %>
-                    – <%= member.organization&.name %>
-                    | <%= last_hit&.town&.county&.state&.shortname %>
-                  </div>
+              <div style="flex: 1;">
+                <strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong>
+                – <%= member.role.name %>
+                – <%= member.organization&.name %>
+                | <%= last_hit&.town&.county&.state&.shortname %>
+              </div>
 
-                  <div class="right-align red-text" style="min-width: 200px;">
-                    <% if member.gender.nil? %>
-                      – Seleccionar género
-                    <% end %>
+              <div class="right-align red-text" style="min-width: 200px;">
+                <% if member.gender.nil? %>
+                  – Seleccionar género
+                <% end %>
 
-                    <% if ["Familiar", "Abogado"].include?(member.role&.name) &&
-                          MemberRelationship.where("member_a_id = :id OR member_b_id = :id", id: member.id).none? %>
-                      – Añadir vínculo
+                <% if ["Familiar", "Abogado"].include?(member.role&.name) &&
+                      MemberRelationship.where("member_a_id = :id OR member_b_id = :id", id: member.id).none? %>
+                  – Añadir vínculo
+                <% end %>
+              </div>
+            </div>
+              <div class="collapsible-body member_edit">
+                <div class="row grey lighten-2">
+                  <%= form_with model: member, url: update_member_name_path(member), local: true do |f| %>
+                    <div class="input-field col m2 s3">
+                      <%= f.label :firstname, "Nombre" %>
+                      <%= f.text_field :firstname, class: "validate", value: member.firstname %>
+                    </div>
+                    <div class="input-field col m2 s3">
+                      <%= f.label :lastname1, "Apellido paterno" %>
+                      <%= f.text_field :lastname1, class: "validate", value: member.lastname1 %>
+                    </div>
+                    <div class="input-field col m2 s3">
+                      <%= f.label :lastname2, "Apellido materno" %>
+                      <%= f.text_field :lastname2, class: "validate", value: member.lastname2 %>
+                    </div>
+                    <div class="input-field col m2 s3">
+                      <%= f.label :gender, "Género", class: "active" %>
+                      <%= f.select :gender, 
+                            options_for_select([
+                              ["MASCULINO", "MASCULINO"], 
+                              ["FEMENINO", "FEMENINO"], 
+                              ["No identificado", "No identificado"]
+                            ], selected: member.gender.presence || "No identificado"), 
+                            {}, 
+                            class: "browser-default" %>
+                    </div>
+
+                    <div class="input-field col m2 s3">
+                      <%= f.label :role_id, "Rol", class: "active"  %>
+                      <%= f.select :role_id,
+                            Role.where(name: @all_roles).order(:name).pluck(:name, :id),
+                            { include_blank: "Selecciona un rol" }, 
+                            class: "browser-default" %>
+                    </div>
+                    <div class="col s12">
+                      <%= hidden_field_tag :state_code, @state.code %>
+                      <%= f.submit "Actualizar", class: "btn blue" %>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="row grey lighten-2">
+                  <div class="col s12">
+                    <h6>Añadir vínculo</h6>
+                    <%= form_with url: add_member_link_path, method: :post, local: true do |lf| %>
+                      <div class="col s12">
+                        <span><strong><%= member.firstname %></strong> es</span>
+                      </div>
+
+                      <div class="input-field col m2 s4">
+                        <%= label_tag :link_type, "Tipo de vínculo", class: "active" %>
+                        <%= select_tag :link_type, options_for_select(@link_types), prompt: "Selecciona vínculo", class: "browser-default" %>
+                      </div>
+
+                      <div class="col s1 center-align" style="margin-top: 2.5rem;">de</div>
+
+                      <div class="input-field col m2 s6">
+                        <%= label_tag :target_member_id, "ID del miembro destino",  class: "active" %>
+                        <%= number_field_tag :target_member_id, nil, placeholder: "Ej. 153204", class: "validate" %>
+                      </div>
+
+                      <%= hidden_field_tag :source_member_id, member.id %>
+                      <%= hidden_field_tag :state_code, @state.code %>
+
+                      <div class="col s12">
+                        <%= lf.submit "Crear vínculo", class: "btn blue" %>
+                      </div>
                     <% end %>
                   </div>
                 </div>
-                  <div class="collapsible-body member_edit">
-                    <div class="row grey lighten-2">
-                      <%= form_with model: member, url: update_member_name_path(member), local: true do |f| %>
-                        <div class="input-field col m2 s3">
-                          <%= f.label :firstname, "Nombre" %>
-                          <%= f.text_field :firstname, class: "validate", value: member.firstname %>
-                        </div>
-                        <div class="input-field col m2 s3">
-                          <%= f.label :lastname1, "Apellido paterno" %>
-                          <%= f.text_field :lastname1, class: "validate", value: member.lastname1 %>
-                        </div>
-                        <div class="input-field col m2 s3">
-                          <%= f.label :lastname2, "Apellido materno" %>
-                          <%= f.text_field :lastname2, class: "validate", value: member.lastname2 %>
-                        </div>
-                        <div class="input-field col m2 s3">
-                          <%= f.label :gender, "Género", class: "active" %>
-                          <%= f.select :gender, 
-                                options_for_select([
-                                  ["MASCULINO", "MASCULINO"], 
-                                  ["FEMENINO", "FEMENINO"], 
-                                  ["No identificado", "No identificado"]
-                                ], selected: member.gender.presence || "No identificado"), 
-                                {}, 
-                                class: "browser-default" %>
-                        </div>
 
-                        <div class="input-field col m2 s3">
-                          <%= f.label :role_id, "Rol", class: "active"  %>
-                          <%= f.select :role_id,
-                                Role.where(name: @all_roles).order(:name).pluck(:name, :id),
-                                { include_blank: "Selecciona un rol" }, 
-                                class: "browser-default" %>
-                        </div>
-                        <div class="col s12">
-                          <%= hidden_field_tag :state_code, @state.code %>
-                          <%= f.submit "Actualizar", class: "btn blue" %>
-                        </div>
-                      <% end %>
+              <div class="row grey lighten-5" style="margin-top: 1rem;">
+                <div class="col s12">
+                  <h6>Añadir identidad falsa</h6>
+                  <%= form_with url: "/datasets/#{member.id}/fake_identities", method: :post, local: true do |ff| %>
+                    <div class="input-field col m3 s6">
+                      <%= ff.label :firstname, "Nombre" %>
+                      <%= ff.text_field :firstname, required: true, class: "validate" %>
                     </div>
-                    <div class="row grey lighten-2">
-                      <div class="col s12">
-                        <h6>Añadir vínculo</h6>
-                        <%= form_with url: add_member_link_path, method: :post, local: true do |lf| %>
-                          <div class="col s12">
-                            <span><strong><%= member.firstname %></strong> es</span>
-                          </div>
+                    <div class="input-field col m3 s6">
+                      <%= ff.label :lastname1, "Apellido paterno" %>
+                      <%= ff.text_field :lastname1, required: true, class: "validate" %>
+                    </div>
+                    <div class="input-field col m3 s6">
+                      <%= ff.label :lastname2, "Apellido materno" %>
+                      <%= ff.text_field :lastname2, required: true, class: "validate" %>
+                    </div>
 
-                          <div class="input-field col m2 s4">
-                            <%= label_tag :link_type, "Tipo de vínculo", class: "active" %>
-                            <%= select_tag :link_type, options_for_select(@link_types), prompt: "Selecciona vínculo", class: "browser-default" %>
-                          </div>
+                    <%= hidden_field_tag :member_id, member.id %>
+                    <%= hidden_field_tag :state_code, @state.code %>
 
-                          <div class="col s1 center-align" style="margin-top: 2.5rem;">de</div>
+                    <div class="input-field col m3 s6" style="margin-top: 2rem;">
+                      <%= ff.submit "Agregar identidad", class: "btn blue" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
 
-                          <div class="input-field col m2 s6">
-                            <%= label_tag :target_member_id, "ID del miembro destino",  class: "active" %>
-                            <%= number_field_tag :target_member_id, nil, placeholder: "Ej. 153204", class: "validate" %>
-                          </div>
-
-                          <%= hidden_field_tag :source_member_id, member.id %>
-                          <%= hidden_field_tag :state_code, @state.code %>
-
-                          <div class="col s12">
-                            <%= lf.submit "Crear vínculo", class: "btn blue" %>
-                          </div>
+                <% relaciones = MemberRelationship
+                                 .includes(:member_a, :member_b)
+                                 .where("member_a_id = :id OR member_b_id = :id", id: member.id) %>
+                <% if relaciones.any? %>
+                  <div class="row grey lighten-5" style="margin-top: 1rem;">
+                    <div class="col s12">
+                      <h6>Relaciones registradas</h6>
+                      <ul class="collection">
+                        <% relaciones.each do |rel| %>
+                          <% if rel.member_a_id == member.id %>
+                            <% otro = rel.member_b %>
+                            <li class="collection-item">
+                              <strong><%= member.firstname %></strong> es <strong><%= rel.role_a %></strong> de
+                              <strong><%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %></strong>
+                            </li>
+                          <% else %>
+                            <% otro = rel.member_a %>
+                            <li class="collection-item">
+                              <strong><%= member.firstname %></strong> es <strong><%= rel.role_b %></strong> de
+                              <strong><%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %></strong>
+                            </li>
+                          <% end %>
                         <% end %>
-                      </div>
+                      </ul>
                     </div>
-
-                    <% relaciones = MemberRelationship
-                                     .includes(:member_a, :member_b)
-                                     .where("member_a_id = :id OR member_b_id = :id", id: member.id) %>
-
-                    <% if relaciones.any? %>
-                      <div class="row grey lighten-5" style="margin-top: 1rem;">
-                        <div class="col s12">
-                          <h6>Relaciones registradas</h6>
-                          <ul class="collection">
-                            <% relaciones.each do |rel| %>
-                              <% if rel.member_a_id == member.id %>
-                                <% otro = rel.member_b %>
-                                <li class="collection-item">
-                                  <strong><%= member.firstname %></strong> es <strong><%= rel.role_a %></strong> de
-                                  <strong><%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %></strong>
-                                </li>
-                              <% else %>
-                                <% otro = rel.member_a %>
-                                <li class="collection-item">
-                                  <strong><%= member.firstname %></strong> es <strong><%= rel.role_b %></strong> de
-                                  <strong><%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %></strong>
-                                </li>
-                              <% end %>
-                            <% end %>
-                          </ul>
-                        </div>
-                      </div>
-                    <% end %>
                   </div>
-              </li>
-            <% end %>
-          </ul>
+                <% end %>
+
+                <% identidades = member.fake_identities %>
+                <% if identidades.any? %>
+                  <div class="row grey lighten-5" style="margin-top: 1rem;">
+                    <div class="col s12">
+                      <h6>Identidades falsas</h6>
+                      <ul class="collection">
+                        <% identidades.each do |ide| %>
+                          <li class="collection-item">
+                            <strong><%= ide.firstname %> <%= ide.lastname1 %> <%= ide.lastname2 %></strong>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+          </li>
+        <% end %>
+      </ul>
     </div>
   </div>
 </div>

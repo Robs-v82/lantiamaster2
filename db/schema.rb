@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_15_183651) do
+ActiveRecord::Schema.define(version: 2025_06_23_145322) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -143,6 +143,16 @@ ActiveRecord::Schema.define(version: 2025_06_15_183651) do
   create_table "events_sources", id: false, force: :cascade do |t|
     t.integer "event_id"
     t.integer "source_id"
+  end
+
+  create_table "fake_identities", force: :cascade do |t|
+    t.string "firstname"
+    t.string "lastname1"
+    t.string "lastname2"
+    t.bigint "member_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["member_id"], name: "index_fake_identities_on_member_id"
   end
 
   create_table "hits", force: :cascade do |t|
@@ -686,6 +696,7 @@ ActiveRecord::Schema.define(version: 2025_06_15_183651) do
   add_foreign_key "events", "months"
   add_foreign_key "events", "organizations"
   add_foreign_key "events", "towns"
+  add_foreign_key "fake_identities", "members"
   add_foreign_key "hits", "towns"
   add_foreign_key "hits", "users"
   add_foreign_key "keys", "users"
