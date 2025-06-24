@@ -250,61 +250,60 @@ class DatasetsController < ApplicationController
 	  # send_data csv_data.encode('UTF-8'), filename: "rackets_estado_#{state.code}.csv"
 	end
 
-def members_query
-  query_params = members_query_params
+	def members_query
+	  query_params = members_query_params
 
-  input_firstname = I18n.transliterate(query_params[:firstname].to_s.strip.downcase)
-  input_lastname1 = I18n.transliterate(query_params[:lastname1].to_s.strip.downcase)
-  input_lastname2 = I18n.transliterate(query_params[:lastname2].to_s.strip.downcase)
+	  input_firstname = I18n.transliterate(query_params[:firstname].to_s.strip.downcase)
+	  input_lastname1 = I18n.transliterate(query_params[:lastname1].to_s.strip.downcase)
+	  input_lastname2 = I18n.transliterate(query_params[:lastname2].to_s.strip.downcase)
 
-  def match?(input, candidate)
-    return false if candidate.blank?
-    return true if input.blank?
-    input.include?(candidate) || candidate.include?(input)
-  end
+	  def match?(input, candidate)
+	    return false if candidate.blank?
+	    return true if input.blank?
+	    input.include?(candidate) || candidate.include?(input)
+	  end
 
-  potential_matches = Member.includes(:fake_identities, :hits).distinct.select do |member|
-    # Omitir members sin al menos un nombre válido
-    next false if member.firstname.blank? && member.lastname1.blank? && member.lastname2.blank? &&
-                   member.fake_identities.none? { |fi| fi.firstname.present? || fi.lastname1.present? || fi.lastname2.present? }
+	  potential_matches = Member.includes(:fake_identities, :hits).distinct.select do |member|
+	    next false if member.hits.blank?
+	    # Omitir members sin al menos un nombre válido
+	    next false if member.firstname.blank? && member.lastname1.blank? && member.lastname2.blank? &&
+	                   member.fake_identities.none? { |fi| fi.firstname.present? || fi.lastname1.present? || fi.lastname2.present? }
 
-    real_match =
-      match?(input_firstname, I18n.transliterate(member.firstname.to_s.downcase)) &&
-      match?(input_lastname1, I18n.transliterate(member.lastname1.to_s.downcase)) &&
-      match?(input_lastname2, I18n.transliterate(member.lastname2.to_s.downcase))
+	    real_match =
+	      match?(input_firstname, I18n.transliterate(member.firstname.to_s.downcase)) &&
+	      match?(input_lastname1, I18n.transliterate(member.lastname1.to_s.downcase)) &&
+	      match?(input_lastname2, I18n.transliterate(member.lastname2.to_s.downcase))
 
-    fake_match = member.fake_identities.any? do |fi|
-      # Saltar identidades totalmente vacías
-      next false if fi.firstname.blank? && fi.lastname1.blank? && fi.lastname2.blank?
+	    fake_match = member.fake_identities.any? do |fi|
+	      # Saltar identidades totalmente vacías
+	      next false if fi.firstname.blank? && fi.lastname1.blank? && fi.lastname2.blank?
 
-      match?(input_firstname, I18n.transliterate(fi.firstname.to_s.downcase)) &&
-      match?(input_lastname1, I18n.transliterate(fi.lastname1.to_s.downcase)) &&
-      match?(input_lastname2, I18n.transliterate(fi.lastname2.to_s.downcase))
-    end
+	      match?(input_firstname, I18n.transliterate(fi.firstname.to_s.downcase)) &&
+	      match?(input_lastname1, I18n.transliterate(fi.lastname1.to_s.downcase)) &&
+	      match?(input_lastname2, I18n.transliterate(fi.lastname2.to_s.downcase))
+	    end
 
-    real_match || fake_match
-  end
+	    real_match || fake_match
+	  end
 
-  user = User.find_by(id: session[:user_id])
+	  user = User.find_by(id: session[:user_id])
 
-  new_query = Query.new(
-    firstname: query_params[:firstname],
-    lastname1: query_params[:lastname1],
-    lastname2: query_params[:lastname2],
-    homo_score: query_params[:homo_score],
-    outcome: potential_matches.map(&:id),
-    search: Member.joins(:hits).distinct.count,
-    user: user,
-    member: user&.member,
-    organization: user&.member&.organization
-  )
+	  new_query = Query.new(
+	    firstname: query_params[:firstname],
+	    lastname1: query_params[:lastname1],
+	    lastname2: query_params[:lastname2],
+	    homo_score: query_params[:homo_score],
+	    outcome: potential_matches.map(&:id),
+	    search: Member.joins(:hits).distinct.count,
+	    user: user,
+	    member: user&.member,
+	    organization: user&.member&.organization
+	  )
 
-  new_query.save
+	  new_query.save
 
-  redirect_to '/datasets/members_outcome'
-end
-
-
+	  redirect_to '/datasets/members_outcome'
+	end
 
 	def redirect_to_outcome
 	  session[:query_id] = params[:id]
