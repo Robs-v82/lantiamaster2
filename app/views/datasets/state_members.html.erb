@@ -150,15 +150,18 @@
         <% @members.each do |member| %>
           <% last_hit = member.hits.order(:date).last %>
           <li>
-            <div class="collapsible-header" style="display: flex; align-items: center; gap: 12px;">
-              <div style="display: flex; align-items: center; width: 100px; min-width: 100px;">
+            <div class="collapsible-header" style="display: flex; align-items: center; gap: 12px;">    
+              <div style="display: flex; align-items: center; width: 120px; min-width: 100px;">
                   <i class="material-icons tooltipped"
                      data-tooltip="Copiar ID"
                      style="cursor: pointer; margin-right: 4px;"
                      onclick="copyToClipboard(event, '<%= member.id %>')">content_copy</i>
                 <span><%= member.id %></span>
+                <% if member.hits.first.user %>
+                  <% author = member.hits.first.user.member %>
+                  -<span><%= author.firstname[0] %><%= author.lastname1[0] %></span>
+                <% end %>
               </div>
-
               <div style="flex: 1;">
                 <strong><%= member.firstname %> <%= member.lastname1 %> <%= member.lastname2 %></strong>
                 – <%= member.role.name %>
