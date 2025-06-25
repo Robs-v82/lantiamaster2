@@ -476,15 +476,7 @@ end
 			.group_by { |q| q.created_at.to_date }
 	end
 
-def terrorist_panel
-  @myYears = ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"]
-  @myStates = State.all.pluck(:name).uniq.sort
-  @myCartels = [
-    "CJNG", "Cártel de Sinaloa", "Cártel del Golfo", "Cártel del Noreste",
-    "Cárteles Unidos", "La Familia Michoacana", "La Barredora", "Gente Nueva",
-    "Tropa del Infierno", "Cártel de Zicuirán"
-  ]
-
+def terrorist_panel	
   if session[:load_success]
     @load_success = true
   end
@@ -501,30 +493,6 @@ def terrorist_panel
     { caption: "Notas/links", myAction: "/datasets/upload_hits", timeSearch: nil, myObject: "file", loaded: nil, fileWindow: true },
     { caption: "Personas", myAction: "/datasets/upload_members", timeSearch: nil, myObject: "file", loaded: nil, fileWindow: true }
   ]
-
-  # Nueva lógica para cargar hits del usuario y members únicos asociados
-  user_hits = Hit.includes(:members).where(user_id: session[:user_id]).order(created_at: :desc)
-
-  # Arreglo de hashes con hit y member para evaluar autoría e información asociada
-  @user_hit_members = []
-  seen_member_ids = Set.new
-
-  user_hits.each do |hit|
-    hit.members.each do |member|
-      next if seen_member_ids.include?(member.id)
-      seen_member_ids << member.id
-
-      # Heurística para saber si el member fue probablemente creado por este usuario
-      previous_hit = member.hits.where.not(id: hit.id).order(:created_at).first
-      created_by_user = previous_hit.nil? || previous_hit.user_id == session[:user_id]
-
-      @user_hit_members << {
-        member: member,
-        hit: hit,
-        created_by_user: created_by_user
-      }
-    end
-  end
 end
 
 def upload_members

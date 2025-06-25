@@ -58,48 +58,6 @@
 	  </div>
 	</div>
 </div>
-<div class="row">
-	<div class="col s12">
-		<table class="highlight z-depth-1">
-			<thead>
-				<tr>
-					<th>Creado por mí</th>
-					<th>ID</th>
-					<th>Confiabilidad</th>
-					<th>Nombre(s)</th>
-					<th>Apellido paterno</th>
-					<th>Apellido materno</th>
-					<th>Alias</th>
-					<th>Rol</th>
-					<th>Organización</th>
-				</tr>
-			</thead>
-			<tbody>
-				<% @user_hit_members.each do |entry| %>
-				<% member = entry[:member] %>
-					<tr>
-						<td class="center-align">
-							<% if entry[:created_by_user] %>
-								<span style="font-size: 18px;">✅</span>
-							<% else %>
-								&nbsp;
-							<% end %>
-						</td>
-						<td><%= member.id %></td>
-						<td><%= member.media_score == true ? "Alta" : "Media" %></td>
-						<td><%= member.firstname %></td>
-						<td><%= member.lastname1 %></td>
-						<td><%= member.lastname2 %></td>
-						<td><%= member.alias.present? ? member.alias.join(", ") : "-" %></td>
-						<td><%= member.role&.name || "Sin definir" %></td>
-						<td><%= member.organization&.name || "Sin definir" %></td>
-					</tr>
-				<% end %>
-			</tbody>
-		</table>
-	</div>
-</div>
-
 
 <!-- LOAD MODAL -->
 <% if @load_success %>
