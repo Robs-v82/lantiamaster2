@@ -311,7 +311,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def members_outcome
-		@all_officers = ["Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal"]
+		@all_officers = ["Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal", "Regidor"]
 		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
 		@state_officers = ["Gobernador", "Secretario de Seguridad"]
 		@other_organizations = ["Servicios lícitos", "Dirigente sindical"]

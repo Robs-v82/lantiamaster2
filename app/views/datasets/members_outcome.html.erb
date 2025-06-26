@@ -308,15 +308,20 @@
                  en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
               <% elsif @state_officers.include?(member.role&.name) %>
                  de <%= member.organization.county.state.name %>
+              <% elsif member.role.name == "Regidor"%>
+                en  <%= member.organization.county.name %>,
+                <%= member.organization.county.state.shortname %>.
               <% else %>
                 de <%= member.organization.county.name %>,
                 <%= member.organization.county.state.shortname %>.
               <% end %>
               <br>
-              <%= member.start_date.strftime("%d/%m/%Y") %>
-                <% if member.end_date? %>
+              <% if member.start_date? %>
+                <%= member.start_date.strftime("%d/%m/%Y") %>
+              <% end %>
+              <% if member.end_date? %>
                 a <%= member.end_date.strftime("%d/%m/%Y") %>
-                <% end %>
+              <% end %>
             <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
               <%= member.role.name %>, <%= member.organization.name %>
             <% else %>
