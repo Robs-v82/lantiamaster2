@@ -69,25 +69,35 @@
         <thead>
           <tr>
             <th>Rol</th>
+            <% @top_two_users.each_with_index do |id, idx| %>
+              <th><%= User.find(id).member&.firstname.first.upcase rescue "U" %>.<%= User.find(id).member&.lastname1.first.upcase rescue "N" %></th>
+            <% end %>
             <th>Total de miembros</th>
           </tr>
         </thead>
         <tbody>
-          <% total_roles = 0 %>
-          <% @por_rol.each do |rol, miembros| %>
+          <% total_roles = 0; subtotal_user_1 = 0; subtotal_user_2 = 0 %>
+          <% @por_rol_con_users.each do |rol, data| %>
             <tr>
               <td><%= rol.presence || "Sin definir" %></td>
-              <td><%= miembros.count %></td>
-              <% total_roles += miembros.count %>
+              <td><%= data[:por_usuario][0] %></td>
+              <td><%= data[:por_usuario][1] %></td>
+              <td><%= data[:miembros] %></td>
+              <% total_roles += data[:miembros] %>
+              <% subtotal_user_1 += data[:por_usuario][0] %>
+              <% subtotal_user_2 += data[:por_usuario][1] %>
             </tr>
           <% end %>
           <tr>
             <th>Total</th>
+            <th><%= subtotal_user_1 %></th>
+            <th><%= subtotal_user_2 %></th>
             <th><%= total_roles %></th>
           </tr>
         </tbody>
       </table>
     </div>
+
 
     <div class="col l6 m12 s12">
       <table class="highlight z-depth-1">

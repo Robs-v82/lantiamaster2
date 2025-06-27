@@ -68,13 +68,11 @@ class DatasetsController < ApplicationController
 	  "Sin clasificar"
 	end
 
-
 	def terrorist_search
-		hits = Hit.all
-		members = Member.joins(:hits).where(hits: { id: hits.pluck(:id) }).distinct
-		@hits = hits
+	  hits = Hit.all
+	  members = Member.joins(:hits).where(hits: { id: hits.pluck(:id) }).distinct
+	  @hits = hits
 	  @members = members
-
 
 	  # Tabla por usuario
 	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
@@ -92,18 +90,33 @@ class DatasetsController < ApplicationController
 	  end
 	  @por_exposicion = exposicion_raw
 
-		# Agrupar según clasificación personalizada
-		rol_raw = Hash.new { |h, k| h[k] = [] }
-		members.each do |m|
-		  categoria = clasificar_rol(m)
-		  rol_raw[categoria] << m
-		end
-		@por_rol = rol_raw.sort_by { |_, v| -v.size }.to_h
+	  # Agrupar según clasificación personalizada
+	  rol_raw = Hash.new { |h, k| h[k] = [] }
+	  members.each do |m|
+	    categoria = clasificar_rol(m)
+	    rol_raw[categoria] << m
+	  end
+	  @por_rol = rol_raw.sort_by { |_, v| -v.size }.to_h
 
 	  # Tabla por organización
 	  @por_organizacion = members.group_by(&:organization).sort_by { |_, v| -v.size }.to_h
 
+	  # Agregar desagregación de roles por los dos usuarios con más miembros
+	  top_two_users = @por_usuario.keys.first(2).reject { |id| id == :undefined }
+	  user_members_map = {}
+	  top_two_users.each do |user_id|
+	    user_members_map[user_id] = Member.joins(:hits).where(hits: { user_id: user_id }).distinct
+	  end
+
+	  @por_rol_con_users = @por_rol.transform_values do |miembros|
+	    counts = top_two_users.map do |user_id|
+	      (miembros & user_members_map[user_id]).count
+	    end
+	    { miembros: miembros.count, por_usuario: counts }
+	  end
+	  @top_two_users = top_two_users
 	end
+
 
 	def state_members
 	  @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical"]
