@@ -155,13 +155,14 @@ class DatasetsController < ApplicationController
 	  end
 	  @por_rol = rol_raw.sort_by { |_, v| -v.size }.to_h
 
+	  @por_organizacion = members.group_by(&:organization).sort_by { |_, v| -v.size }.to_h
 	  # Tabla por organización: incluir todas las organizaciones del estado, incluso si no tienen miembros
-	  organizaciones_del_estado = Organization.joins(:states).where(states: { id: state.id }).distinct
+	  # organizaciones_del_estado = Organization.joins(:states).where(states: { id: state.id }).distinct
 
-	  @por_organizacion = organizaciones_del_estado.map do |org|
-	    miembros = members.select { |m| m.organization_id == org.id }
-	    [org, miembros]
-	  end.to_h.sort_by { |_, miembros| -miembros.size }.to_h
+	  # @por_organizacion = organizaciones_del_estado.map do |org|
+	  #   miembros = members.select { |m| m.organization_id == org.id }
+	  #   [org, miembros]
+	  # end.to_h.sort_by { |_, miembros| -miembros.size }.to_h
 	end
 	
 	def add_member_link
