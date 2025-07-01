@@ -1,10 +1,20 @@
 require 'ferrum'
 
 browser = Ferrum::Browser.new(
-  headless: false,
-  timeout: 30,
-  window_size: [1200, 900]
+  headless: true,                     # Importante si no hay entorno gráfico
+  timeout: 30,                        # Tiempo de espera para operaciones internas
+  process_timeout: 30,               # Tiempo de espera para arranque del navegador
+  window_size: [1200, 900],          # Tamaño de la ventana virtual
+  browser_options: {
+    'no-sandbox': nil,               # Evita errores en contenedores o servidores
+    'disable-gpu': nil,              # Innecesario en headless
+    'disable-dev-shm-usage': nil,    # Mejora estabilidad en Linux
+    'disable-software-rasterizer': nil,
+    'disable-devtools': nil,         # Evita errores al abrir devtools
+    'mute-audio': nil                # No queremos audio en headless
+  }
 )
+
 
 puts "Abriendo la página..."
 browser.goto("https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action")
