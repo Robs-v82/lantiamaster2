@@ -42,4 +42,8 @@ yarn-debug.log*
 .yarn-integrity
 
 /scripts/names_by_gender.csv
+# En .gitignore
+scripts/chrome-bin/
 
+
+scripts/chrome-bin/
