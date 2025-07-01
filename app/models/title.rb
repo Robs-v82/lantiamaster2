@@ -4,4 +4,6 @@ class Title < ApplicationRecord
   belongs_to :year
 
   validates :legacy_id, format: { with: /\A\d+\z/, message: "solo puede contener números" }
+  self.inheritance_column = :_type_disabled
+
 end

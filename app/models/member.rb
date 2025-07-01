@@ -21,6 +21,10 @@ class Member < ApplicationRecord
 	MemberRelationship.where("member_a_id = ? OR member_b_id = ?", id, id)
 	end
 
+	def fullname
+	  [firstname, lastname1, lastname2].compact.join(" ").strip
+	end
+
 	def relationships_with_roles
 	all_relationships.map do |rel|
 	  if rel.member_a_id == id
