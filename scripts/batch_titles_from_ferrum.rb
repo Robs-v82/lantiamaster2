@@ -45,7 +45,7 @@ browser = Ferrum::Browser.new(
   }
 )
 
-target_members[814..-1].each_with_index do |member, idx|
+target_members[1600..-1].each_with_index do |member, idx|
   puts "\n👤 [#{idx + 1}/#{target_members.size}] Buscando cédula de #{member.fullname}"
 
   browser.goto("https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action")
