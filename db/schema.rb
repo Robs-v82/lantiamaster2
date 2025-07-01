@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_23_145322) do
+ActiveRecord::Schema.define(version: 2025_06_30_163712) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -561,6 +561,20 @@ ActiveRecord::Schema.define(version: 2025_06_23_145322) do
     t.integer "capital_id"
   end
 
+  create_table "titles", force: :cascade do |t|
+    t.string "legacy_id"
+    t.string "type"
+    t.string "profesion"
+    t.bigint "member_id", null: false
+    t.bigint "organization_id", null: false
+    t.bigint "year_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["member_id"], name: "index_titles_on_member_id"
+    t.index ["organization_id"], name: "index_titles_on_organization_id"
+    t.index ["year_id"], name: "index_titles_on_year_id"
+  end
+
   create_table "towns", force: :cascade do |t|
     t.string "code"
     t.string "full_code"
@@ -730,6 +744,9 @@ ActiveRecord::Schema.define(version: 2025_06_23_145322) do
   add_foreign_key "queries", "users"
   add_foreign_key "sources", "members"
   add_foreign_key "states", "counties", column: "capital_id"
+  add_foreign_key "titles", "members"
+  add_foreign_key "titles", "organizations"
+  add_foreign_key "titles", "years"
   add_foreign_key "towns", "counties"
   add_foreign_key "users", "members"
   add_foreign_key "victims", "killings"

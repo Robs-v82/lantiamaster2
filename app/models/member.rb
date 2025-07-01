@@ -15,6 +15,7 @@ class Member < ApplicationRecord
 	has_many :relationships_as_b, class_name: 'MemberRelationship', foreign_key: :member_b_id, dependent: :destroy
 	has_many :related_as_b, through: :relationships_as_b, source: :member_a
 	has_many :fake_identities, dependent: :destroy
+	has_many :titles, dependent: :destroy
 
 	def all_relationships
 	MemberRelationship.where("member_a_id = ? OR member_b_id = ?", id, id)

@@ -10,4 +10,5 @@ class Year < ApplicationRecord
 	has_many :months, :through => :quarters
 	has_many :leads, :through => :events
 	has_many :cookies
+	has_many :titles, dependent: :destroy
 end

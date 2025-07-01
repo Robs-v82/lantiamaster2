@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  legacy_id: MyString
+  type: 
+  profesion: MyString
+  member: one
+  organization: one
+  year: one
+
+two:
+  legacy_id: MyString
+  type: 
+  profesion: MyString
+  member: two
+  organization: two
+  year: two
