@@ -238,43 +238,47 @@
           </tr>
         <% end %>
 
-<% if member.titles.any? %>
-  <tr>
-    <th colspan="2" style="padding: 0; margin: 0; border: none;">
-      <ul class="collapsible" style="box-shadow: none; margin: 0; padding: 0; border: none;">
-        <% member.titles.each do |title| %>
-          <li style="border: none; margin: 0; padding: 0;">
-            <div class="collapsible-header" style="background-color: transparent; border: none; padding: 15px 5px !important; margin: 0; font-weight: bold;">
-              Cédula <%= title.legacy_id %><i class="material-icons" style="margin-right: 10px;">add_circle_outline</i>
-            </div>
-            <div class="collapsible-body" style="padding: 0; margin: 0;">
-              <table style="margin: 0; border: none;">
-                <tbody>
-                  <tr>
-                    <th style="font-weight: bold; width: 180px;">Tipo:</th>
-                    <td><%= title.type %></td>
-                  </tr>
-                  <tr>
-                    <th style="font-weight: bold;">Profesión:</th>
-                    <td><%= title.profesion.titleize %></td>
-                  </tr>
-                  <tr>
-                    <th style="font-weight: bold;">Institución:</th>
-                    <td><%= title.organization.name %></td>
-                  </tr>
-                  <tr>
-                    <th style="font-weight: bold;">Año de expedición:</th>
-                    <td><%= title.year&.name || "Sin especificar" %></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </li>
+        <% if member.titles.any? %>
+          <tr style="border-top: 2px solid #33333C;">
+            <th colspan="2" style="padding: 0; margin: 0; border: none;">
+              <ul class="collapsible" style="box-shadow: none; margin: 0; padding: 0; border: none;">
+                <% member.titles.each do |title| %>
+                  <li style="border: none; margin: 0; padding: 0;">
+                    <div class="collapsible-header" style="background-color: transparent; border: none; padding: 15px 5px !important; margin: 0; font-weight: bold; color: #ef4e50;">
+                      Cédula profesional  <i class="material-icons" style="margin-right: 10px;">add</i>
+                    </div>
+                    <div class="collapsible-body" style="padding: 0; margin: 0;">
+                      <table style="margin: 0; border: none;">
+                        <tbody>
+                          <tr>
+                            <th style="font-weight: bold; width: 180px;">Número:</th>
+                            <td><%= title.legacy_id %></td>
+                          </tr>
+                          <tr>
+                            <th style="font-weight: bold; width: 180px;">Tipo:</th>
+                            <td><%= title.type %></td>
+                          </tr>
+                          <tr>
+                            <th style="font-weight: bold;">Profesión:</th>
+                            <td><%= title.profesion.titleize %></td>
+                          </tr>
+                          <tr>
+                            <th style="font-weight: bold;">Institución:</th>
+                            <td><%= title.organization.name %></td>
+                          </tr>
+                          <tr>
+                            <th style="font-weight: bold;">Año de expedición:</th>
+                            <td><%= title.year&.name || "Sin especificar" %></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </th>
+          </tr>
         <% end %>
-      </ul>
-    </th>
-  </tr>
-<% end %>
 
 
 
