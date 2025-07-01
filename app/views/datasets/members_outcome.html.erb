@@ -41,9 +41,28 @@
     background-color: rgba(255, 255, 255, 0.05);
   }
 </style>
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function () {
+    const elems = document.querySelectorAll('.collapsible-cedula');
+    const instances = M.Collapsible.init(elems);
 
+    elems.forEach(collapsible => {
+      collapsible.addEventListener('click', function (e) {
+        const clickedHeader = e.target.closest('.collapsible-header');
+        if (!clickedHeader) return;
 
+        const icon = clickedHeader.querySelector('.toggle-icon');
+        if (!icon) return;
 
+        // Esperamos a que Materialize actualice el estado del collapsible
+        setTimeout(() => {
+          const isActive = clickedHeader.parentElement.classList.contains('active');
+          icon.textContent = isActive ? 'remove' : 'add';
+        }, 100);
+      });
+    });
+  });
+</script>
 <div class="b-container">
  <div class="row">
   <% if @myQuery.present? %>
@@ -241,11 +260,11 @@
         <% if member.titles.any? %>
           <tr style="border-top: 2px solid #33333C;">
             <th colspan="2" style="padding: 0; margin: 0; border: none;">
-              <ul class="collapsible" style="box-shadow: none; margin: 0; padding: 0; border: none;">
+              <ul class="collapsible collapsible-cedula" style="box-shadow: none; margin: 0; padding: 0; border: none;">
                 <% member.titles.each do |title| %>
                   <li style="border: none; margin: 0; padding: 0;">
                     <div class="collapsible-header" style="background-color: transparent; border: none; padding: 15px 5px !important; margin: 0; font-weight: bold; color: #ef4e50;">
-                      Cédula profesional  <i class="material-icons" style="margin-right: 10px;">add</i>
+                      Cédula profesional  <i class="material-icons toggle-icon" style="margin-right: 10px;">add</i>
                     </div>
                     <div class="collapsible-body" style="padding: 0; margin: 0;">
                       <table style="margin: 0; border: none;">
@@ -300,81 +319,147 @@
             </span>
           </td>
         </tr>
-        <tr style="border-top: 2px solid #33333C;">
-          <th style="font-weight: bold;">Organización:</th>
-          <td><%= cartel&.name || "Sin definir" %></td>
-        </tr>
-        <tr>
-
-        <% cartel_designado = nil %>
-        <% cartel_fuente = nil %>
-        <% cartel_fuente_tipo = nil %>
-
-        <% if cartel&.designation %>
-          <% cartel_designado = cartel %>
-        <% elsif cartel&.parent&.designation %>
-          <% cartel_designado = cartel.parent %>
-          <% cartel_fuente = cartel_designado.name %>
-          <% cartel_fuente_tipo = "subordinada a" %>
-        <% elsif cartel&.allies.present? %>
-          <% aliadas_designadas = Organization.where(id: cartel.allies).select(&:designation) %>
-          <% if aliadas_designadas.any? %>
-            <% cartel_designado = aliadas_designadas.first %>
-            <% cartel_fuente = cartel_designado.name %>
-            <% cartel_fuente_tipo = "aliada a" %>
-          <% end %>
-        <% end %>
-          <tr>
-            <th style="font-weight: bold;">Designación del Departamento de Estado:</th>
-              <td>
-            <% if cartel_designado.present? && cartel_fuente.nil? %>
-              <span class="marked-text">Cártel designado como terrorista.</span><br>
-              <%= cartel_designado.designation_date.strftime("%d/%m/%Y") %>
-            <% elsif cartel_designado.present? && cartel_fuente_tipo.present? %>
-              Organización <%= cartel_fuente_tipo %> <%= cartel_fuente %><br>
-              <span class="marked-text">Cártel designado como terrorista.</span><br>
-              <span style="padding: 2px 4px !important;"><%= cartel_designado.designation_date.strftime("%d/%m/%Y") %></span> 
-            <% else %>
-              Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas.
-            <% end %>
-          </td>
-        </tr>
-        <tr style="border-top: 2px solid #33333C;">
-          <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
-          <td>
-            <% if @all_officers .include?(member.role&.name) %>
-              <% if member.involved?  %>
-                Autoridad cooptada
-              <%else%>
+        <% relaciones = MemberRelationship
+                 .includes(:member_a, :member_b)
+                 .where("member_a_id = :id OR member_b_id = :id", id: member.id) %>
+        <% if member.involved == false %>
+          <tr style="border-top: 2px solid #33333C;">
+            <th style="font-weight: bold;">Rol o vínculo con el crimen organizado:</th>
+            <td>
+              <% if @all_officers .include?(member.role&.name) %>
                 Autoridad expuesta
-              <% end %>
-              <br>
-              <%= member.role.name %>
-              <% if @federal_officers.include?(member.role&.name) %>
-                 en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
-              <% elsif @state_officers.include?(member.role&.name) %>
-                 de <%= member.organization.county.state.name %>
-              <% elsif member.role.name == "Regidor"%>
-                en  <%= member.organization.county.name %>,
-                <%= member.organization.county.state.shortname %>.
+                <br>
+                <%= member.role.name %>
+                <% if @federal_officers.include?(member.role&.name) %>
+                   en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
+                <% elsif @state_officers.include?(member.role&.name) %>
+                   de <%= member.organization.county.state.name %>
+                <% elsif member.role.name == "Regidor"%>
+                  en  <%= member.organization.county.name %>,
+                  <%= member.organization.county.state.shortname %>.
+                <% else %>
+                  de <%= member.organization.county.name %>,
+                  <%= member.organization.county.state.shortname %>.
+                <% end %>
+                <br>
+                <% if member.start_date? %>
+                  <%= member.start_date.strftime("%d/%m/%Y") %>
+                <% end %>
+                <% if member.end_date? %>
+                  a <%= member.end_date.strftime("%d/%m/%Y") %>
+                <% end %>
+              <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
+                <%= member.role.name %>, <%= member.organization.name %>
               <% else %>
-                de <%= member.organization.county.name %>,
-                <%= member.organization.county.state.shortname %>.
+                <%= member.role&.name || "Sin definir" %>
               <% end %>
-              <br>
-              <% if member.start_date? %>
-                <%= member.start_date.strftime("%d/%m/%Y") %>
-              <% end %>
-              <% if member.end_date? %>
-                a <%= member.end_date.strftime("%d/%m/%Y") %>
-              <% end %>
-            <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
-              <%= member.role.name %>, <%= member.organization.name %>
-            <% else %>
-              <%= member.role&.name || "Sin definir" %>
+            </td>
+          </tr>
+        <% else %>
+          <tr style="border-top: 2px solid #33333C;">
+            <th style="font-weight: bold;">Organización:</th>
+            <td><%= cartel&.name || "Sin definir" %></td>
+          </tr>
+          <tr>
+          <% cartel_designado = nil %>
+          <% cartel_fuente = nil %>
+          <% cartel_fuente_tipo = nil %>
+
+          <% if cartel&.designation %>
+            <% cartel_designado = cartel %>
+          <% elsif cartel&.parent&.designation %>
+            <% cartel_designado = cartel.parent %>
+            <% cartel_fuente = cartel_designado.name %>
+            <% cartel_fuente_tipo = "subordinada a" %>
+          <% elsif cartel&.allies.present? %>
+            <% aliadas_designadas = Organization.where(id: cartel.allies).select(&:designation) %>
+            <% if aliadas_designadas.any? %>
+              <% cartel_designado = aliadas_designadas.first %>
+              <% cartel_fuente = cartel_designado.name %>
+              <% cartel_fuente_tipo = "aliada a" %>
             <% end %>
-          </td>
-        </tr>
+          <% end %>
+            <tr>
+              <th style="font-weight: bold;">Designación del Departamento de Estado:</th>
+                <td>
+              <% if cartel_designado.present? && cartel_fuente.nil? %>
+                <span class="marked-text">Cártel designado como terrorista.</span><br>
+                <%= cartel_designado.designation_date.strftime("%d/%m/%Y") %>
+              <% elsif cartel_designado.present? && cartel_fuente_tipo.present? %>
+                Organización <%= cartel_fuente_tipo %> <%= cartel_fuente %><br>
+                <span class="marked-text">Cártel designado como terrorista.</span><br>
+                <span style="padding: 2px 4px !important;"><%= cartel_designado.designation_date.strftime("%d/%m/%Y") %></span> 
+              <% else %>
+                Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas.
+              <% end %>
+            </td>
+          </tr>
+          <tr style="border-top: 2px solid #33333C;">
+            <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
+            <td>
+              <% if @all_officers .include?(member.role&.name) %>
+                <% if member.involved?  %>
+                  Autoridad cooptada
+                <%else%>
+                  Autoridad expuesta
+                <% end %>
+                <br>
+                <%= member.role.name %>
+                <% if @federal_officers.include?(member.role&.name) %>
+                   en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
+                <% elsif @state_officers.include?(member.role&.name) %>
+                   de <%= member.organization.county.state.name %>
+                <% elsif member.role.name == "Regidor"%>
+                  en  <%= member.organization.county.name %>,
+                  <%= member.organization.county.state.shortname %>.
+                <% else %>
+                  de <%= member.organization.county.name %>,
+                  <%= member.organization.county.state.shortname %>.
+                <% end %>
+                <br>
+                <% if member.start_date? %>
+                  <%= member.start_date.strftime("%d/%m/%Y") %>
+                <% end %>
+                <% if member.end_date? %>
+                  a <%= member.end_date.strftime("%d/%m/%Y") %>
+                <% end %>
+              <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
+                <%= member.role.name %>, <%= member.organization.name %>
+              <% else %>
+                <%= member.role&.name || "Sin definir" %>
+              <% end %>
+            </td>
+          </tr>
+
+        <% end %>
+
+        <% if relaciones.any? %>
+          <tr>
+            <th>
+              <span style="font-weight: bold;">Probables vínculos de <%= member.firstname %>:</span>  
+            </th>
+            <th>
+              <ul style="font-weight: 100;">
+                <% relaciones.each do |rel| %>
+                  <% if rel.member_a_id == member.id %>
+                    <% otro = rel.member_b %>
+                    <li>
+                      -<%= rel.role_a %> de
+                      <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
+                    </li>
+                  <% else %>
+                    <% otro = rel.member_a %>
+                    <li>
+                      -<%= rel.role_b %> de
+                      <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
+                    </li>
+                  <% end %>
+                <% end %>
+              </ul>     
+            </th>
+          </tr>
+        <% end %>
+
         <tr>
           <th style="vertical-align: top;">
             <span style="font-weight: bold;">Actividad/menciones:</span>
