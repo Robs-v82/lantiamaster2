@@ -169,6 +169,11 @@
     </div>
 <% end %>
 <div class="col s12 m10 l8">
+  <div style="margin-bottom: 10px;">
+    <a class="modal-trigger btn-flat" href="#aviso-legal-modal" style="color: #EF4E50; font-size: 17px; font-weight: bold; text-transform: none; padding-left: 28px;">
+      AVISO LEGAL
+    </a>
+  </div>
     <div id="outcome-card" class="card z-depth-1" style="background-color: white; margin-bottom: 30px; height:100%">
     <div class="card-content" style="color: #33333C">
       <table id="outcome-table" class="animate__animated animate__fadeIn" style="font-size: 17px; width: 100%;">
@@ -355,6 +360,7 @@
             </td>
           </tr>
         <% else %>
+
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Organización:</th>
             <td><%= cartel&.name || "Sin definir" %></td>
@@ -378,6 +384,7 @@
               <% cartel_fuente_tipo = "aliada a" %>
             <% end %>
           <% end %>
+
             <tr>
               <th style="font-weight: bold;">Designación del Departamento de Estado:</th>
                 <td>
@@ -432,30 +439,58 @@
 
         <% end %>
 
-        <% if member.involved == false && relaciones.any? %>
+        <% if member.involved == false %> 
           <tr>
-            <th>
-              <span style="font-weight: bold;">Probables vínculos de <%= member.firstname %>:</span>  
-            </th>
-            <th>
-              <ul style="font-weight: 100;">
-                <% relaciones.each do |rel| %>
-                  <% if rel.member_a_id == member.id %>
-                    <% otro = rel.member_b %>
-                    <li>
-                      -<%= rel.role_a_gender %> de
-                      <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
-                    </li>
-                  <% else %>
-                    <% otro = rel.member_a %>
-                    <li>
-                      -<%= rel.role_b_gender %> de
-                      <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
-                    </li>
+          <% if relaciones.any? %>
+              <th>
+                <span style="font-weight: bold;">Probables vínculos de <%= member.firstname %>:</span>  
+              </th>
+              <td>
+                <ul style="font-weight: 100;">
+                  <% relaciones.each do |rel| %>
+                    <% if rel.member_a_id == member.id %>
+                      <% otro = rel.member_b %>
+                      <li>
+                        -<%= rel.role_a_gender %> de
+                        <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
+                      </li>
+                    <% else %>
+                      <% otro = rel.member_a %>
+                      <li>
+                        -<%= rel.role_b_gender %> de
+                        <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
+                      </li>
+                    <% end %>
                   <% end %>
-                <% end %>
-              </ul>     
-            </th>
+                </ul>     
+              </td>
+          <% else %>
+
+          <tr style="border-top: 2px solid #33333C;">
+            <th style="font-weight: bold;">Organización:</th>
+            <td><%= cartel&.name || "Sin definir" %></td>
+          </tr>
+          <tr>
+          <% cartel_designado = nil %>
+          <% cartel_fuente = nil %>
+          <% cartel_fuente_tipo = nil %>
+
+          <% if cartel&.designation %>
+            <% cartel_designado = cartel %>
+          <% elsif cartel&.parent&.designation %>
+            <% cartel_designado = cartel.parent %>
+            <% cartel_fuente = cartel_designado.name %>
+            <% cartel_fuente_tipo = "subordinada a" %>
+          <% elsif cartel&.allies.present? %>
+            <% aliadas_designadas = Organization.where(id: cartel.allies).select(&:designation) %>
+            <% if aliadas_designadas.any? %>
+              <% cartel_designado = aliadas_designadas.first %>
+              <% cartel_fuente = cartel_designado.name %>
+              <% cartel_fuente_tipo = "aliada a" %>
+            <% end %>
+          <% end %>
+
+          <% end %>
           </tr>
         <% end %>
 
@@ -483,6 +518,94 @@
           </th>
 <td>
   <div id="map-container-<%= member.id %>" style="height: 280px; min-width: 280px;"></div>
+    <div id="aviso-legal-modal" class="modal" style="max-height: 65%; max-width: 80%; padding: 22px;">
+      <div class="modal-content" style="overflow-y: auto; font-size: 14px; line-height: 1.7; color: #333;">
+        <p class="center-align"><strong>AVISO LEGAL</strong></p>
+
+      <p><strong>I. Fundamentación Jurídica</strong></p>
+      <p>
+        Lantia Intelligence informa que toda la información contenida, presentada o utilizada en esta herramienta —así como en los productos derivados de ella— proviene de fuentes de acceso público, en conformidad con lo dispuesto por las leyes mexicanas en materia de protección de datos y acceso a la información. De manera particular, este tratamiento se ampara en los siguientes preceptos:
+      </p>
+      <li>
+        Artículo 10, fracción IV de la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), que establece que no será necesario el consentimiento del titular para el tratamiento de sus datos personales cuando los mismos se encuentren en fuentes de acceso público.
+      </li>
+      <li>
+        Artículo 113 de la Ley General de Transparencia y Acceso a la Información Pública (LGTAIP), que dispone que cualquier persona podrá acceder y utilizar la información pública sin necesidad de acreditar interés alguno ni justificar su utilización.
+      </li>
+      <li>
+        Asimismo, la fracción X del artículo 3 de la LFPDPPP define como fuentes de acceso público los directorios, registros y bases de datos disponibles abiertamente a cualquier persona, así como medios de comunicación impresos o electrónicos, sitios web oficiales y redes sociales, entre otros.
+      </li>
+      <p>
+        Con base en esta normativa, el tratamiento, procesamiento, análisis y presentación de la información recabada por Lantia Intelligence no requiere consentimiento previo de los titulares, ya que se limita al uso de información disponible libremente al público general.       
+      </p>
+      <br>
+      <p><strong>II. Naturaleza de la Información y Carácter de los Resultados</strong></p>
+      <p>
+        Los contenidos generados por esta herramienta tienen un carácter exclusivamente informativo y referencial. Los resultados que se presentan corresponden a una evaluación de tipo reputacional, construida mediante metodologías analíticas desarrolladas por Lantia Intelligence, con base en la recolección, procesamiento y análisis de información proveniente de fuentes públicas.
+
+        Dicha evaluación no implica, ni puede interpretarse bajo ninguna circunstancia, como una aseveración sobre la legalidad, responsabilidad penal, civil, administrativa o de cualquier otro tipo de las personas físicas o morales mencionadas. Tampoco representa una conclusión definitiva sobre su conducta, honorabilidad, confiabilidad o desempeño.
+
+        En ningún momento estos resultados deben considerarse como evidencia legal, ni como sustento para emitir juicios jurídicos o administrativos. Cualquier interpretación que así lo sugiera contraviene el propósito y el alcance de esta herramienta.
+      </p>
+      <br>
+      <p><strong>III. Finalidad de Uso</strong></p>
+      <p>
+        La información que aquí se ofrece tiene como propósito apoyar procesos internos de análisis, evaluación de riesgos, toma de decisiones o planeación estratégica por parte de los usuarios autorizados. Queda a discreción exclusiva del usuario el uso específico que desee dar a los datos y resultados generados por la herramienta. Lantia Intelligence no asume responsabilidad alguna por las decisiones, interpretaciones, acciones u omisiones que los usuarios puedan derivar del uso de la información aquí contenida, ni por las consecuencias directas o indirectas de su aplicación en contextos específicos.
+      </p>
+      <br>
+      <p><strong>IV. Restricción de Divulgación</strong></p>
+      <p>
+        Los contenidos generados por esta herramienta son de uso exclusivo para el usuario autorizado, y están destinados únicamente a procesos internos de evaluación y análisis. Está expresamente prohibida la reproducción, publicación, distribución, cesión, transferencia o divulgación a terceros de la información obtenida mediante esta plataforma o de cualquiera de sus componentes, salvo que medie autorización expresa y por escrito de Lantia Intelligence. Esta restricción incluye cualquier forma de comunicación, ya sea impresa, digital, verbal, audiovisual o a través de medios electrónicos, redes sociales o plataformas públicas o privadas. La divulgación no autorizada de la información contenida en este sistema puede constituir una violación a los términos de uso, así como a normativas legales aplicables en materia de propiedad intelectual, confidencialidad o protección de datos.
+      </p>
+      <br>
+      <p><strong>V. Metodología y Limitaciones</strong></p>
+      <p>
+        Lantia Intelligence emplea procesos metodológicos estandarizados para la recopilación, validación, análisis y presentación de información. Dichos procesos han sido diseñados para garantizar la mayor calidad, consistencia y confiabilidad posibles, dentro de los parámetros razonables de un entorno de análisis de fuentes abiertas.
+
+        No obstante, se reconoce que el trabajo con grandes volúmenes de información pública está sujeto a posibles errores u omisiones, tanto en las fuentes originales como en las etapas de procesamiento y análisis llevadas a cabo por Lantia Intelligence.
+
+        Entre las posibles limitaciones se encuentran:
+
+        A) Información inexacta, desactualizada o incompleta en los registros públicos o medios consultados.
+
+        B) Homonimias o errores en la identificación de nombres, cargos o relaciones.
+
+        C) Sesgos editoriales o limitaciones técnicas en las plataformas de origen.
+
+        D) Fallos humanos en la recolección, validación o registro de los datos.
+
+        Lantia Intelligence realiza esfuerzos sistemáticos para detectar, corregir y minimizar este tipo de contingencias, pero no garantiza la absoluta precisión, exhaustividad o vigencia de toda la información presentada.
+      </p>
+      <br>
+      <p><strong>VI. Principio de Presunción de Inocencia</strong></p>
+      <p>
+        Lantia Intelligence reconoce y respeta el principio de presunción de inocencia, conforme a lo establecido en la Constitución Política de los Estados Unidos Mexicanos (artículo 20, apartado B, fracción I), así como en instrumentos internacionales de derechos humanos.
+
+        Por ello, toda mención de personas físicas presuntamente involucradas en hechos delictivos o controversias legales debe entenderse sin perjuicio de su derecho a la defensa, al debido proceso y a que no se les considere culpables mientras no exista una resolución firme en su contra emitida por autoridad competente.
+
+        Ningún resultado emitido por esta herramienta debe interpretarse como una condena, acusación formal o señalamiento legal, sino únicamente como un registro de hechos públicos que podrían tener implicaciones en términos de imagen, percepción pública o evaluación de riesgos.
+      </p>
+      <br>
+      <p><strong>VII. Aceptación del Usuario</strong></p>
+      <p>
+        El uso de esta herramienta implica la aceptación expresa por parte del usuario de los términos aquí descritos. Al acceder a los contenidos, consultar resultados o utilizar la información generada, el usuario declara que comprende el alcance, limitaciones, carácter no vinculante y uso restringido de los datos presentados.
+
+        Asimismo, el usuario se compromete a:
+
+        A) No divulgar los contenidos fuera del ámbito autorizado.
+
+        B) No utilizar la información como base para emitir afirmaciones públicas sobre personas u organizaciones.
+
+        C) Emplear los datos exclusivamente para propósitos internos y conforme a los principios de confidencialidad y ética profesional.
+
+        Cualquier uso indebido de la información podrá dar lugar a sanciones contractuales o responsabilidades legales conforme a lo dispuesto por las leyes aplicables.          
+      </p>
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-close btn-flat" style="color: #EF4E50;">Cerrar</a>
+      </div>
+    </div>
+
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
