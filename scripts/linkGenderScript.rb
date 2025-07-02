@@ -1,4 +1,4 @@
-# Diccionario de transformaciones al femenino
+# Diccionario actualizado
 FEMININE_ROLE_MAP = {
   "Padre" => "Madre",
   "Hijo" => "Hija",
@@ -11,19 +11,24 @@ FEMININE_ROLE_MAP = {
   "Abogado" => "Abogada",
   "Defendido" => "Defendida",
   "Jefe" => "Jefa",
-  "Colaborador" => "Colaboradora"
+  "Colaborador" => "Colaboradora",
+  "Hermano" => "Hermana",
+  "Compañero" => "Compañera",
+  "Amigo" => "Amiga",
+  "Primo" => "Prima",
+  "Conyuge" => "Conyuge",
+  "Pareja" => "Pareja",
+  "Socio" => "Socia"
 }
 
-puts "Corrigiendo valores de role_a_gender y role_b_gender..."
+puts "Actualizando roles con diccionario ampliado..."
 
 actualizados = 0
 
 MemberRelationship.find_each do |rel|
-  # Géneros de los miembros
   gender_a = rel.member_a&.gender
   gender_b = rel.member_b&.gender
 
-  # Aplicar transformación si el género es FEMENINO
   rel.role_a_gender = (gender_a == "FEMENINO") ? (FEMININE_ROLE_MAP[rel.role_a] || rel.role_a) : rel.role_a
   rel.role_b_gender = (gender_b == "FEMENINO") ? (FEMININE_ROLE_MAP[rel.role_b] || rel.role_b) : rel.role_b
 
@@ -33,5 +38,6 @@ MemberRelationship.find_each do |rel|
   end
 end
 
-puts "¡Actualización completa! Relaciones modificadas: #{actualizados}"
+puts "Listo. Relaciones actualizadas: #{actualizados}"
+
 
