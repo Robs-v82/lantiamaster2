@@ -289,13 +289,13 @@
                           <% if rel.member_a_id == member.id %>
                             <% otro = rel.member_b %>
                             <li class="collection-item">
-                              <strong><%= member.firstname %></strong> es <strong><%= rel.role_a %></strong> de
+                              <strong><%= member.firstname %></strong> es <strong><%= rel.role_a_gender %></strong> de
                               <strong><%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %></strong>
                             </li>
                           <% else %>
                             <% otro = rel.member_a %>
                             <li class="collection-item">
-                              <strong><%= member.firstname %></strong> es <strong><%= rel.role_b %></strong> de
+                              <strong><%= member.firstname %></strong> es <strong><%= rel.role_b_gender %></strong> de
                               <strong><%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %></strong>
                             </li>
                           <% end %>

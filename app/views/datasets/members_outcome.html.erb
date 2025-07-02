@@ -194,6 +194,7 @@
       <% registros = @keyMembers.first(10) %>
       <% registros.each_with_index do |member, index| %>
         <% if member.criminal_link.present? ; cartel = member.criminal_link; else cartel = member.organization; end %>
+        <% memberGroup = @keyRolegroups[index] %>
         <tr class="white-text" style="background-color: #33333C;">
           <td colspan="2" style="padding-top: 15px;" class="center-align">
             <% if registros.size == 1 %>
@@ -326,8 +327,8 @@
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Rol o vínculo con el crimen organizado:</th>
             <td>
+              <%= memberGroup %>
               <% if @all_officers .include?(member.role&.name) %>
-                Autoridad expuesta
                 <br>
                 <%= member.role.name %>
                 <% if @federal_officers.include?(member.role&.name) %>
@@ -349,9 +350,7 @@
                   a <%= member.end_date.strftime("%d/%m/%Y") %>
                 <% end %>
               <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
-                <%= member.role.name %>, <%= member.organization.name %>
-              <% else %>
-                <%= member.role&.name || "Sin definir" %>
+                , <%= member.organization.name %>
               <% end %>
             </td>
           </tr>
@@ -444,13 +443,13 @@
                   <% if rel.member_a_id == member.id %>
                     <% otro = rel.member_b %>
                     <li>
-                      -<%= rel.role_a %> de
+                      -<%= rel.role_a_gender %> de
                       <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
                     </li>
                   <% else %>
                     <% otro = rel.member_a %>
                     <li>
-                      -<%= rel.role_b %> de
+                      -<%= rel.role_b_gender %> de
                       <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
                     </li>
                   <% end %>

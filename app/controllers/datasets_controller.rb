@@ -337,6 +337,11 @@ class DatasetsController < ApplicationController
 		end
 		@user = User.find(session[:user_id])
 		@keyMembers = Member.where(id: @myQuery.outcome)
+		@keyRolegroups = []
+		@keyMembers.each {|member|
+			memberGroup = clasificar_rol(member)
+			@keyRolegroups.push(memberGroup)
+		}
 		session.delete(:query_id) # ← limpia después de usar
 	end
 
