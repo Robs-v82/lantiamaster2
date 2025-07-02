@@ -18,7 +18,10 @@ FEMININE_ROLE_MAP = {
   "Primo" => "Prima",
   "Conyuge" => "Conyuge",
   "Pareja" => "Pareja",
-  "Socio" => "Socia"
+  "Esposo" => "Esposa",
+  "Socio" => "Socia",
+  "Allegado" => "Allegada",
+  "Compadre" => "Comadre"
 }
 
 puts "Actualizando roles con diccionario ampliado..."
