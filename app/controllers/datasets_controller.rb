@@ -48,20 +48,21 @@ class DatasetsController < ApplicationController
 	    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional","Sin definir"
 	  ]
 
+	  licitos = ["Abogado", "Músico", "Servicios lícitos", "Periodista"]
+
 	  autoridades = ["Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad", "Policía", "Militar"]
 
 	  return "Líder" if role_name == "Líder"
 	  return "Socio" if role_name == "Socio"
-	  return "Familiar" if role_name == "Familiar"
-	  return "Periodista" if role_name == "Periodista"
-	  return "Abogado" if role_name == "Abogado"
-	  return "Servicios lícitos" if role_name == "Servicios lícitos"
+	  return "Familiar/allegado" if role_name == "Familiar"
 	  return "Autoridad cooptada" if role_name == "Autoridad cooptada"
 	  return "Autoridad expuesta" if role_name == "Autoridad expuesta"
 
 	  if autoridades.include?(role_name)
 	    return involved ? "Autoridad cooptada" : "Autoridad expuesta"
 	  end
+
+	  return "Servicios lícitos" if licitos.include?(role_name)
 
 	  return "Miembro" if miembros.include?(role_name)
 
