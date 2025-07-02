@@ -45,7 +45,7 @@ browser = Ferrum::Browser.new(
   }
 )
 
-target_members[-400..-1].each_with_index do |member, idx|
+target_members[-304..-1].each_with_index do |member, idx|
   puts "\n👤 [#{idx + 1}/#{target_members.size}] Buscando cédula de #{member.fullname}"
 
   browser.goto("https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action")
@@ -64,12 +64,17 @@ target_members[-400..-1].each_with_index do |member, idx|
   filas = browser.css(".dojoxGridRow")
   next if filas.empty?
 
+  def normalize_text(text)
+    I18n.transliterate(text.to_s).strip.upcase
+  end
+
   coincidencia = filas.find do |fila|
     celdas = fila.css(".dojoxGridCell").map(&:text).map(&:strip)
     nombre, ape1, ape2 = celdas[1], celdas[2], celdas[3]
-    nombre == member.firstname.upcase &&
-      ape1 == member.lastname1.upcase &&
-      ape2 == member.lastname2.upcase
+
+    normalize_text(nombre) == normalize_text(member.firstname) &&
+      normalize_text(ape1) == normalize_text(member.lastname1) &&
+      normalize_text(ape2) == normalize_text(member.lastname2)
   end
 
   unless coincidencia
