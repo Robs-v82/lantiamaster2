@@ -432,7 +432,7 @@
 
         <% end %>
 
-        <% if relaciones.any? %>
+        <% if member.involved == false && relaciones.any? %>
           <tr>
             <th>
               <span style="font-weight: bold;">Probables vínculos de <%= member.firstname %>:</span>  
