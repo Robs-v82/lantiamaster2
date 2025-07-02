@@ -148,5 +148,6 @@ Rails.application.routes.draw do
     patch 'datasets/:id/update_name', to: 'datasets#update_name', as: :update_member_name
     post '/datasets/add_member_link', to: 'datasets#add_member_link', as: :add_member_link
     post '/datasets/:member_id/fake_identities', to: 'datasets#create_fake_identity'
+    post '/notes/:member_id/notes', to: 'notes#create', as: 'create_member_note'
 
 end

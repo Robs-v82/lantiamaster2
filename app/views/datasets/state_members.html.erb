@@ -276,6 +276,21 @@
                   <% end %>
                 </div>
               </div>
+              <div class="row grey lighten-5" style="margin-top: 1rem;">
+                <div class="col s12">
+                  <h6>Añadir nota</h6>
+                  <%= form_with url: "/notes/#{member.id}/notes", method: :post, local: true do |nf| %>
+                    <div class="input-field col s12">
+                      <%= nf.label :story, "Historia o comentario" %>
+                      <%= nf.text_area :story, required: true, class: "materialize-textarea", placeholder: "Ej. Fue identificado como colaborador en 2022..." %>
+                    </div>
+                    <div class="col s12">
+                      <%= nf.submit "Agregar nota", class: "btn blue" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
 
                 <% relaciones = MemberRelationship
                                  .includes(:member_a, :member_b)

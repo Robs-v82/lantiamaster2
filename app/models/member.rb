@@ -10,6 +10,7 @@ class Member < ApplicationRecord
 	serialize :alias, Array
 	has_one_attached :avatar
 	has_and_belongs_to_many :hits
+	has_and_belongs_to_many :notes
 	has_many :relationships_as_a, class_name: 'MemberRelationship', foreign_key: :member_a_id, dependent: :destroy
 	has_many :related_as_a, through: :relationships_as_a, source: :member_b
 	has_many :relationships_as_b, class_name: 'MemberRelationship', foreign_key: :member_b_id, dependent: :destroy

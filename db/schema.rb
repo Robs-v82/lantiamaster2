@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_07_02_020958) do
+ActiveRecord::Schema.define(version: 2025_07_02_221121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -413,6 +413,11 @@ ActiveRecord::Schema.define(version: 2025_07_02_020958) do
     t.index ["role_id"], name: "index_members_on_role_id"
   end
 
+  create_table "members_notes", id: false, force: :cascade do |t|
+    t.bigint "member_id", null: false
+    t.bigint "note_id", null: false
+  end
+
   create_table "migrations", id: :serial, force: :cascade do |t|
     t.string "migration", limit: 255, null: false
     t.integer "batch", null: false
@@ -430,6 +435,12 @@ ActiveRecord::Schema.define(version: 2025_07_02_020958) do
   create_table "names", force: :cascade do |t|
     t.string "word"
     t.integer "freq"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.text "story"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

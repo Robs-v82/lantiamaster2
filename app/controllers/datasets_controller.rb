@@ -165,7 +165,7 @@ class DatasetsController < ApplicationController
 	  #   [org, miembros]
 	  # end.to_h.sort_by { |_, miembros| -miembros.size }.to_h
 	end
-	
+
 	def add_member_link
 	  member_a = Member.find_by(id: params[:source_member_id])
 	  member_b = Member.find_by(id: params[:target_member_id])
@@ -177,7 +177,6 @@ class DatasetsController < ApplicationController
 	    return redirect_to controller: :datasets, action: :state_members, code: state_code
 	  end
 
-	  # Evitar autovínculos
 	  if member_a.id == member_b.id
 	    flash[:error] = "No puedes crear un vínculo con el mismo miembro"
 	    return redirect_to controller: :datasets, action: :state_members, code: state_code
@@ -185,7 +184,37 @@ class DatasetsController < ApplicationController
 
 	  role_b = reciprocal_link_type(role_a)
 
-	  # Verifica si la relación ya existe en cualquier orden
+	  # Diccionario para traducir roles al femenino
+	  feminine_role_map = {
+		  "Padre" => "Madre",
+		  "Hijo" => "Hija",
+		  "Abuelo" => "Abuela",
+		  "Nieto" => "Nieta",
+		  "Tio" => "Tia",
+		  "Sobrino" => "Sobrina",
+		  "Padrino" => "Madrina",
+		  "Ahijado" => "Ahijada",
+		  "Abogado" => "Abogada",
+		  "Defendido" => "Defendida",
+		  "Jefe" => "Jefa",
+		  "Colaborador" => "Colaboradora",
+		  "Hermano" => "Hermana",
+		  "Compañero" => "Compañera",
+		  "Amigo" => "Amiga",
+		  "Primo" => "Prima",
+		  "Conyuge" => "Conyuge",
+		  "Pareja" => "Pareja",
+		  "Esposo" => "Esposa",
+		  "Socio" => "Socia",
+		  "Allegado" => "Allegada",
+		  "Compadre" => "Comadre",
+		  "Cuñado" => "Cuñada"
+	  }
+
+	  # Asignar versión femenina si corresponde, o dejar el rol original
+	  role_a_gender = member_a.gender == "FEMENINO" ? (feminine_role_map[role_a] || role_a) : role_a
+	  role_b_gender = member_b.gender == "FEMENINO" ? (feminine_role_map[role_b] || role_b) : role_b
+
 	  existe = MemberRelationship.exists?(
 	    member_a_id: member_a.id, member_b_id: member_b.id, role_a: role_a, role_b: role_b
 	  ) || MemberRelationship.exists?(
@@ -197,14 +226,15 @@ class DatasetsController < ApplicationController
 	      member_a: member_a,
 	      member_b: member_b,
 	      role_a: role_a,
-	      role_b: role_b
+	      role_b: role_b,
+	      role_a_gender: role_a_gender,
+	      role_b_gender: role_b_gender
 	    )
 	  end
 
 	  flash[:notice] = "Vínculo creado exitosamente"
 	  redirect_to controller: :datasets, action: :state_members, code: state_code
 	end
-
 
 	def update_name
 	  member = Member.find(params[:id])

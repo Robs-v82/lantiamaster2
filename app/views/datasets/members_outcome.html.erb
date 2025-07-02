@@ -354,13 +354,11 @@
                 <% if member.end_date? %>
                   a <%= member.end_date.strftime("%d/%m/%Y") %>
                 <% end %>
-              <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
-                , <%= member.organization.name %>
+              <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>- <%= member.organization.name %>
               <% end %>
             </td>
           </tr>
         <% else %>
-
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Organización:</th>
             <td><%= cartel&.name || "Sin definir" %></td>
@@ -465,7 +463,6 @@
                 </ul>     
               </td>
           <% else %>
-
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Organización:</th>
             <td><%= cartel&.name || "Sin definir" %></td>
@@ -489,11 +486,20 @@
               <% cartel_fuente_tipo = "aliada a" %>
             <% end %>
           <% end %>
-
           <% end %>
           </tr>
         <% end %>
-
+        <% if member.notes.any? %>
+          <tr>
+            <td colspan="2">
+              <% member.notes.each do |note| %>
+                <p>
+                  <%= note.story %>
+                </p>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
         <tr>
           <th style="vertical-align: top;">
             <span style="font-weight: bold;">Actividad/menciones:</span>
