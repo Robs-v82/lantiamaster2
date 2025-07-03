@@ -45,10 +45,10 @@ class DatasetsController < ApplicationController
 	  miembros = [
 	    "Operador", "Jefe regional u operador", "Extorsionador-narcomenudista", "Jefe de sicarios", "Sicario",
 	    "Jefe de plaza", "Jefe de célula", "Extorsionador", "Secuestrador", "Traficante o distribuidor",
-	    "Narcomenudista", "Sin definir", "Jefe operativo", "Jefe regional","Sin definir"
+	    "Narcomenudista", "Jefe operativo", "Jefe regional","Sin definir"
 	  ]
 
-	  licitos = ["Abogado", "Músico", "Servicios lícitos", "Periodista"]
+	  licitos = ["Abogado", "Músico", "Servicios lícitos", "Periodista", "Dirigente sindical", "Artista"]
 
 	  autoridades = ["Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad", "Policía", "Militar"]
 

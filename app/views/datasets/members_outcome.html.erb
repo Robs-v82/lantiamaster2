@@ -354,7 +354,9 @@
                 <% if member.end_date? %>
                   a <%= member.end_date.strftime("%d/%m/%Y") %>
                 <% end %>
-              <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>- <%= member.organization.name %>
+              <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
+              <br>
+              <%= member.role.name %>, <%= member.organization.name %>
               <% end %>
             </td>
           </tr>
