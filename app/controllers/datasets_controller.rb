@@ -359,7 +359,7 @@ class DatasetsController < ApplicationController
 		@all_officers = ["Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal", "Regidor"]
 		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
 		@state_officers = ["Gobernador", "Secretario de Seguridad"]
-		@other_organizations = ["Servicios lícitos", "Dirigente sindical"]
+		@other_organizations = ["Servicios lícitos", "Dirigente sindical", "Músico"]
 		@myQuery = if session[:query_id]
 			Query.find_by(id: session[:query_id])
 		else
