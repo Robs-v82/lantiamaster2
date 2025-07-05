@@ -55,11 +55,11 @@ class DatasetsController < ApplicationController
 	  return "Líder" if role_name == "Líder"
 	  return "Socio" if role_name == "Socio"
 	  return "Familiar/allegado" if role_name == "Familiar"
-	  return "Autoridad cooptada" if role_name == "Autoridad cooptada"
+	  return "Autoridad cooptada" if role_name == "Autoridad vinculada"
 	  return "Autoridad expuesta" if role_name == "Autoridad expuesta"
 
 	  if autoridades.include?(role_name)
-	    return involved ? "Autoridad cooptada" : "Autoridad expuesta"
+	    return involved ? "Autoridad vinculada" : "Autoridad expuesta"
 	  end
 
 	  return "Servicios lícitos" if licitos.include?(role_name)
