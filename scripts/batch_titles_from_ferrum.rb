@@ -45,6 +45,7 @@ browser = Ferrum::Browser.new(
   }
 )
 
+target_members = target_members.order(:id)
 target_members[-100..-1].each_with_index do |member, idx|
   puts "\n👤 [#{idx + 1}/#{target_members.size}] Buscando cédula de #{member.fullname}"
 
