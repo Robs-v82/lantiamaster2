@@ -9,6 +9,9 @@ def normalize_name(str)
   I18n.transliterate(str.to_s).downcase.strip
 end
 
+all_members = Member.order(:id)
+print "***ORDEN Y PROGRESO***" 
+
 candidates = Member.joins(:hits).distinct.select do |member|
   first = normalize_name(member.firstname)
   last1 = normalize_name(member.lastname1)
@@ -45,7 +48,6 @@ browser = Ferrum::Browser.new(
   }
 )
 
-target_members = target_members.order(:id)
 target_members[-100..-1].each_with_index do |member, idx|
   puts "\n👤 [#{idx + 1}/#{target_members.size}] Buscando cédula de #{member.fullname}"
 
