@@ -10,7 +10,6 @@ def normalize_name(str)
 end
 
 all_members = Member.order(:id)
-print "***ORDEN Y PROGRESO***" 
 
 candidates = Member.joins(:hits).distinct.select do |member|
   first = normalize_name(member.firstname)
@@ -47,6 +46,9 @@ browser = Ferrum::Browser.new(
     'mute-audio': nil
   }
 )
+
+target_members = target_members.sort_by(&:id)
+print "***ORDEN Y PROGRESO***" 
 
 target_members[-100..-1].each_with_index do |member, idx|
   puts "\n👤 [#{idx + 1}/#{target_members.size}] Buscando cédula de #{member.fullname}"
