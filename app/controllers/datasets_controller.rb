@@ -578,17 +578,34 @@ def upload_members
 		"Socio de un grupo criminal" => "Socio"
 	}
 
-	# 🔎 Función auxiliar para encontrar la organización
+	# 🔎 Función auxiliar refinada para encontrar la organización
 	def find_organization_by_name_or_alias(name)
-		return nil if name.blank?
-		normalized = name.to_s.strip.downcase
+	  return nil if name.blank?
+	  normalized = name.to_s.strip.downcase
 
-		Organization.find do |org|
-			org.name.to_s.downcase == normalized ||
-			org.acronym.to_s.downcase == normalized ||
-			Array(org.alias).map { |a| a.downcase.strip }.include?(normalized)
-		end
+	  # 1️⃣ Buscar coincidencia exacta por nombre
+	  exact_match = Organization.find_by("LOWER(name) = ?", normalized)
+	  return exact_match if exact_match
+
+	  # 2️⃣ Buscar coincidencia exacta por acrónimo
+	  acronym_match = Organization.find_by("LOWER(acronym) = ?", normalized)
+	  return acronym_match if acronym_match
+
+	  # 3️⃣ Buscar coincidencia exacta por alias
+	  alias_match = Organization.where.not(alias: nil).find do |org|
+	    Array(org.alias).map { |a| a.downcase.strip }.include?(normalized)
+	  end
+	  return alias_match if alias_match
+
+	  # 4️⃣ Coincidencia parcial si no se encontró por exactitud (último recurso)
+	  partial_match = Organization.find do |org|
+	    org.name.to_s.downcase.include?(normalized) ||
+	    org.acronym.to_s.downcase.include?(normalized) ||
+	    Array(org.alias).any? { |a| a.downcase.strip.include?(normalized) }
+	  end
+	  return partial_match
 	end
+
 
 	def corregir_nombres(fn, ln1, ln2)
 		if fn.to_s.strip.split.size == 1 && ln1.to_s.strip.split.size == 1 && ln2.to_s.strip.split.size == 2
