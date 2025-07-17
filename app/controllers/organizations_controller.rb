@@ -955,33 +955,54 @@ class OrganizationsController < ApplicationController
               towns = []
               townArr = x[2].split(";")
               townArr.each{|townName|
-                unless County.where(:full_code=>countyString).last.towns.where(:name=>townName).empty?
-                  thisTown = County.where(:full_code=>countyString).last.towns.where(:name=>townName).last.full_code
-                  towns.push(thisTown)
+                unless County.where(:full_code=>countyString).empty?
+                  unless County.where(:full_code=>countyString).last.towns.where(:name=>townName).empty?
+                    thisTown = County.where(:full_code=>countyString).last.towns.where(:name=>townName).last.full_code
+                    towns.push(thisTown)
+                  else
+                    towns.push(countyString+"0000")
+                  end
                 else
-                  towns.push(countyString+"0000")
+                  state_code = countyString[0..1]
+                  towns.push("#{state_code}0000000")
                 end
                 towns = towns.uniq
               }
             else
               towns = [countyString+"0000"]
             end
-            towns.each{|town|
-              myTown = Town.where(:full_code=>town).last.id
-              # ADD EVENT AND SOURCES
-              Event.create(:organization_id=>myOrganization, :town_id=>myTown, :event_date=>x[9], :month_id=>myMonth)
-              (10..14).each{|y|
-                Source.create(:url=>x[y])
-                mySource = Source.last
-                unless Event.last.sources.include? (mySource)
-                  Event.last.sources << mySource
-                end
-              }
 
-              # ADD LEAD
-              myEvent = Event.last.id
-              Lead.create(:legacy_id=>x[0], :category=>x[8], :event_id=>myEvent)  
-            }
+towns.each do |town|
+  town_record = Town.where(full_code: town).last
+
+  unless town_record
+    state_code = town[0..1]  # Extrae el código del estado desde el town code original
+    fallback_code = "#{state_code}0000000"
+    town_record = Town.find_by(full_code: fallback_code)
+  end
+
+  next unless town_record  # Evita errores si aún así no se encuentra
+
+  # ADD EVENT AND SOURCES
+  Event.create(
+    organization_id: myOrganization,
+    town_id: town_record.id,
+    event_date: x[9],
+    month_id: myMonth
+  )
+
+  (10..14).each do |y|
+    Source.create(url: x[y])
+    mySource = Source.last
+    unless Event.last.sources.include?(mySource)
+      Event.last.sources << mySource
+    end
+  end
+
+  # ADD LEAD
+  myEvent = Event.last.id
+  Lead.create(legacy_id: x[0], category: x[8], event_id: myEvent)
+end
             
             # ADD MEMBERS
              unless Organization.where(:name=>x[3]).empty?
@@ -1012,52 +1033,54 @@ class OrganizationsController < ApplicationController
   end
 
   def load_organization_territory
-
     myFile = load_organization_events_params[:file]
     table = CSV.parse(File.read(myFile))
 
-    table.each{|x|
-      x = x.collect{ |e| e ? e.strip : e }
-      unless x[2].nil?
-        unless Organization.where(:name=>x[2]).empty?
-          targetOrganization = Organization.where(:name=>x[2]).last
-          towns = []
-          countyString = x[0].to_i
-          countyString = countyString + 100000
-          countyString = countyString.to_s
-          countyString = countyString[1..-1]
-          if County.where(:full_code=>countyString).last != nil
-            pseudoTown = Town.where(:full_code=>countyString+"0000").last
-          else
-            pseudoString = countyString[0,2]+"0000000"
-            pseudoTown = Town.where(:full_code=>pseudoString).last
-          end
-          towns.push(pseudoTown)
-          unless x[1].nil?
-            x[1].split(";").each{|town|
-              unless County.where(:full_code=>countyString).last.towns.where(:name=>town)
-                myTown = County.where(:full_code=>x[0]).last.towns.where(:name=>town).last
-                towns.push(myTown)
-              end
-            }
-          end
+    table.each do |x|
+      x = x.map { |e| e ? e.strip : e }
 
-          towns.each{|town|
-            if targetOrganization.towns.where(:full_code=>town.full_code).empty?
-              targetOrganization.towns << town
-            end
-          }
-        end 
+      next if x[2].nil?
+      targetOrganization = Organization.find_by(name: x[2])
+      next if targetOrganization.nil?
+
+      towns = []
+      county_code = x[0].to_i + 100_000
+      county_code_str = county_code.to_s[1..-1]  # ejemplo: "02007"
+
+      county = County.find_by(full_code: county_code_str)
+
+      # Definir pseudoTown de respaldo (e.g., "020000000" para Baja California)
+      fallback_town_code = "#{county_code_str[0..1]}0000000"
+      fallback_town = Town.find_by(full_code: fallback_town_code)
+
+      if county
+        pseudo_town = Town.find_by(full_code: "#{county_code_str}0000") || fallback_town
+      else
+        pseudo_town = fallback_town
       end
-    }
 
-    myFile = load_organization_territory_params[:file]
-    table = CSV.parse(File.read(myFile))
+      towns << pseudo_town if pseudo_town.present?
 
+      # Procesar los nombres de towns (columna x[1])
+      unless x[1].nil?
+        x[1].split(";").each do |town_name|
+          town_name = town_name.strip
+          town = county&.towns&.find_by(name: town_name) || fallback_town
+          towns << town if town.present? && !towns.include?(town)
+        end
+      end
+
+      # Asociar towns a la organización si no existen ya
+      towns.each do |town|
+        if town && targetOrganization.towns.where(full_code: town.full_code).blank?
+          targetOrganization.towns << town
+        end
+      end
+    end
 
     session[:filename] = load_organization_territory_params[:file].original_filename
     session[:load_success] = true
-    redirect_to "/states/conflict_analysis"   
+    redirect_to "/states/conflict_analysis"
   end
 
   def new_name
