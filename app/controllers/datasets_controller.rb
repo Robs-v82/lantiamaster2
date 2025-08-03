@@ -616,14 +616,20 @@ def upload_members
 		[fn, ln1, ln2] # si no aplica la heurística, devolver tal cual
 	end
 
+	def normalize_caps(text)
+	  return text if text.blank?
+	  es_mayusculas = text == text.upcase && text.match?(/[A-ZÁÉÍÓÚÑ]/)
+	  es_mayusculas ? text.split.map(&:capitalize).join(' ') : text
+	end
+
 	CSV.foreach(myFile, headers: true, encoding: "bom|utf-8") do |row|
 		role = row["role"]&.strip
 		role = reemplazos_roles[role] || role
 
 		next unless roles_permitidos.include?(role)
-		original_fn  = row["firstname"]&.strip
-		original_ln1 = row["lastname1"]&.strip
-		original_ln2 = row["lastname2"]&.strip
+		original_fn  = normalize_caps(row["firstname"]&.strip)
+		original_ln1 = normalize_caps(row["lastname1"]&.strip)
+		original_ln2 = normalize_caps(row["lastname2"]&.strip)
 		firstname, lastname1, lastname2 = corregir_nombres(original_fn, original_ln1, original_ln2)
 		org_name   = row["organization"]&.strip
 		legacy_id = row["legacy_id"]&.strip
@@ -791,7 +797,44 @@ def upload_members
 		  end
 		end
 
-		    myMember.hits << myHit
+		# 🆕 Lógica especial para Regidores: asignar org y vínculo con el alcalde
+		if role == "Regidor" && myHit.present?
+		  hit_date = myHit.date
+			county_id = myHit.town&.county_id
+
+		  if county_id
+		    # Buscar organizaciones activas en el mismo county
+		    county_organizations = Organization.where(county_id: county_id).pluck(:id)
+
+		    # Buscar alcaldes involucrados activos en la fecha del hit
+		    alcalde_role = Role.find_by(name: "Alcalde")
+		    alcalde = Member.where(
+		      organization_id: county_organizations,
+		      role_id: alcalde_role&.id,
+		      involved: true
+		    ).where("start_date <= ? AND (end_date IS NULL OR end_date >= ?)", hit_date, hit_date).first
+
+		    if alcalde.present?
+		      # Reasignar organización y vínculo criminal al regidor
+		      myMember.update!(
+		        organization_id: alcalde.organization_id,
+		        criminal_link_id: alcalde.criminal_link_id
+		      )
+
+		      # Crear vínculo jerárquico: alcalde -> regidor
+		      MemberRelationship.create!(
+		        member_a_id: alcalde.id,
+		        member_b_id: myMember.id,
+		        role_a: "Jefe",
+		        role_b: "Colaborador",
+		        role_a_gender: alcalde.gender == "FEMENINO" ? "Jefa" : "Jefe",
+		        role_b_gender: myMember.gender == "FEMENINO" ? "Colaboradora" : "Colaborador"
+		      )
+		    end
+		  end
+		end
+
+		myMember.hits << myHit
 
 			if row["detention"].to_s.strip == "1" && myHit.present?
 				hit_date = myHit.date
