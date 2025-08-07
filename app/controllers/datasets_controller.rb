@@ -298,6 +298,19 @@ class DatasetsController < ApplicationController
 	def members_query
 	  query_params = members_query_params
 
+	  # ⚠️ Validación obligatoria de campos
+	  required_fields = %w[firstname lastname1 lastname2]
+	  campos_invalidos = required_fields.any? do |campo|
+	    query_params[campo].blank? || query_params[campo].strip.length < 2
+	  end
+
+	  if campos_invalidos
+	    Rails.logger.warn "Intento de consulta incompleta desde #{request.remote_ip}. Params: #{query_params.inspect}"
+	    flash[:error] = "Debes completar los tres campos del formulario para realizar una búsqueda."
+	    redirect_to action: :members_search and return
+	  end
+
+	  # ✏️ Normalización para comparación
 	  input_firstname = I18n.transliterate(query_params[:firstname].to_s.strip.downcase)
 	  input_lastname1 = I18n.transliterate(query_params[:lastname1].to_s.strip.downcase)
 	  input_lastname2 = I18n.transliterate(query_params[:lastname2].to_s.strip.downcase)

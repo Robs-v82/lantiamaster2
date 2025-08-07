@@ -82,6 +82,25 @@
     });
   });
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form[action="/datasets/members_query"]');
+
+    if (form) {
+      form.addEventListener('keydown', function (event) {
+        if (event.key === "Enter") {
+          // Verifica si el botón está visible antes de permitir enviar
+          const sendButton = form.querySelector('button[type="submit"], input[type="submit"], .sendmagicbutton');
+          const visible = sendButton && sendButton.offsetParent !== null;
+
+          if (!visible) {
+            event.preventDefault();
+          }
+        }
+      });
+    }
+  });
+</script>
 
 <script>
   window.nameFrequencies = <%= raw @names_data.to_json %>;
