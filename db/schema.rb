@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_07_02_221121) do
+ActiveRecord::Schema.define(version: 2025_08_07_215459) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -483,7 +483,9 @@ ActiveRecord::Schema.define(version: 2025_07_02_221121) do
     t.date "designation_date"
     t.boolean "search_panel", default: false, null: false
     t.integer "search_level"
+    t.bigint "criminal_link_id"
     t.index ["county_id"], name: "index_organizations_on_county_id"
+    t.index ["criminal_link_id"], name: "index_organizations_on_criminal_link_id"
   end
 
   create_table "organizations_towns", force: :cascade do |t|
@@ -749,6 +751,7 @@ ActiveRecord::Schema.define(version: 2025_07_02_221121) do
   add_foreign_key "organizations", "counties"
   add_foreign_key "organizations", "leagues", column: "mainleague_id"
   add_foreign_key "organizations", "leagues", column: "subleague_id"
+  add_foreign_key "organizations", "organizations", column: "criminal_link_id"
   add_foreign_key "organizations", "organizations", column: "parent_id"
   add_foreign_key "posts", "accounts"
   add_foreign_key "quarters", "years"

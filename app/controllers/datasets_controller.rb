@@ -48,7 +48,7 @@ class DatasetsController < ApplicationController
 	    "Narcomenudista", "Jefe operativo", "Jefe regional","Sin definir"
 	  ]
 
-	  licitos = ["Abogado", "Músico", "Servicios lícitos", "Periodista", "Dirigente sindical", "Artista"]
+	  licitos = ["Abogado", "Músico", "Manager", "Servicios lícitos", "Periodista", "Dirigente sindical", "Artista"]
 
 	  autoridades = ["Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad", "Policía", "Militar"]
 
@@ -120,7 +120,7 @@ class DatasetsController < ApplicationController
 
 
 	def state_members
-	  @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical"]
+	  @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical","Artista","Músico","Manager"]
 
 	  state = State.find_by(code: params[:code])
 	  hits = Hit.joins(town: { county: :state }).where(states: { id: state.id })
@@ -556,7 +556,49 @@ def terrorist_panel
     { caption: "Notas/links", myAction: "/datasets/upload_hits", timeSearch: nil, myObject: "file", loaded: nil, fileWindow: true },
     { caption: "Personas", myAction: "/datasets/upload_members", timeSearch: nil, myObject: "file", loaded: nil, fileWindow: true }
   ]
+
+  # 🔽 Carteles para el select (criminal_link), ordenados por nombre
+  cartels = Sector.where(scian2: 98).last&.organizations&.uniq || []
+  @cartels = cartels.sort_by { |cartel| cartel.name.to_s }
 end
+
+def upload_linked_organization
+  org_params = params.require(:organization).permit(:name, :criminal_link_id)
+
+  name = org_params[:name].to_s.strip
+  cartel_id = org_params[:criminal_link_id].presence
+
+  if name.blank? || cartel_id.blank?
+    flash[:error] = "Debes ingresar el nombre y seleccionar un cártel."
+    return redirect_to action: :terrorist_panel
+  end
+
+  cartel = Organization.find_by(id: cartel_id)
+  unless cartel
+    Rails.logger.warn "upload_linked_organization: cartel inexistente (id=#{cartel_id})"
+    flash[:error] = "El cártel seleccionado no existe."
+    return redirect_to action: :terrorist_panel
+  end
+
+  # Busca por nombre (case-insensitive) y crea si no existe
+  org = Organization.where('LOWER(name) = ?', name.downcase).first_or_initialize
+  org.name = name if org.new_record?
+  org.criminal_link = cartel
+
+  if org.save
+    flash[:notice] = "Organización “#{org.name}” guardada. criminal_link: “#{cartel.name}”."
+  else
+    Rails.logger.error "upload_linked_organization error: #{org.errors.full_messages.join(', ')}"
+    flash[:error] = "No se pudo guardar la organización: #{org.errors.full_messages.to_sentence}"
+  end
+
+  redirect_to action: :terrorist_panel
+rescue => e
+  Rails.logger.error "upload_linked_organization exception: #{e.class} - #{e.message}"
+  flash[:error] = "Ocurrió un error al guardar la organización."
+  redirect_to action: :terrorist_panel
+end
+
 
 def upload_members
 	myFile = load_members_params[:file]
@@ -574,6 +616,9 @@ def upload_members
 	  "Militar",
 	  "Abogado",
 	  "Periodista",
+	  "Músico",
+	  "Manager",
+	  "Artista",
 	  "Servicios lícitos"
 	]
 
@@ -791,6 +836,9 @@ def upload_members
 		                      nil
 		                    end
 
+		# Si la organización ya tiene criminal_link, úsalo para el nuevo miembro
+		org_criminal_link_id = myOrganization&.criminal_link_id
+
 		# Crear el nuevo miembro con género estimado (si existe)
 		myMember = Member.create!(
 		  firstname: firstname,
@@ -800,7 +848,8 @@ def upload_members
 		  alias: alias_array,
 		  role: rol,
 		  involved: valor_involved,
-		  gender: assignable_gender
+		  gender: assignable_gender,
+		  criminal_link_id: org_criminal_link_id
 		)
 
 		# Agregar el nombre al archivo si no existía

@@ -17,8 +17,8 @@ class Organization < ApplicationRecord
 	belongs_to :county, optional: true
 	belongs_to :thissubleague, class_name: "League", optional: true, foreign_key: "subleague_id"
 	belongs_to :mainleague, class_name: "League", optional: true, foreign_key: "mainleague_id"
-
 	belongs_to :member, optional: true
+	belongs_to :criminal_link, class_name: "Organization", optional: true
 
 	has_many :subordinates, class_name: "Organization", foreign_key: "parent_id"
 	belongs_to :parent, class_name: "Organization", optional: true

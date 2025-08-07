@@ -48,6 +48,47 @@
 		</div>
 	<% end %>
 
+	<!-- === FORMULARIO: ORGANIZACIONES === -->
+	<div class="col l6 m8 s12">
+	  <div class="card cyan darken-1">
+	    <div class="card-content white-text">
+	      <form action="/datasets/upload_linked_organization" method="post">
+	        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+	        <div class="row">
+	          <div class="col s11 left">
+	            <span class="card-title">Organizaciones lícitas</span>
+	          </div>
+	        </div>
+
+	        <div class="row">
+	          <div class="input-field col s12">
+	            <input id="org_name" name="organization[name]" type="text" class="white" autocomplete="off" required>
+	            <label for="org_name" class="black-text">Nombre de la nueva organización</label>
+	          </div>
+	        </div>
+
+	        <div class="row">
+	          <div class="input-field col s12">
+	            <select id="org_criminal_link" name="organization[criminal_link_id]" class="browser-default" required>
+	              <option value="" disabled selected>Selecciona el cártel (criminal_link)</option>
+	              <% @cartels.each do |cartel| %>
+	                <option value="<%= cartel.id %>"><%= cartel.name %></option>
+	              <% end %>
+	            </select>
+	            <small style="opacity: 0.9;">Listado ordenado alfabéticamente</small>
+	          </div>
+	        </div>
+
+	        <div class="card-action">
+	          <button type="submit" class="btn waves-effect waves-light">Guardar organización</button>
+	        </div>
+	      </form>
+	    </div>
+	  </div>
+	</div>
+
+
 	<div class="col l6 m8 s12">
 	  <div class="card cyan darken-1">
 	    <div class="card-content white-text center-align">

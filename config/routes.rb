@@ -149,5 +149,5 @@ Rails.application.routes.draw do
     post '/datasets/add_member_link', to: 'datasets#add_member_link', as: :add_member_link
     post '/datasets/:member_id/fake_identities', to: 'datasets#create_fake_identity'
     post '/notes/:member_id/notes', to: 'notes#create', as: 'create_member_note'
-
+    post '/datasets/upload_linked_organization', to: 'datasets#upload_linked_organization'
 end
