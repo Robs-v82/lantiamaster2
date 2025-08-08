@@ -206,6 +206,16 @@
                             {}, 
                             class: "browser-default" %>
                     </div>
+                    <div class="input-field col m2 s3">
+                      <%= f.label :involved, "Estatus", class: "active" %>
+                      <%= f.select :involved, 
+                            options_for_select([
+                              ["SEÑALADO", "true"], 
+                              ["EXPUESTO", "false"], 
+                            ], selected: member.involved), 
+                            {}, 
+                            class: "browser-default" %>
+                    </div>
 
                     <div class="input-field col m2 s3">
                       <%= f.label :role_id, "Rol", class: "active"  %>

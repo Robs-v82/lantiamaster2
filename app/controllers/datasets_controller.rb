@@ -241,7 +241,7 @@ class DatasetsController < ApplicationController
 	  nombre = member.firstname.strip
 	  nuevo_genero = params[:member][:gender]&.strip&.capitalize
 
-	  if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :gender))
+	  if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender))
 	    
 	    # Ruta al archivo CSV
 
