@@ -479,8 +479,8 @@ class StatesController < ApplicationController
         downloadCounter = recipient.downloads
         downloadCounter += 1
         recipient.update(:downloads=>downloadCounter)
-        # myCookie = Cookie.where(:category=>"icon").last
-        myCookie = Cookie.joins(:quarter).where(category: "icon", quarters: { name: "2024_Q4" }).last
+        myCookie = Cookie.where(:category=>"icon").last
+        # myCookie = Cookie.joins(:quarter).where(category: "icon", quarters: { name: "2024_Q4" }).last
         q = Quarter.find(myCookie[:quarter_id]).name
         file_name = "ICON_"+q+"_.csv"
         @icon_table = myCookie.data
