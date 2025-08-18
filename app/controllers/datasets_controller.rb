@@ -50,7 +50,7 @@ class DatasetsController < ApplicationController
 
 	  licitos = ["Abogado", "Músico", "Manager", "Servicios lícitos", "Periodista", "Dirigente sindical", "Artista"]
 
-	  autoridades = ["Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad", "Policía", "Militar"]
+	  autoridades = ["Autoridad cooptada", "Autoridad expuesta", "Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad", "Policía", "Militar"]
 
 	  return "Líder" if role_name == "Líder"
 	  return "Socio" if role_name == "Socio"
