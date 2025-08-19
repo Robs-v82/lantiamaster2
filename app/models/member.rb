@@ -17,6 +17,11 @@ class Member < ApplicationRecord
 	has_many :related_as_b, through: :relationships_as_b, source: :member_a
 	has_many :fake_identities, dependent: :destroy
 	has_many :titles, dependent: :destroy
+	has_many :appointments, dependent: :destroy
+	# Conveniencia para “nombramientos vigentes hoy”
+	def current_appointments(date: Date.current)
+	appointments.at(date).includes(:role, :organization, :county)
+	end
 
 	def all_relationships
 	MemberRelationship.where("member_a_id = ? OR member_b_id = ?", id, id)

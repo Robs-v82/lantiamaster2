@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_08_07_215459) do
+ActiveRecord::Schema.define(version: 2025_08_18_175724) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "btree_gist"
   enable_extension "plpgsql"
 
   create_table "accounts", force: :cascade do |t|
@@ -42,6 +43,24 @@ ActiveRecord::Schema.define(version: 2025_08_07_215459) do
     t.string "checksum", null: false
     t.datetime "created_at", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "appointments", force: :cascade do |t|
+    t.bigint "member_id", null: false
+    t.bigint "role_id", null: false
+    t.bigint "organization_id"
+    t.bigint "county_id"
+    t.daterange "period", null: false
+    t.integer "start_precision", default: 0, null: false
+    t.integer "end_precision", default: 0, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index "member_id, role_id, COALESCE(organization_id, (0)::bigint), COALESCE(county_id, (0)::bigint), period", name: "appointments_no_overlap", using: :gist
+    t.index ["county_id"], name: "index_appointments_on_county_id"
+    t.index ["member_id"], name: "index_appointments_on_member_id"
+    t.index ["organization_id"], name: "index_appointments_on_organization_id"
+    t.index ["period"], name: "index_appointments_on_period", using: :gist
+    t.index ["role_id"], name: "index_appointments_on_role_id"
   end
 
   create_table "arrests", force: :cascade do |t|
@@ -713,6 +732,10 @@ ActiveRecord::Schema.define(version: 2025_08_07_215459) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "appointments", "counties"
+  add_foreign_key "appointments", "members"
+  add_foreign_key "appointments", "organizations"
+  add_foreign_key "appointments", "roles"
   add_foreign_key "arrests", "events"
   add_foreign_key "cities", "counties"
   add_foreign_key "cities", "counties", column: "core_county_id"
