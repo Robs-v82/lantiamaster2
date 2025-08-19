@@ -369,7 +369,7 @@ class DatasetsController < ApplicationController
 	end
 
 	def members_outcome
-		@all_officers = ["Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal", "Regidor"]
+		@all_officers = ["Legislador", "Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal", "Regidor"]
 		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
 		@state_officers = ["Gobernador", "Secretario de Seguridad"]
 		@other_organizations = ["Servicios lícitos", "Dirigente sindical", "Músico"]
@@ -379,7 +379,9 @@ class DatasetsController < ApplicationController
 			User.find(session[:user_id]).queries.last
 		end
 		@user = User.find(session[:user_id])
-		@keyMembers = Member.where(id: @myQuery.outcome)
+		@keyMembers = Member
+		  .where(id: @myQuery.outcome)
+		  .includes(appointments: [:organization, :role]) # 👈 precarga citas, org y rol
 		@keyRolegroups = []
 		@keyMembers.each {|member|
 			memberGroup = clasificar_rol(member)

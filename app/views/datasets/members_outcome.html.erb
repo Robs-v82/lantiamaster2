@@ -502,6 +502,35 @@
             </td>
           </tr>
         <% end %>
+
+<%# === Nombramientos / Cargos (appointments) === %>
+<% appts = member.appointments.to_a %>
+<% appts_dedup = dedup_appointments_for_view(appts) %>
+<% if appts_dedup.any? %>
+  <tr style="border-top: 2px solid #33333C;">
+    <th style="font-weight: bold;">Nombramientos / Cargos:</th>
+    <td>
+      <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
+        <% appts_dedup
+             .sort_by { |(_a, s, e)| [s || Date.new(1,1,1), e || Date.new(9999,12,31)] }
+             .each do |appt, s, e| %>
+          <li style="margin-bottom: 6px;">
+            <%= appt.role&.name || "Cargo" %>
+            <% if appt.organization.present? %>
+              , <%= appt.organization.name %>
+            <% end %>
+            <% if s.present? || e.present? %>
+              <br>
+              <%= appt_span_label(s, e) %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </td>
+  </tr>
+<% end %>
+
+
         <tr>
           <th style="vertical-align: top;">
             <span style="font-weight: bold;">Actividad/menciones:</span>
