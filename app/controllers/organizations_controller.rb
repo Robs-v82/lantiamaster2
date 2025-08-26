@@ -41,7 +41,7 @@ class OrganizationsController < ApplicationController
         session[:empty_query] = true
       end
       helpers.clear_session
-      cartels = Sector.where(:scian2=>98).last.organizations.uniq
+      cartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
       cartels = cartels.sort_by{|cartel| cartel.name}
       coalitionKeys = helpers.coalitionKeys
       typeKeys = cartels.pluck(:mainleague_id).uniq
@@ -108,7 +108,7 @@ class OrganizationsController < ApplicationController
       State.where(:code=>"29").last.id,
       State.where(:code=>"31").last.id,
     ]
-    allCartels = Sector.where(:scian2=>98).last.organizations.uniq
+    allCartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
 
       @checkedTypes = []
       session[:organization_selection][0].each{|key|
@@ -445,14 +445,14 @@ class OrganizationsController < ApplicationController
       @organizations = true
       if session[:organization_selection].nil?
         helpers.clear_session
-        cartels = Sector.where(:scian2=>98).last.organizations.uniq
+        cartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
         cartels = cartels.sort_by{|cartel| cartel.name}
         coalitionKeys = helpers.coalitionKeys
         typeKeys = cartels.pluck(:mainleague_id).uniq
         session[:organization_selection] = [typeKeys, coalitionKeys]
       end
       # REPEATED STUFF FOR FILTER-BOX
-      allCartels = Sector.where(:scian2=>98).last.organizations.uniq
+      allCartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
       @states = State.all.sort
       if session[:checkedStates]
         @checkedStates = Cookie.find(session[:checkedStates]).data
@@ -532,7 +532,7 @@ class OrganizationsController < ApplicationController
       # HEADER
       @headerTitle = @myOrganization.name
 
-      @cartels = Sector.where(:scian2=>98).last.organizations.uniq
+      @cartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
       @cartels = @cartels.sort_by{|cartel| cartel.name}
 
       @aliasSections = []
@@ -764,7 +764,7 @@ class OrganizationsController < ApplicationController
   end
 
   def get_cartels
-    myCartels = Sector.where(:scian2=>98).last.organizations.uniq
+    myCartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
     matches = myCartels.select{|cartel| helpers.bob_decode(cartel.name).downcase.include? helpers.bob_decode(params[:myString]).downcase}    
     if matches.count >= 1 && matches.count <= 10 
       render json: matches
@@ -892,7 +892,7 @@ class OrganizationsController < ApplicationController
       end 
     }
 
-    cartels = Sector.where(:scian2=>98).last.organizations.uniq
+    cartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
 
     cartels.each{|cartel|
       unless cartel.league.nil?
