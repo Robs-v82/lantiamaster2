@@ -772,6 +772,12 @@ class OrganizationsController < ApplicationController
   end
 
   def load_organizations
+   
+    banned = [
+      "Cártel Zicuirán Nueva Generación",
+      "Migueladas"
+    ]
+
     divisions = [
       {:slot=>11,:scian3=>981,:name=>"Narcotráfico"},
       {:slot=>12,:scian3=>982,:name=>"Narcomenudeo"},
@@ -809,6 +815,12 @@ class OrganizationsController < ApplicationController
      
     table.each{|x|
       x = x.collect{ |e| e ? e.strip : e }
+      
+      org_name = x[0].strip
+
+      # OMITIR ORGANIZACIONES BANEADAS
+      next if banned.include?(org_name)
+
       targetOrganization = Organization.where(:name=>x[0]).last
     
       # UPDATE GENERAL INFO
