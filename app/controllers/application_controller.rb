@@ -52,6 +52,18 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
+	def sync_membership_session
+	  return unless current_user
+	  plan_id = current_user.current_plan_id
+	  active  = current_user.membership_active?
+	  session[:membership] = (active && plan_id) ? plan_id.to_i : 1
+
+	  # Opcional: reflejar en DB cuando expire
+	  if !active && current_user.membership_type != 1
+	    current_user.update_columns(membership_type: 1, updated_at: Time.current)
+	  end
+	end
+
 	# def require_login
 	# 	redirect_to "/password" if session[:user_id] == nil
 	# end
