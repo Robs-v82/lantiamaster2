@@ -17,4 +17,18 @@ class User < ApplicationRecord
 	belongs_to :member, optional: true
 	has_many :keys
 	has_many :queries
+
+	def membership_active?
+	  Access::MembershipGate.active?(self)
+	end
+
+	def current_plan_id
+	  Access::MembershipGate.current_plan_id(self)
+	end
+
+	def current_membership_expiration
+	  Access::MembershipGate.current_expiration(self)
+	end	
 end
+
+
