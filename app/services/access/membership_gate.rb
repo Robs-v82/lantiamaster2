@@ -1,21 +1,27 @@
-# app/services/access/membership_gate.rb
 class Access::MembershipGate
   TZ = "America/Mexico_City"
 
   def self.active?(user)
-    exp = current_expiration(user)
-    exp && exp > Time.use_zone(TZ) { Time.zone.now }
+    !!active_subscription(user)
   end
 
   def self.current_plan_id(user)
-    row = LrvlMembershipExpiration.where(user_id: user.id, expirated: false)
-                                  .order(expiration: :desc).first
-    row&.membership_id
+    active_subscription(user)&.plan&.level
   end
 
   def self.current_expiration(user)
-    row = LrvlMembershipExpiration.where(user_id: user.id, expirated: false)
-                                  .order(expiration: :desc).first
-    row&.expiration&.in_time_zone(TZ)
+    active_subscription(user)&.current_period_end&.in_time_zone(TZ)
+  end
+
+  def self.now_mx
+    Time.use_zone(TZ) { Time.zone.now }
+  end
+
+  def self.active_subscription(user)
+    Subscription.includes(:plan)
+      .where(user_id: user.id, status: "active")
+      .where("current_period_end > ?", now_mx)
+      .order(current_period_end: :desc)
+      .first
   end
 end
