@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_08_18_175724) do
+ActiveRecord::Schema.define(version: 2025_09_02_184058) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -514,6 +514,15 @@ ActiveRecord::Schema.define(version: 2025_08_18_175724) do
     t.index ["town_id"], name: "index_organizations_towns_on_town_id"
   end
 
+  create_table "plans", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "level", null: false
+    t.integer "duration_days", default: 30, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["level"], name: "index_plans_on_level", unique: true
+  end
+
   create_table "posts", force: :cascade do |t|
     t.datetime "publication"
     t.string "content"
@@ -593,6 +602,18 @@ ActiveRecord::Schema.define(version: 2025_08_18_175724) do
     t.text "ensu_cities"
     t.text "comparison"
     t.integer "capital_id"
+  end
+
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "plan_id", null: false
+    t.datetime "current_period_end", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["plan_id"], name: "index_subscriptions_on_plan_id"
+    t.index ["user_id", "status"], name: "index_subscriptions_on_user_id_and_status"
+    t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
   create_table "titles", force: :cascade do |t|
@@ -783,6 +804,8 @@ ActiveRecord::Schema.define(version: 2025_08_18_175724) do
   add_foreign_key "queries", "users"
   add_foreign_key "sources", "members"
   add_foreign_key "states", "counties", column: "capital_id"
+  add_foreign_key "subscriptions", "plans"
+  add_foreign_key "subscriptions", "users"
   add_foreign_key "titles", "members"
   add_foreign_key "titles", "organizations"
   add_foreign_key "titles", "years"
