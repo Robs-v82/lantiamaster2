@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_02_184058) do
+ActiveRecord::Schema.define(version: 2025_09_03_190809) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -680,7 +680,10 @@ ActiveRecord::Schema.define(version: 2025_09_02_184058) do
     t.boolean "detention_access", default: true
     t.boolean "irco_access", default: true
     t.boolean "icon_access", default: true
+    t.string "reset_password_token_digest"
+    t.datetime "reset_password_sent_at"
     t.index ["member_id"], name: "index_users_on_member_id"
+    t.index ["reset_password_token_digest"], name: "index_users_on_reset_password_token_digest", unique: true
   end
 
   create_table "victims", force: :cascade do |t|

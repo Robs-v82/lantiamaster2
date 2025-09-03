@@ -150,5 +150,5 @@ Rails.application.routes.draw do
     post '/datasets/:member_id/fake_identities', to: 'datasets#create_fake_identity'
     post '/notes/:member_id/notes', to: 'notes#create', as: 'create_member_note'
     post '/datasets/upload_linked_organization', to: 'datasets#upload_linked_organization'
-    get "/session_probe", to: "probes#session_probe"
+    # get "/session_probe", to: "probes#session_probe"
 end
