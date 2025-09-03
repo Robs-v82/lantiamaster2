@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
 
 # ERROR CON BCRYPT! Valladares/Users/Bobsled/.rvm/gems/ruby-2.7.1/gems/bcrypt-3.1.13/lib/bcrypt/password.rb:50: warning: deprecated Object#=~ is called on Integer; it always returns nil Completed 500 Internal Server Error in 76ms (ActiveRecord: 3.2ms | Allocations: 9495) BCrypt::Errors::InvalidHash (invalid hash):
-
+	before_action :enforce_session_timeout
 	before_action :allow_iframe
 	before_action :require_login, except: [:frontpage, :password, :login, :states_and_counties_api, :year_victims_api, :state_victims, :state_victims_api, :county_victims, :county_victims_api, :county_victims_map_api, :county_victims_map, :year_victims, :featured_state_api, :featured_county_api]
 	before_action :set_variables
@@ -228,10 +228,23 @@ class ApplicationController < ActionController::Base
   		session[:params] = nil
 	end
 
+	SESSION_TIMEOUT = 60.minutes
+	
 	protected
 
 		def myResouces
 			@myResouces = ["CAPTURA","CONSULTA"]
+		end
+		
+		def enforce_session_timeout
+			now  = Time.current.to_i
+			last = session[:last_seen_at]
+
+			if last && (now - last) > SESSION_TIMEOUT.to_i
+			reset_session
+			# redirect_to '/login', alert: 'Sesión expirada'  # si quieres redirigir
+			end
+			session[:last_seen_at] = now
 		end
 
 end
