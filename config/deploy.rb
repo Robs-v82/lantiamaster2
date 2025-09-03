@@ -29,6 +29,9 @@ set :linked_files, fetch(:linked_files, []).push(
   'public/AvisoDePrivacidad.pdf'
 )
 
+# Conserva los credentials cifrados y su key en el servidor (no en Git)
+append :linked_files, "config/credentials/production.yml.enc", "config/credentials/production.key"
+
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
 
