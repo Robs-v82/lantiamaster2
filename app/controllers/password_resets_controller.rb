@@ -1,24 +1,17 @@
-class PasswordResetsController < ApplicationController
-  # No exigir login aquí
-  skip_before_action :authenticate_user!, raise: false
-  # Evitar redirecciones o filtros personalizados de tu app:
-  skip_before_action :redirect_to_frontpage, raise: false
-  # Simplificar CSRF para este flujo inicial (lo afinamos luego):
-  skip_before_action :verify_authenticity_token, only: [:create, :update], raise: false
+class PasswordResetsController < ActionController::Base
+  protect_from_forgery with: :null_session
 
-  # POST /password_resets
-  # params: email
+  # POST /password_resets   params: email
   def create
     user = User.find_by(mail: params[:email])
     if user
       token = user.generate_password_reset!
       if Rails.env.production?
-        head :no_content # En prod no revelamos el token (se enviará por email en el siguiente paso)
+        head :no_content
       else
         render json: { token: token, email: user.mail }
       end
     else
-      # Para no filtrar existencia de cuentas
       head :no_content
     end
   end
@@ -33,8 +26,7 @@ class PasswordResetsController < ApplicationController
     end
   end
 
-  # PATCH /password_resets/:token?email=...
-  # params: password, password_confirmation
+  # PATCH /password_resets/:token?email=...  params: password, password_confirmation
   def update
     user = User.find_by(mail: params[:email])
     unless user&.valid_password_reset_token?(params[:token])
@@ -46,7 +38,6 @@ class PasswordResetsController < ApplicationController
       user.password_confirmation = params[:password_confirmation]
       if user.save
         user.clear_password_reset!
-        reset_session  # invalida sesiones anteriores
         head :no_content
       else
         render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
