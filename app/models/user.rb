@@ -74,6 +74,10 @@ class User < ApplicationRecord
   def current_membership_expiration
     Access::MembershipGate.current_expiration(self)
   end
+
+  def rotate_session_version!
+    update_column(:session_version, SecureRandom.hex(16))
+  end 
 end
 
 

@@ -45,6 +45,7 @@ class PasswordResetsController < ActionController::Base
       user.password_confirmation = params[:password_confirmation]
       if user.save
         user.clear_password_reset!
+        user.rotate_session_version!
         reset_session
         redirect_to "/frontpage", notice: "Contraseña actualizada. Inicia sesión."
       else
