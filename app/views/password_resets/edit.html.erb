@@ -1,119 +1,76 @@
-<div class="row" style="font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
-  <br>
-  <div class="col l5 m8 s12" style="max-width:480px;margin:40px auto">
-    <div class="card paletton-grey">
-      <div class="card-content white-text">
-        <!-- LOGO (igual que en password) -->
-        <div class="row">
-          <div class="col s12">
-            <%= render "shared/lantialogo2" %>
-          </div>
-        </div>
-
-        <!-- TÍTULO -->
-        <div class="row">
-          <div class="col s12">
-            <span class="card-title center">Restablecer contraseña</span>
-          </div>
-        </div>
-
-        <!-- ALERTAS -->
-        <% if flash[:alert].present? %>
-          <div class="row">
-            <div class="col s12">
-              <div style="background:#fee;border:1px solid #f99;padding:10px;margin:6px 0;border-radius:4px;color:#b00020">
-                <%= flash[:alert] %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-
-        <!-- FORMULARIO (misma acción/método que ya tenías) -->
-        <%= form_with url: password_reset_path(@token), method: :patch, html: { style: "margin-top:4px" } do %>
-          <%= hidden_field_tag :email, @user.mail %>
-
-          <!-- NUEVA CONTRASEÑA -->
-          <div class="row" style="margin-bottom:14px">
-            <div class="col s12 valign-wrapper" style="gap:10px">
-              <span aria-hidden="true" style="display:inline-block;line-height:1;font-size:18px">🔒</span>
-
-              <%= password_field_tag :password, nil,
-                    required: true, minlength: 7,
-                    placeholder: "Nueva contraseña",
-                    id: "password-new",
-                    class: "input-padding white",
-                    style: "width:100%;padding:10px;border-radius:4px",
-                    aria: { label: "Nueva contraseña" } %>
-
-              <!-- Ojo sin Material Icons -->
-              <button
-                type="button"
-                class="grey-text text-darken-2"
-                onclick="togglePwd('password-new', this)"
-                aria-label="Mostrar u ocultar contraseña"
-                style="margin-left:-36px;background:transparent;border:0;cursor:pointer;padding:0;font-size:18px"
-              >👁</button>
-            </div>
-          </div>
-
-          <!-- CONFIRMAR CONTRASEÑA -->
-          <div class="row" style="margin-bottom:14px">
-            <div class="col s12 valign-wrapper" style="gap:10px">
-              <span aria-hidden="true" style="display:inline-block;line-height:1;font-size:18px">🔑</span>
-
-              <%= password_field_tag :password_confirmation, nil,
-                    required: true, minlength: 7,
-                    placeholder: "Confirmar contraseña",
-                    id: "password-confirm",
-                    class: "input-padding white",
-                    style: "width:100%;padding:10px;border-radius:4px",
-                    aria: { label: "Confirmar contraseña" } %>
-
-              <button
-                type="button"
-                class="grey-text text-darken-2"
-                onclick="togglePwd('password-confirm', this)"
-                aria-label="Mostrar u ocultar contraseña"
-                style="margin-left:-36px;background:transparent;border:0;cursor:pointer;padding:0;font-size:18px"
-              >👁</button>
-            </div>
-          </div>
-
-          <!-- BOTÓN ENVIAR (mismo estilo que en password) -->
-          <div class="row">
-            <div class="col s12">
-              <div class="input-field valign-wrapper right short-row" style="margin-right:70px">
-                <button class="btn-floating teal lighten-5" type="submit" aria-label="Guardar contraseña">
-                  <span aria-hidden="true" class="grey-text text-darken-3" style="display:inline-block;font-size:20px;line-height:36px">➤</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <%# <div class="divider"></div> %>
-        <% end %>
-      </div>
-    </div>
-  </div>
+<div class="row">
+<br>
+<div class="col l5 m8 s12">
+<div class="card paletton-grey">
+<div class="card-content white-text">
+<div class="row">
+<div class="col s12">
+<%= render "shared/lantialogo2" %>
+</div>
 </div>
 
-<script>
-  // Toggle de visibilidad, sin depender de Material Icons
-  function togglePwd(id, btn) {
-    var input = document.getElementById(id);
-    if (!input) return;
-    if (input.type === "password") {
-      input.type = "text";
-      btn.textContent = "🙈";
-    } else {
-      input.type = "password";
-      btn.textContent = "👁";
-    }
-  }
 
-  // Si usas Materialize, inicializa modales/estilos de forma segura (no es obligatorio aquí)
-  document.addEventListener('DOMContentLoaded', function() {
-    try { if (window.M && M.AutoInit) M.AutoInit(); } catch(e) {}
-  });
-</script>
+<div class="row">
+<div class="col s12">
+<span class="card-title center">Restablecer contraseña</span>
+</div>
+</div>
 
+
+<% if flash[:alert].present? %>
+<div class="row">
+<div class="col s12">
+<div class="card-panel red lighten-5 red-text text-darken-3" style="margin-top:0">
+<%= flash[:alert] %>
+</div>
+</div>
+</div>
+<% end %>
+
+
+<%= form_with url: password_reset_path(@token), method: :patch do |f| %>
+<%= hidden_field_tag :email, @user.mail %>
+
+
+<div class="row">
+<div class="col s12 valign-wrapper">
+<i class="material-icons prefix small">vpn_key</i>
+<%= password_field_tag :password, nil,
+required: true,
+minlength: 7,
+placeholder: "Nueva contraseña",
+class: "input-padding white",
+id: "password-field" %>
+</div>
+</div>
+
+
+<div class="row">
+<div class="col s12 valign-wrapper">
+<i class="material-icons prefix small">vpn_key</i>
+<%= password_field_tag :password_confirmation, nil,
+required: true,
+minlength: 7,
+placeholder: "Confirmar contraseña",
+class: "input-padding white",
+id: "password-confirmation-field" %>
+</div>
+</div>
+
+
+<div class="row">
+<div class="col s12">
+<div class="input-field valign-wrapper right short-row" style="margin-right: 70px;">
+<button class="btn-floating teal lighten-5" type="submit">
+<i class="material-icons grey-text text-darken-3">send</i>
+</button>
+</div>
+</div>
+</div>
+<% end %>
+
+
+</div>
+</div>
+</div>
+</div>
