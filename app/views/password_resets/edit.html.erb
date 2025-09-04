@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Restablecer contraseña</title></head>
+  <body style="max-width:480px;margin:40px auto;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+    <h1>Restablecer contraseña</h1>
+
+    <% if flash[:alert].present? %>
+      <div style="background:#fee;border:1px solid #f99;padding:10px;margin:10px 0"><%= flash[:alert] %></div>
+    <% end %>
+
+    <%= form_with url: password_reset_path(@token), method: :patch do |f| %>
+      <%= hidden_field_tag :email, @user.mail %>
+
+      <div style="margin:12px 0">
+        <label>Nueva contraseña</label><br>
+        <%= password_field_tag :password, nil, required: true, minlength: 7, style: "width:100%;padding:8px" %>
+      </div>
+
+      <div style="margin:12px 0">
+        <label>Confirmar contraseña</label><br>
+        <%= password_field_tag :password_confirmation, nil, required: true, minlength: 7, style: "width:100%;padding:8px" %>
+      </div>
+
+      <%= submit_tag "Guardar contraseña", style: "padding:10px 16px" %>
+    <% end %>
+  </body>
+</html>

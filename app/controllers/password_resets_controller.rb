@@ -1,14 +1,15 @@
 class PasswordResetsController < ActionController::Base
   protect_from_forgery with: :null_session
 
-  # POST /password_resets   params: email
   def create
     user = User.find_by(mail: params[:email])
     if user
       token = user.generate_password_reset!
       if Rails.env.production?
+        UserMailer.password_reset(user, token).deliver_later
         head :no_content
       else
+        begin; UserMailer.password_reset(user, token).deliver_now; rescue; end
         render json: { token: token, email: user.mail }
       end
     else
@@ -16,21 +17,23 @@ class PasswordResetsController < ActionController::Base
     end
   end
 
-  # GET /password_resets/:token/edit?email=...
+  # Muestra formulario si el token es válido
   def edit
-    user = User.find_by(mail: params[:email])
-    if user&.valid_password_reset_token?(params[:token])
-      render plain: "ok"
+    @user  = User.find_by(mail: params[:email])
+    @token = params[:token]
+    if @user&.valid_password_reset_token?(@token)
+      render :edit
     else
-      render plain: "Invalid or expired token", status: :unprocessable_entity
+      render plain: "Token inválido o expirado", status: :unprocessable_entity
     end
   end
 
-  # PATCH /password_resets/:token?email=...  params: password, password_confirmation
+  # Procesa formulario
   def update
     user = User.find_by(mail: params[:email])
-    unless user&.valid_password_reset_token?(params[:token])
-      render json: { error: "Invalid or expired token" }, status: :unprocessable_entity and return
+    token = params[:token]
+    unless user&.valid_password_reset_token?(token)
+      render plain: "Token inválido o expirado", status: :unprocessable_entity and return
     end
 
     if params[:password].present? && params[:password] == params[:password_confirmation]
@@ -38,12 +41,17 @@ class PasswordResetsController < ActionController::Base
       user.password_confirmation = params[:password_confirmation]
       if user.save
         user.clear_password_reset!
-        head :no_content
+        reset_session
+        redirect_to "/frontpage", notice: "Contraseña actualizada. Inicia sesión."
       else
-        render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+        @user = user; @token = token
+        flash.now[:alert] = user.errors.full_messages.join(", ")
+        render :edit, status: :unprocessable_entity
       end
     else
-      render json: { error: "Password confirmation mismatch" }, status: :unprocessable_entity
+      @user = user; @token = token
+      flash.now[:alert] = "Las contraseñas no coinciden."
+      render :edit, status: :unprocessable_entity
     end
   end
 end
