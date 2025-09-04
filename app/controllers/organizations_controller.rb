@@ -709,6 +709,9 @@ class OrganizationsController < ApplicationController
 
       if target_user && target_user.authenticate(password_params[:password])
         target_user.clear_failed_logins!
+        session[:user_id] = target_user.id                  
+        session[:login_issued_at] = Time.current.to_i
+
         session[:user_id] = target_user[:id]
         if target_user.membership_type
           session[:membership] = target_user.membership_type 

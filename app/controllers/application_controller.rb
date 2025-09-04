@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
 
 # ERROR CON BCRYPT! Valladares/Users/Bobsled/.rvm/gems/ruby-2.7.1/gems/bcrypt-3.1.13/lib/bcrypt/password.rb:50: warning: deprecated Object#=~ is called on Integer; it always returns nil Completed 500 Internal Server Error in 76ms (ActiveRecord: 3.2ms | Allocations: 9495) BCrypt::Errors::InvalidHash (invalid hash):
+	before_action :enforce_absolute_session
 	before_action :enforce_session_timeout
 	before_action :enforce_session_version
 	before_action :allow_iframe
@@ -233,6 +234,16 @@ class ApplicationController < ActionController::Base
 	
 	protected
 
+		ABS_SESSION_SECONDS = ENV.fetch("ABS_SESSION_SECONDS", (12.hours).to_i).to_i
+		def enforce_absolute_session
+		    ts = session[:login_issued_at].to_i
+		    return if ts.zero? # aún no autenticado
+		    if Time.current.to_i - ts > ABS_SESSION_SECONDS
+		      reset_session
+		      redirect_to "/password", alert: "Tu sesión expiró por tiempo máximo. Vuelve a iniciar sesión."
+		    end
+  		end
+
 		def myResouces
 			@myResouces = ["CAPTURA","CONSULTA"]
 		end
@@ -266,5 +277,7 @@ class ApplicationController < ActionController::Base
 		      redirect_to "/login", alert: "Por seguridad, vuelve a iniciar sesión." and return
 		    end
 		end
+
+
 
 end
