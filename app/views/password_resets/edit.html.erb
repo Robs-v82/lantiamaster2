@@ -1,76 +1,27 @@
-<div class="row">
-<br>
-<div class="col l5 m8 s12">
-<div class="card paletton-grey">
-<div class="card-content white-text">
-<div class="row">
-<div class="col s12">
-<%= render "shared/lantialogo2" %>
-</div>
-</div>
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Restablecer contraseña</title></head>
+  <body style="max-width:480px;margin:40px auto;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+    <h1>Restablecer contraseña</h1>
 
+    <% if flash[:alert].present? %>
+      <div style="background:#fee;border:1px solid #f99;padding:10px;margin:10px 0"><%= flash[:alert] %></div>
+    <% end %>
 
-<div class="row">
-<div class="col s12">
-<span class="card-title center">Restablecer contraseña</span>
-</div>
-</div>
+    <%= form_with url: password_reset_path(@token), method: :patch do |f| %>
+      <%= hidden_field_tag :email, @user.mail %>
 
+      <div style="margin:12px 0">
+        <label>Nueva contraseña</label><br>
+        <%= password_field_tag :password, nil, required: true, minlength: 7, style: "width:100%;padding:8px" %>
+      </div>
 
-<% if flash[:alert].present? %>
-<div class="row">
-<div class="col s12">
-<div class="card-panel red lighten-5 red-text text-darken-3" style="margin-top:0">
-<%= flash[:alert] %>
-</div>
-</div>
-</div>
-<% end %>
+      <div style="margin:12px 0">
+        <label>Confirmar contraseña</label><br>
+        <%= password_field_tag :password_confirmation, nil, required: true, minlength: 7, style: "width:100%;padding:8px" %>
+      </div>
 
-
-<%= form_with url: password_reset_path(@token), method: :patch do |f| %>
-<%= hidden_field_tag :email, @user.mail %>
-
-
-<div class="row">
-<div class="col s12 valign-wrapper">
-<i class="material-icons prefix small">vpn_key</i>
-<%= password_field_tag :password, nil,
-required: true,
-minlength: 7,
-placeholder: "Nueva contraseña",
-class: "input-padding white",
-id: "password-field" %>
-</div>
-</div>
-
-
-<div class="row">
-<div class="col s12 valign-wrapper">
-<i class="material-icons prefix small">vpn_key</i>
-<%= password_field_tag :password_confirmation, nil,
-required: true,
-minlength: 7,
-placeholder: "Confirmar contraseña",
-class: "input-padding white",
-id: "password-confirmation-field" %>
-</div>
-</div>
-
-
-<div class="row">
-<div class="col s12">
-<div class="input-field valign-wrapper right short-row" style="margin-right: 70px;">
-<button class="btn-floating teal lighten-5" type="submit">
-<i class="material-icons grey-text text-darken-3">send</i>
-</button>
-</div>
-</div>
-</div>
-<% end %>
-
-
-</div>
-</div>
-</div>
-</div>
+      <%= submit_tag "Guardar contraseña", style: "padding:10px 16px" %>
+    <% end %>
+  </body>
+</html>
