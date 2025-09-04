@@ -77,6 +77,44 @@ class User < ApplicationRecord
   def rotate_session_version!
     update_column(:session_version, SecureRandom.hex(16))
   end 
+
+  # --- Login lock/backoff ---
+  def locked?
+    locked_until.present? && locked_until > Time.current
+  end
+
+  def minutes_locked_remaining
+    return 0 unless locked?
+    ((locked_until - Time.current) / 60.0).ceil
+  end
+
+  def register_failed_login!
+    # A partir del 5º intento, bloqueo exponencial: 1,2,4,8... min (máx. 60)
+    new_count = (failed_login_attempts || 0) + 1
+    penalty_minutes =
+      if new_count <= 4
+        0
+      else
+        [2 ** (new_count - 5), 60].min
+      end
+    new_locked_until =
+      if penalty_minutes.zero?
+        locked_until # sin cambio
+      else
+        base = locked_until&.future? ? locked_until : Time.current
+        base + penalty_minutes.minutes
+      end
+
+    update_columns(
+      failed_login_attempts: new_count,
+      locked_until: new_locked_until
+    )
+  end
+
+  def clear_failed_logins!
+    update_columns(failed_login_attempts: 0, locked_until: nil)
+  end
+
 end
 
 

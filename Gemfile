@@ -19,6 +19,7 @@ gem 'jbuilder', '~> 2.7'
 # gem 'redis', '~> 4.0'
 # Use Active Model has_secure_password
 gem 'bcrypt', '~> 3.1.13'
+# gem 'rack-attack'
 
 # Use Active Storage variant
 gem 'image_processing', '~> 1.2'
@@ -44,7 +45,7 @@ gem 'rubyzip', '>= 1.2.1'
 gem 'mini_magick'
 
 gem 'wicked_pdf'
-gem 'wkhtmltopdf-binary'
+# gem 'wkhtmltopdf-binary'
 
 gem "chartkick"
 

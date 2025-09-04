@@ -25,12 +25,11 @@
           </div>
         <% end %>
 
-        <%= form_with url: password_reset_path(@token),
+         <%= form_with url: password_reset_path(@token),
               method: :patch,
               local: true,
               authenticity_token: true do |f| %>
 
-        <%# <%= form_with url: password_reset_path(@token), method: :patch do |f| %> %>
           <%= hidden_field_tag :email, @user.mail %>
 
           <div class="row">

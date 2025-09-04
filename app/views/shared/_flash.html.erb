@@ -1,0 +1,10 @@
+<% flash.each do |type, message| %>
+  <% css = case type.to_s
+           when 'notice' then 'green lighten-4 green-text text-darken-4'
+           when 'alert'  then 'red lighten-4 red-text text-darken-4'
+           else               'blue lighten-4 blue-text text-darken-4'
+           end %>
+  <div class="card-panel <%= css %>" style="margin:12px 0">
+    <%= message %>
+  </div>
+<% end %>

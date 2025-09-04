@@ -701,7 +701,14 @@ class OrganizationsController < ApplicationController
 
     def login
       target_user = User.find_by_mail(password_params[:mail])
+
+      if target_user&.locked?
+        flash[:alert] = "Tu cuenta está temporalmente bloqueada. Intenta en #{target_user.minutes_locked_remaining} minuto(s)."
+        redirect_to "/frontpage" and return
+      end
+
       if target_user && target_user.authenticate(password_params[:password])
+        target_user.clear_failed_logins!
         session[:user_id] = target_user[:id]
         if target_user.membership_type
           session[:membership] = target_user.membership_type 
@@ -711,6 +718,10 @@ class OrganizationsController < ApplicationController
         helpers.clear_session
         redirect_to '/intro'
       else
+        # … si la contraseña NO coincide …
+        target_user.register_failed_login! if target_user
+        flash[:alert] = "Correo o contraseña inválidos"
+        redirect_to "/password" and return
         session[:password_error] = true
         redirect_to '/password'
       end   

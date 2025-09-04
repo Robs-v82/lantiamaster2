@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_04_014509) do
+ActiveRecord::Schema.define(version: 2025_09_04_184442) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -683,6 +683,9 @@ ActiveRecord::Schema.define(version: 2025_09_04_014509) do
     t.string "reset_password_token_digest"
     t.datetime "reset_password_sent_at"
     t.string "session_version"
+    t.integer "failed_login_attempts", default: 0, null: false
+    t.datetime "locked_until"
+    t.index ["locked_until"], name: "index_users_on_locked_until"
     t.index ["member_id"], name: "index_users_on_member_id"
     t.index ["reset_password_token_digest"], name: "index_users_on_reset_password_token_digest", unique: true
     t.index ["session_version"], name: "index_users_on_session_version"
