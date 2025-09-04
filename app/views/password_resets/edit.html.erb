@@ -30,34 +30,41 @@
 
           <div class="row">
             <div class="col s12 valign-wrapper">
-              <i class="material-icons prefix small">vpn_key</i>
+              <%# <i class="material-icons prefix small">vpn_key</i> %>
               <%= password_field_tag :password, nil,
                     required: true,
                     minlength: 7,
                     class: "input-padding white",
                     id: "password-field" %>
             </div>
+             <div class="label-row">
+                <div class="col s8">
+                  <label class="white-text">NUEVA CONTRASEÑA</label>
+                </div>
+            </div>
+            <div class="col s12">
+              <span id="password-helper" class="helper-text red-text text-lighten-2" aria-live="polite"></span>
+            </div>
           </div>
-           <div class="label-row">
-              <div class="col s8">
-                <label class="white-text">NUEVA CONTRASEÑA</label>
-              </div>
-          </div>
+
 
           <div class="row">
             <div class="col s12 valign-wrapper">
-              <i class="material-icons prefix small">vpn_key</i>
+              <%# <i class="material-icons prefix small">vpn_key</i> %>
               <%= password_field_tag :password_confirmation, nil,
                     required: true,
                     minlength: 7,
                     class: "input-padding white",
                     id: "password-confirmation-field" %>
             </div>
-          </div>
-           <div class="label-row">
-              <div class="col s8">
-                <label class="white-text">CONFIRMAR CONTRASEÑA</label>
-              </div>
+             <div class="label-row">
+                <div class="col s8">
+                  <label class="white-text">CONFIRMAR CONTRASEÑA</label>
+                </div>
+            </div>
+            <div class="col s12">
+              <span id="password-confirmation-helper" class="helper-text red-text text-lighten-2" aria-live="polite"></span>
+            </div>
           </div>
 
           <div class="row">
@@ -75,4 +82,42 @@
     </div>
   </div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+  var pwd = document.getElementById('password-field');
+  var conf = document.getElementById('password-confirmation-field');
+  var pwdHelper = document.getElementById('password-helper');
+  var confHelper = document.getElementById('password-confirmation-helper');
+
+  function validatePassword() {
+    var val = pwd.value || '';
+    var issues = [];
+    if (val.length < 7) issues.push('al menos 7 caracteres');
+    if (!/\d/.test(val)) issues.push('al menos un número');
+    // Si más adelante quieres exigir mayúscula/minúscula, descomenta:
+    if (!/[A-Z]/.test(val)) issues.push('al menos una mayúscula');
+    if (!/[a-z]/.test(val)) issues.push('al menos una minúscula');
+
+    var msg = issues.length ? ('La contraseña debe tener ' + issues.join(' y ') + '.') : '';
+    pwd.setCustomValidity(msg);           // Mensaje nativo del navegador
+    if (pwdHelper) pwdHelper.textContent = msg; // Mensaje en línea
+  }
+
+  function validateConfirmation() {
+    var msg = (conf.value && conf.value !== pwd.value) ? 'Las contraseñas no coinciden.' : '';
+    conf.setCustomValidity(msg);
+    if (confHelper) confHelper.textContent = msg;
+  }
+
+  ['input','blur'].forEach(function (evt) {
+    pwd.addEventListener(evt, validatePassword);
+    conf.addEventListener(evt, validateConfirmation);
+  });
+
+  // Inicializa mensajes si el navegador autocompleta
+  validatePassword();
+  validateConfirmation();
+  });
+</script>
+
 
