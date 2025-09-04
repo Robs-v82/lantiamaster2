@@ -152,4 +152,8 @@ Rails.application.routes.draw do
     post '/datasets/upload_linked_organization', to: 'datasets#upload_linked_organization'
     # get "/session_probe", to: "probes#session_probe"
     resources :password_resets, only: [:create, :edit, :update], param: :token
+    # config/routes.rb
+    get  "/reauth", to: "reauth#new"
+    post "/reauth", to: "reauth#create"
+
 end

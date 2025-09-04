@@ -14,7 +14,7 @@ class DatasetsController < ApplicationController
 
 	layout false, only: [:year_victims, :state_victims, :county_victims, :county_victims_map]
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
-
+	before_action :require_recent_auth, only: [:members_query]
 	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome]
 	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel, :state_members, :clear_members, :clear_state_members]
 

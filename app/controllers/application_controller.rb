@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
 
-# ERROR CON BCRYPT! Valladares/Users/Bobsled/.rvm/gems/ruby-2.7.1/gems/bcrypt-3.1.13/lib/bcrypt/password.rb:50: warning: deprecated Object#=~ is called on Integer; it always returns nil Completed 500 Internal Server Error in 76ms (ActiveRecord: 3.2ms | Allocations: 9495) BCrypt::Errors::InvalidHash (invalid hash):
+	# ERROR CON BCRYPT! Valladares/Users/Bobsled/.rvm/gems/ruby-2.7.1/gems/bcrypt-3.1.13/lib/bcrypt/password.rb:50: warning: deprecated Object#=~ is called on Integer; it always returns nil Completed 500 Internal Server Error in 76ms (ActiveRecord: 3.2ms | Allocations: 9495) BCrypt::Errors::InvalidHash (invalid hash):
 	before_action :enforce_absolute_session
 	before_action :enforce_session_timeout
 	before_action :enforce_session_version
@@ -234,7 +234,9 @@ class ApplicationController < ActionController::Base
 	
 	protected
 
+		REAUTH_WINDOW_SECONDS = ENV.fetch("REAUTH_WINDOW_SECONDS", 10.minutes.to_i).to_i
 		ABS_SESSION_SECONDS = ENV.fetch("ABS_SESSION_SECONDS", (12.hours).to_i).to_i
+		
 		def enforce_absolute_session
 		    ts = session[:login_issued_at].to_i
 		    return if ts.zero? # aún no autenticado
@@ -278,6 +280,13 @@ class ApplicationController < ActionController::Base
 		    end
 		end
 
-
+		def require_recent_auth
+			return unless current_user_safe
+				last = session[:reauth_at].to_i
+			if last.zero? || Time.current.to_i - last > REAUTH_WINDOW_SECONDS
+				session[:return_to_after_reauth] = request.fullpath
+				redirect_to "/reauth", alert: "Por seguridad, confirma tu contraseña para continuar."
+			end
+		end
 
 end
