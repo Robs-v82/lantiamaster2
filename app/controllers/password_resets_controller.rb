@@ -1,8 +1,15 @@
 class PasswordResetsController < ActionController::Base
   protect_from_forgery with: :null_session
 
+  private
+  def find_user_by_email
+    email = params[:email].to_s.strip.downcase
+    User.where('LOWER(mail) = ?', email).first
+  end
+
+  public
   def create
-    user = User.find_by(mail: params[:email])
+    user = find_user_by_email
     if user
       token = user.generate_password_reset!
       if Rails.env.production?
@@ -17,9 +24,8 @@ class PasswordResetsController < ActionController::Base
     end
   end
 
-  # Muestra formulario si el token es válido
   def edit
-    @user  = User.find_by(mail: params[:email])
+    @user  = find_user_by_email
     @token = params[:token]
     if @user&.valid_password_reset_token?(@token)
       render :edit
@@ -28,14 +34,12 @@ class PasswordResetsController < ActionController::Base
     end
   end
 
-  # Procesa formulario
   def update
-    user = User.find_by(mail: params[:email])
+    user  = find_user_by_email
     token = params[:token]
     unless user&.valid_password_reset_token?(token)
       render plain: "Token inválido o expirado", status: :unprocessable_entity and return
     end
-
     if params[:password].present? && params[:password] == params[:password_confirmation]
       user.password = params[:password]
       user.password_confirmation = params[:password_confirmation]
