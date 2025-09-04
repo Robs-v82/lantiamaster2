@@ -42,12 +42,7 @@
                   <label class="white-text">NUEVA CONTRASEÑA</label>
                 </div>
             </div>
-            <div class="col s12">
-              <span id="password-helper" class="helper-text red-text text-lighten-2" aria-live="polite"></span>
-            </div>
           </div>
-
-
           <div class="row">
             <div class="col s12 valign-wrapper">
               <%# <i class="material-icons prefix small">vpn_key</i> %>
@@ -62,8 +57,17 @@
                   <label class="white-text">CONFIRMAR CONTRASEÑA</label>
                 </div>
             </div>
-            <div class="col s12">
-              <span id="password-confirmation-helper" class="helper-text red-text text-lighten-2" aria-live="polite"></span>
+          </div>
+          <div class="row">
+            <div class="label-row">
+              <div style="min-height: 100px;">
+                <div class="col s8">
+                  <span id="password-helper" class="helper-text red-text text-lighten-2" aria-live="polite"></span>
+                </div>
+                <div class="col s8">
+                  <span id="password-confirmation-helper" class="helper-text red-text text-lighten-2" aria-live="polite"></span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -98,7 +102,7 @@
     if (!/[A-Z]/.test(val)) issues.push('al menos una mayúscula');
     if (!/[a-z]/.test(val)) issues.push('al menos una minúscula');
 
-    var msg = issues.length ? ('La contraseña debe tener ' + issues.join(' y ') + '.') : '';
+    var msg = issues.length ? ('La contraseña debe tener: ' + issues.join(' , ') + '.') : '';
     pwd.setCustomValidity(msg);           // Mensaje nativo del navegador
     if (pwdHelper) pwdHelper.textContent = msg; // Mensaje en línea
   }
