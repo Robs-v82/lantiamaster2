@@ -62,7 +62,6 @@ class User < ApplicationRecord
     update!(reset_password_token_digest: nil, reset_password_sent_at: nil)
   end
 
-  # === Métodos existentes tuyos ===
   def membership_active?
     Access::MembershipGate.active?(self)
   end
