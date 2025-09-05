@@ -1,4 +1,5 @@
 class OrganizationsController < ApplicationController
+  include AuthAudit
   require 'pp'
   after_action :remove_password_error_message, only: [:password]
   after_action :remove_empty_query_message, only: [:index]
@@ -703,11 +704,13 @@ class OrganizationsController < ApplicationController
       target_user = User.find_by_mail(password_params[:mail])
 
       if target_user&.locked?
+        audit!("login_failure", user: u, meta: {reason:"locked"})
         flash[:alert] = "Tu cuenta está temporalmente bloqueada. Intenta en #{target_user.minutes_locked_remaining} minuto(s)."
         redirect_to "/frontpage" and return
       end
 
       if target_user && target_user.authenticate(password_params[:password])
+        audit!("login_success", user: target_user)
         target_user.clear_failed_logins!
         session[:user_id] = target_user.id                  
         session[:login_issued_at] = Time.current.to_i
@@ -722,6 +725,7 @@ class OrganizationsController < ApplicationController
         redirect_to '/intro'
       else
         # … si la contraseña NO coincide …
+        audit!("login_failure", user: target_user, meta: {reason:"bad_password"})
         target_user.register_failed_login! if target_user
         flash[:alert] = "Correo o contraseña inválidos"
         redirect_to "/password" and return
@@ -732,6 +736,7 @@ class OrganizationsController < ApplicationController
 
   def logout
     session[:user_id] = nil
+    audit!("logout", user: current_user_safe)
     redirect_to '/password'
   end
 

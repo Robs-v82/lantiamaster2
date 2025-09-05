@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_04_184442) do
+ActiveRecord::Schema.define(version: 2025_09_05_012100) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -75,6 +75,19 @@ ActiveRecord::Schema.define(version: 2025_09_04_184442) do
     t.integer "organization_id"
     t.index ["arrest_id"], name: "index_arrests_organizations_on_arrest_id"
     t.index ["organization_id"], name: "index_arrests_organizations_on_organization_id"
+  end
+
+  create_table "auth_events", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "event_type", null: false
+    t.string "ip"
+    t.text "user_agent"
+    t.text "metadata"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_at"], name: "index_auth_events_on_created_at"
+    t.index ["event_type"], name: "index_auth_events_on_event_type"
+    t.index ["user_id"], name: "index_auth_events_on_user_id"
   end
 
   create_table "cities", force: :cascade do |t|

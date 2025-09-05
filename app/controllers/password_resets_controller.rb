@@ -13,6 +13,7 @@ class PasswordResetsController < ActionController::Base
     user = find_user_by_email
     if user
       token = user.generate_password_reset!
+      audit!("reset_request", user: user)
       if Rails.env.production?
         UserMailer.password_reset(user, token).deliver_later
         head :no_content
@@ -45,6 +46,7 @@ class PasswordResetsController < ActionController::Base
       user.password = params[:password]
       user.password_confirmation = params[:password_confirmation]
       if user.save
+        audit!("reset_success", user: user)
         user.clear_password_reset!
         user.rotate_session_version!
         reset_session
