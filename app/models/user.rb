@@ -115,6 +115,45 @@ class User < ApplicationRecord
     update_columns(failed_login_attempts: 0, locked_until: nil)
   end
 
+  def generate_email_verification_token!
+    token  = SecureRandom.urlsafe_base64(32)
+    cost   = if ActiveModel::SecurePassword.min_cost
+               BCrypt::Engine::MIN_COST
+             else
+               BCrypt::Engine.cost
+             end
+    digest = BCrypt::Password.create(token, cost: cost)
+
+    update!(
+      email_verification_digest: digest,
+      email_verification_sent_at: Time.current
+    )
+    token
+  end
+
+  def valid_email_verification_token?(token)
+    return false if email_verification_digest.blank?
+    BCrypt::Password.new(email_verification_digest).is_password?(token) &&
+      !email_verification_expired?
+  end
+
+  def email_verification_expired?(ttl_hours = 48)
+    return true if email_verification_sent_at.blank?
+    email_verification_sent_at < ttl_hours.hours.ago
+  end
+
+  def mark_email_verified!
+    update!(
+      email_verified_at: Time.current,
+      email_verification_digest: nil,
+      email_verification_sent_at: nil
+    )
+  end
+
+  def email_verified?
+    email_verified_at.present?
+  end
+
 end
 
 
