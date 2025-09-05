@@ -1,6 +1,6 @@
 class PasswordResetsController < ActionController::Base
   layout "application" 
-  protect_from_forgery with: :null_session
+  # protect_from_forgery with: :null_session
 
   private
   def find_user_by_email
