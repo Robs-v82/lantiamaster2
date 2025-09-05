@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
 
 	# ERROR CON BCRYPT! Valladares/Users/Bobsled/.rvm/gems/ruby-2.7.1/gems/bcrypt-3.1.13/lib/bcrypt/password.rb:50: warning: deprecated Object#=~ is called on Integer; it always returns nil Completed 500 Internal Server Error in 76ms (ActiveRecord: 3.2ms | Allocations: 9495) BCrypt::Errors::InvalidHash (invalid hash):
+	before_action :set_csp_nonce
 	before_action :enforce_absolute_session
 	before_action :enforce_session_timeout
 	before_action :enforce_session_version
@@ -9,6 +10,11 @@ class ApplicationController < ActionController::Base
 	before_action :set_variables
 	helper_method :myResouces
 	after_action :stop_freq_help, only: [:victims, :detainees]
+	helper_method :csp_nonce
+	  
+	def csp_nonce
+		request.env['csp_nonce']
+	end
 
 	def quick_preload
 		render :template => "users/preloader"
@@ -287,6 +293,21 @@ class ApplicationController < ActionController::Base
 				session[:return_to_after_reauth] = request.fullpath
 				redirect_to "/reauth", alert: "Por seguridad, confirma tu contraseña para continuar."
 			end
+		end
+
+		def set_csp_nonce
+			nonce = SecureRandom.base64(16)
+			request.env['csp_nonce'] = nonce
+
+			policy =  "default-src 'self'; " \
+				"img-src 'self' data: https:; " \
+				"font-src 'self' https://fonts.gstatic.com data:; " \
+				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " \
+				"script-src 'self' 'nonce-#{nonce}' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " \
+				"connect-src 'self' ws: wss:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; " \
+				"form-action 'self'; upgrade-insecure-requests"
+
+			response.set_header('Content-Security-Policy', policy)
 		end
 
 end

@@ -41,7 +41,7 @@
     background-color: rgba(255, 255, 255, 0.05);
   }
 </style>
-<script type="text/javascript">
+<script type="text/javascript" nonce="<%= csp_nonce %>">
   document.addEventListener('DOMContentLoaded', function () {
     const elems = document.querySelectorAll('.collapsible-cedula');
     const instances = M.Collapsible.init(elems);
@@ -644,7 +644,7 @@
     </div>
 
 
-  <script>
+  <script nonce="<%= csp_nonce %>">
     document.addEventListener("DOMContentLoaded", function() {
       const hits = <%= raw(member.hits.map { |h| { 
         state_code: h.town.county.state.code, 

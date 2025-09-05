@@ -942,3 +942,7 @@ if (todosValidos && freqs.length === 3) {
 $(document).on('click', 'input:checkbox', function() {
 	$("html, body").animate({ scrollTop: 0 }, "fast");
 })
+
+
+
+
