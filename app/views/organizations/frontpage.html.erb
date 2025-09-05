@@ -29,17 +29,25 @@
         >
     <%= javascript_include_tag 'https://maps.googleapis.com/maps/api/js?key='+"AIzaSyBWd0Mv-5p6ARfMQTRyC3pmNPuMucGL2i4" %>
     <%= yield(:head_tags) %>
-    <script src="https://code.highcharts.com/maps/highmaps.js"></script>
-    <script src="https://code.highcharts.com/maps/modules/data.js"></script>
-    <script src="https://code.highcharts.com/maps/modules/data.js"></script>
-    <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
+    <!-- Highcharts Maps + módulos (versionados) -->
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@10.3.3/highmaps.min.js"
+            integrity="sha384-kbifPG/lJ5vFRWNT78UUQ7dfgk84q9UbLgJBogK3au3tP/YtKcKeJvbEZW7fSdgr"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@10.3.3/modules/data.min.js"
+            integrity="sha384-GJJo72hpvGmUSNn4CrAmsSiyg25a4thIU8A4sRu0ZoXcEOW3vOuNu7hNzfpB0Iye"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@10.3.3/modules/exporting.min.js"
+            integrity="sha384-67fw1IRwhpLUo8nsUJt7N+nq0+Sm5B9zjJvrpfuiglE5ZVPM3PFlX2H9QCAYPNZW"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@10.3.3/modules/offline-exporting.min.js"
+            integrity="sha384-FSoeQDp3Xbq4ux4n0yAKPAoJYrlAC0Don2CZQyrHcE4ty55UpKJ+/VJM8cUa/YsT"
+            crossorigin="anonymous"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.3/proj4.js"
         integrity="FEOMiFzIvvJnvPYTN0QHPLvMi1AnHs7cWqQhXZQ0JzML4bbwaxdZp3Mpo+/kI8uy"
         crossorigin="anonymous"
         referrerpolicy="no-referrer"
-    >    
-    </script>    
+    ></script>    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,300&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="/assets/favicon.png">
