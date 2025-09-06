@@ -1,0 +1,38 @@
+<% tz = 'America/Mexico_City' %>
+<% vd = @verify_deadline.in_time_zone(tz) %>
+<% rd = @reset_deadline.in_time_zone(tz) %>
+
+<p style="margin:0 0 16px;">Te damos la bienvenida a <strong>Lantia Intelligence</strong>.</p>
+
+<p style="margin:0 0 12px;">
+  Para activar tu cuenta, <strong>verificar tu correo</strong> y <strong>establecer tu contraseña</strong>,
+  por favor ingresa en el siguiente enlace:
+</p>
+
+<p style="margin:12px 0 16px;">
+  <a href="<%= @url %>" style="color:#0b57d0; text-decoration:none;"><%= @url %></a>
+</p>
+
+<p style="margin:0 0 8px;">
+  Este mensaje fue generado el <%= @sent_at.in_time_zone(tz).strftime('%d/%m/%Y %H:%M %Z') %>.
+</p>
+<ul style="margin:0 0 16px; padding-left:18px;">
+  <li>La <strong>verificación de correo</strong> estará disponible hasta el
+      <strong><%= vd.strftime('%d/%m/%Y %H:%M %Z') %></strong>.</li>
+  <li>El enlace para <strong>establecer tu contraseña</strong> estará disponible hasta el
+      <strong><%= rd.strftime('%d/%m/%Y %H:%M %Z') %></strong>.</li>
+</ul>
+
+<p style="margin:0 0 16px; color:#555;">
+  Si el enlace ha expirado, podrás solicitar uno nuevo desde la opción “¿Olvidé mi contraseña?” en <a href="https://dashboard.lantiaintelligence.com/password">lantiaintelligence.com</a>.
+</p>
+
+<p style="margin:16px 0 8px;">Atentamente,</p>
+<p style="margin:0 0 16px;">El equipo de Lantia Intelligence</p>
+
+<p style="margin:0;">
+  <%= image_tag 'Lantia_LogoPositivo.png',
+                alt: 'Lantia Intelligence',
+                style: 'height:44px; width:auto;' %>
+</p>
+

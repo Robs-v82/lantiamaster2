@@ -25,5 +25,21 @@ class UserMailer < ApplicationMailer
     @reset_url = edit_password_reset_url(@token, email: @user.mail)
     mail(to: @user.mail, subject: "Restablecer contraseña – Lantia Intelligence")
   end
+
+  def email_verification(user, token)
+    @user = user
+    @url  = verify_email_url(token: token, email: user.mail)
+    mail to: user.mail, subject: "Verifica tu correo"
+  end
+
+  def welcome_activation(user, verify_token, reset_token)
+    @user = user
+    @url  = verify_and_set_password_url(token_v: verify_token, token_r: reset_token, email: user.mail)
+    @sent_at         = Time.current
+    @verify_deadline = @sent_at + 48.hours      # verificación de correo
+    @reset_deadline  = @sent_at + 60.minutes    # establecer contraseña
+    mail to: user.mail, subject: "Activa tu cuenta – Lantia Intelligence"
+  end
+  
 end
 

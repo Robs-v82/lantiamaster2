@@ -155,5 +155,9 @@ Rails.application.routes.draw do
     # config/routes.rb
     get  "/reauth", to: "reauth#new"
     post "/reauth", to: "reauth#create"
+    get  "/verify_email", to: "email_verifications#verify", as: :verify_email
+    # (opcional) si quieres un endpoint para reenviar:
+    post "/verify_email", to: "email_verifications#send_link"
+    get "/welcome", to: "welcome#show", as: :verify_and_set_password
 
 end
