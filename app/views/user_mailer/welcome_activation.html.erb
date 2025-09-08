@@ -1,38 +1,99 @@
-<% tz = 'America/Mexico_City' %>
-<% vd = @verify_deadline.in_time_zone(tz) %>
-<% rd = @reset_deadline.in_time_zone(tz) %>
+<!doctype html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8">
+    <title>Bienvenida | Lantia Intelligence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      /* Reset básico y estilos inline-friendly para clientes de correo */
+      body { margin:0; padding:0; background:#fafafa; }
+      table { border-collapse:collapse; }
+      img { border:0; height:auto; display:block; }
+      .container { max-width:600px; width:100%; margin:0 auto; background:#ffffff; }
+      .padded { padding:24px 24px 16px; }
+      .center { text-align:center; }
+      h1 { margin:0 0 12px; font-size:22px; line-height:1.3; color:#041F3A; }
+      p  { margin:0 0 16px; font-size:16px; line-height:1.5; color:#041F3A; }
+      .divider { border-top:2px solid #EAEAEA; margin:16px 24px; }
+      .btn-wrap { text-align:center; padding:0 24px 24px; }
+      .btn {
+        display:inline-block; text-decoration:none; font-weight:700; letter-spacing:.5px;
+        padding:14px 22px; border:4px solid #EF4E50; color:#041F3A; background:#ffffff;
+      }
+      .footer { background:#FAFAFA; color:#656565; font-size:12px; text-align:center; padding:12px 16px; }
+      .logo { padding:16px 0 0; }
+      .preheader { display:none; font-size:0; line-height:0; max-height:0; max-width:0; opacity:0; overflow:hidden; }
+    </style>
+  </head>
+  <body>
+    <!-- Preheader (oculto) -->
+    <div class="preheader">Activa tu cuenta y establece tu contraseña de acceso a Lantia Intelligence.</div>
 
-<p style="margin:0 0 16px;">Te damos la bienvenida a <strong>Lantia Intelligence</strong>.</p>
+    <table role="presentation" width="100%" bgcolor="#fafafa">
+      <tr>
+        <td style="padding:10px;">
+          <table role="presentation" class="container">
+            <!-- Encabezado con logo -->
+            <tr>
+              <td class="center logo">
+                <%= image_tag 'Lantia_LogoPositivo.png', alt: 'Lantia Intelligence', width: 180 %>
+              </td>
+            </tr>
 
-<p style="margin:0 0 12px;">
-  Para activar tu cuenta, <strong>verificar tu correo</strong> y <strong>establecer tu contraseña</strong>,
-  por favor ingresa en el siguiente enlace:
-</p>
+            <!-- Cuerpo -->
+            <tr>
+              <td class="padded">
+                <h1 class="center">Te damos la bienvenida a Lantia Intelligence</h1>
 
-<p style="margin:12px 0 16px;">
-  <a href="<%= @url %>" style="color:#0b57d0; text-decoration:none;"><%= @url %></a>
-</p>
+                <p>
+                  Hemos creado tu acceso a la plataforma. Para comenzar,
+                  te pedimos verificar tu correo y, al mismo tiempo, establecer tu contraseña
+                  en el siguiente enlace.
+                </p>
 
-<p style="margin:0 0 8px;">
-  Este mensaje fue generado el <%= @sent_at.in_time_zone(tz).strftime('%d/%m/%Y %H:%M %Z') %>.
-</p>
-<ul style="margin:0 0 16px; padding-left:18px;">
-  <li>La <strong>verificación de correo</strong> estará disponible hasta el
-      <strong><%= vd.strftime('%d/%m/%Y %H:%M %Z') %></strong>.</li>
-  <li>El enlace para <strong>establecer tu contraseña</strong> estará disponible hasta el
-      <strong><%= rd.strftime('%d/%m/%Y %H:%M %Z') %></strong>.</li>
-</ul>
+                <!-- Bloque CTA -->
+                <div class="btn-wrap">
+                  <a class="btn" href="<%= @verify_and_set_password_url %>" target="_blank" rel="noopener">
+                    ACTIVAR CUENTA Y ESTABLECER CONTRASEÑA
+                  </a>
+                </div>
 
-<p style="margin:0 0 16px; color:#555;">
-  Si el enlace ha expirado, podrás solicitar uno nuevo desde la opción “¿Olvidé mi contraseña?” en <a href="https://dashboard.lantiaintelligence.com/password">lantiaintelligence.com</a>.
-</p>
+                <p>
+                  Este enlace estará disponible hasta
+                  <strong>
+                    <%= @expires_at.in_time_zone('America/Mexico_City').strftime('%d/%m/%Y %H:%M (%Z)') %>
+                  </strong>.
+                </p>
 
-<p style="margin:16px 0 8px;">Atentamente,</p>
-<p style="margin:0 0 16px;">El equipo de Lantia Intelligence</p>
+                <div class="divider"></div>
 
-<p style="margin:0;">
-  <%= image_tag 'Lantia_LogoPositivo.png',
-                alt: 'Lantia Intelligence',
-                style: 'height:44px; width:auto;' %>
-</p>
+                <p>
+                  Si el botón no funciona, copia y pega esta URL en tu navegador:<br>
+                  <a href="<%= @verify_and_set_password_url %>" target="_blank" rel="noopener">
+                    <%= @verify_and_set_password_url %>
+                  </a>
+                </p>
 
+                <p style="margin-top:24px;">
+                  Atentamente,<br>
+                  <strong>El equipo de Lantia Intelligence</strong>
+                </p>
+
+                <div class="center" style="margin-top:12px;">
+                  <%= image_tag 'Lantia_LogoPositivo.png', alt: 'Lantia Intelligence', width: 120 %>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Pie -->
+            <tr>
+              <td class="footer">
+                2025 Lantia Intelligence©, Todos los derechos reservados.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
