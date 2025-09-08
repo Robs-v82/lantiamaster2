@@ -1,5 +1,9 @@
 module ApplicationHelper
 
+	def csp_nonce
+		content_security_policy_nonce
+	end
+
 	def get_years
 		myArr = []
 		target = Event.pluck(:event_date).uniq
