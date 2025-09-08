@@ -32,14 +32,26 @@ class UserMailer < ApplicationMailer
     mail to: user.mail, subject: "Verifica tu correo"
   end
 
-  def welcome_activation(user, verify_token, reset_token)
-    @user = user
-    @url  = verify_and_set_password_url(token_v: verify_token, token_r: reset_token, email: user.mail)
-    @sent_at         = Time.current
-    @verify_deadline = @sent_at + 48.hours      # verificación de correo
-    @reset_deadline  = @sent_at + 60.minutes    # establecer contraseña
-    mail to: user.mail, subject: "Activa tu cuenta – Lantia Intelligence"
-  end
+	def welcome_activation(user, verify_token, reset_token)
+	  @user = user
+
+	  # URL que espera la vista
+	  @verify_and_set_password_url = verify_and_set_password_url(
+	    token_v: verify_token,
+	    token_r: reset_token,
+	    email:   user.mail
+	  )
+
+	  # Tiempos que espera la vista
+	  @sent_at         = Time.current
+	  @verify_deadline = @sent_at + 48.hours      # verificación de correo
+	  @reset_deadline  = @sent_at + 60.minutes    # establecer contraseña
+
+	  # Si tu HTML muestra un solo vencimiento (@expires_at), usa el más estricto:
+	  @expires_at = [@verify_deadline, @reset_deadline].min
+
+	  mail to: user.mail, subject: "Activa tu cuenta – Lantia Intelligence"
+	end
   
 end
 
