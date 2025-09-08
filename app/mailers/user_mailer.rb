@@ -43,9 +43,10 @@ class UserMailer < ApplicationMailer
 	  )
 
 	  # Tiempos que espera la vista
-	  @sent_at         = Time.current
-	  @verify_deadline = @sent_at + 48.hours      # verificación de correo
-	  @reset_deadline  = @sent_at + 60.minutes    # establecer contraseña
+		@sent_at         = Time.current
+		@verify_deadline = @sent_at + 48.hours
+		@reset_deadline  = @sent_at + 48.hours
+		@expires_at      = [@verify_deadline, @reset_deadline].min  # seguirá siendo 48h
 
 	  # Si tu HTML muestra un solo vencimiento (@expires_at), usa el más estricto:
 	  @expires_at = [@verify_deadline, @reset_deadline].min
