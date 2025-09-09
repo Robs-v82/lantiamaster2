@@ -282,7 +282,7 @@ class ApplicationController < ActionController::Base
 		      session[:session_version] = u.session_version
 		    elsif session[:session_version] != u.session_version
 		      reset_session
-		      redirect_to "/login", alert: "Por seguridad, vuelve a iniciar sesión." and return
+		      redirect_to "/password", alert: "Por seguridad, vuelve a iniciar sesión." and return
 		    end
 		end
 

@@ -57,14 +57,12 @@ class User < ApplicationRecord
   #   false
   # end
 
-
   def valid_password_reset_token?(token, ttl_hours = nil)
-    # ttl por defecto = 60 minutos si no te pasan uno
     ttl_hours ||= 1
+    return false if recovery_password_digest.blank? || recovery_password_sent_at.blank?
 
-    return false if password_reset_digest.blank? || password_reset_sent_at.blank?
-    BCrypt::Password.new(password_reset_digest).is_password?(token) &&
-      password_reset_sent_at >= ttl_hours.hours.ago
+    BCrypt::Password.new(recovery_password_digest).is_password?(token) &&
+      recovery_password_sent_at >= ttl_hours.hours.ago
   end
 
   # Invalida token (llamar tras cambiar contraseña).
