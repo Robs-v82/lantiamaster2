@@ -562,6 +562,7 @@ def terrorist_panel
   # 🔽 Carteles para el select (criminal_link), ordenados por nombre
   cartels = Sector.where(scian2: 98).last&.organizations&.uniq || []
   @cartels = cartels.sort_by { |cartel| cartel.name.to_s }
+  @cartels.push(Organization.find_by(:name=>"Por definir"))
 end
 
 def upload_linked_organization
