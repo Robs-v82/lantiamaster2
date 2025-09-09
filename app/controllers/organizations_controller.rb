@@ -704,7 +704,7 @@ class OrganizationsController < ApplicationController
       target_user = User.find_by_mail(password_params[:mail])
 
       if target_user&.locked?
-        audit!("login_failure", user: u, meta: {reason:"locked"})
+        audit!("login_failure", user: target_user, meta: {reason:"locked"})
         flash[:alert] = "Tu cuenta está temporalmente bloqueada. Intenta en #{target_user.minutes_locked_remaining} minuto(s)."
         redirect_to "/frontpage" and return
       end
