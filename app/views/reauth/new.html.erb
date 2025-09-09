@@ -25,8 +25,8 @@
               <i class="material-icons prefix small">vpn_key</i>
               <input class="input-padding white" id="reauth-password" name="password" type="password" placeholder="Contraseña" required minlength="7">
               <i class="material-icons grey-text text-darken-2"
-                 style="margin-left: -40px; cursor: pointer;"
-                 onclick="toggleReauthPassword()">visibility</i>
+                 id="toggle-pass"
+                 style="margin-left: -40px; cursor: pointer;">visibility</i>
             </div>
           </div>
 
@@ -47,15 +47,16 @@
 </div>
 
 <script nonce="<%= csp_nonce %>">
-  function toggleReauthPassword() {
-    var field = document.getElementById("reauth-password");
-    var icon  = event.target;
-    if (field.type === "password") {
-      field.type = "text";
-      icon.textContent = "visibility_off";
+  function togglePasswordVisibility(e) {
+    var passwordField = document.getElementById('password-field');
+    var icon = e && (e.currentTarget || e.target);
+    if (!passwordField || !icon) return;
+    if (passwordField.type === 'password') {
+      passwordField.type = 'text';
+      icon.textContent = 'visibility_off';
     } else {
-      field.type = "password";
-      icon.textContent = "visibility";
+      passwordField.type = 'password';
+      icon.textContent = 'visibility';
     }
   }
 
