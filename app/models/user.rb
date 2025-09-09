@@ -48,22 +48,13 @@ class User < ApplicationRecord
 
   # Valida token recibido: existe, no expiró y coincide con digest.
   # TTL por defecto: 2 horas (ajustable).
-  # def valid_password_reset_token?(raw, ttl: 2.hours)
-  #   return false if reset_password_sent_at.blank? || reset_password_sent_at < ttl.ago
-  #   return false if reset_password_token_digest.blank?
+  def valid_password_reset_token?(raw, ttl: 48.hours)
+    return false if reset_password_sent_at.blank? || reset_password_sent_at < ttl.ago
+    return false if reset_password_token_digest.blank?
 
-  #   BCrypt::Password.new(reset_password_token_digest) == raw
-  # rescue BCrypt::Errors::InvalidHash
-  #   false
-  # end
-
-  def valid_password_reset_token?(token, ttl_hours = nil)
-    # ttl por defecto = 60 minutos si no te pasan uno
-    ttl_hours ||= 1
-
-    return false if password_reset_digest.blank? || password_reset_sent_at.blank?
-    BCrypt::Password.new(password_reset_digest).is_password?(token) &&
-      password_reset_sent_at >= ttl_hours.hours.ago
+    BCrypt::Password.new(reset_password_token_digest) == raw
+  rescue BCrypt::Errors::InvalidHash
+    false
   end
 
   # Invalida token (llamar tras cambiar contraseña).
