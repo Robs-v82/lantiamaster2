@@ -38,7 +38,14 @@ class User < ApplicationRecord
   # guarda su digest y marca timestamp de envío.
   def generate_password_reset!
     raw = SecureRandom.urlsafe_base64(32)
-    digest = BCrypt::Password.create(raw)
+
+    cost = if ActiveModel::SecurePassword.min_cost
+             BCrypt::Engine::MIN_COST
+           else
+             BCrypt::Engine.cost
+           end
+
+    digest = BCrypt::Password.create(raw, cost: cost)
     update!(
       reset_password_token_digest: digest,
       reset_password_sent_at: Time.current
@@ -48,11 +55,11 @@ class User < ApplicationRecord
 
   # Valida token recibido: existe, no expiró y coincide con digest.
   # TTL por defecto: 2 horas (ajustable).
-  def valid_password_reset_token?(raw, ttl: 48.hours)
-    return false if reset_password_sent_at.blank? || reset_password_sent_at < ttl.ago
-    return false if reset_password_token_digest.blank?
+  def valid_password_reset_token?(raw, ttl: 2.hours)
+    return false if reset_password_sent_at.blank? || reset_password_token_digest.blank?
+    return false if reset_password_sent_at < ttl.ago
 
-    BCrypt::Password.new(reset_password_token_digest) == raw
+    BCrypt::Password.new(reset_password_token_digest).is_password?(raw)
   rescue BCrypt::Errors::InvalidHash
     false
   end
