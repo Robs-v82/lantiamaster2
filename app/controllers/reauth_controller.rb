@@ -1,5 +1,6 @@
 class ReauthController < ApplicationController
   layout "application"
+  include AuthAudit
 
   def new
     redirect_to "/frontpage" and return unless current_user_safe
