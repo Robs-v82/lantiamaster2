@@ -703,6 +703,11 @@ class OrganizationsController < ApplicationController
     def login
       target_user = User.find_by_mail(password_params[:mail])
 
+      unless target_user.email_verified?
+        flash[:alert] = "Debes confirmar tu correo."
+        redirect_to "/password" and return
+      end
+
       if target_user&.locked?
         audit!("login_failure", user: target_user, meta: {reason:"locked"})
         flash[:alert] = "Tu cuenta está temporalmente bloqueada. Intenta en #{target_user.minutes_locked_remaining} minuto(s)."
