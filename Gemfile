@@ -104,3 +104,7 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem "httparty", "~> 0.23.1"
+
+gem "rotp", "~> 6.3"
+
+gem "rqrcode", "~> 2.2"

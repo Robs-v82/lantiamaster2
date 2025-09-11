@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_05_223036) do
+ActiveRecord::Schema.define(version: 2025_09_10_224216) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -700,9 +700,14 @@ ActiveRecord::Schema.define(version: 2025_09_05_223036) do
     t.datetime "locked_until"
     t.string "email_verification_digest"
     t.datetime "email_verification_sent_at"
+    t.string "mfa_totp_secret"
+    t.datetime "mfa_enabled_at"
+    t.text "mfa_backup_codes_digest"
+    t.integer "mfa_last_used_step"
     t.index ["email_verification_digest"], name: "index_users_on_email_verification_digest"
     t.index ["locked_until"], name: "index_users_on_locked_until"
     t.index ["member_id"], name: "index_users_on_member_id"
+    t.index ["mfa_enabled_at"], name: "index_users_on_mfa_enabled_at"
     t.index ["reset_password_token_digest"], name: "index_users_on_reset_password_token_digest", unique: true
     t.index ["session_version"], name: "index_users_on_session_version"
   end

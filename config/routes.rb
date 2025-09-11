@@ -160,4 +160,11 @@ Rails.application.routes.draw do
     post "/verify_email", to: "email_verifications#send_link"
     get "/welcome", to: "welcome#show", as: :verify_and_set_password
 
+    get  "/mfa/setup",     to: "mfa#setup"
+    post "/mfa/enable",    to: "mfa#enable"
+    get  "/mfa/challenge", to: "mfa#challenge"
+    post "/mfa/verify",    to: "mfa#verify"
+    post "/mfa/disable",   to: "mfa#disable"
+
+
 end

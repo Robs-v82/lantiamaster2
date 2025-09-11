@@ -1,6 +1,8 @@
 # app/models/user.rb
 require 'bcrypt'
 require 'securerandom'
+require 'rotp'
+require 'json'
 
 class User < ApplicationRecord
   # === Validaciones existentes (tuyas) ===
@@ -159,6 +161,75 @@ class User < ApplicationRecord
 
   def email_verified?
     email_verified_at.present?
+  end
+
+  # === MFA (TOTP) ===
+  def mfa_enabled?
+    mfa_enabled_at.present? && mfa_totp_secret.present?
+  end
+
+  # Genera secreto y códigos de respaldo. NO habilita hasta que verifiques el primer TOTP.
+  # Devuelve { provisioning_uri:, backup_codes:[] } para mostrar en la UI (backup codes: sólo una vez).
+  def mfa_begin_setup!(issuer: "Lantia", account: nil, codes_count: 10)
+    account ||= mail
+    secret = ROTP::Base32.random_base32
+    update!(mfa_totp_secret: secret)
+    totp   = ROTP::TOTP.new(mfa_totp_secret, issuer: issuer)
+    uri    = totp.provisioning_uri(account)
+
+    raw_codes = Array.new(codes_count) { SecureRandom.hex(4) } # 8 hex chars
+    digests   = raw_codes.map { |c| BCrypt::Password.create(c) }
+    update!(mfa_backup_codes_digest: JSON.dump(digests))
+
+    { provisioning_uri: uri, backup_codes: raw_codes }
+  end
+
+  # Verifica TOTP. drift=1 permite ±1 paso (~60s). Anti-replay con mfa_last_used_step.
+  # Si es el primer uso correcto, marca mfa_enabled_at.
+  def verify_totp!(code, drift: 1)
+    return false if mfa_totp_secret.blank?
+    totp = ROTP::TOTP.new(mfa_totp_secret)
+    code = code.to_s.gsub(/\s+/, '')
+
+    now = Time.now
+    used_step = nil
+
+    (-drift..drift).each do |offset|
+      t    = now + (offset * 30)
+      step = (t.to_i / 30)               # ← en vez de totp.timecode(t)
+      next if mfa_last_used_step.present? && step <= mfa_last_used_step
+
+      if totp.verify(code, at: t, drift_behind: 0, drift_ahead: 0)
+        used_step = step
+        break
+      end
+    end
+
+    return false unless used_step
+    update_columns(mfa_last_used_step: used_step)
+    update_columns(mfa_enabled_at: Time.current) unless mfa_enabled?
+    true
+  end
+
+  # Usa un backup code (1 sola vez). Devuelve true si coincide y lo invalida.
+  def use_backup_code!(code)
+    return false if mfa_backup_codes_digest.blank?
+    digests = JSON.parse(mfa_backup_codes_digest)
+    idx = digests.find_index do |d|
+      begin
+        BCrypt::Password.new(d).is_password?(code.to_s.strip)
+      rescue BCrypt::Errors::InvalidHash
+        false
+      end
+    end
+    return false if idx.nil?
+    digests.delete_at(idx)
+    update_columns(mfa_backup_codes_digest: JSON.dump(digests))
+    true
+  end
+
+  def disable_mfa!
+    update!(mfa_totp_secret: nil, mfa_enabled_at: nil, mfa_backup_codes_digest: nil, mfa_last_used_step: nil)
   end
 
 end

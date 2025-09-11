@@ -716,6 +716,13 @@ class OrganizationsController < ApplicationController
 
       if target_user && target_user.authenticate(password_params[:password])
         audit!("login_success", user: target_user)
+
+        # Code for MFA USERS
+        if target_user.mfa_enabled?
+          session[:pending_user_id] = target_user.id
+          redirect_to "/mfa/challenge" and return
+        end
+
         target_user.clear_failed_logins!
         session[:user_id] = target_user.id                  
         session[:login_issued_at] = Time.current.to_i

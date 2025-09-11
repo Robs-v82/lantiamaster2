@@ -1,0 +1,20 @@
+<h1>Habilitar MFA (TOTP)</h1>
+
+<p>Escanea este URI en tu app autenticadora (Google Authenticator/1Password/Authy):</p>
+<pre><%= @provisioning_uri %></pre>
+
+<form method="post" action="/mfa/enable">
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"/>
+  <label for="code">Código (6 dígitos)</label>
+  <input type="text" id="code" name="code" placeholder="123 456" required>
+  <button type="submit">Habilitar MFA</button>
+</form>
+
+<hr>
+<h3>Códigos de respaldo (guárdalos):</h3>
+<ul>
+  <% @backup_codes.each do |c| %>
+    <li><code><%= c %></code></li>
+  <% end %>
+</ul>
+<p><em>Se muestran una sola vez; cada uno se usa una sola vez.</em></p>

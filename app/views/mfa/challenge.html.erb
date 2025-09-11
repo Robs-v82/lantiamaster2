@@ -1,0 +1,8 @@
+<h1>Verificación MFA</h1>
+<p>Introduce el código del autenticador o un código de respaldo.</p>
+<form method="post" action="/mfa/verify">
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"/>
+  <label for="code">Código</label>
+  <input type="text" id="code" name="code" placeholder="123 456" required>
+  <button type="submit">Verificar</button>
+</form>
