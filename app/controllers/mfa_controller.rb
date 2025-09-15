@@ -51,9 +51,17 @@ class MfaController < ApplicationController
       redirect_to "/mfa/challenge" and return
     end
 
+    # Completar sesión como en organizations_controller#login
     session.delete(:pending_user_id)
-    session[:user_id] = @user.id
-    redirect_to "/frontpage"
+
+    @user.clear_failed_logins! if @user.respond_to?(:clear_failed_logins!)
+    session[:user_id]         = @user.id
+    now                       = Time.current.to_i
+    session[:login_issued_at] = now
+    session[:reauth_at]       = now
+    session[:membership]      = @user.membership_type ? @user.membership_type : 0
+
+    redirect_to "/intro"
   end
 
   # POST /mfa/disable  → pide contraseña + TOTP/backup para deshabilitar

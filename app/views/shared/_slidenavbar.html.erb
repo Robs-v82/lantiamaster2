@@ -38,7 +38,7 @@
         <% else %>
             <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/organizations/query">ORGANIZACIONES</a></li>
         <% end %>
-        <% if session[:membership] > 3 %>
+        <% if session[:membership].to_i > 3 %>
              <% if User.find(session[:user_id]).detention_access == false %>
                 <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ARRESTOS</span></li>
             <% else %>
@@ -53,7 +53,7 @@
         <% else %>
             <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Riesgo por Crimen Organizado" href="/states/irco">IRCO</a></li>
         <% end %>
-        <% if session[:membership] > 1 %>
+        <% if session[:membership].to_i > 1 %>
             <% if User.find(session[:user_id]).icon_access == false %>
                 <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ICON</span></li>
             <% else %>
@@ -61,7 +61,7 @@
             <% end %>
         <% end %>
         <br>
-        <% if session[:membership] > 3 %>
+        <% if session[:membership].to_i > 3 %>
             <div class="divider"></div>
             <br>
             <li><a class="left-min-margin white-text p20 semi-slim" href="/datasets/downloads" target="_blank">ARCHIVO LANTIA</a></li>
