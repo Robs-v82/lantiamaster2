@@ -1,0 +1,12 @@
+# Registro de incidentes (formato breve por evento)
+- ID/Fecha (UTC):
+- Severidad (P0–P3):
+- Impacto observado:
+- Línea de tiempo clave (UTC):
+  - Detectado:
+  - Declarado:
+  - Mitigación:
+  - Restaurado:
+- Causa raíz (si conocida):
+- Acciones correctivas (due date y responsable):
+- Evidencias vinculadas: logs, capturas, tickets.

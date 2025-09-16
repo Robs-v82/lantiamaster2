@@ -1,0 +1,22 @@
+# Contactos de respuesta a incidentes (actualizar al cambiar)
+equipo:
+  - rol: Incident Commander
+    nombre: Roberto Valladares
+    mail: roberto@lantiaintlligence.com
+    telefono: +5215544545312
+  - rol: App/Web (Rails)
+    nombre: Roberto Valladares
+    mail: roberto@lantiaintlligence.com
+    telefono: +5215544545312
+  - rol: Infra/Servidor (EC2/Nginx)
+    nombre: Roberto Valladares
+    mail: roberto@lantiaintlligence.com
+    telefono: +5215544545312
+  - rol: Base de Datos (RDS)
+    nombre: Roberto Valladares
+    mail: roberto@lantiaintlligence.com
+    telefono: +5215544545312
+  - rol: Comunicación con cliente
+    nombre: Roberto Valladares
+    mail: roberto@lantiaintlligence.com
+    telefono: +5215544545312
