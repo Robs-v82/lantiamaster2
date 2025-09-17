@@ -8,7 +8,7 @@
     "@rails/webpacker": "4.2.2",
     "babel-plugin-react-css-modules": "^5.2.6",
     "chart.js": "^2.9.3",
-    "chartkick": "^3.2.1",
+    "chartkick": "^5.0.1",
     "jquery": "^3.5.1",
     "materialize-css": "^1.0.0",
     "node": "^14.7.0",
