@@ -9,7 +9,7 @@
     "babel-plugin-react-css-modules": "^5.2.6",
     "chart.js": "^2.9.3",
     "chartkick": "^3.2.1",
-    "jquery": "^3.5.1",
+    "jquery": "^3.7.1",
     "materialize-css": "^1.0.0",
     "node": "^14.7.0",
     "turbolinks": "^5.2.0"
