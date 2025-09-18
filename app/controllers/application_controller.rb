@@ -240,6 +240,15 @@ class ApplicationController < ActionController::Base
 	
 	protected
 
+		def require_admin!
+			admins = ["roberto@lantiaintelligence.com"]
+			x = session[:user_id]
+			user = User.find(x)
+			unless admins.include? user.mail
+				redirect_to root_path, alert: 'No autorizado'	
+			end			
+		end
+
 		REAUTH_WINDOW_SECONDS = ENV.fetch("REAUTH_WINDOW_SECONDS", 10.minutes.to_i).to_i
 		ABS_SESSION_SECONDS = ENV.fetch("ABS_SESSION_SECONDS", (12.hours).to_i).to_i
 		

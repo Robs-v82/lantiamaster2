@@ -166,5 +166,7 @@ Rails.application.routes.draw do
     post "/mfa/verify",    to: "mfa#verify"
     post "/mfa/disable",   to: "mfa#disable"
 
+    get 'users/admin'
+
 
 end

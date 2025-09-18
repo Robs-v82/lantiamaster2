@@ -1,0 +1,34 @@
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener('DOMContentLoaded', function() {
+    var tooltipped = document.querySelectorAll('.tooltipped');
+    M.Tooltip.init(tooltipped);
+  });
+</script>
+
+<div class="b-container">
+  <h5>Panel de administradores</h5>
+  <p class="grey-text">Usuarios con <code>membership_type = 4</code></p>
+
+  <table class="highlight z-depth-1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Organización</th>
+        <th>Expiración</th>
+        <th>Correo verificado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @admins.each do |u| %>
+        <tr>
+          <td><%= u.id %></td>
+          <td><%= user_full_name(u).presence || "—" %></td>
+          <td><%= user_org_name(u).presence || "—" %></td>
+          <td><%= user_membership_expiration(u).presence || "—" %></td>
+          <td><%= email_verified_badge(u) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
