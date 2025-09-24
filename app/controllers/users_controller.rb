@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   before_action :require_admin!, only: [:admin]
 
   def admin
-    @admins = User
+    @users = User
       .where(membership_type: 4)
       .includes(member: :organization) # evita N+1 para nombre y organización
       .order(:id)

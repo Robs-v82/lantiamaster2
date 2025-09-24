@@ -6,24 +6,27 @@
 </script>
 
 <div class="b-container">
-  <h5>Panel de administradores</h5>
-  <p class="grey-text">Usuarios con <code>membership_type = 4</code></p>
+  <h5>Panel del administrador</h5>
+  <%# <p class="grey-text">Usuarios con <code>membership_type = 4</code></p> %>
+  <p class="grey-text">Número de usuarios activos: <%= @users.count %></p>
 
   <table class="highlight z-depth-1">
     <thead>
       <tr>
         <th>ID</th>
         <th>Nombre</th>
+        <th>Correo</th>
         <th>Organización</th>
         <th>Expiración</th>
         <th>Correo verificado</th>
       </tr>
     </thead>
     <tbody>
-      <% @admins.each do |u| %>
+      <% @users.each do |u| %>
         <tr>
           <td><%= u.id %></td>
           <td><%= user_full_name(u).presence || "—" %></td>
+          <td><%= u.mail || "—" %></td>
           <td><%= user_org_name(u).presence || "—" %></td>
           <td><%= user_membership_expiration(u).presence || "—" %></td>
           <td><%= email_verified_badge(u) %></td>

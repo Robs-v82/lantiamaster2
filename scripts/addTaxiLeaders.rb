@@ -68,3 +68,14 @@ CSV.foreach(csv_path, headers: true) do |row|
   hit.members << member
   puts "✅ #{firstname} #{lastname1} creado con hit #{legacy_id}"
 end
+
+r = Role.find_by(:name=>"Alcalde")
+targets = r.members.where(involved: true).where.not(:criminal_link=>nil).where.not(id: MemberRelationship.select(:member_a_id)).where.not(id: MemberRelationship.select(:member_b_id))
+targets.find_each { |m|
+  unless m.organization.county.nil?
+  puts m.fullname+","+m.organization.county.name+","+m.criminal_link.name
+  end
+}
+
+
+

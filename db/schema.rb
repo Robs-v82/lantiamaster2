@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_10_224216) do
+ActiveRecord::Schema.define(version: 2025_09_24_233024) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -75,6 +75,15 @@ ActiveRecord::Schema.define(version: 2025_09_10_224216) do
     t.integer "organization_id"
     t.index ["arrest_id"], name: "index_arrests_organizations_on_arrest_id"
     t.index ["organization_id"], name: "index_arrests_organizations_on_organization_id"
+  end
+
+  create_table "audit_users_changes", force: :cascade do |t|
+    t.datetime "changed_at", default: -> { "now()" }
+    t.text "action"
+    t.text "db_user"
+    t.inet "client_addr"
+    t.jsonb "old_row"
+    t.jsonb "new_row"
   end
 
   create_table "auth_events", force: :cascade do |t|
@@ -800,19 +809,20 @@ ActiveRecord::Schema.define(version: 2025_09_10_224216) do
   add_foreign_key "events", "towns"
   add_foreign_key "fake_identities", "members"
   add_foreign_key "hits", "towns"
-  add_foreign_key "hits", "users"
-  add_foreign_key "keys", "users"
+  add_foreign_key "hits", "users", on_delete: :cascade
+  add_foreign_key "keys", "users", on_delete: :cascade
   add_foreign_key "killings", "events"
   add_foreign_key "leads", "events"
-  add_foreign_key "lrvl_documents", "users", name: "lrvl_documents_user_id_foreign"
-  add_foreign_key "lrvl_internal_publications", "users", name: "lrvl_internal_publications_user_id_foreign"
+  add_foreign_key "lrvl_documents", "users", on_delete: :cascade
+  add_foreign_key "lrvl_internal_publications", "users", on_delete: :cascade
   add_foreign_key "lrvl_membership_expiration", "lrvl_log_membership_payments", column: "log_membership_payments_id", name: "lrvl_membership_expiration_log_membership_payments_id_foreign"
   add_foreign_key "lrvl_membership_expiration", "lrvl_memberships", column: "membership_id", name: "lrvl_membership_expiration_membership_id_foreign"
-  add_foreign_key "lrvl_membership_expiration", "users", name: "lrvl_membership_expiration_user_id_foreign"
-  add_foreign_key "lrvl_news", "users", name: "lrvl_news_user_id_foreign"
-  add_foreign_key "lrvl_payments", "users", name: "lrvl_payments_user_id_foreign"
-  add_foreign_key "lrvl_publications", "users", name: "lrvl_publications_user_id_foreign"
-  add_foreign_key "lrvl_videos", "users", name: "lrvl_videos_user_id_foreign"
+  add_foreign_key "lrvl_membership_expiration", "users", on_delete: :cascade
+  add_foreign_key "lrvl_news", "users", on_delete: :cascade
+  add_foreign_key "lrvl_payments", "users", on_delete: :cascade
+  add_foreign_key "lrvl_publications", "users", on_delete: :cascade
+  add_foreign_key "lrvl_user_conekta_customers", "users", on_delete: :cascade
+  add_foreign_key "lrvl_videos", "users", on_delete: :cascade
   add_foreign_key "member_relationships", "members", column: "member_a_id"
   add_foreign_key "member_relationships", "members", column: "member_b_id"
   add_foreign_key "members", "arrests"
@@ -830,11 +840,11 @@ ActiveRecord::Schema.define(version: 2025_09_10_224216) do
   add_foreign_key "quarters", "years"
   add_foreign_key "queries", "members"
   add_foreign_key "queries", "organizations"
-  add_foreign_key "queries", "users"
+  add_foreign_key "queries", "users", on_delete: :cascade
   add_foreign_key "sources", "members"
   add_foreign_key "states", "counties", column: "capital_id"
   add_foreign_key "subscriptions", "plans"
-  add_foreign_key "subscriptions", "users"
+  add_foreign_key "subscriptions", "users", on_delete: :cascade
   add_foreign_key "titles", "members"
   add_foreign_key "titles", "organizations"
   add_foreign_key "titles", "years"

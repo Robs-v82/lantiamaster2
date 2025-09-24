@@ -1,4 +1,3 @@
-# app/models/user.rb
 require 'bcrypt'
 require 'securerandom'
 require 'rotp'
@@ -26,8 +25,14 @@ class User < ApplicationRecord
   validates :password, format: { with: VALID_PASSWORD_REGEX }, allow_nil: true
 
   belongs_to :member, optional: true
-  has_many :keys
-  has_many :queries
+  has_many :hits          
+  has_many :keys,          dependent: :delete_all
+  has_many :queries,       dependent: :delete_all
+  has_many :subscriptions, dependent: :delete_all
+
+  has_many :lrvl_membership_expirations,
+           class_name: "LrvlMembershipExpiration",
+           dependent: :delete_all
 
   # =========================
   #  Password reset seguro

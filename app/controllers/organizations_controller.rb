@@ -863,6 +863,8 @@ class OrganizationsController < ApplicationController
       unless myAcronym.nil?
         myAcronym = myAcronym
       end
+      print "*******PROBLEM: "
+      print x[0]
       targetOrganization.update(:acronym=>myAcronym, :league=>x[5], :subleague=>x[6], :active=>targetActive)
 
       # UPDATE DIVIDIONS
