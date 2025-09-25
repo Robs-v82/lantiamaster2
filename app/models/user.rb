@@ -19,6 +19,7 @@ class User < ApplicationRecord
   # Soporte existente para "recovery_password" (lo mantengo como estaba)
   has_secure_password :recovery_password, validations: false
 
+  before_validation { self.mail = mail.to_s.strip }
   validates :mail, format:  { with: VALID_EMAIL_REGEX }
   validates :mail, uniqueness: { case_sensitive: false }
   # La complejidad se exige solo cuando se asigna/actualiza password

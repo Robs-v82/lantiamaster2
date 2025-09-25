@@ -1,7 +1,33 @@
 class UsersController < ApplicationController
+  before_action :set_orgs, only: [:new, :create]
+  before_action :require_admin!, only: [:admin, :new, :create]
 
+  def new
+    @user = User.new
+  end
 
-  before_action :require_admin!, only: [:admin]
+  def create
+    ActiveRecord::Base.transaction do
+      @member = Member.create!(member_params)
+
+      random = "#{SecureRandom.urlsafe_base64(12)}Aa1"
+      @user  = User.new(user_params.merge(member: @member))
+      @user.mail = @user.mail.to_s.strip # normaliza espacios
+      @user.password = random
+      @user.password_confirmation = random
+      @user.membership_type = 4
+      @user.save! # si falla, saltará al rescue con mensajes
+      verify_token = @user.generate_email_verification_token!
+      reset_token  = @user.generate_password_reset!
+      UserMailer.welcome_activation(@user, verify_token, reset_token).deliver_later
+    end
+    redirect_to users_admin_path, notice: 'Usuario creado y correo de activación enviado.'
+  rescue ActiveRecord::RecordInvalid => e
+    @user = e.record
+    set_orgs
+    flash.now[:alert] = @user.errors.full_messages.join(', ')
+    render :new, status: :unprocessable_entity
+  end
 
   def admin
     @users = User
@@ -11,24 +37,6 @@ class UsersController < ApplicationController
   end
   
   layout false, only: [:intro, :index]
-  # before_action :set_user, only: [:show, :edit, :update, :destroy]
-
-  # GET /users
-  # GET /users.json
-  # def index
-  #   if current_user
-  #     @users = User.all
-  #   else
-  #     redirect_to '/users/password'
-  #   end
-  # end
-
-  # def password
-  #   if session[:password_error]
-  #     @password_error = true
-  #     print "******PASSWORD ERROR!!!!!*******"
-  #   end
-  # end
 
   def preloader
     
@@ -45,79 +53,25 @@ class UsersController < ApplicationController
   def landing
   end
 
-  # def login
-  #   target_user = User.find_by_mail(user_params[:mail])
-  #   if target_user && target_user.authenticate(user_params[:password])
-  #     print "***Succes***"*500
-  #     session[:user_id] = target_user[:id]
-  #     redirect_to '/'
-  #   else
-  #     redirect_to '/users/password'
-  #   end   
-  # end
 
-  # GET /users/1
-  # GET /users/1.json
-  # def show
-  # end
-
-  # GET /users/new
-  # def new
-  #   @user = User.new
-  # end
-
-  # GET /users/1/edit
-  # def edit
-  # end
-
-  # POST /users
-  # POST /users.json
-  # def create
-  #   @user = User.new(user_params)
-
-  #   respond_to do |format|
-  #     if @user.save
-  #       format.html { redirect_to @user, notice: 'User was successfully created.' }
-  #       format.json { render :show, status: :created, location: @user }
-  #     else
-  #       format.html { render :new }
-  #       format.json { render json: @user.errors, status: :unprocessable_entity }
-  #     end
-  #   end
-  # end
-
-  # PATCH/PUT /users/1
-  # PATCH/PUT /users/1.json
-  # def update
-  #   respond_to do |format|
-  #     if @user.update(user_params)
-  #       format.html { redirect_to @user, notice: 'User was successfully updated.' }
-  #       format.json { render :show, status: :ok, location: @user }
-  #     else
-  #       format.html { render :edit }
-  #       format.json { render json: @user.errors, status: :unprocessable_entity }
-  #     end
-  #   end
-  # end
-
-  # DELETE /users/1
-  # DELETE /users/1.json
-  # def destroy
-  #   @user.destroy
-  #   respond_to do |format|
-  #     format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
-  #     format.json { head :no_content }
-  #   end
-  # end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    # def set_user
-    #   @user = User.find(params[:id])
-    # end
 
-    # Only allow a list of trusted parameters through.
-    def user_params
-      params.require(:user).permit(:mail, :password)
+    def set_orgs
+    @organizations = Organization.where('search_level > 0')
+                                 .order(:name)
+                                 .select(:id, :name)
     end
+
+    def user_params
+      params.require(:user).permit(:mail)
+    end
+
+    def member_params
+      params.require(:member).permit(:firstname, :lastname1, :lastname2, :organization_id)
+    end
+
+    # def user_params
+    #   params.require(:user).permit(:mail, :password)
+    # end
 end

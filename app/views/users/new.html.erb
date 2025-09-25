@@ -1,5 +1,46 @@
-<h1>New User</h1>
+<div class="b-container">
+  <h5>Nuevo usuario</h5>
+  <p class="grey-text">Completa los datos del usuario y su miembro asociado.</p>
 
-<%= render 'form', user: @user %>
+  <%= form_with url: users_create_path, scope: :user, local: true, html: { class: "z-depth-1" } do |f| %>
+    <div class="row" style="padding:16px;">
+      <!-- mail -->
+      <div class="input-field col s12 m6">
+        <%= f.email_field :mail, required: true, class: "validate", autocomplete: "off" %>
+        <label for="user_mail">Correo (user.mail)</label>
+      </div>
 
-<%= link_to 'Back', users_path %>
+      <%# Campos del Member: usamos fields con scope :member %>
+      <%= fields_for :member do |m| %>
+        <div class="input-field col s12 m6">
+          <%= m.text_field :firstname, required: true, autocomplete: "off" %>
+          <label for="member_firstname">Nombre(s) (member.firstname)</label>
+        </div>
+
+        <div class="input-field col s12 m6">
+          <%= m.text_field :lastname1, autocomplete: "off" %>
+          <label for="member_lastname1">Apellido paterno (opcional)</label>
+        </div>
+
+        <div class="input-field col s12 m6">
+          <%= m.text_field :lastname2, autocomplete: "off" %>
+          <label for="member_lastname2">Apellido materno (opcional)</label>
+        </div>
+
+        <div class="input-field col s12">
+          <%= m.select :organization_id,
+                options_from_collection_for_select(@organizations, :id, :name),
+                { prompt: "Selecciona organización" },
+                { class: "browser-default" } %>
+          <small class="grey-text">Solo organizaciones con <code>search_level &gt; 0</code></small>
+        </div>
+      <% end %>
+
+      <div class="col s12" style="margin-top:8px;">
+        <%= f.submit "Crear usuario", class: "btn waves-effect waves-light" %>
+        <%= link_to "Cancelar", users_admin_path, class: "btn-flat" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+

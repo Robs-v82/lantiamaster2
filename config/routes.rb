@@ -167,6 +167,8 @@ Rails.application.routes.draw do
     post "/mfa/disable",   to: "mfa#disable"
 
     get 'users/admin'
+    get 'users/new'
+    post 'users/create'
 
 
 end
