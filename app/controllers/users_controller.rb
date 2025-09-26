@@ -17,6 +17,16 @@ class UsersController < ApplicationController
       @user.password_confirmation = random
       @user.membership_type = 4
       @user.save! # si falla, saltará al rescue con mensajes
+
+      if (d = parsed_membership_expiration).present?
+        Subscription.create!(
+          user: @user,
+          plan_id: 4,
+          current_period_end: d.end_of_day,
+          status: 'active'
+        )
+      end
+
       verify_token = @user.generate_email_verification_token!
       reset_token  = @user.generate_password_reset!
       UserMailer.welcome_activation(@user, verify_token, reset_token).deliver_later
@@ -71,7 +81,10 @@ class UsersController < ApplicationController
       params.require(:member).permit(:firstname, :lastname1, :lastname2, :organization_id)
     end
 
-    # def user_params
-    #   params.require(:user).permit(:mail, :password)
-    # end
+    def parsed_membership_expiration
+      raw = params.dig(:user, :membership_expiration_on).to_s.strip
+      return nil if raw.blank?
+      Date.parse(raw) rescue nil
+    end
+
 end

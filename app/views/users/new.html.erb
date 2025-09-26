@@ -34,6 +34,14 @@
                 { class: "browser-default" } %>
           <small class="grey-text">Solo organizaciones con <code>search_level &gt; 0</code></small>
         </div>
+
+        <div class="input-field col s12 m6">
+          <%= f.date_field :membership_expiration_on %>
+          <label for="user_membership_expiration_on" class="active">
+            Fecha de expiración de membresía (opcional)
+          </label>
+          <small class="grey-text">Se usará para definir la expiración vigente.</small>
+        </div>
       <% end %>
 
       <div class="col s12" style="margin-top:8px;">
