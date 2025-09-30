@@ -4,6 +4,7 @@ require 'rotp'
 require 'json'
 
 class User < ApplicationRecord
+  PASSWORD_RESET_TTL = 48.hours
   # === Validaciones existentes (tuyas) ===
   VALID_PASSWORD_REGEX = /\A
     (?=.{7,})          # 7+ caracteres

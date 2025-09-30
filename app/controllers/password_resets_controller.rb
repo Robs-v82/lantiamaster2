@@ -30,7 +30,7 @@ class PasswordResetsController < ActionController::Base
   def edit
     @user  = find_user_by_email
     @token = params[:token]
-    if @user&.valid_password_reset_token?(@token)
+    if @user&.valid_password_reset_token?(@token, ttl: User::PASSWORD_RESET_TTL)
       render :edit
     else
       render plain: "Token inválido o expirado", status: :unprocessable_entity
@@ -40,7 +40,7 @@ class PasswordResetsController < ActionController::Base
   def update
     user  = find_user_by_email
     token = params[:token]
-    unless user&.valid_password_reset_token?(token)
+    unless user&.valid_password_reset_token?(token, ttl: User::PASSWORD_RESET_TTL)
       render plain: "Token inválido o expirado", status: :unprocessable_entity and return
     end
     if params[:password].present? && params[:password] == params[:password_confirmation]
