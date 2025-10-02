@@ -48,9 +48,10 @@
 
 <script nonce="<%= csp_nonce %>">
   function togglePasswordVisibility(e) {
-    var passwordField = document.getElementById('password-field');
+    var passwordField = document.getElementById('reauth-password'); // <-- id correcto
     var icon = e && (e.currentTarget || e.target);
     if (!passwordField || !icon) return;
+
     if (passwordField.type === 'password') {
       passwordField.type = 'text';
       icon.textContent = 'visibility_off';
@@ -60,8 +61,11 @@
     }
   }
 
-  // Inicializa modales si tu layout los usa (Materialize)
   document.addEventListener('DOMContentLoaded', function() {
     try { if (window.M && M.Modal) M.Modal.init(document.querySelectorAll('.modal')); } catch(e) {}
+
+    // Enlazar el click al ícono
+    var toggle = document.getElementById('toggle-pass');
+    if (toggle) toggle.addEventListener('click', togglePasswordVisibility);
   });
 </script>

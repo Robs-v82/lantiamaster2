@@ -64,7 +64,7 @@ class User < ApplicationRecord
 
   # Valida token recibido: existe, no expiró y coincide con digest.
   # TTL por defecto: 2 horas (ajustable).
-  def valid_password_reset_token?(raw, ttl: 2.hours)
+  def valid_password_reset_token?(raw, ttl: PASSWORD_RESET_TTL)
     return false if reset_password_sent_at.blank? || reset_password_token_digest.blank?
     return false if reset_password_sent_at < ttl.ago
 
