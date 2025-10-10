@@ -542,6 +542,8 @@ end
 	end
 
 def terrorist_panel	
+  @empresas = Organization.where.not(:criminal_link=>nil)
+
   if session[:load_success]
     @load_success = true
   end

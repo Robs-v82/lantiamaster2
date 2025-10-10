@@ -48,6 +48,9 @@
 		</div>
 	<% end %>
 
+
+
+		
 	<!-- === FORMULARIO: ORGANIZACIONES === -->
 	<div class="col l6 m8 s12">
 	  <div class="card cyan darken-1">
@@ -85,6 +88,24 @@
 	        </div>
 	      </form>
 	    </div>
+	  </div>
+	</div>
+
+	<div class="col l6 m8 s12">
+	  <div class="card cyan darken-1">
+	    <table class="highlight z-depth-1 white-text">
+	    	<th><span class="card-title">Empresas registradas</span></th>
+	    	<% @empresas.each do |empresa| %>
+	    		<tr>
+	    			<td style="padding-left: 10px;">	
+	    				<%= empresa.name %>
+	    			</td>
+	    			<td style="padding-left: 10px;">	
+	    				<%= empresa.criminal_link.name %>
+	    			</td>
+	    		</tr>
+	    	<% end %>
+	    </table>
 	  </div>
 	</div>
 
