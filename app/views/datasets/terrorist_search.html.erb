@@ -125,44 +125,5 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col s12">
-      <table class="highlight z-depth-1">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombres</th>
-            <th>Apellido Paterno</th>
-            <th>Apellido Materno</th>
-            <th>Alias</th>
-            <th>Rol</th>
-            <th>Organización</th>
-            <th>Último registro</th>
-            <th>Lugar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @members.each do |member| %>
-            <% last_hit = member.hits.order(:date).last %>
-            <tr>
-              <td><%= member.id %></td>
-              <td><%= member.firstname %></td>
-              <td><%= member.lastname1 %></td>
-              <td><%= member.lastname2 %></td>
-              <td><%= member.alias.first %></td>
-              <td><%= member.role&.name %></td>
-              <td><%= member.organization&.name %></td>
-              <td><%= last_hit&.date&.strftime("%d/%m/%y") %></td>
-              <td>
-                <% if last_hit&.town&.county&.name && last_hit.town.county.name != "Sin definir" %>
-                  <%= last_hit.town.county.name %>,
-                <% end %>
-                <%= last_hit&.town&.county&.state&.shortname %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
+
 </div>

@@ -410,24 +410,26 @@
                   Autoridad expuesta
                 <% end %>
                 <br>
-                <%= member.role.name %>
-                <% if @federal_officers.include?(member.role&.name) %>
-                   en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
-                <% elsif @state_officers.include?(member.role&.name) %>
-                   de <%= member.organization.county.state.name %>
-                <% elsif member.role.name == "Regidor"%>
-                  en  <%= member.organization.county.name %>,
-                  <%= member.organization.county.state.shortname %>.
-                <% else %>
-                  de <%= member.organization.county.name %>,
-                  <%= member.organization.county.state.shortname %>.
-                <% end %>
-                <br>
-                <% if member.start_date? %>
-                  <%= member.start_date.strftime("%d/%m/%Y") %>
-                <% end %>
-                <% if member.end_date? %>
-                  a <%= member.end_date.strftime("%d/%m/%Y") %>
+                <% if member.appointments.empty? %>
+                  <%= member.role.name %>
+                  <% if @federal_officers.include?(member.role&.name) %>
+                     en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
+                  <% elsif @state_officers.include?(member.role&.name) %>
+                     de <%= member.organization.county.state.name %>
+                  <% elsif member.role.name == "Regidor"%>
+                    en  <%= member.organization.county.name %>,
+                    <%= member.organization.county.state.shortname %>.
+                  <% else %>
+                    de <%= member.organization.county.name %>,
+                    <%= member.organization.county.state.shortname %>.
+                  <% end %>
+                  <br>
+                  <% if member.start_date? %>
+                    <%= member.start_date.strftime("%d/%m/%Y") %>
+                  <% end %>
+                  <% if member.end_date? %>
+                    a <%= member.end_date.strftime("%d/%m/%Y") %>
+                  <% end %>
                 <% end %>
               <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
                 <%= member.role.name %>, <%= member.organization.name %>
@@ -452,13 +454,23 @@
                       <% otro = rel.member_b %>
                       <li>
                         -<%= rel.role_a_gender %> de
-                        <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
+                        <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, 
+                        <% if otro.criminal_link %>
+                          <%= otro.criminal_link.name %>
+                        <% else %>
+                          <%= otro.organization.name %>
+                        <% end %>
                       </li>
                     <% else %>
                       <% otro = rel.member_a %>
                       <li>
                         -<%= rel.role_b_gender %> de
-                        <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, <%= otro.organization.name %>
+                        <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>,
+                        <% if otro.criminal_link %>
+                          <%= otro.criminal_link.name %>
+                        <% else %>
+                          <%= otro.organization.name %>
+                        <% end %>
                       </li>
                     <% end %>
                   <% end %>
@@ -515,10 +527,7 @@
              .sort_by { |(_a, s, e)| [s || Date.new(1,1,1), e || Date.new(9999,12,31)] }
              .each do |appt, s, e| %>
           <li style="margin-bottom: 6px;">
-            <%= appt.role&.name || "Cargo" %>
-            <% if appt.organization.present? %>
-              , <%= appt.organization.name %>
-            <% end %>
+            <%= appt.role&.name || "Cargo" %><% if appt.organization.present? %>, <%= appt.organization.name %><% end %>
             <% if s.present? || e.present? %>
               <br>
               <%= appt_span_label(s, e) %>
@@ -530,34 +539,33 @@
   </tr>
 <% end %>
 
-
-        <tr>
-          <th style="vertical-align: top;">
-            <span style="font-weight: bold;">Actividad/menciones:</span>
-            <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
-              <% member.hits.order(date: :desc).each do |hit| %>
-                <li style="margin-bottom: 6px;">
-                  <% if hit.pdf.attached? %>
-                    <a href="<%= url_for(hit.pdf) %>" target="_blank" style="margin-right: 8px;">
-                      <img src="<%= asset_path('pdf_icon.png') %>" alt="PDF" style="width: 20px; vertical-align: middle;">
+          <tr>
+            <th style="vertical-align: top;">
+              <span style="font-weight: bold;">Actividad/menciones:</span>
+              <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
+                <% member.hits.order(date: :desc).each do |hit| %>
+                  <li style="margin-bottom: 6px;">
+                    <a href="<%= hit.link %>" target="_blank" style="margin-right: 8px; text-decoration: none; color: inherit;">
+                      <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
                     </a>
-                  <% else %>
-                    <span style="display: inline-block; width: 28px;"></span>
-                  <% end %>
-                  <%= hit.date.strftime("%d/%m/%y") %> — 
-                  <% unless hit.town.county.name == "Sin definir" %>
-                    <span style="font-weight: 300;"><%= hit.town.county.name %>,</span>
-                  <% end %>
-                  <%= hit.town.county.state.shortname %>
-                </li>
-              <% end %>
-            </ul>
-          </th>
-<td>
-  <div id="map-container-<%= member.id %>" style="height: 280px; min-width: 280px;"></div>
-    <div id="aviso-legal-modal" class="modal" style="max-height: 65%; max-width: 80%; padding: 22px;">
-      <div class="modal-content" style="overflow-y: auto; font-size: 14px; line-height: 1.7; color: #333;">
-        <p class="center-align"><strong>AVISO LEGAL</strong></p>
+                    <%= hit.date.strftime("%d/%m/%y") %> — 
+                    <% unless hit.town.county.name == "Sin definir" %>
+                      <span style="font-weight: 300;"><%= hit.town.county.name %>,</span>
+                    <% end %>
+                    <%= hit.town.county.state.shortname %>
+                  </li>
+                <% end %>
+              </ul>
+            </th>
+            <td>
+              <div id="map-container-<%= member.id %>" style="height: 280px; min-width: 280px;"></div>
+            </td>
+          </tr>
+          
+              <div id="aviso-legal-modal" class="modal" style="max-height: 65%; max-width: 80%; padding: 22px;">
+                <div class="modal-content" style="overflow-y: auto; font-size: 14px; line-height: 1.7; color: #333;">
+                  <p class="center-align"><strong>AVISO LEGAL</strong></p>
+
 
       <p><strong>I. Fundamentación Jurídica</strong></p>
       <p>
@@ -749,8 +757,6 @@
       }
     });
   </script>
-</td>
-        </tr>
       <% end %>
     <% end %>
         </tbody>

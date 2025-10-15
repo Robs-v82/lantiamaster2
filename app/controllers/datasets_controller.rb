@@ -99,8 +99,19 @@ class DatasetsController < ApplicationController
 	  end
 	  @por_rol = rol_raw.sort_by { |_, v| -v.size }.to_h
 
-	  # Tabla por organización
-	  @por_organizacion = members.group_by(&:organization).sort_by { |_, v| -v.size }.to_h
+		# Tabla por organización (prioriza criminal_link sobre organization)
+		@por_organizacion = members
+		  .group_by do |m|
+		    key =
+		      if m.respond_to?(:criminal_link) && m.criminal_link.present?
+		        m.criminal_link
+		      else
+		        m.organization
+		      end
+		    key || :undefined
+		  end
+		  .sort_by { |_, v| -v.size }
+		  .to_h
 
 	  # Agregar desagregación de roles por los dos usuarios con más miembros
 	  top_two_users = @por_usuario.keys.first(2).reject { |id| id == :undefined }
