@@ -55,6 +55,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,300&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <style type="text/css">
+      
+    .chartArea {
+        width: 100%;
+        height: 100%;
+      } 
+
+ 
+    </style>
     <script type="text/javascript" nonce="<%= csp_nonce %>">
       $(document).ready(function(){
 
@@ -177,7 +186,7 @@
       margin-top: 20px;
     }
 
-    svg {
+    .nav-wrapper svg {
       height: 65px;
       vertical-align: middle;
       margin-top: 8px;
@@ -232,6 +241,355 @@
     }
 
   </style>
+    <script type="text/javascript" nonce="<%= csp_nonce %>">
+      $(document).ready(function() {
+        var chartHeight = $('#year-victims').parent().height() || 400;
+
+        Highcharts.chart('year-victims', {
+        chart: {
+          type: 'column',
+          height: chartHeight,
+          margin: [20,20,60,20],
+          backgroundColor: 'rgba(0,0,0,0)',
+        },
+            title: false, 
+          credits: false,
+        exporting: {
+          enabled: false
+        },
+            legend: {
+              enabled: false
+            },
+            xAxis: {
+              categories: [
+                <% @yearData.each do |n| %>
+              <% if n[:estimate] %>
+                    "<%= n[:year] %>*",
+                  <% else %>
+                    "<%= n[:year] %>",
+                  <% end %>
+                <% end %>
+              ],
+              labels: {
+                style: {
+                  fontSize: "14px",
+                }
+              }
+            },
+            yAxis: {
+              title: {
+                text: null
+              },
+              labels: {
+                enabled: false
+              },
+            },
+            series: [{
+              data: [
+                <% @yearData.each do |n| %>
+                  {
+                    <% if n[:estimate] %>
+                      name: "<%= n[:year] %>*",
+                    <% else %>
+                      name: "<%= n[:year] %>",
+                    <% end %>
+                    y: <%= n[:victims] %>,                  },
+                <% end %>
+              ],
+              color: "#EF4E50",
+            }],
+        tooltip: {
+                headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+                pointFormat: '<span style="font-size:16px; color:#454157">{point.y}</span><br>'
+              },
+        })
+      });
+    </script>
+
+    <script type="text/javascript" nonce="<%= csp_nonce %>">
+      $(document).ready(function() {
+        var chartHeight = $('#state-victims').parent().height() || 400;
+
+        Highcharts.chart('state-victims', {
+        chart: {
+          type: 'line',
+          height: chartHeight,
+          margin: [20,20,60,40],
+          backgroundColor: 'rgba(0,0,0,0)',
+        },
+            title: false, 
+          credits: false,
+        exporting: {
+          enabled: false
+        },
+            legend: {
+              enabled: false
+            },
+            xAxis: {
+              categories: [
+                <% @stateData[0][:months].each do |period| %>
+                  '<%= period[:month] %>',
+                <% end %>
+              ],
+              labels: {
+                style: {
+                  fontSize: "14px",
+                }
+              }
+            },
+            yAxis: {
+              title: {
+                text: null
+              },
+              labels: {
+                enabled: false
+              },
+            },
+            series: [
+              <% @stateData.each do |place| %>
+                {
+                  name: '<%= place[:name] %>',
+                  color: '<%= place[:color] %>',
+                  lineWidth: 3,
+                  marker: {
+                    radius: 6,
+                lineColor: '<%= place[:color] %>', 
+                lineWidth: 2,
+                    fillColor: "white",
+                  },
+                  data: [
+                    <% place[:months].each do |month| %>
+                      {y: <%= month[:victims] %>},
+                    <% end %>
+                  ]
+                },
+              <% end %>
+            ],
+        tooltip: {
+                headerFormat: '<span style="font-size:12px >{point.key}</span><br>',
+              },
+        })
+      });
+    </script>
+
+    <script type="text/javascript" nonce="<%= csp_nonce %>">
+      $(document).ready(function() {
+        var chartHeight = $('#county-victims').parent().height() || 400;
+
+        Highcharts.chart('county-victims', {
+        chart: {
+          type: 'line',
+          height: chartHeight,
+          margin: [20,20,60,40],
+          backgroundColor: 'rgba(0,0,0,0)',
+        },
+            title: false, 
+          credits: false,
+        exporting: {
+          enabled: false
+        },
+            legend: {
+              enabled: false
+            },
+            xAxis: {
+              categories: [
+                <% @placeData[0][:months].each do |period| %>
+                  '<%= period[:month] %>',
+                <% end %>
+              ],
+              labels: {
+                style: {
+                  fontSize: "14px",
+                }
+              }
+            },
+            yAxis: {
+              title: {
+                text: null
+              },
+              labels: {
+                enabled: false
+              },
+            },
+            series: [
+              <% @placeData.each do |place| %>
+                {
+                  name: '<%= place[:name] %>',
+                  color: '<%= place[:color] %>',
+                  lineWidth: 3,
+                  marker: {
+                    radius: 6,
+                lineColor: '<%= place[:color] %>', 
+                lineWidth: 2,
+                    fillColor: "white",
+                  },
+                  data: [
+                    <% place[:months].each do |month| %>
+                      {y: <%= month[:victims] %>},
+                    <% end %>
+                  ]
+                },
+              <% end %>
+            ],
+        tooltip: {
+                headerFormat: '<span style="font-size:12px >{point.key}</span><br>',
+              },
+        })
+      });
+    </script>
+
+    <script type="text/javascript" nonce="<%= csp_nonce %>">
+      $(document).ready(function() {
+
+      var mxStates = [
+          ['mx-3622', null],
+          ['mx-bc', null],
+          ['mx-bs', null],
+          ['mx-so', null],
+          ['mx-cl', null],
+          ['mx-na', null],
+          ['mx-cm', null],
+          ['mx-qr', null],
+          ['mx-mx', null],
+          ['mx-mo', null],
+          ['mx-df', null],
+          ['mx-qt', null],
+          ['mx-tb', null],
+          ['mx-cs', null],
+          ['mx-nl', null],
+          ['mx-si', null],
+          ['mx-ch', null],
+          ['mx-ve', null],
+          ['mx-za', null],
+          ['mx-ag', null],
+          ['mx-ja', null],
+          ['mx-mi', null],
+          ['mx-oa', null],
+          ['mx-pu', null],
+          ['mx-gr', null],
+          ['mx-tl', null],
+          ['mx-tm', null],
+          ['mx-co', null],
+          ['mx-yu', null],
+          ['mx-dg', null],
+          ['mx-gj', null],
+          ['mx-sl', null],
+          ['mx-hg', null]
+      ];
+
+      var countyData = [
+        <% @countyMapData.each do |place| %>          
+          {
+            code: '<%= place[:code]%>',
+            name: '<%= place[:shortname] %>',
+            lat: <%= place[:latitude] %>,
+            lon: <%= place[:longitude] %>,
+            value: '<%= place[:victimLevel] %>',
+            <% if place[:victimLevel] == "1 a 10" %>
+              color: '#ffeb3b',
+            <% elsif place[:victimLevel] == "11 a 20" %>
+              color: '#ff9800',
+            <% elsif place[:victimLevel] == "21 en adelante" %>
+              color: '#f44336',
+            <% else %>
+              color: '#8bc34a',
+            <% end %>
+          },
+        <% end %>
+      ];
+
+      var mapHeight = $('#county-victims-map').parent().height() || 400;
+      function drawMap(data) {
+        Highcharts.getJSON('/maps/mx-all.geojson', function(geojson) {
+          Highcharts.mapChart('county-victims-map', {
+                chart: {
+                    map: geojson,
+                    height: mapHeight,
+                    backgroundColor: '#041f3a',
+                },
+                title: false, 
+                credits: false,
+            exporting: {
+              enabled: false
+            },
+                
+                legend: false,
+                title: false, 
+                credits: false,
+                mapNavigation: {
+                    enabled: true,
+                    buttonOptions: {
+                        theme: {
+                            fill: 'white',
+                            'stroke-width': 1,
+                            stroke: 'white',
+                            r: 0,
+                            states: {
+                                hover: {
+                                    fill: '#EF4E50',
+                                    stroke: 'white',
+                                    color: 'white',
+                                },
+                                select: {
+                                    stroke: '#039',
+                                    fill: '#a4edba'
+                                }
+                            }
+                        },
+                        x: 20,
+                        verticalAlign: 'bottom'
+                    },
+                    buttons: {
+                      zoomIn: {
+                        y: -30,
+                      },
+                      zoomOut: {
+                        y: 10,
+                      }
+                    }
+                },
+            exporting: {
+              enabled: false
+            },
+                series: [
+                  {
+                      data: mxStates,
+                      borderColor: 'white',
+                      borderWidth: 1,
+                      nullColor: '#274b6e', 
+                      dataLabels: {
+                          enabled: true,
+                          format: '{point.properties.postal}'
+                      }
+                  },
+                  {
+                    cursor: 'pointer',
+                    type: 'mappoint',
+                    data: data,
+                    marker: {
+                      radius: 5
+                    },
+                      dataLabels: {
+                          enabled: false,
+                      },
+                      tooltip: {
+                        headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+                        pointFormat: '<span style="font-size:16px; color:#454157">{point.value}</span><br>'
+                      },
+                    }
+                ],
+
+            }, function (chart) { 
+                var originalWidth = chart.chartWidth - 105;
+                chart.renderer.image('/assets/icono_negativo.png', originalWidth, 50, 60, 52)
+                .add();
+              }); 
+            });   
+      }
+      drawMap(countyData)
+      });
+    </script>
+
   </head>
   <body>
       <%= render 'shared/flash' %>
@@ -317,7 +675,11 @@
               <h6>VÍCTIMAS LETALES DEL CRIMEN ORGANIZADO</h6>
             </div>
             <div class="card-image">
-              <iframe src="/year_victims"></iframe>
+              <div class="b-container" style="height:400px;">
+                <div class="chartArea">
+                  <div id="year-victims"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -327,7 +689,11 @@
               <h6>VÍCTIMAS LETALES DEL CRIMEN ORGANIZADO</h6>
             </div>
             <div class="card-image">
-              <iframe src="/state_victims" frameborder="0" height="300px" width="100%"></iframe>
+              <div class="b-container" style="height:400px;">
+                <div class="chartArea">
+                  <div id="state-victims"></div>
+                </div>
+              </div>            
             </div>
           </div>
         </div>
@@ -337,7 +703,11 @@
               <h6>VÍCTIMAS LETALES DEL CRIMEN ORGANIZADO</h6>
             </div>
             <div class="card-image">
-              <iframe src="/county_victims" frameborder="0" height="300px" width="100%"></iframe>
+              <div class="b-container" style="height:400px;">
+                <div class="chartArea">
+                  <div id="county-victims"></div>
+                </div>
+              </div>            
             </div>
           </div>
         </div>
@@ -347,8 +717,10 @@
               <h6>VÍCTIMAS LETALES DEL CRIMEN ORGANIZADO</h6>
             </div>
             <div class="card-image">
-              <div class="b-container">
-                <iframe src="/county_victims_map" frameborder="0" height="300px" width="100%"></iframe>
+              <div class="b-container" style="height:400px;">
+                <div class="chartArea">
+                  <div id="county-victims-map"></div>
+                </div>
               </div>
             </div>
           </div>

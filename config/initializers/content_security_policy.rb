@@ -1,3 +1,25 @@
+Rails.application.config.content_security_policy do |policy|
+  # Scripts externos permitidos (coincidir con lo que uses)
+  policy.script_src :self,
+                    "https://cdnjs.cloudflare.com",
+                    "https://cdn.jsdelivr.net",
+                    # Si de veras necesitas code.jquery.com, añade:
+                    # "https://code.jquery.com",
+                    :https, # opcional si quieres permitir otros https versionados
+                    -> { "'nonce-#{content_security_policy_nonce}'" }
+
+  # Estilos y fuentes (usa Google Fonts si ya lo tienes en la vista)
+  policy.style_src  :self, "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", :unsafe_inline
+  policy.font_src   :self, "https://fonts.gstatic.com", :data
+
+  # *** Permite que TU propio sitio se iframee a sí mismo ***
+  policy.frame_ancestors :self, "https://dashboard.lantiaintelligence.com", "https://lantiaintelligence.com"
+
+  # *** Evita los errores por sourcemaps de jsDelivr (solo lectura) ***
+  policy.connect_src :self, :https, :ws, :wss
+end
+
+
 # Be sure to restart your server when you modify this file.
 
 # Define an application-wide content security policy

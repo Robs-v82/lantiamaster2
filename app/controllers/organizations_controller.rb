@@ -1173,6 +1173,40 @@ end
   end
 
   def frontpage
+    previousYears = [
+      {:year=>"2007",:victims=>2826},
+      {:year=>"2008",:victims=>6837},
+      {:year=>"2009",:victims=>9614},
+      {:year=>"2010",:victims=>15266},
+      {:year=>"2011",:victims=>15768},
+      {:year=>"2012",:victims=>13675},
+      {:year=>"2013",:victims=>11269},
+      {:year=>"2014",:victims=>8004},
+      {:year=>"2015",:victims=>8122},
+      {:year=>"2016",:victims=>12224},
+      {:year=>"2017",:victims=>18946}
+    ]
+    victimYearsArr = Cookie.where(:category=>"api").last.data[0][:years]
+    @yearData = previousYears.append(*victimYearsArr)
+    @yearData[0][:change] = "--"
+    (1..@yearData.length-1).each{|x|
+      change = @yearData[x][:victims]/@yearData[x-1][:victims].to_f
+      @yearData[x][:change] = ((change - 1)*100).round(1)
+    }
+
+    colorAxis = ["#2f8f8f", "#ef974e", "#3ebf3e", "#757575"]
+    @stateData = Cookie.where(:category=>"api").last.data[0][:topStates]
+    (0..3).each{|x|
+      @stateData[x][:color] = colorAxis[x]
+    }
+
+    @placeData = Cookie.where(:category=>"api").last.data[0][:topCounties]
+    (0..3).each{|x|
+      @placeData[x][:color] = colorAxis[x]
+    }
+
+    @countyMapData = Cookie.where(:category=>"api").last.data[0][:countyVictimsMap]
+
     render :layout => false 
   end
 
