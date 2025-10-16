@@ -111,7 +111,7 @@
           <% total_orgs = 0 %>
           <% @por_organizacion.each do |org, miembros| %>
             <tr>
-              <td><%= org&.name || "Sin definir" %></td>
+              <td><%= org.respond_to?(:name) ? org.name : "Sin definir" %></td>
               <td><%= miembros.count %></td>
               <% total_orgs += miembros.count %>
             </tr>
