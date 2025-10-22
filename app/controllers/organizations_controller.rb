@@ -1078,6 +1078,11 @@ end
   end
 
   def load_organization_territory
+    cartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
+    cartels.each{|cartel|
+      cartel.towns.clear
+    }
+
     myFile = load_organization_events_params[:file]
     table = CSV.parse(File.read(myFile))
 

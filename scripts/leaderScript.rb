@@ -17,7 +17,6 @@ rows = Member
   .joins("LEFT JOIN organizations org_cl ON org_cl.id = members.criminal_link_id")
   .joins("LEFT JOIN detentions d ON d.id = members.detention_id")
   .joins("LEFT JOIN events e ON e.id = d.event_id")
-  .where(roles: { name: "Líder" })
   .distinct
   .pluck(
     "members.id",
