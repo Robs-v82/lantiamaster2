@@ -36,6 +36,7 @@ class UsersController < ApplicationController
     @user = e.record
     set_orgs
     flash.now[:alert] = @user.errors.full_messages.join(', ')
+    Rails.logger.error "[Users#create] #{e.record.class} validation errors: #{e.record.errors.full_messages.join('; ')}"
     render :new, status: :unprocessable_entity
   end
 
