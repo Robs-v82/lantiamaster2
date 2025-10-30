@@ -43,9 +43,9 @@ class UsersController < ApplicationController
   def admin
     @users = User
       .where(membership_type: 4)
-      .joins(member: :organization)
+      # .joins(member: :organization)
       # .where(organizations: { name: "GNP Seguros" })
-      .includes(member: :organization) # evita N+1 para nombre y organización
+      # .includes(member: :organization) # evita N+1 para nombre y organización
       .order(:id)
   end
   
