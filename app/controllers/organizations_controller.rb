@@ -700,51 +700,59 @@ class OrganizationsController < ApplicationController
       # @papers = Division.where(:scian3=>510).last.organizations
     end
 
-    def login
-      target_user = User.find_by_mail(password_params[:mail])
+  def login
+    normalized_email = password_params[:mail].to_s.strip.downcase
 
-      unless target_user.email_verified?
-        flash[:alert] = "Debes confirmar tu correo."
-        redirect_to "/password" and return
-      end
+    # Si NO usas citext en la BD, busca así:
+    target_user = User.find_by('LOWER(mail) = ?', normalized_email)
+    # Si usas citext (ver sección 3), bastaría:
+    # target_user = User.find_by(mail: normalized_email)
 
-      if target_user&.locked?
-        audit!("login_failure", user: target_user, meta: {reason:"locked"})
-        flash[:alert] = "Tu cuenta está temporalmente bloqueada. Intenta en #{target_user.minutes_locked_remaining} minuto(s)."
-        redirect_to "/password" and return
-      end
-
-      if target_user && target_user.authenticate(password_params[:password])
-        audit!("login_success", user: target_user)
-
-        # Code for MFA USERS
-        if target_user.mfa_enabled?
-          session[:pending_user_id] = target_user.id
-          redirect_to "/mfa/challenge" and return
-        end
-
-        target_user.clear_failed_logins!
-        session[:user_id] = target_user.id                  
-        session[:login_issued_at] = Time.current.to_i
-        session[:reauth_at] = Time.current.to_i 
-        session[:user_id] = target_user[:id]
-        if target_user.membership_type
-          session[:membership] = target_user.membership_type 
-        else
-          session[:membership] = 0
-        end
-        helpers.clear_session
-        redirect_to '/intro'
-      else
-        # … si la contraseña NO coincide …
-        audit!("login_failure", user: target_user, meta: {reason:"bad_password"})
-        target_user.register_failed_login! if target_user
-        flash[:alert] = "Correo o contraseña inválidos"
-        redirect_to "/password" and return
-        session[:password_error] = true
-        redirect_to '/password'
-      end   
+    # Usuario no encontrado → mismo mensaje genérico
+    unless target_user
+      audit!("login_failure", meta: { reason: "no_user", mail: normalized_email })
+      flash[:alert] = "Correo o contraseña inválidos"
+      redirect_to "/password" and return
     end
+
+    unless target_user.email_verified?
+      flash[:alert] = "Debes confirmar tu correo."
+      redirect_to "/password" and return
+    end
+
+    if target_user.locked?
+      audit!("login_failure", user: target_user, meta: { reason: "locked" })
+      flash[:alert] = "Tu cuenta está temporalmente bloqueada. Intenta en #{target_user.minutes_locked_remaining} minuto(s)."
+      redirect_to "/password" and return
+    end
+
+    if target_user.authenticate(password_params[:password])
+      audit!("login_success", user: target_user)
+
+      if target_user.mfa_enabled?
+        session[:pending_user_id] = target_user.id
+        redirect_to "/mfa/challenge" and return
+      end
+
+      target_user.clear_failed_logins!
+
+      # (evita asignar dos veces user_id)
+      session[:user_id]        = target_user.id
+      session[:login_issued_at]= Time.current.to_i
+      session[:reauth_at]      = Time.current.to_i
+      session[:membership]     = target_user.membership_type || 0
+
+      # OJO: asegúrate de que clear_session no borre las keys que acabas de poner
+      helpers.clear_session
+
+      redirect_to "/intro"
+    else
+      audit!("login_failure", user: target_user, meta: { reason: "bad_password" })
+      target_user.register_failed_login!
+      flash[:alert] = "Correo o contraseña inválidos"
+      redirect_to "/password" and return
+    end
+  end
 
   def logout
     session[:user_id] = nil
