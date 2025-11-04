@@ -506,7 +506,11 @@ def members_outcome_pdf
         ["Apellido materno", member.lastname2],
       ]
       data << ["Alias", member.alias.join(", ")] if member.alias.present?
-      data << ["Organización", member.organization&.name || "Sin definir"]
+      if member.criminal_link
+      	data << ["Organización", member.criminal_link&.name]
+      else
+				 data << ["Organización", member.organization&.name || "Sin definir"]      	
+      end
 
       if cartel_designado.present?
         mensaje = if cartel_fuente.nil?
