@@ -101,7 +101,7 @@
               </tr>
               <tr>
                 <th>Fecha y hora:</th>
-                <td><%= @myQuery.created_at.strftime("%d/%m/%Y %H:%M") %></td>
+                <td><%= @myQuery.created_at.in_time_zone("America/Mexico_City").strftime("%d/%m/%Y %H:%M") %></td>
               </tr>
               <tr>
                 <th>Nombre(s):</th>

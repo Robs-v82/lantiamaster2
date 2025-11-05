@@ -477,8 +477,7 @@ def members_outcome_pdf
 
   resumen_data = [
     ["ID:", clave],
-    # En la vista no hay conversión de zona; se usa created_at.strftime
-    ["Fecha y hora:", @myQuery.created_at.strftime("%d/%m/%Y %H:%M")],
+    ["Fecha y hora:", @myQuery.created_at.in_time_zone("America/Mexico_City").strftime("%d/%m/%Y %H:%M")],
     ["Nombre(s):", @myQuery.firstname],
     ["Apellido Paterno:", @myQuery.lastname1],
     ["Apellido Materno:", @myQuery.lastname2],
