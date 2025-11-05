@@ -402,9 +402,29 @@ class DatasetsController < ApplicationController
 	end
 
 def members_outcome_pdf
+		@all_officers = ["Legislador", "Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal", "Regidor"]
+		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
+		@state_officers = ["Gobernador", "Secretario de Seguridad"]
+		@other_organizations = ["Servicios lícitos", "Dirigente sindical", "Músico"]
+		@myQuery = if session[:query_id]
+			Query.find_by(id: session[:query_id])
+		else
+			User.find(session[:user_id]).queries.last
+		end
+		@user = User.find(session[:user_id])
+		@keyMembers = Member
+		  .where(id: @myQuery.outcome)
+		  .includes(appointments: [:organization, :role]) # 👈 precarga citas, org y rol
+		@keyRolegroups = []
+		@keyMembers.each {|member|
+			memberGroup = clasificar_rol(member)
+			@keyRolegroups.push(memberGroup)
+		}
   @myQuery = Query.find_by(id: params[:id]) || User.find(session[:user_id]).queries.last
   @user = User.find(session[:user_id])
   @keyMembers = Member.where(id: @myQuery.outcome)
+
+  h = ApplicationController.helpers
 
   pdf = Prawn::Document.new(page_size: 'A4', margin: 40)
   pdf.font_families.update("Poppins" => {
@@ -413,19 +433,21 @@ def members_outcome_pdf
   })
   pdf.font "Poppins"
 
-  pdf.text "RESULTADO DE CONSULTA", size: 16, style: :bold, align: :center, color: "33333C"
+  # Encabezado
+  pdf.text "RESULTADOS", size: 16, style: :bold, align: :center, color: "33333C"
   pdf.move_down 20
 
+  # === Tabla PARÁMETROS DE CONSULTA (mismos textos/formatos que la vista) ===
   clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{@myQuery.id}"
 
-  homonimo_label = case @myQuery.homo_score.to_f
+  homonimo_label = case @myQuery.homo_score
     when 0...2 then "Baja"
     when 2...5 then "Media"
     when 5..10 then "Alta"
     else "Muy alta"
   end
 
-  estimacion = case @myQuery.homo_score.to_f
+  estimacion = case @myQuery.homo_score
     when 0...2 then "sólo 1"
     when 2...3 then "más de 2"
     when 3...4 then "más de 3"
@@ -450,49 +472,249 @@ def members_outcome_pdf
     else "más de 1000"
   end
 
-  pdf.text "Parámetros de consulta", size: 12, style: :bold, color: "EF4E50"
+  pdf.text "PARÁMETROS DE CONSULTA", size: 12, style: :bold, color: "EF4E50"
   pdf.move_down 8
 
   resumen_data = [
-    ["ID", clave],
-    ["Fecha y hora", @myQuery.created_at.in_time_zone("Mexico City").strftime("%d/%m/%Y %H:%M")],
-    ["Nombre(s)", @myQuery.firstname],
-    ["Apellido paterno", @myQuery.lastname1],
-    ["Apellido materno", @myQuery.lastname2],
-    ["Registros analizados", @myQuery.search.to_s],
-    ["Probabilidad de homónimos", homonimo_label],
+    ["ID:", clave],
+    # En la vista no hay conversión de zona; se usa created_at.strftime
+    ["Fecha y hora:", @myQuery.created_at.strftime("%d/%m/%Y %H:%M")],
+    ["Nombre(s):", @myQuery.firstname],
+    ["Apellido Paterno:", @myQuery.lastname1],
+    ["Apellido Materno:", @myQuery.lastname2],
+    ["Registros analizados:", @myQuery.search.to_s],
+    ["Probabilidad de homónimos:", homonimo_label],
     ["", "Se estima que hay #{estimacion} mexicano(s) adulto(s) con el nombre y apellidos consultados o alguna de sus variantes."]
   ]
 
-  pdf.bounding_box([0, pdf.cursor], width: 325) do
-    pdf.table(resumen_data, cell_style: { size: 10, padding: [4, 8, 4, 8] }) do
-      row(0..-1).columns(0).font_style = :bold
-      row(6).columns(1).text_color = "EF4E50"
-    end
+  pdf.table(resumen_data, cell_style: { size: 10, padding: [4, 6, 4, 6] }, column_widths: [170, 330]) do
+    row(0..-1).columns(0).font_style = :bold
   end
 
   pdf.move_down 20
 
-  if @keyMembers.any?
-    pdf.text "Resultados", size: 12, style: :bold, color: "EF4E50"
-    pdf.move_down 10
+  # === Tabla RESULTADOS (mismos textos/condiciones) ===
+  pdf.text "RESULTADOS", size: 12, style: :bold, color: "EF4E50"
+  pdf.move_down 10
 
-    @keyMembers.first(3).each_with_index do |member, index|
-      pdf.text "#{%w[Primer Segundo Tercer][index]} registro", style: :bold, size: 11
+  if @myQuery.outcome.blank?
+    pdf.text "No identificamos registros de personas señaladas o personas expuestas que coincidan con los parámetros de consulta.", style: :bold, size: 10
+    send_data pdf.render, filename: "#{clave}.pdf", type: "application/pdf", disposition: "attachment"
+    return
+  else
+    total = @myQuery.outcome.size.to_i
+    plural_n = total > 1 ? 'n' : ''
+    plural_s = total > 1 ? 's' : ''
+    pdf.text "Se identificó#{plural_n} #{total} registro#{plural_s} que coincide con los parámetros de consulta, según se detalla a continuación.", style: :bold, size: 10
+    pdf.move_down 10
+  end
+
+  registros = @keyMembers.first(10)
+
+  registros.each_with_index do |member, index|
+    cartel = member.criminal_link.present? ? member.criminal_link : member.organization
+    memberGroup = defined?(@keyRolegroups) && @keyRolegroups.is_a?(Array) ? @keyRolegroups[index] : nil
+
+    # Encabezado de bloque de registro
+    header_label =
+      if registros.size == 1
+        "REGISTRO ÚNICO"
+      else
+        %w[PRIMER SEGUNDO TERCER][index] || "#{index + 1}º REGISTRO"
+      end
+
+    pdf.fill_color "FFFFFF"
+    pdf.fill_rectangle [pdf.bounds.left, pdf.cursor], pdf.bounds.width, 18
+    pdf.fill_color "33333C"
+    pdf.text header_label, align: :center, style: :bold
+    pdf.move_down 6
+
+    # Solidez de las fuentes (solo si media_score no es nil)
+    unless member.media_score.nil?
+      solidez = (member.media_score == true ? "Alta" : "Media")
+      pdf.table([["Solidez de las fuentes:", solidez]],
+                cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                column_widths: [170, 330]) do
+        row(0).columns(0).font_style = :bold
+      end
+    end
+
+    # Nombre y apellidos
+    data = []
+    data << ["Nombre(s):", member.firstname]
+    data << ["Apellido paterno:", member.lastname1]
+    data << ["Apellido materno:", member.lastname2]
+
+    # Alias
+    if member.alias.present? && member.alias.any?
+      data << ["Alias:", member.alias.join(", ")]
+    end
+
+    # Fecha de nacimiento
+    if member.birthday?
+      fecha_nac = if member.birthday_aprox?
+                    "circa #{member.birthday.strftime('%Y')}"
+                  else
+                    member.birthday.strftime("%d/%m/%Y")
+                  end
+      data << ["Fecha de nacimiento:", fecha_nac]
+    end
+
+    # Identidades falsas/alternativas
+    if member.fake_identities.any?
+      lista = member.fake_identities.map { |ide| "-#{ide.firstname} #{ide.lastname1} #{ide.lastname2}" }.join("\n")
+      data << ["Identidades falsas/alternativas:", lista]
+    end
+
+    pdf.table(data, cell_style: { size: 10, padding: [4, 6, 4, 6] }, column_widths: [170, 330]) do
+      row(0..-1).columns(0).font_style = :bold
+    end
+
+    # Cédulas profesionales (expandido en PDF)
+    if member.titles.any?
       pdf.move_down 6
+      member.titles.each do |title|
+        cedula_rows = [
+          ["Número:", title.legacy_id],
+          ["Tipo:", title.type],
+          ["Profesión:", title.profesion.to_s.titleize],
+          ["Institución:", title.organization&.name],
+          ["Año de expedición:", title.year&.name || "Sin especificar"]
+        ]
+        pdf.text "Cédula profesional", style: :bold, size: 10, color: "EF4E50"
+        pdf.table(cedula_rows, cell_style: { size: 10, padding: [3, 6, 3, 6] }, column_widths: [170, 330]) do
+          row(0..-1).columns(0).font_style = :bold
+        end
+        pdf.move_down 4
+      end
+    end
+
+    # Clasificación
+    clasif = member.involved == false ? "Persona expuesta" : "Persona señalada"
+    pdf.table([["Clasificación:", clasif]],
+              cell_style: { size: 10, padding: [4, 6, 4, 6] },
+              column_widths: [170, 330]) do
+      row(0).columns(0).font_style = :bold
+    end
+
+    # Relaciones (consulta previa para posible ramificación)
+    relaciones = MemberRelationship
+                   .includes(:member_a, :member_b)
+                   .where("member_a_id = :id OR member_b_id = :id", id: member.id)
+
+    if member.involved == false
+      # === Rama Persona expuesta (vista: "Rol o vínculo con el crimen organizado")
+      rol_text = +""
+      rol_text << "#{memberGroup}\n" if memberGroup.present?
+
+      if defined?(@all_officers) && @all_officers&.include?(member.role&.name)
+        rol_text << "\n#{member.role.name}"
+        if defined?(@federal_officers) && @federal_officers&.include?(member.role&.name)
+          estado = member.hits.where(title: "Nombramiento").first&.town&.county&.state&.name
+          rol_text << " en #{estado}, #{member.organization&.name}"
+        elsif defined?(@state_officers) && @state_officers&.include?(member.role&.name)
+          rol_text << " de #{member.organization&.county&.state&.name}"
+        elsif member.role&.name == "Regidor"
+          rol_text << " en  #{member.organization&.county&.name}, #{member.organization&.county&.state&.shortname}."
+        else
+          rol_text << " de #{member.organization&.county&.name}, #{member.organization&.county&.state&.shortname}."
+        end
+        fechas = []
+        fechas << member.start_date.strftime("%d/%m/%Y") if member.start_date?
+        if member.end_date?
+          fechas << "a #{member.end_date.strftime('%d/%m/%Y')}"
+        end
+        rol_text << "\n#{fechas.join(' ')}" if fechas.any?
+      elsif defined?(@other_organizations) && @other_organizations&.include?(member.role&.name) && member.criminal_link
+        rol_text << "\n#{member.role.name}, #{member.organization&.name}"
+      end
+
+      pdf.table([["Rol o vínculo con el crimen organizado:", rol_text.strip]],
+                cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                column_widths: [170, 330]) do
+        row(0).columns(0).font_style = :bold
+      end
+
+      # Probables vínculos (si existen), si no, la vista muestra Organización/Designación
+      if relaciones.any?
+        vinculos = relaciones.map do |rel|
+          if rel.member_a_id == member.id
+            otro = rel.member_b
+            "-#{rel.role_a_gender} de #{otro.firstname} #{otro.lastname1} #{otro.lastname2}, "\
+            "#{otro.role&.name}, #{otro.criminal_link ? otro.criminal_link.name : otro.organization&.name}"
+          else
+            otro = rel.member_a
+            "-#{rel.role_b_gender} de #{otro.firstname} #{otro.lastname1} #{otro.lastname2}, "\
+            "#{otro.role&.name}, #{otro.criminal_link ? otro.criminal_link.name : otro.organization&.name}"
+          end
+        end.join("\n")
+
+        pdf.table([["Probables vínculos de #{member.firstname}:", vinculos]],
+                  cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                  column_widths: [170, 330]) do
+          row(0).columns(0).font_style = :bold
+        end
+      else
+        # Bloque Organización + Designación (como en el else de la vista)
+        org_name = cartel&.name || "Sin definir"
+        pdf.table([["Organización:", org_name]],
+                  cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                  column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
+
+        cartel_designado = nil
+        cartel_fuente = nil
+        cartel_fuente_tipo = nil
+
+        if cartel&.designation
+          cartel_designado = cartel
+        elsif cartel&.parent&.designation
+          cartel_designado = cartel.parent
+          cartel_fuente = cartel_designado.name
+          cartel_fuente_tipo = "subordinada a"
+        elsif cartel&.allies.present?
+          aliadas_designadas = Organization.where(id: cartel.allies).select(&:designation)
+          if aliadas_designadas.any?
+            cartel_designado = aliadas_designadas.first
+            cartel_fuente = cartel_designado.name
+            cartel_fuente_tipo = "aliada a"
+          end
+        end
+
+        designacion_text =
+          if cartel_designado.present? && cartel_fuente.nil?
+            "Cártel designado como terrorista.\n" \
+            "#{cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+          elsif cartel_designado.present? && cartel_fuente_tipo.present?
+            "Organización #{cartel_fuente_tipo} #{cartel_fuente}\n" \
+            "Cártel designado como terrorista.\n" \
+            "#{cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+          else
+            "Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas."
+          end
+
+        pdf.table([["Designación del Departamento de Estado:", designacion_text]],
+                  cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                  column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
+      end
+    else
+      # === Rama Persona señalada
+      org_name = cartel&.name || "Sin definir"
+      pdf.table([["Organización:", org_name]],
+                cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
 
       cartel_designado = nil
       cartel_fuente = nil
       cartel_fuente_tipo = nil
 
-      if member.organization&.designation
-        cartel_designado = member.organization
-      elsif member.organization&.parent&.designation
-        cartel_designado = member.organization.parent
+      if cartel&.designation
+        cartel_designado = cartel
+      elsif cartel&.parent&.designation
+        cartel_designado = cartel.parent
         cartel_fuente = cartel_designado.name
         cartel_fuente_tipo = "subordinada a"
-      elsif member.organization&.allies.present?
-        aliadas_designadas = Organization.where(id: member.organization.allies).select(&:designation)
+      elsif cartel&.allies.present?
+        aliadas_designadas = Organization.where(id: cartel.allies).select(&:designation)
         if aliadas_designadas.any?
           cartel_designado = aliadas_designadas.first
           cartel_fuente = cartel_designado.name
@@ -500,51 +722,106 @@ def members_outcome_pdf
         end
       end
 
-      data = [
-        ["Nombre(s)", member.firstname],
-        ["Apellido paterno", member.lastname1],
-        ["Apellido materno", member.lastname2],
-      ]
-      data << ["Alias", member.alias.join(", ")] if member.alias.present?
-      if member.criminal_link
-      	data << ["Organización", member.criminal_link&.name]
-      else
-				 data << ["Organización", member.organization&.name || "Sin definir"]      	
-      end
-
-      if cartel_designado.present?
-        mensaje = if cartel_fuente.nil?
-          "Cártel designado como terrorista\n#{cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+      designacion_text =
+        if cartel_designado.present? && cartel_fuente.nil?
+          "Cártel designado como terrorista.\n" \
+          "#{cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+        elsif cartel_designado.present? && cartel_fuente_tipo.present?
+          "Organización #{cartel_fuente_tipo} #{cartel_fuente}\n" \
+          "Cártel designado como terrorista.\n" \
+          "#{cartel_designado.designation_date.strftime('%d/%m/%Y')}"
         else
-          "Organización #{cartel_fuente_tipo} #{cartel_fuente}\nCártel designado como terrorista\n#{cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+          "Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas."
         end
-        data << ["Designación del Departamento de Estado", mensaje]
-      else
-        data << ["Designación del Departamento de Estado", "Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas."]
-      end
 
-      data << ["Rol o vínculo con la organización", member.role&.name || "Sin definir"]
+      pdf.table([["Designación del Departamento de Estado:", designacion_text]],
+                cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
 
-      pdf.table(data, cell_style: { size: 10, padding: [4, 6, 4, 6] }, column_widths: [180, 320]) do
-        row(0..-1).columns(0).font_style = :bold
-      end
+      # Rol o vínculo con la organización (mismas ramas que la vista)
+      rol_org_text =
+        if defined?(@all_officers) && @all_officers&.include?(member.role&.name)
+          autoridad = member.involved? ? "Autoridad vinculada" : "Autoridad expuesta"
+          detalle = +""
+          if member.appointments.empty?
+            detalle << member.role.name
+            if defined?(@federal_officers) && @federal_officers&.include?(member.role&.name)
+              estado = member.hits.where(title: "Nombramiento").first&.town&.county&.state&.name
+              detalle << " en #{estado}, #{member.organization&.name}"
+            elsif defined?(@state_officers) && @state_officers&.include?(member.role&.name)
+              detalle << " de #{member.organization&.county&.state&.name}"
+            elsif member.role&.name == "Regidor"
+              detalle << " en  #{member.organization&.county&.name}, #{member.organization&.county&.state&.shortname}."
+            else
+              detalle << " de #{member.organization&.county&.name}, #{member.organization&.county&.state&.shortname}."
+            end
+            fechas = []
+            fechas << member.start_date.strftime("%d/%m/%Y") if member.start_date?
+            fechas << "a #{member.end_date.strftime('%d/%m/%Y')}" if member.end_date?
+            detalle << "\n#{fechas.join(' ')}" if fechas.any?
+          end
+          "#{autoridad}\n#{detalle}".strip
+        elsif defined?(@other_organizations) && @other_organizations&.include?(member.role&.name) && member.criminal_link
+          "#{member.role.name}, #{member.organization&.name}"
+        else
+          member.role&.name || "Sin definir"
+        end
 
-      pdf.move_down 6
-      pdf.text "Actividad reportada:", style: :bold, size: 10
-      member.hits.order(date: :desc).each do |hit|
-        lugar = "#{hit.date.strftime('%d/%m/%y')} – "
-        lugar += "#{hit.town.county.name}, " unless hit.town.county.name == "Sin definir"
-        lugar += hit.town.county.state.shortname
-        pdf.text "• #{lugar}", size: 9
-      end
-      pdf.move_down 18
+      pdf.table([["Rol o vínculo con la organización:", rol_org_text]],
+                cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
     end
-  else
-    pdf.text "No se identificaron registros de personas señaladas o personas expuestas que coincidan con los parámetros de consulta.", size: 10
+
+    # Notas
+    if member.notes.any?
+      notes_text = member.notes.map(&:story).join("\n\n")
+      pdf.table([["", notes_text]],
+                cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                column_widths: [170, 330])
+    end
+
+    # Nombramientos / Cargos
+    appts = member.appointments.to_a
+    appts_dedup = h.respond_to?(:dedup_appointments_for_view) ? h.dedup_appointments_for_view(appts) : []
+    if appts_dedup.any?
+      lista = appts_dedup
+                .sort_by { |(_a, s, e)| [s || Date.new(1,1,1), e || Date.new(9999,12,31)] }
+                .map do |appt, s, e|
+                  linea = +"#{appt.role&.name || 'Cargo'}"
+                  linea << ", #{appt.organization.name}" if appt.organization.present?
+                  if s.present? || e.present?
+                    span = h.respond_to?(:appt_span_label) ? h.appt_span_label(s, e) : [s, e].compact.map { |d| d.strftime("%d/%m/%Y") }.join(" - ")
+                    linea << "\n#{span}"
+                  end
+                  linea
+                end
+                .join("\n")
+      pdf.table([["Nombramientos / Cargos:", lista]],
+                cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
+    end
+
+    # Actividad/menciones (mismos textos/orden y omisión de county "Sin definir")
+		hits_lines = member.hits.order(date: :desc).map do |hit|
+		  parts = [hit.date.strftime("%d/%m/%y") + " —"]
+		  parts << "#{hit.town.county.name}," unless hit.town.county.name == "Sin definir"
+		  parts << hit.town.county.state.shortname
+		  line = "• " + parts.join(" ")
+		  line += " #{hit.link}" if hit.respond_to?(:link) && hit.link.present?
+		  line
+		end
+    pdf.table([["Actividad/menciones:", hits_lines.join("\n")]],
+              cell_style: { size: 10, padding: [4, 6, 4, 6] },
+              column_widths: [170, 330]) do
+      row(0).columns(0).font_style = :bold
+    end
+
+    pdf.move_down 16
   end
 
   send_data pdf.render, filename: "#{clave}.pdf", type: "application/pdf", disposition: "attachment"
 end
+
 
 	def members_search
 		@names_data = Name.all.pluck(:word, :freq).map { |word, freq| [word.capitalize, freq] }.to_h
