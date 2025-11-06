@@ -141,7 +141,7 @@ class DatasetsController < ApplicationController
 	  @hits = hits
 	  @members = members
 	  @rackets = @state.rackets.distinct.order(:name)
-	  @link_types = ["Hermano","Esposo","Padre","Hijo","Abuelo","Nieto","Tio","Sobrino","Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado"]
+	  @link_types = ["Hermano","Esposo","Padre","Hijo","Abuelo","Nieto","Tio","Sobrino","Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado", "Suegro", "Yerno"]
 
 	  # Tabla por usuario
 	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
@@ -219,7 +219,9 @@ class DatasetsController < ApplicationController
 		  "Socio" => "Socia",
 		  "Allegado" => "Allegada",
 		  "Compadre" => "Comadre",
-		  "Cuñado" => "Cuñada"
+		  "Cuñado" => "Cuñada",
+		  "Suegro" => "Suegra",
+		  "Yerno" => "Nuera"
 	  }
 
 	  # Asignar versión femenina si corresponde, o dejar el rol original
@@ -2500,7 +2502,8 @@ def reciprocal_link_type(type)
     "Tio" => "Sobrino","Sobrino" => "Tio",
     "Padrino" => "Ahijado","Ahijado" => "Padrino",
     "Abogado" => "Defendido","Defendido" => "Abogado",
-    "Jefe" => "Colaborador","Colaborador" => "Jefe"
+    "Jefe" => "Colaborador","Colaborador" => "Jefe",
+    "Suegro" => "Yerno", "Yerno" => "Suegro"
   }
   map[type] || type # Si es recíproco como "Hermano" o "Compañero", se repite igual
 end
