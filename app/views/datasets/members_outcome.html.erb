@@ -545,9 +545,13 @@
               <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
                 <% member.hits.order(date: :desc).each do |hit| %>
                   <li style="margin-bottom: 6px;">
+                  <% if hit.link.present? %>
                     <a href="<%= hit.link %>" target="_blank" style="margin-right: 8px; text-decoration: none; color: inherit;">
                       <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
                     </a>
+                  <% else %>
+                    <span style="display: inline-block; width: 24px; margin-right: 8px;"></span>
+                  <% end %>
                     <%= hit.date.strftime("%d/%m/%y") %> — 
                     <% unless hit.town.county.name == "Sin definir" %>
                       <span style="font-weight: 300;"><%= hit.town.county.name %>,</span>
