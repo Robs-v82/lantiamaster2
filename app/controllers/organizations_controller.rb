@@ -811,7 +811,6 @@ class OrganizationsController < ApplicationController
   end
 
   def load_organizations
-   
     banned = [
       "Cártel Zicuirán Nueva Generación",
       "Migueladas"
@@ -840,130 +839,124 @@ class OrganizationsController < ApplicationController
     ]
 
     myFile = load_organizations_params[:file]
-    table = CSV.parse(File.read(myFile))
+    table  = CSV.parse(File.read(myFile))
 
-    table.each{|x|
-      x = x.collect{ |e| e ? e.strip : e }
-    # CREATE ORGANIZATION IF IT DOES NOT EXIST
-      if Organization.where(:name=>x[0].strip).empty?
-        print "NEW ORGANIZATION :" + x[0]
-        Organization.create(:name=>x[0].strip)
+    # --- 1. Asegurar que existan todas las organizaciones del CSV ---
+    table.each do |row|
+      row = row.map { |e| e&.strip.presence }   # "" => nil
+      next if row[0].blank?
+
+      if Organization.find_by(name: row[0]).nil?
+        puts "NEW ORGANIZATION: #{row[0]}"
+        Organization.create!(name: row[0])
       end
-    }
+    end
 
-     
-    table.each{|x|
-      x = x.collect{ |e| e ? e.strip : e }
-      
-      org_name = x[0].strip
+    # --- 2. Actualizar información ---
+    table.each do |row|
+      row = row.map { |e| e&.strip.presence }   # normaliza celdas
+      org_name = row[0]
+      next if org_name.blank?
 
       # OMITIR ORGANIZACIONES BANEADAS
       next if banned.include?(org_name)
 
-      targetOrganization = Organization.where(:name=>x[0]).last
-    
+      targetOrganization = Organization.find_by(name: org_name)
+      next if targetOrganization.nil?          # por seguridad
+
       # UPDATE GENERAL INFO
-      targetActive = false
-      if x[1] == "Activa"
-        targetActive = true
+      targetActive = (row[1] == "Activa")
+
+      myAcronym = row[4] # ya viene strip / presence
+      targetOrganization.update(
+        acronym:   myAcronym,
+        league:    row[5],
+        subleague: row[6],
+        active:    targetActive
+      )
+
+      # UPDATE DIVISIONS
+      generalDivision = Division.find_by(scian3: 980)
+      if generalDivision && !targetOrganization.divisions.include?(generalDivision)
+        targetOrganization.divisions << generalDivision
       end
-      myAcronym = x[4]
-      unless myAcronym.nil?
-        myAcronym = myAcronym
-      end
-      print "*******PROBLEM: "
-      print x[0]
-      targetOrganization.update(:acronym=>myAcronym, :league=>x[5], :subleague=>x[6], :active=>targetActive)
 
-      # UPDATE DIVIDIONS
+      divisions.each do |y|
+        myDivision = Division.find_by(scian3: y[:scian3])
+        next unless myDivision
 
-      divisions.each{|y|
-        generalDivision = Division.where(:scian3=>980).last
-        unless targetOrganization.divisions.include? (generalDivision)
-          targetOrganization.divisions << generalDivision
-        end
-        myDivision = Division.where(:scian3=>y[:scian3]).last
-        if x[y[:slot]] == "1"
-          print "ACITVITY HIT!!!"
-          unless targetOrganization.divisions.include? (myDivision)
-          targetOrganization.divisions << myDivision
-          end
-        end
-      }
-
-      # UPDATE PARENT ORIGIN ALLIES AND RIVALS
-      targetOrganization = Organization.where(:name=>x[0]).last
-      unless x[3].nil?
-        myNames = x[3].split(";")
-        cleanNames = []
-        myNames.each {|myName|
-          myName = myName
-          cleanNames.push(myName)
-        }
-        targetOrganization.update(:alias=>cleanNames)
-      end 
-      unless x[7].nil?
-        unless Organization.where(:name=>x[7]).empty?
-          parentOrganization = Organization.where(:name=>x[7]).last
-          targetOrganization.update(:parent_id=>parentOrganization.id)
+        if row[y[:slot]] == "1"
+          puts "ACTIVITY HIT: #{targetOrganization.name} -> #{y[:name]}"
+          targetOrganization.divisions << myDivision unless targetOrganization.divisions.include?(myDivision)
         end
       end
-      unless x[8].nil?
-        myOrigins = []
-        x[8].split(";").each{|org|
-          org = org
-          # unless Organization.where(:name=>org).empty?
-          #   originOrganization = Organization.where(:name=>org).last
-          #   myOrigins.push(originOrganization.id)
-          # end 
-          myOrigins.push(org) 
-        }
-        targetOrganization.update(:origin=>myOrigins)
-      end 
-      unless x[9].nil?
-        myAllies = []
-        x[9].split(";").each{|org|
-          org = org
-          unless Organization.where(:name=>org).empty?
-            alliedOrganization = Organization.where(:name=>org).last
-            myAllies.push(alliedOrganization.id)
-          end 
-        }
-        targetOrganization.update(:allies=>myAllies)
-      end 
-      unless x[10].nil?
-        myRivals = []
-        x[10].split(";").each{|org|
-          org = org
-          unless Organization.where(:name=>org).empty?
-            print org
-            rivalOrganization = Organization.where(:name=>org).last
-            myRivals.push(rivalOrganization.id)
-          end
-        }
-        targetOrganization.update(:rivals=>myRivals)  
-      end 
-    }
 
-    cartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
+      # --- UPDATE PARENT, ORIGIN, ALLIES, RIVALS ---
 
-    cartels.each{|cartel|
-      unless cartel.league.nil?
-        clearLeague = cartel.league
-      end
-      unless cartel.subleague.nil?
-        clearSubleague = cartel.subleague
-      end
-      cartel.update(:league=>clearLeague,:subleague=>clearSubleague)
-    }
+      # Alias (x[3]): siempre pisamos, incluso si viene vacío (=> [])
+      aliases = (row[3] || "")
+                  .split(";")
+                  .map { |n| n.strip }
+                  .reject(&:blank?)
+      targetOrganization.update(alias: aliases)
+
+      # Parent (x[7]): si viene nombre, buscamos; si no, lo limpiamos
+      parent_name = row[7] # ya strip/presence
+      parent = parent_name.present? ? Organization.find_by(name: parent_name) : nil
+      targetOrganization.update(parent_id: parent&.id)
+
+      # Origin (x[8]): tú ya lo guardas como lista de strings
+      origins = (row[8] || "")
+                  .split(";")
+                  .map { |n| n.strip }
+                  .reject(&:blank?)
+      targetOrganization.update(origin: origins)
+
+      # Allies (x[9]): siempre sobreescribimos, lista de IDs
+      ally_names = (row[9] || "")
+                    .split(";")
+                    .map { |n| n.strip }
+                    .reject(&:blank?)
+
+      ally_ids = ally_names.map do |name|
+        org = Organization.find_by(name: name)
+        org&.id
+      end.compact
+
+      targetOrganization.update(allies: ally_ids)
+
+      # Rivals (x[10]): siempre sobreescribimos, lista de IDs
+      rival_names = (row[10] || "")
+                     .split(";")
+                     .map { |n| n.strip }
+                     .reject(&:blank?)
+
+      rival_ids = rival_names.map do |name|
+        org = Organization.find_by(name: name)
+        org&.id
+      end.compact
+
+      targetOrganization.update(rivals: rival_ids)
+    end
+
+    # --- 3. Normalizar ligas en carteles activos ---
+    cartels = Sector.where(scian2: 98).last.organizations.where(active: true).uniq
+
+    cartels.each do |cartel|
+      clearLeague   = cartel.league   unless cartel.league.nil?
+      clearSubleague = cartel.subleague unless cartel.subleague.nil?
+      cartel.update(league: clearLeague, subleague: clearSubleague)
+    end
+
     helpers.recyprocal_organizations
-    helpers.update_league 
+    helpers.update_league
 
-    session[:filename] = load_organizations_params[:file].original_filename
+    session[:filename]     = load_organizations_params[:file].original_filename
     session[:load_success] = true
 
     redirect_to "/datasets/load"
   end
+
 
   def load_organization_events
 
@@ -1003,6 +996,8 @@ class OrganizationsController < ApplicationController
           unless Organization.where(:name=>x[3]).empty?
             myOrganization = Organization.where(:name=>x[3]).last.id
             myString = x[9][6..-1]+"_"+x[9][3,2]
+            print x[9]+"\n"
+            print myString
             myMonth =  Month.where(:name=>myString).last.id
             unless x[2].nil? 
               towns = []
