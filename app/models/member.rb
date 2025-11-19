@@ -23,6 +23,10 @@ class Member < ApplicationRecord
 	appointments.at(date).includes(:role, :organization, :county)
 	end
 
+	scope :with_more_than_hits, ->(n) {
+    	joins(:hits).group("members.id").having("COUNT(hits.id) > ?", n)
+  	}
+
 	def all_relationships
 	MemberRelationship.where("member_a_id = ? OR member_b_id = ?", id, id)
 	end
