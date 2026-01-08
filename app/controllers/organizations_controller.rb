@@ -37,6 +37,86 @@ class OrganizationsController < ApplicationController
     end 
   end
 
+  def login
+    normalized_email = password_params[:mail].to_s.strip.downcase
+
+    # Si NO usas citext en la BD, busca así:
+    target_user = User.find_by('LOWER(mail) = ?', normalized_email)
+    # Si usas citext (ver sección 3), bastaría:
+    # target_user = User.find_by(mail: normalized_email)
+
+    # Usuario no encontrado → mismo mensaje genérico
+    unless target_user
+      audit!("login_failure", meta: { reason: "no_user", mail: normalized_email })
+      flash[:alert] = "Correo o contraseña inválidos"
+      redirect_to "/password" and return
+    end
+
+    unless target_user.email_verified?
+      flash[:alert] = "Debes confirmar tu correo."
+      redirect_to "/password" and return
+    end
+
+    if target_user.locked?
+      audit!("login_failure", user: target_user, meta: { reason: "locked" })
+      flash[:alert] = "Tu cuenta está temporalmente bloqueada. Intenta en #{target_user.minutes_locked_remaining} minuto(s)."
+      redirect_to "/password" and return
+    end
+
+    if target_user.authenticate(password_params[:password])
+
+      # ---- BLOQUEO POR SUSCRIPCIÓN EXPIRADA ----
+      active  = target_user.membership_active?
+      had_paid = target_user.subscriptions.where(status: 'active').exists? ||
+                target_user.subscriptions.exists? ||
+                (target_user.membership_type.to_i > 1)
+
+      unless active
+        if had_paid
+          exp = target_user.subscriptions.order(current_period_end: :desc).limit(1).pluck(:current_period_end).first
+          session[:subscription_expired] = true
+          session[:subscription_expired_on] = exp&.to_date&.to_s
+          # flash[:alert] = "Tu suscripción ha expirado."
+        end
+
+        audit!("login_failure", user: target_user, meta: { reason: "subscription_expired" })
+        redirect_to "/password" and return
+      end
+      # -----------------------------------------
+
+      audit!("login_success", user: target_user)
+
+      if target_user.mfa_enabled?
+        session[:pending_user_id] = target_user.id
+        redirect_to "/mfa/challenge" and return
+      end
+
+      target_user.clear_failed_logins!
+
+      # (evita asignar dos veces user_id)
+      session[:user_id]        = target_user.id
+      session[:login_issued_at]= Time.current.to_i
+      session[:reauth_at]      = Time.current.to_i
+      session[:membership]     = target_user.membership_type || 0
+
+      # OJO: asegúrate de que clear_session no borre las keys que acabas de poner
+      helpers.clear_session
+
+      redirect_to "/intro"
+    else
+      audit!("login_failure", user: target_user, meta: { reason: "bad_password" })
+      target_user.register_failed_login!
+      flash[:alert] = "Correo o contraseña inválidos"
+      redirect_to "/password" and return
+    end
+  end
+
+  def logout
+    session[:user_id] = nil
+    audit!("logout", user: current_user_safe)
+    redirect_to '/password'
+  end
+
     def query
       if session[:empty_request]
         session[:empty_query] = true
@@ -699,66 +779,6 @@ class OrganizationsController < ApplicationController
       @sources = Source.all
       # @papers = Division.where(:scian3=>510).last.organizations
     end
-
-  def login
-    normalized_email = password_params[:mail].to_s.strip.downcase
-
-    # Si NO usas citext en la BD, busca así:
-    target_user = User.find_by('LOWER(mail) = ?', normalized_email)
-    # Si usas citext (ver sección 3), bastaría:
-    # target_user = User.find_by(mail: normalized_email)
-
-    # Usuario no encontrado → mismo mensaje genérico
-    unless target_user
-      audit!("login_failure", meta: { reason: "no_user", mail: normalized_email })
-      flash[:alert] = "Correo o contraseña inválidos"
-      redirect_to "/password" and return
-    end
-
-    unless target_user.email_verified?
-      flash[:alert] = "Debes confirmar tu correo."
-      redirect_to "/password" and return
-    end
-
-    if target_user.locked?
-      audit!("login_failure", user: target_user, meta: { reason: "locked" })
-      flash[:alert] = "Tu cuenta está temporalmente bloqueada. Intenta en #{target_user.minutes_locked_remaining} minuto(s)."
-      redirect_to "/password" and return
-    end
-
-    if target_user.authenticate(password_params[:password])
-      audit!("login_success", user: target_user)
-
-      if target_user.mfa_enabled?
-        session[:pending_user_id] = target_user.id
-        redirect_to "/mfa/challenge" and return
-      end
-
-      target_user.clear_failed_logins!
-
-      # (evita asignar dos veces user_id)
-      session[:user_id]        = target_user.id
-      session[:login_issued_at]= Time.current.to_i
-      session[:reauth_at]      = Time.current.to_i
-      session[:membership]     = target_user.membership_type || 0
-
-      # OJO: asegúrate de que clear_session no borre las keys que acabas de poner
-      helpers.clear_session
-
-      redirect_to "/intro"
-    else
-      audit!("login_failure", user: target_user, meta: { reason: "bad_password" })
-      target_user.register_failed_login!
-      flash[:alert] = "Correo o contraseña inválidos"
-      redirect_to "/password" and return
-    end
-  end
-
-  def logout
-    session[:user_id] = nil
-    audit!("logout", user: current_user_safe)
-    redirect_to '/password'
-  end
 
   def new
     @county_search_input = "query"

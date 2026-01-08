@@ -36,6 +36,7 @@ class User < ApplicationRecord
            class_name: "LrvlMembershipExpiration",
            dependent: :delete_all
 
+  has_secure_token :api_key
   # =========================
   #  Password reset seguro
   # =========================

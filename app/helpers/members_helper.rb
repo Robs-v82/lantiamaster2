@@ -1,4 +1,5 @@
 module MembersHelper
+	include MembersOutcomeUtils
 	def detention_cartels
 		Organization.where(:name=>"Cártel de Sinaloa")
 		.or(Organization.where(:name=>"Cártel Jalisco Nueva Generación"))

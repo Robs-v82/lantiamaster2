@@ -12,10 +12,11 @@ require_relative "../config/environment"
 require "net/http"
 require "uri"
 require "nokogiri"
+require "json"   # 👈 importante
 
 class MemberLinkSearch
   SCRAPINGBEE_ENDPOINT = "https://app.scrapingbee.com/api/v1".freeze
-
+  GOOGLE_ENDPOINT = "https://app.scrapingbee.com/api/v1/store/google".freeze
   API_KEY="7F4T3OWDZ2MS5CJN7RF6K7E9XVTBR0RFXXZYQD9U5C2G430S09JTMLUCKTQRUQRG3B292VW5RC6O6FUK"
 
   def initialize(members, api_key: ENV["SCRAPINGBEE_API_KEY"])
@@ -44,8 +45,7 @@ class MemberLinkSearch
     all_links = []
 
     queries.each do |query|
-      html = fetch_google_html(query)
-      query_links = extract_links(html).first(5)
+      query_links = fetch_google_links(query).first(5)
       all_links.concat(query_links)
     end
 
@@ -53,60 +53,37 @@ class MemberLinkSearch
   end
 
   # Llama a Google a través de ScrapingBee
-  def fetch_google_html(query)
-    google_url = "https://www.google.com/search?" + URI.encode_www_form(
-      q:  query,
-      num: 10,
-      hl: "es"
+  def fetch_google_links(query)
+    uri = URI(GOOGLE_ENDPOINT)
+    uri.query = URI.encode_www_form(
+      api_key: API_KEY,
+      search:  query,
+      language: "es",       # resultados en español
+      extra_params: "num=10" # como el ?num=10 de Google
+      # light_request: false # opcional: más completo, pero más caro
     )
 
-    uri = URI(SCRAPINGBEE_ENDPOINT)
-    uri.query = URI.encode_www_form(
-      api_key:   @api_key,
-      url:       google_url,
-      render_js: false # html estático es suficiente para resultados básicos
-    )
+    puts "\n[DEBUG] Google API query:"
+    puts "       #{query}"
 
     response = Net::HTTP.get_response(uri)
+    puts "[DEBUG] HTTP status: #{response.code}"
 
     unless response.is_a?(Net::HTTPSuccess)
-      warn "Error HTTP #{response.code} para query: #{query}"
-      return ""
+      warn "[DEBUG] Respuesta NO exitosa: #{response.body[0..200]}"
+      return []
     end
 
-    response.body
+    data = JSON.parse(response.body) rescue nil
+    unless data && data["organic_results"].is_a?(Array)
+      warn "[DEBUG] Sin organic_results en respuesta"
+      return []
+    end
+
+    data["organic_results"].map { |r| r["url"] }.compact.uniq
   rescue => e
     warn "Error al pedir resultados para #{query}: #{e.class} - #{e.message}"
-    ""
-  end
-
-  # Extrae links orgánicos de la página de resultados de Google
-  def extract_links(html)
-    return [] if html.to_s.strip.empty?
-
-    doc = Nokogiri::HTML(html)
-    links = []
-
-    # Estructura típica de resultados orgánicos (puede cambiar con el tiempo)
-    # 1) Selección moderna: div.yuRUbf > a
-    doc.css("div.yuRUbf > a").each do |a|
-      href = a["href"]
-      next if href.nil? || href.empty?
-      next if href.start_with?("/search?") # descartar navegación interna de Google
-      links << href
-    end
-
-    # 2) Fallback genérico para otros layouts
-    if links.empty?
-      doc.css("div.g a").each do |a|
-        href = a["href"]
-        next if href.nil? || href.empty?
-        next if href.start_with?("/search?")
-        links << href
-      end
-    end
-
-    links.uniq
+    []
   end
 
   def print_member_results(member, links)
@@ -133,7 +110,7 @@ end
 # myMembers = Member.where("created_at >= ?", 1.year.ago)
 #
 # Como pediste que myMembers se definirá más adelante, lo dejo como ejemplo:
-myMembers = Member.where(firstname: "Salvador", lastname1: "Cienfuegos")
-# myMembers = Member.with_more_than_hits(4).where.not(id: MemberRelationship.select(:member_a_id)).where.not(id: MemberRelationship.select(:member_b_id))
+# myMembers = Member.where(firstname: "Salvador", lastname1: "Cienfuegos")
+myMembers = Member.with_more_than_hits(4).where.not(id: MemberRelationship.select(:member_a_id)).where.not(id: MemberRelationship.select(:member_b_id))
 
 MemberLinkSearch.new(myMembers).run

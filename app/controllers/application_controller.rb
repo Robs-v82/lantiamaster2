@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
 	before_action :enforce_session_version
 	before_action :allow_iframe
 	before_action :require_login, except: [:frontpage, :password, :login, :states_and_counties_api, :year_victims_api, :state_victims, :state_victims_api, :county_victims, :county_victims_api, :county_victims_map_api, :county_victims_map, :year_victims, :featured_state_api, :featured_county_api]
+	before_action :sync_membership_session
 	before_action :set_variables
 	helper_method :myResouces
 	after_action :stop_freq_help, only: [:victims, :detainees]
@@ -61,14 +62,17 @@ class ApplicationController < ActionController::Base
 	end
 
 	def sync_membership_session
-	  return unless current_user
-	  plan_id = current_user.current_plan_id
-	  active  = current_user.membership_active?
+	  user = current_user_safe
+	  return unless user
+
+	  plan_id = user.current_plan_id
+	  active  = user.membership_active?
+
 	  session[:membership] = (active && plan_id) ? plan_id.to_i : 1
 
 	  # Opcional: reflejar en DB cuando expire
-	  if !active && current_user.membership_type != 1
-	    current_user.update_columns(membership_type: 1, updated_at: Time.current)
+	  if !active && user.membership_type != 1
+	    user.update_columns(membership_type: 1, updated_at: Time.current)
 	  end
 	end
 
@@ -241,7 +245,7 @@ class ApplicationController < ActionController::Base
 	protected
 
 		def require_admin!
-			admins = ["roberto@lantiaintelligence.com"]
+			admins = ["roberto@lantiaintelligence.com", "roberto@primeraraiz.com"]
 			x = session[:user_id]
 			user = User.find(x)
 			unless admins.include? user.mail

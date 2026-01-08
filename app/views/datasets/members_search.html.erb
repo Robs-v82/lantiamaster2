@@ -248,3 +248,32 @@
 		</div>
 	</div>
 <% end %>
+
+<!-- PLAN LIMIT MODAL -->
+<% if @plan_limit_error %>
+  <div id="plan-limit-modal" class="modal">
+    <div class="modal-content">
+      <%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+      <p class="p20 slim">
+        Has rebasado el límite de consultas de tu plan.
+        Para contratar consultas adicionales escribe a
+        <b>contacto@lantiaintelligence.com</b>.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+        <i class="material-icons small">close</i>
+      </a>
+    </div>
+  </div>
+
+  <script nonce="<%= csp_nonce %>">
+    document.addEventListener('DOMContentLoaded', function () {
+      var el = document.getElementById('plan-limit-modal');
+      if (el) {
+        var instance = M.Modal.init(el);
+        instance.open();
+      }
+    });
+  </script>
+<% end %>

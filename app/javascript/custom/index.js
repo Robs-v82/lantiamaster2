@@ -171,6 +171,14 @@ $(document).ready(function(){
 		}
 	})
 
+	// PLAN LIMIT ERROR MODAL
+	$(document).ready(function(){
+		if($('#plan-limit-modal').length) {
+    		$('#plan-limit-modal').modal('open')
+		}
+	})
+
+
 	// CUSTOM JAVASCRIPT
 
 	// MAP HOVER

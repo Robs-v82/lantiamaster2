@@ -170,5 +170,9 @@ Rails.application.routes.draw do
     get 'users/new'
     post 'users/create'
 
-
+    namespace :api do
+      namespace :v1 do
+        post "members/search", to: "members#search"
+      end
+    end
 end
