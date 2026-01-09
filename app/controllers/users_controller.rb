@@ -48,7 +48,58 @@ class UsersController < ApplicationController
       # .includes(member: :organization) # evita N+1 para nombre y organización
       .order(:id)
   end
-  
+
+  def edit
+    @users = User
+      .joins(:member)
+      .includes(member: :organization)
+      .where("EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = users.id)")
+      .order('members.firstname ASC')
+  end
+
+  def update_subscription
+    require_admin!
+
+    user = User.includes(:subscriptions).find(params[:id])
+
+    # fecha enviada desde el formulario (YYYY-MM-DD)
+    new_end = Date.parse(params.dig(:subscription, :current_period_end).to_s).end_of_day
+
+    # suscripción vigente previa (si existe)
+    old_active = user.subscriptions
+                     .where(status: "active")
+                     .order(current_period_end: :desc)
+                     .first
+
+    old_end = old_active&.current_period_end
+
+    ActiveRecord::Base.transaction do
+      # 1) si había una activa, la marcamos como no-activa para dejar 1 sola activa
+      if old_active
+        old_active.update!(status: "expired")
+      end
+
+      # 2) crear la nueva suscripción activa
+      #    (siempre con plan_id 4 como lo vienes usando en UsersController#create)
+      Subscription.create!(
+        user: user,
+        plan_id: 4,
+        current_period_end: new_end,
+        status: "active"
+      )
+
+      # 3) reflejar el membership_type (para que pueda hacer login de inmediato)
+      user.update_columns(membership_type: 4, updated_at: Time.current)
+    end
+
+    # 4) mandar correo (lo implementamos en el siguiente paso)
+    UserMailer.subscription_updated(user, old_end, new_end).deliver_later
+
+    redirect_to users_edit_path, notice: "Suscripción actualizada."
+  rescue ArgumentError
+    redirect_to users_edit_path, alert: "Fecha inválida."
+  end
+
   layout false, only: [:intro, :index]
 
   def preloader

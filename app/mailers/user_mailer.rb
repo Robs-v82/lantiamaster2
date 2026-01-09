@@ -53,6 +53,17 @@ class UserMailer < ApplicationMailer
 
 	  mail to: user.mail, subject: "Activa tu cuenta – Lantia Intelligence"
 	end
+
+	def subscription_updated(user, old_end, new_end)
+	  @user = user
+	  @old_end = old_end
+	  @new_end = new_end
+
+	  mail(
+	    to: @user.mail,
+	    subject: "Actualización de suscripción | Lantia Intelligence"
+	  )
+	end
   
 end
 

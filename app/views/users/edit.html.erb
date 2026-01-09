@@ -1,6 +1,83 @@
-<h1>Editing User</h1>
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener('DOMContentLoaded', function() {
+    var tooltipped = document.querySelectorAll('.tooltipped');
+    M.Tooltip.init(tooltipped);
+  });
+</script>
 
-<%= render 'form', user: @user %>
+<div class="b-container">
+  <h5>Panel del administrador</h5>
+  <%# <p class="grey-text">Usuarios con <code>membership_type = 4</code></p> %>
+  <p class="grey-text">Número de usuarios activos: <%= @users.count %></p>
 
-<%= link_to 'Show', @user %> |
-<%= link_to 'Back', users_path %>
+  <table class="highlight z-depth-1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Organización</th>
+        <th>Expiración</th>
+        <th>Correo verificado</th>
+      </tr>
+    </thead>
+      <tbody>
+        <% @users.each do |u| %>
+          <% expired = !u.membership_active? %>
+
+          <tr
+            class="user-row <%= 'user-row-expired' if expired %>"
+            style="<%= expired ? 'background-color: #ffebee; cursor: pointer;' : 'cursor: pointer;' %>"
+            data-target="user-details-<%= u.id %>"
+          >
+            <td><%= u.id %></td>
+            <td><%= user_full_name(u).presence || "—" %></td>
+            <td><%= u.mail || "—" %></td>
+            <td><%= user_org_name(u).presence || "—" %></td>
+            <td><%= user_membership_expiration(u).presence || "—" %></td>
+            <td><%= email_verified_badge(u) %></td>
+          </tr>
+
+          <!-- DETALLE: ahora SIEMPRE existe para todos -->
+          <tr id="user-details-<%= u.id %>" class="user-details-row" style="display:none;">
+            <td colspan="6" style="background-color:#fff3f3;">
+              <div style="padding: 12px;">          
+                <form action="<%= update_user_subscription_path(u) %>" method="post">
+                  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                  <div class="row" style="margin-bottom:0;">
+                    <div class="input-field col s4">
+                      <input type="date"
+                             name="subscription[current_period_end]"
+                             required
+                             style="background-color: #fff; border: 1px solid #000; padding: 0 8px; box-sizing: border-box;">
+                      <label class="active">Nueva fecha de expiración</label>
+                    </div>
+                    <div class="col s4" style="padding-top:18px;">
+                      <button class="btn waves-effect">Actualizar</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+
+  </table>
+</div>
+
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('tr.user-row').forEach(function(row) {
+      row.addEventListener('click', function() {
+        var targetId = row.getAttribute('data-target');
+        var details  = document.getElementById(targetId);
+        if (!details) return;
+
+        details.style.display = (details.style.display === 'none' || details.style.display === '')
+          ? 'table-row'
+          : 'none';
+      });
+    });
+  });
+</script>

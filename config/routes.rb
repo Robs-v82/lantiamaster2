@@ -168,7 +168,9 @@ Rails.application.routes.draw do
 
     get 'users/admin'
     get 'users/new'
+    get 'users/edit'
     post 'users/create'
+    post "users/:id/subscription", to: "users#update_subscription", as: :update_user_subscription
 
     namespace :api do
       namespace :v1 do
