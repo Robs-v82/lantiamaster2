@@ -177,4 +177,10 @@ Rails.application.routes.draw do
         post "members/search", to: "members#search"
       end
     end
+
+    get  "organizations/admin", to: "organizations#admin"
+    post "organizations/:id/set_search_level", to: "organizations#set_search_level", as: :set_org_search_level
+    post "organizations/admin_create", to: "organizations#admin_create"
+
+
 end

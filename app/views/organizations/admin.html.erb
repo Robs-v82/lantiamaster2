@@ -1,0 +1,153 @@
+<%= render 'shared/flash' %>
+
+<style>
+  /* Contenedores grises */
+  .admin-box {
+    background:#f2f2f2;
+    border:1px solid #e0e0e0;
+    padding:16px;
+  }
+
+  /* Inputs blancos solo en el campo */
+  .admin-box input[type="text"],
+  .admin-box input[type="date"]{
+    background: #fff !important;
+    border: 1px solid #b0b0b0 !important;
+    box-shadow: none !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Materialize select: input visible (.select-dropdown) */
+  .admin-box .select-wrapper input.select-dropdown{
+    background: #fff !important;
+    border: 1px solid #b0b0b0 !important;
+    box-shadow: none !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Focus sin subrayado azul */
+  .admin-box input[type=text]:focus,
+  .admin-box .select-wrapper input.select-dropdown:focus{
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+  }
+
+  /* Checkbox negro (filled-in) */
+  .admin-box [type="checkbox"].filled-in:checked + span:not(.lever):after{
+    border: 2px solid #000 !important;
+    background-color: #000 !important;
+  }
+  .admin-box [type="checkbox"].filled-in:not(:checked) + span:not(.lever):after{
+    border: 2px solid #000 !important;
+    background-color: transparent !important;
+  }
+
+  /* Tabla blanca con borde fino, sin profundidad */
+  .admin-table {
+    background:#fff;
+    border:1px solid #b0b0b0;
+    margin:0;
+  }
+</style>
+
+<div class="b-container">
+  <h5>Administración de organizaciones</h5>
+
+  <!-- NUEVA ORGANIZACIÓN -->
+  <div class="admin-box" style="margin-bottom:16px;">
+    <h6 style="margin-top:0;">Nueva organización</h6>
+
+    <form action="/organizations/admin_create" method="post">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+      <div class="row" style="margin-bottom:0;">
+        <div class="input-field col s6">
+          <input name="organization[name]" type="text" required>
+          <label>Nombre</label>
+        </div>
+
+        <div class="input-field col s3">
+          <select name="organization[search_level]">
+            <% (0..6).each do |lvl| %>
+              <option value="<%= lvl %>"><%= lvl %></option>
+            <% end %>
+          </select>
+          <label>search_level</label>
+        </div>
+
+        <div class="input-field col s3">
+          <label style="display:block; margin-top:12px;">
+            <input type="checkbox" class="filled-in" name="organization[search_panel]" value="1" />
+            <span>search_panel</span>
+          </label>
+        </div>
+        <div class="input-field col s3">
+          <label style="display:block; margin-top:12px;">
+            <input type="checkbox" class="filled-in" name="organization[data_access]" value="1" />
+            <span>data_access</span>
+          </label>
+        </div>
+      </div>
+      <button class="btn waves-effect" type="submit">Crear</button>
+    </form>
+  </div>
+
+  <p class="grey-text">Ajusta el <code>search_level</code> (0–6) de cada organización.</p>
+
+  <!-- TABLA -->
+  <div class="admin-box" style="padding:12px;">
+    <table class="highlight admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Organización</th>
+          <th>search_panel</th>
+          <th>data_access</th>
+          <th>search_level</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @organizations.each do |org| %>
+          <tr>
+            <td><%= org.id %></td>
+            <td><%= org.name %></td>
+            <td><%= org.search_panel ? "Sí" : "No" %></td>
+            <td><%= org.data_access.nil? ? "—" : (org.data_access ? "Sí" : "No") %></td>
+
+
+            <td style="max-width:180px;">
+              <form action="<%= set_org_search_level_path(org) %>" method="post" style="margin:0;">
+                <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+                <div class="input-field" style="margin:0;">
+                  <select name="organization[search_level]">
+                    <% (0..6).each do |lvl| %>
+                      <option value="<%= lvl %>" <%= "selected" if org.search_level.to_i == lvl %>>
+                        <%= lvl %>
+                      </option>
+                    <% end %>
+                  </select>
+                </div>
+            </td>
+
+            <td>
+                <button class="btn waves-effect" type="submit">Guardar</button>
+              </form>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener('DOMContentLoaded', function() {
+    var selects = document.querySelectorAll('select');
+    M.FormSelect.init(selects);
+  });
+</script>

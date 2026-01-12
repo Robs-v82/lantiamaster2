@@ -11,6 +11,35 @@ class OrganizationsController < ApplicationController
   before_action :require_premium, only: [:show]
   before_action :require_organization_access, only: [:index, :show]
   # before_action :quick_preload, only: [:query]
+  before_action :require_admin!, only: [:admin, :set_search_level, :admin_create]
+
+
+  def admin
+    @organizations = Organization.where.not(:search_level=>nil).order(:name)
+  end
+
+  def admin_create
+    Organization.create!(
+      name: params.dig(:organization, :name).to_s.strip,
+      search_panel: (params.dig(:organization, :search_panel) == "1"),
+      data_access: (params.dig(:organization, :data_access) == "1"),
+      search_level: params.dig(:organization, :search_level).to_i
+    )
+    redirect_to "/organizations/admin", notice: "Organización creada."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to "/organizations/admin", alert: e.record.errors.full_messages.join(", ")
+  end
+
+  def set_search_level
+    org = Organization.find(params[:id])
+    level = params[:organization][:search_level].to_i
+
+    level = 0 if level < 0
+    level = 6 if level > 6
+
+    org.update!(search_level: level)
+    redirect_to "/organizations/admin", notice: "Actualizado: #{org.name} → #{level}"
+  end
 
   def stop_organization_help
     User.find(session[:user_id]).update(:organization_help=>false)

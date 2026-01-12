@@ -1,79 +1,123 @@
 <script type="text/javascript" nonce="<%= csp_nonce %>">
 </script>
+
+<% u   = User.find_by(id: session[:user_id]) %>
+<% org = u&.member&.organization %>
+
+<% show_panel  = (org&.search_panel == true) %>
+<% data_access = (org.nil? ? true : (org.data_access == true)) %>
+
+<% panel_only = (show_panel && !data_access) %>
+
 <div class="side-icon red-text text-accent-4">
-    <ul id="slide-out" class="sidenav paletton-grey
-        <% if @intro %>
+  <ul id="slide-out" class="sidenav paletton-grey
+      <% if @intro %>
         animate__animated animate__slideInLeft animate__delay-1s
-    <% end %>
+      <% end %>
     "
-        <% if @intro %>
-            style="transform: translateX(0%)"
-        <% end %>
-    >
+    <% if @intro %>
+      style="transform: translateX(0%)"
+    <% end %>
+  >
+    <li>
+      <div class="user-view background paletton-grey"></div>
+    </li>
+
+    <div id="user-links white-text" class="paletton-red">
+      <br>
+
+      <li class="white-text p20 semi-slim">
+        <a class="left-min-margin p20 semi-slim preloader-trigger" href="/frontpage">
+          <i class="material-icons white-text left-extra-margin">home</i>
+        </a>
+        <a class="left-min-margin p20 semi-slim preloader-trigger" href="/organizations/logout">
+          <i class="material-icons white-text left-extra-margin tooltipped" data-tooltip="Cerrar sesión">power_settings_new</i>
+        </a>
+      </li>
+
+      <%# PANEL (siempre que la org tenga search_panel) %>
+      <% if show_panel %>
         <li>
-            <div class="user-view background paletton-grey"></div>
+          <a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/datasets/members_search">
+            PANEL DE CONSULTA
+          </a>
         </li>
-        <div id="user-links white-text" class="paletton-red">
+        <div class="divider"></div>
         <br>
-        <li class="white-text p20 semi-slim">
-            <a class="left-min-margin p20 semi-slim preloader-trigger" href="/frontpage">
-                <i class="material-icons white-text left-extra-margin">home</i>
-            </a>
-            <a class="left-min-margin p20 semi-slim preloader-trigger" href="/organizations/logout">
-                <i class="material-icons white-text left-extra-margin tooltipped" data-tooltip="Cerrar sesión">power_settings_new</i>
-            </a>
-        </li>
-        <% if User.find(session[:user_id])&.member&.organization&.search_panel %>
-            <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/datasets/members_search">PANEL DE CONSULTA</a></li>
-            <div class="divider"></div>
-            <br>
-        <% end %>
-        <% if User.find(session[:user_id]).victim_access == false %>
-            <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">VÍCTIMAS</span></li>
+      <% end %>
+
+      <%# =========================
+          %> <%# MÓDULOS "DATA" (solo si data_access) %>
+      <%# ========================= %>
+      <% unless panel_only %>
+
+        <% if u && u.victim_access == false %>
+          <li class="paletton-light-red-text p20 semi-slim">
+            <i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">VÍCTIMAS</span>
+          </li>
         <% else %>
-            <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/victims/new_query">VÍCTIMAS</a></li>
+          <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/victims/new_query">VÍCTIMAS</a></li>
         <% end %>
-        <% if User.find(session[:user_id]).organization_access == false %>
-            <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ORGANIZACIONES</span></li>
+
+        <% if u && u.organization_access == false %>
+          <li class="paletton-light-red-text p20 semi-slim">
+            <i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ORGANIZACIONES</span>
+          </li>
         <% else %>
-            <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/organizations/query">ORGANIZACIONES</a></li>
+          <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/organizations/query">ORGANIZACIONES</a></li>
         <% end %>
+
         <% if session[:membership].to_i > 3 %>
-             <% if User.find(session[:user_id]).detention_access == false %>
-                <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ARRESTOS</span></li>
-            <% else %>
-                <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/members/new_query">ARRESTOS</a></li>
-            <% end %>
+          <% if u && u.detention_access == false %>
+            <li class="paletton-light-red-text p20 semi-slim">
+              <i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ARRESTOS</span>
+            </li>
+          <% else %>
+            <li><a class="left-min-margin white-text p20 semi-slim preloader-trigger" href="/members/new_query">ARRESTOS</a></li>
+          <% end %>
         <% end %>
+
         <br>
         <div class="divider"></div>
         <br>
-        <% if User.find(session[:user_id]).irco_access == false %>
-            <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">IRCO</span></li>
+
+        <% if u && u.irco_access == false %>
+          <li class="paletton-light-red-text p20 semi-slim">
+            <i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">IRCO</span>
+          </li>
         <% else %>
-            <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Riesgo por Crimen Organizado" href="/states/irco">IRCO</a></li>
+          <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Riesgo por Crimen Organizado" href="/states/irco">IRCO</a></li>
         <% end %>
+
         <% if session[:membership].to_i > 1 %>
-            <% if User.find(session[:user_id]).icon_access == false %>
-                <li class="paletton-light-red-text p20 semi-slim"><i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ICON</span></li>
-            <% else %>
-                <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Conflictividad" href="/states/icon">ICON</a></li>
-            <% end %>
+          <% if u && u.icon_access == false %>
+            <li class="paletton-light-red-text p20 semi-slim">
+              <i class="material-icons tiny left-extra-margin">lock</i><span class="left-min-margin">ICON</span>
+            </li>
+          <% else %>
+            <li><a class="left-min-margin white-text p20 semi-slim tooltipped preloader-trigger" data-tooltip="Índice de Conflictividad" href="/states/icon">ICON</a></li>
+          <% end %>
         <% end %>
+
         <br>
+
         <% if session[:membership].to_i > 3 %>
-            <div class="divider"></div>
-            <br>
-            <li><a class="left-min-margin white-text p20 semi-slim" href="/datasets/downloads" target="_blank">ARCHIVO LANTIA</a></li>
-            <li><a class="left-min-margin white-text p20 semi-slim" href="/guide_4.pdf" target="_blank">MANUAL</a></li>
-            <br>
+          <div class="divider"></div>
+          <br>
+          <li><a class="left-min-margin white-text p20 semi-slim" href="/datasets/downloads" target="_blank">ARCHIVO LANTIA</a></li>
+          <li><a class="left-min-margin white-text p20 semi-slim" href="/guide_4.pdf" target="_blank">MANUAL</a></li>
+          <br>
         <% end %>
-        <li>
-            
-        </li>
-        </div>
-    </ul>
-<div class="col s2">
-<a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons small paletton-red-text class">menu</i></a>
-</div>
+
+      <% end %> <%# /unless panel_only %>
+
+      <li></li>
+    </div>
+  </ul>
+
+  <div class="col s2">
+    <a href="#" data-target="slide-out" class="sidenav-trigger">
+      <i class="material-icons small paletton-red-text class">menu</i>
+    </a>
+  </div>
 </div>
