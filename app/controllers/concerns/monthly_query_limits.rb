@@ -1,22 +1,39 @@
 module MonthlyQueryLimits
   extend ActiveSupport::Concern
 
-  def consultas_mensuales(user)
+  # Nuevo: cuenta consultas en el periodo que aplique al plan
+  def consultas_en_periodo(user)
     return { usuario: 0, organizacion: 0, total: 0, total_org: 0 } unless user&.member&.organization
 
-    inicio_de_mes = Time.current.beginning_of_month
-    fin_de_mes = Time.current.end_of_month
-    org = user.member.organization
+    org   = user.member.organization
+    level = org.search_level.to_i
+    start_at = org.subscription_started_at || Time.current
 
-    queries_usuario = user.queries.where(created_at: inicio_de_mes..fin_de_mes).count
+    if level.between?(1, 5)
+      inicio = start_at
+      fin    = start_at + 1.year
+    elsif level == 6
+      inicio = start_at
+      fin    = start_at + 1.month
+
+      # ✅ Trial expirado: baja a sin suscripción y corta aquí
+      if Time.current >= fin
+        org.update_columns(search_level: 0, subscription_started_at: nil)
+        return { usuario: 0, organizacion: 0, total: 0, total_org: 0 }
+      end
+    else
+      return { usuario: 0, organizacion: 0, total: 0, total_org: 0 }
+    end
+
+    queries_usuario = user.queries.where(created_at: inicio..fin).count
 
     queries_organizacion = Query.where(user_id: org.users.where.not(id: user.id).pluck(:id))
-      .where(created_at: inicio_de_mes..fin_de_mes)
-      .count
+                                .where(created_at: inicio..fin)
+                                .count
 
     total_org = Query.where(user_id: org.users.pluck(:id))
-      .where(created_at: inicio_de_mes..fin_de_mes)
-      .count
+                     .where(created_at: inicio..fin)
+                     .count
 
     {
       usuario: queries_usuario,
@@ -30,20 +47,20 @@ module MonthlyQueryLimits
     org_level = user&.member&.organization&.search_level.to_i
 
     @suscription = case org_level
-    when 1
-    { level: "básica", points: 15 }
-      when 2
-    { level: "avanzada", points: 500 }
-      when 3
-    { level: "premium", points: 1000 }
+    when 1 then { level: "A", points: 10,  period: :year }
+    when 2 then { level: "B", points: 2400,  period: :year }
+    when 3 then { level: "C", points: 6000,  period: :year }
+    when 4 then { level: "D", points: 12000, period: :year }
+    when 5 then { level: "E", points: 60000, period: :year }
+    when 6 then { level: "prueba", points: 500, period: :month, renewable: false }
     else
-      { level: "sin suscripción", points: 0 }
+      { level: "sin suscripción", points: 0, period: :none }
     end
   end
 
-  def enforce_monthly_limit!(user)
+  def enforce_query_limit!(user) # (si quieres, luego lo renombramos)
     suscription = set_suscription(user)
-    info = consultas_mensuales(user)
+    info = consultas_en_periodo(user)
 
     if info[:total_org] >= suscription[:points]
       session[:plan_limit_error] = true
@@ -51,6 +68,19 @@ module MonthlyQueryLimits
       return false
     end
     true
+  end
+
+  def ensure_trial_status!(user)
+    org = user&.member&.organization
+    return unless org
+    return unless org.search_level.to_i == 6
+
+    start_at = org.subscription_started_at
+    return unless start_at
+
+    if Time.current >= (start_at + 1.month)
+      org.update_columns(search_level: 0, subscription_started_at: nil)
+    end
   end
 
 end

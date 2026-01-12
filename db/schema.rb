@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_01_09_225712) do
+ActiveRecord::Schema.define(version: 2026_01_12_224239) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -526,6 +526,7 @@ ActiveRecord::Schema.define(version: 2026_01_09_225712) do
     t.integer "search_level"
     t.bigint "criminal_link_id"
     t.boolean "data_access"
+    t.datetime "subscription_started_at"
     t.index ["county_id"], name: "index_organizations_on_county_id"
     t.index ["criminal_link_id"], name: "index_organizations_on_criminal_link_id"
   end

@@ -359,7 +359,7 @@ class DatasetsController < ApplicationController
 	  end
 
 		user = User.find_by(id: session[:user_id])
-		return unless enforce_monthly_limit!(user)
+		return unless enforce_query_limit!(user)
 
 	  new_query = Query.new(
 	    firstname: query_params[:firstname],
@@ -829,11 +829,20 @@ end
 def members_search
 	@names_data = Name.all.pluck(:word, :freq).map { |word, freq| [word.capitalize, freq] }.to_h
 	@user = User.find_by(id: session[:user_id])
-	@queries_info = consultas_mensuales(@user)
+	ensure_trial_status!(@user)
+	@queries_info = consultas_en_periodo(@user)
 	@suscription = set_suscription(@user)
+
+	org = @user&.member&.organization
+	start_at = org&.subscription_started_at || Time.current
+	level = org&.search_level.to_i
+
+	@period_start = start_at
+	@period_end   = level.between?(1,5) ? (start_at + 1.year) : (start_at + 1.month)
+
 	@queries_por_dia = @user.queries
-		.where(created_at: Time.current.beginning_of_month..Time.current.end_of_month)
-		.group_by { |q| q.created_at.to_date }
+	  .where(created_at: @period_start..@period_end)
+	  .group_by { |q| q.created_at.to_date }
 
 	if session[:plan_limit_error]
 		@plan_limit_error = true

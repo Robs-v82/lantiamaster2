@@ -194,7 +194,7 @@
 							<p>
 							  <%= User.find(session[:user_id]).member.organization.name %> tiene
 							  <%= @suscription[:points] - @queries_info[:total] %> consulta<%= @suscription[:points] - @queries_info[:total] == 1 ? '' : 's' %> disponibles para usarse antes del
-							  <%= l(Time.current.end_of_month, format: "%-d de %B de %Y") %>.
+								<%= l(@period_end, format: "%-d de %B de %Y") %>.
 							</p>
           	</td>
           	<td>
@@ -204,7 +204,7 @@
         </tbody>
       </table>
 			<div class="section">
-			  <p style="font-weight: bold; color: #33333C; font-size: 15px;">Tus consultas de <%= l(Time.current, format: "%B") %></p>
+				<p ...>Tus consultas del periodo (<%= l(@period_start.to_date, format: "%-d %b %Y") %> – <%= l(@period_end.to_date, format: "%-d %b %Y") %>)</p>
 
 			  <ul class="collapsible popout" style="border: none;" data-collapsible="accordion">
 			    <% @queries_por_dia.sort.reverse.each do |fecha, queries| %>

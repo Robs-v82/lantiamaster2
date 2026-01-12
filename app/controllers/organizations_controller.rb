@@ -23,7 +23,8 @@ class OrganizationsController < ApplicationController
       name: params.dig(:organization, :name).to_s.strip,
       search_panel: (params.dig(:organization, :search_panel) == "1"),
       data_access: (params.dig(:organization, :data_access) == "1"),
-      search_level: params.dig(:organization, :search_level).to_i
+      search_level: params.dig(:organization, :search_level).to_i,
+      subscription_started_at: Time.current
     )
     redirect_to "/organizations/admin", notice: "Organización creada."
   rescue ActiveRecord::RecordInvalid => e
@@ -33,11 +34,25 @@ class OrganizationsController < ApplicationController
   def set_search_level
     org = Organization.find(params[:id])
     level = params[:organization][:search_level].to_i
-
     level = 0 if level < 0
     level = 6 if level > 6
 
-    org.update!(search_level: level)
+    # Si cambia el nivel, reinicia el periodo
+    if org.search_level.to_i != level
+      attrs = { search_level: level }
+
+      if level == 0
+        attrs[:subscription_started_at] = nil
+      else
+        # inicia nuevo periodo solo al cambiar de nivel
+        attrs[:subscription_started_at] = Time.current
+      end
+
+      org.update!(attrs)
+    else
+      org.update!(search_level: level)
+    end
+
     redirect_to "/organizations/admin", notice: "Actualizado: #{org.name} → #{level}"
   end
 

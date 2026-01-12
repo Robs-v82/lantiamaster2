@@ -10,7 +10,8 @@ module Api
 
         # ✅ Rate limit por organización (mensual)
         suscription = set_suscription(current_api_user)
-        info = consultas_mensuales(current_api_user)
+        ensure_trial_status!(current_api_user)
+        info = consultas_en_periodo(current_api_user)
         remaining = [suscription[:points] - info[:total_org], 0].max
 
         if info[:total_org] >= suscription[:points]
@@ -124,29 +125,6 @@ module Api
 
             real_match || fake_match
           end
-        end
-
-        # --- Rate limit mensual (mismo concepto que UI) ---
-        suscription = set_suscription(current_api_user) # {level, points}
-        info = consultas_mensuales(current_api_user)    # {usuario, organizacion, total}
-
-        if info[:total_org] >= suscription[:points]
-          remaining = [suscription[:points] - info[:total_org], 0].max
-
-          return render json: {
-            request_id: request.request_id,
-            status: 429,
-            errors: [{
-              code: "rate_limit_exceeded",
-              message: "Has rebasado el límite mensual de tu plan. Escribe a contacto@lantiaintelligence.com para contratar consultas adicionales."
-            }],
-            meta: {
-              plan: suscription[:level],
-              limit: suscription[:points],
-              used: info[:total_org],
-              remaining: remaining
-            }
-          }, status: :too_many_requests
         end
 
         # --- 5) Guardado (default true) ---
