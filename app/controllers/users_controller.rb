@@ -122,7 +122,7 @@ class UsersController < ApplicationController
   private
 
     def set_orgs
-    @organizations = Organization.where('search_level > 0')
+    @organizations = Organization.where.not(:search_level=>nil)
                                  .order(:name)
                                  .select(:id, :name)
     end

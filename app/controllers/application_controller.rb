@@ -245,7 +245,7 @@ class ApplicationController < ActionController::Base
 	protected
 
 		def require_admin!
-			admins = ["roberto@lantiaintelligence.com", "roberto@primeraraiz.com"]
+			admins = ["roberto@lantiaintelligence.com", "roberto@primeraraiz.com", "jantonio.vala00@gmail.com", "eggmexico@gmail.com", "eduardo.guerrero@lantiaintelligence.com"]
 			x = session[:user_id]
 			user = User.find(x)
 			unless admins.include? user.mail
