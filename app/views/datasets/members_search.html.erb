@@ -29,57 +29,30 @@
 }
 </style>
 <script nonce="<%= csp_nonce %>">
-  document.addEventListener('DOMContentLoaded', function () {
-    Highcharts.chart('grafico-uso-consultas', {
-      chart: {
-        type: 'pie',
-        height: 160,
-        margin: 0,
-        style: {
-          fontFamily: 'Poppins',
-        },
-      },
+  window.addEventListener('load', function () {
+    var el = document.getElementById('grafico-uso-consultas');
+    if (!el) return;
+
+    var chart = Highcharts.chart('grafico-uso-consultas', {
+      chart: { type: 'pie', height: 160, margin: 0, style: { fontFamily: 'Poppins' } },
       title: false,
       credits: false,
       exporting: { enabled: false },
       legend: { enabled: false },
-      plotOptions: {
-        pie: {
-          allowPointSelect: true,
-          cursor: 'pointer',
-          dataLabels: { enabled: false },
-          showInLegend: true,
-          innerSize: '40%',
-          states: { inactive: { opacity: 1 } }
-        }
-      },
+      plotOptions: { pie: { allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: false }, showInLegend: true, innerSize: '40%', states: { inactive: { opacity: 1 } } } },
       series: [{
         data: [
-          {
-            name: 'Disponibles',
-            y: <%= @suscription[:points] - @queries_info[:total] %>,
-            color: '#E0E0E3',
-            showInLegend: true
-          },
-          {
-            name: 'Tú',
-            y: <%= @queries_info[:usuario] %>,
-            color: '#00B894',
-            showInLegend: true
-          },
-          {
-            name: 'Otros usuarios de <%= @user.member.organization.name %>',
-            y: <%= @queries_info[:organizacion] %>,
-            color: '#0984E3',
-            showInLegend: true
-          }
+          { name: 'Disponibles', y: <%= @suscription[:points] - @queries_info[:total] %>, color: '#E0E0E3', showInLegend: true },
+          { name: 'Tú', y: <%= @queries_info[:usuario] %>, color: '#00B894', showInLegend: true },
+          { name: 'Otros usuarios de <%= @user.member.organization.name %>', y: <%= @queries_info[:organizacion] %>, color: '#0984E3', showInLegend: true }
         ],
-        tooltip: {
-          headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
-          pointFormat: '<span style="font-size:13px"><b>{point.y} consultas</b></span>'
-        }
+        tooltip: { headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>', pointFormat: '<span style="font-size:13px"><b>{point.y} consultas</b></span>' }
       }]
     });
+
+    // Fuerza recalcular tamaño 2 veces (por fonts/animaciones)
+    setTimeout(function(){ if (chart) chart.reflow(); }, 50);
+    setTimeout(function(){ if (chart) chart.reflow(); }, 250);
   });
 </script>
 <script nonce="<%= csp_nonce %>">
