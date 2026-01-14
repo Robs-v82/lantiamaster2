@@ -10,7 +10,7 @@ require "csv"
 require "set"
 require "tempfile"
 
-INPUT_FILE = File.join(__dir__, "A.1. PERFIL OC_Corte_20251110.csv")
+INPUT_FILE = File.join(__dir__, "A. PERFIL OC_Corte_20260110_OK - Pruebas.csv")
 
 def normalize(s)
   return "" if s.nil?

@@ -172,7 +172,7 @@ Rails.application.routes.draw do
     post 'users/create'
     post "users/:id/subscription", to: "users#update_subscription", as: :update_user_subscription
 
-    namespace :api do
+    namespace :api, defaults: { format: :json } do
       namespace :v1 do
         post "members/search", to: "members#search"
       end

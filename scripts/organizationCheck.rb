@@ -1,19 +1,11 @@
 # scripts/organizationCheck.rb
-# Analiza "A.1. PERFIL OC_Corte_20251110.csv" y reporta:
-# 1) Filas donde la MISMA organización aparece en Pertenencia y Aliados.
-# 2) Filas donde la MISMA organización aparece en Pertenencia y Rivales.
-# 3) Filas donde la MISMA organización aparece en Aliados y Rivales.
-# 4) Nombres (en Pertenencia, Aliados, Rivales) que NO existen en la BD (Organization.find_by(name: x) == nil).
-#
-# IMPORTANTE: Ya NO verifica nombres inexistentes en "Denominación".
-#
 # Ejecución:
 #   load "scripts/organizationCheck.rb"
 
 require "csv"
 require "set"
 
-INPUT_FILE = File.join(__dir__, "A.1. PERFIL OC_Corte_20251110.csv")
+INPUT_FILE = File.join(__dir__, "A. PERFIL OC_Corte_20260110_OK - Pruebas.csv")
 
 def normalize(s)
   return "" if s.nil?
@@ -38,10 +30,14 @@ end
 csv = CSV.read(INPUT_FILE, headers: true, encoding: "bom|utf-8")
 headers = csv.headers
 
-# Encabezados (se mantiene Denominación para el contexto del reporte, pero ya no se usa para validar en BD)
+# Encabezados
 den_header = find_header(headers,
-  /\bdenominaci[oó]n\b/, /\bdenominacion\b/, /\bdenominación\b/, /\bdenominacion\b/, /\bnombre\b/
+  /\bdenominaci[oó]n\b/, /\bdenominacion\b/, /\bdenominación\b/, /\bnombre\b/
 )
+den_oc_header = find_header(headers,
+  /\bdenominaci[oó]n\s*oc\b/, /\bdenominacion\s*oc\b/, /\bdenominaci[oó]n\b.*\boc\b/
+)
+
 per_header = find_header(headers, /\bpertenencia\b/)
 ali_header = find_header(headers, /\baliados?\b/)
 riv_header = find_header(headers, /\brivales?\b/)
@@ -52,15 +48,26 @@ unless den_header && per_header && ali_header && riv_header
         "Encabezados encontrados: #{headers.inspect}"
 end
 
-# Acumuladores de hallazgos
+# Set con TODAS las Denominación OC del CSV (normalizadas)
+den_oc_names = Set.new
+if den_oc_header
+  csv.each do |row|
+    v = normalize(row[den_oc_header])
+    den_oc_names << v unless v.empty?
+  end
+else
+  warn "Advertencia: no se encontró el encabezado 'Denominación OC'. Se omitirá este filtro."
+end
+
+# --------- Acumuladores de hallazgos (DEBEN ir antes de imprimir) ---------
 viol_per_ali = []  # [row_idx, denom, coincidencias(Set)]
 viol_per_riv = []  # [row_idx, denom, coincidencias(Set)]
 viol_ali_riv = []  # [row_idx, denom, coincidencias(Set)]
 
-unknown_names = Set.new                 # nombres que no existen en BD (solo per/ali/riv)
-unknown_by_row = Hash.new { |h,k| h[k] = Set.new }  # row_idx => Set[nombre]
+unknown_names = Set.new
+unknown_by_row = Hash.new { |h,k| h[k] = Set.new }
 
-# Recorremos filas
+# --------- Recorremos filas ---------
 csv.each_with_index do |row, idx|
   row_num = idx + 1
 
@@ -73,19 +80,15 @@ csv.each_with_index do |row, idx|
   ali_set = aliados.to_set
   riv_set = rivales.to_set
 
-  # 1) Pertenencia ∩ Aliados
   inter_per_ali = per_set & ali_set
   viol_per_ali << [row_num, denom, inter_per_ali] if inter_per_ali.any?
 
-  # 2) Pertenencia ∩ Rivales
   inter_per_riv = per_set & riv_set
   viol_per_riv << [row_num, denom, inter_per_riv] if inter_per_riv.any?
 
-  # 3) Aliados ∩ Rivales
   inter_ali_riv = ali_set & riv_set
   viol_ali_riv << [row_num, denom, inter_ali_riv] if inter_ali_riv.any?
 
-  # 4) Nombres desconocidos en BD (SOLO en Pertenencia, Aliados, Rivales)
   names_to_check = []
   names_to_check.concat(pertenencia)
   names_to_check.concat(aliados)
@@ -93,6 +96,11 @@ csv.each_with_index do |row, idx|
 
   names_to_check.each do |x|
     next if x.empty?
+
+    # <-- AQUÍ está la corrección que pediste:
+    # si el nombre aparece en "Denominación OC" del CSV, NO lo reportes como unknown
+    next if den_oc_header && den_oc_names.include?(x)
+
     begin
       unless Organization.find_by(name: x)
         unknown_names << x
@@ -104,8 +112,7 @@ csv.each_with_index do |row, idx|
   end
 end
 
-# --------- Impresión de reporte ---------
-
+# --------- Impresión de reporte (AL FINAL) ---------
 puts "\n===== REVISIÓN DE CONSISTENCIA SOBRE #{File.basename(INPUT_FILE)} =====\n\n"
 
 puts "— Coincidencias Pertenencia ∩ Aliados —"
@@ -140,7 +147,7 @@ puts
 
 puts "— Nombres NO encontrados en la base de datos (solo Pertenencia/Aliados/Rivales) —"
 if unknown_names.empty?
-  puts "  Todos los nombres fueron encontrados."
+  puts "  Todos los nombres fueron encontrados (o aparecen en 'Denominación OC')."
 else
   unknown_by_row.keys.sort.each do |row_num|
     list = unknown_by_row[row_num].to_a.sort
@@ -152,7 +159,6 @@ else
 end
 puts
 
-# Resumen final
 puts "===== RESUMEN ====="
 puts "  Filas con Pertenencia∩Aliados: #{viol_per_ali.size}"
 puts "  Filas con Pertenencia∩Rivales: #{viol_per_riv.size}"

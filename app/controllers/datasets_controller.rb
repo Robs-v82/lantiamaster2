@@ -361,19 +361,26 @@ class DatasetsController < ApplicationController
 		user = User.find_by(id: session[:user_id])
 		return unless enforce_query_limit!(user)
 
-	  new_query = Query.new(
-	    firstname: query_params[:firstname],
-	    lastname1: query_params[:lastname1],
-	    lastname2: query_params[:lastname2],
-	    homo_score: query_params[:homo_score],
-	    outcome: potential_matches.map(&:id),
-	    search: Member.joins(:hits).distinct.count,
-	    user: user,
-	    member: user&.member,
-	    organization: user&.member&.organization
-	  )
+		new_query = Query.new(
+		  firstname: query_params[:firstname],
+		  lastname1: query_params[:lastname1],
+		  lastname2: query_params[:lastname2],
+		  homo_score: query_params[:homo_score],
+		  outcome: potential_matches.map(&:id),
+		  search: Member.joins(:hits).distinct.count,
+		  user: user,
+		  member: user&.member,
+		  organization: user&.member&.organization,
 
-	  new_query.save
+		  # audit
+		  source: "manual",
+		  status_code: 200,
+		  success: true,
+		  request_id: request.request_id,
+		  result_count: potential_matches.size,
+		  query_label: [query_params[:firstname], query_params[:lastname1], query_params[:lastname2]].compact.join(" ")
+		)
+		new_query.save!
 
 	  redirect_to '/datasets/members_outcome'
 	end
@@ -841,7 +848,8 @@ def members_search
 	@period_end   = level.between?(1,5) ? (start_at + 1.year) : (start_at + 1.month)
 
 	@queries_por_dia = @user.queries
-	  .where(created_at: @period_start..@period_end)
+	  .successful
+	  .where(created_at: Time.current.beginning_of_month..Time.current.end_of_month)
 	  .group_by { |q| q.created_at.to_date }
 
 	if session[:plan_limit_error]

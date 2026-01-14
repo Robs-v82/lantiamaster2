@@ -103,65 +103,79 @@
                 <th>Fecha y hora:</th>
                 <td><%= @myQuery.created_at.in_time_zone("America/Mexico_City").strftime("%d/%m/%Y %H:%M") %></td>
               </tr>
-              <tr>
-                <th>Nombre(s):</th>
-                <td><%= @myQuery.firstname %></td>
-              </tr>
-              <tr>
-                <th>Apellido Paterno:</th>
-                <td><%= @myQuery.lastname1 %></td>
-              </tr>
-              <tr>
-                <th>Apellido Materno:</th>
-                <td><%= @myQuery.lastname2 %></td>
-              </tr>
+              <% if @myQuery.firstname.present? || @myQuery.lastname1.present? || @myQuery.lastname2.present? %>
+                <tr>
+                  <th>Nombre(s):</th>
+                  <td><%= @myQuery.firstname %></td>
+                </tr>
+                <tr>
+                  <th>Apellido Paterno:</th>
+                  <td><%= @myQuery.lastname1 %></td>
+                </tr>
+                <tr>
+                  <th>Apellido Materno:</th>
+                  <td><%= @myQuery.lastname2 %></td>
+                </tr>
+              <% else %>
+                <tr>
+                  <th>Nombre consultado:</th>
+                  <td><%= @myQuery.query_label.presence || "Sin especificar" %></td>
+                </tr>
+              <% end %>
+
       <tr>
         <th>Registros analizados:</th>
         <td><%= @myQuery.search %></td>
       </tr>
-      <th>Probabilidad de homónimos:</th>
-      <td>
-        <% homonimo_label =
-          case @myQuery.homo_score
-          when 0...2 then "Baja"
-          when 2...5 then "Media"
-          when 5..10 then "Alta"
-          else "Muy alta"
-          end
-        %>
-        <%= homonimo_label %>
-      </td>
-    <tr>
-      <td colspan="2" style="padding-top: 10px;">
-        <% estimacion =
-          case @myQuery.homo_score
-          when 0...2 then "sólo 1"
-          when 2...3 then "más de 2"
-          when 3...4 then "más de 3"
-          when 4...5 then "más de 4"
-          when 5...6 then "más de 5"
-          when 6...7 then "más de 6"
-          when 7...8 then "más de 7"
-          when 8...9 then "más de 8"
-          when 9...10 then "más de 9"
-          when 10...20 then "más de 10"
-          when 20...30 then "más de 20"
-          when 30...40 then "más de 30"
-          when 40...50 then "más de 40"
-          when 50...60 then "más de 50"
-          when 60...70 then "más de 60"
-          when 70...80 then "más de 70"
-          when 80...90 then "más de 80"
-          when 90...100 then "más de 90"
-          when 100...200 then "más de 100"
-          when 200...500 then "más de 200"
-          when 500...1000 then "más de 500"
-          else "más de 1000"
-          end
-        %>
-        Se estima que hay <%= estimacion %> mexicano(s) adulto(s) con el nombre y apellidos consultados o alguna de sus variantes.
-      </td>
-      </tr>
+      <% name_mode = @myQuery.firstname.blank? && @myQuery.lastname1.blank? && @myQuery.lastname2.blank? %>
+      <% unless name_mode || @myQuery.homo_score.blank? %>
+        <tr>
+          <th>Probabilidad de homónimos:</th>
+          <td>
+            <% homonimo_label =
+              case @myQuery.homo_score
+              when 0...2 then "Baja"
+              when 2...5 then "Media"
+              when 5..10 then "Alta"
+              else "Muy alta"
+              end
+            %>
+            <%= homonimo_label %>
+          </td>
+        </tr>
+
+        <tr>
+          <td colspan="2" style="padding-top: 10px;">
+            <% estimacion =
+              case @myQuery.homo_score
+              when 0...2 then "sólo 1"
+              when 2...3 then "más de 2"
+              when 3...4 then "más de 3"
+              when 4...5 then "más de 4"
+              when 5...6 then "más de 5"
+              when 6...7 then "más de 6"
+              when 7...8 then "más de 7"
+              when 8...9 then "más de 8"
+              when 9...10 then "más de 9"
+              when 10...20 then "más de 10"
+              when 20...30 then "más de 20"
+              when 30...40 then "más de 30"
+              when 40...50 then "más de 40"
+              when 50...60 then "más de 50"
+              when 60...70 then "más de 60"
+              when 70...80 then "más de 70"
+              when 80...90 then "más de 80"
+              when 90...100 then "más de 90"
+              when 100...200 then "más de 100"
+              when 200...500 then "más de 200"
+              when 500...1000 then "más de 500"
+              else "más de 1000"
+              end
+            %>
+            Se estima que hay <%= estimacion %> mexicano(s) adulto(s) con el nombre y apellidos consultados o alguna de sus variantes.
+          </td>
+        </tr>
+      <% end %>
             </tbody>
           </table>
         </div>

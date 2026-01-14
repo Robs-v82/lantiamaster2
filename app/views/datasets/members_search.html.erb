@@ -221,7 +221,7 @@
 									    <button class="btn-flat transparent z-depth-0 clave-boton" style="min-width: 110px; font-weight: 500; margin-right: 12px; padding: 0 8px;">
 									      <%= clave %>
 									    </button>
-									    <span><%= [q.firstname, q.lastname1, q.lastname2].join(" ") %></span>
+									    <span><%= q.query_label.presence || [q.firstname, q.lastname1, q.lastname2].compact.join(" ") %></span>
 									  </li>
 									  </a>
 									<% end %>

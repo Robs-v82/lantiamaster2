@@ -39,9 +39,9 @@ class MemberOutcomeSerializer
   def titles_payload
     @m.titles.map do |t|
       {
-        legacy_id: t.legacy_id,
-        type: t.type,
-        profesion: t.profesion,
+        license_number: t.legacy_id,
+        license_type: t.type,
+        profession: t.profesion,
         institution: t.organization&.name,
         year: t.year&.name
       }
@@ -62,18 +62,18 @@ class MemberOutcomeSerializer
     return { status: "no_cartel" } unless c
 
     if c.designation
-      { status: "designated", source: "self", name: c.name, date: c.designation_date }
+      { status: "designated", source: "self", name: c.name, date: c.designation_date&.strftime("%Y-%m-%d") }
     elsif c.parent&.designation
-      { status: "designated", source: "parent", name: c.parent.name, date: c.parent.designation_date, relation: "subordinada a" }
+      { status: "designated", source: "parent", name: c.parent.name, date: c.parent.designation_date&.strftime("%Y-%m-%d"), relation: "subordinada a" }
     elsif c.allies.present?
       ally = Organization.where(id: c.allies).select(&:designation).first
       if ally
-        { status: "designated", source: "ally", name: ally.name, date: ally.designation_date, relation: "aliada a" }
+        { status: "designated", source: "ally", name: ally.name, date: ally.designation_date&.strftime("%Y-%m-%d"), relation: "aliada a" }
       else
-        { status: "not_designated" }
+        { status: "Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas." }
       end
     else
-      { status: "not_designated" }
+      { status: "Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas." }
     end
   end
 
@@ -95,9 +95,9 @@ class MemberOutcomeSerializer
     @m.hits.sort_by { |h| h.date || Date.new(1,1,1) }.reverse.map do |hit|
       {
         date: hit.date&.strftime("%Y-%m-%d"),
-        link: hit.link,
-        county: hit.town&.county&.name,
-        state_shortname: hit.town&.county&.state&.shortname
+        link: hit.link.presence,
+        county: hit.town&.county&.name.presence,
+        state_shortname: hit.town&.county&.state&.shortname.presence
       }
     end
   end

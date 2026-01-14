@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_01_12_224239) do
+ActiveRecord::Schema.define(version: 2026_01_13_182207) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -583,8 +583,17 @@ ActiveRecord::Schema.define(version: 2026_01_12_224239) do
     t.integer "search"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "source"
+    t.integer "status_code"
+    t.boolean "success", default: true, null: false
+    t.string "request_id"
+    t.integer "result_count"
+    t.string "query_label"
     t.index ["member_id"], name: "index_queries_on_member_id"
     t.index ["organization_id"], name: "index_queries_on_organization_id"
+    t.index ["request_id"], name: "index_queries_on_request_id"
+    t.index ["source"], name: "index_queries_on_source"
+    t.index ["success"], name: "index_queries_on_success"
     t.index ["user_id"], name: "index_queries_on_user_id"
   end
 
