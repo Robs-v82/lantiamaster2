@@ -241,6 +241,14 @@ class ApplicationController < ActionController::Base
 	end
 
 	SESSION_TIMEOUT = 60.minutes
+
+	helper_method :admin_user?
+
+	def admin_user?
+	  admins = ["roberto@lantiaintelligence.com", "roberto@primeraraiz.com", "jantonio.vala00@gmail.com", "eggmexico@gmail.com", "eduardo.guerrero@lantiaintelligence.com"] # los mismos que require_admin!
+	  u = User.find_by(id: session[:user_id])
+	  u.present? && admins.include?(u.mail)
+	end
 	
 	protected
 

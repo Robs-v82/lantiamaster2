@@ -35,6 +35,43 @@
         </a>
       </li>
 
+      <% if admin_user? %>
+        <li style="padding:0; margin:0;">
+          <ul class="collapsible" style="margin:0; border:0; box-shadow:none;">
+            <li>
+              <div class="left-extra-margin collapsible-header paletton-red white-text p20 semi-slim"
+                   style="border:0; padding: 0 18px; min-height:56px; line-height:56px;">
+                <span style="display:inline-block;">ADMIN</span>
+                <i class="material-icons white-text" style="margin-left:auto;">expand_more</i>
+              </div>
+
+              <div class="collapsible-body paletton-red"
+                   style="border:0; padding:0; background: inherit;">
+                <ul style="margin:0; padding:0;">
+                  <li>
+                    <a class="white-text p20 semi-slim preloader-trigger"
+                       style="display:block; padding: 12px 18px;"
+                       href="/users/admin">Ver usuarios</a>
+                  </li>
+                  <li>
+                    <a class="white-text p20 semi-slim preloader-trigger"
+                       style="display:block; padding: 12px 18px;"
+                       href="/users/new">Crear usuarios</a>
+                  </li>
+                  <li>
+                    <a class="white-text p20 semi-slim preloader-trigger"
+                       style="display:block; padding: 12px 18px;"
+                       href="/organizations/admin">Organizaciones</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </li>
+        <div class="divider"></div>
+        <br>
+      <% end %>
+
       <%# PANEL (siempre que la org tenga search_panel) %>
       <% if show_panel %>
         <li>
