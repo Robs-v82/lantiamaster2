@@ -444,25 +444,72 @@ $(document).ready(function(){
 $('.query-field').on('input', function() {
   const soloLetrasRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{2,}$/;
   let todosValidos = true;
-  let freqs = [];
 
+  // --- helpers (alineado con API) ---
+  function normalizeStr(s) {
+    return (s || "")
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
+
+  // exact > contained (key dentro del input) > containing (input dentro de key)
+  function pickFreq(norm) {
+    const keys = Object.keys(window.nameFrequencies || {});
+    if (!norm) return 5;
+
+    // exact
+    const exact = keys.find(k => normalizeStr(k) === norm);
+    if (exact) return Number(window.nameFrequencies[exact]) || 5;
+
+    // contained
+    const contained = keys
+      .map(k => ({ k, kn: normalizeStr(k) }))
+      .filter(x => norm.includes(x.kn));
+
+    if (contained.length > 0) {
+      contained.sort((a, b) => b.kn.length - a.kn.length);
+      return Number(window.nameFrequencies[contained[0].k]) || 5;
+    }
+
+    // containing (fallback)
+    const containing = keys
+      .map(k => ({ k, kn: normalizeStr(k) }))
+      .filter(x => x.kn.includes(norm));
+
+    if (containing.length > 0) {
+      containing.sort((a, b) => b.kn.length - a.kn.length);
+      return Number(window.nameFrequencies[containing[0].k]) || 5;
+    }
+
+    return 5;
+  }
+
+  // Para nombres compuestos: max/avg + bono capado (no explota)
+  function compoundFreq(raw) {
+    const norm = normalizeStr(raw);
+    const parts = norm.split(/\s+/).filter(Boolean);
+
+    if (parts.length <= 1) return pickFreq(norm);
+
+    const partFreqs = parts.map(p => pickFreq(p));
+    const maxf = Math.max(...partFreqs);
+    const avgf = partFreqs.reduce((a, b) => a + b, 0) / partFreqs.length;
+
+    const bonus = Math.min(0.10 * (parts.length - 1), 0.30);
+    return Math.round(Math.max(avgf, maxf) * (1.0 + bonus));
+  }
+
+  // --- Validación UI (checks) ---
   $('.query-field').each(function() {
     const valor = $(this).val().trim();
-    const normalizado = valor.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     const $campo = $(this);
     const $checkIcon = $campo.siblings('i.material-icons');
 
     if (soloLetrasRegex.test(valor)) {
       $campo.addClass('campo-valido');
       $checkIcon.css('display', 'inline-block');
-
-      let matchedKey = Object.keys(window.nameFrequencies).find(key => {
-        const keyNorm = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        return normalizado.includes(keyNorm) || keyNorm.includes(normalizado);
-      });
-
-      let freq = matchedKey ? window.nameFrequencies[matchedKey] : 5;
-      freqs.push(freq);
     } else {
       todosValidos = false;
       $campo.removeClass('campo-valido');
@@ -470,35 +517,40 @@ $('.query-field').on('input', function() {
     }
   });
 
-if (todosValidos && freqs.length === 3) {
-  $('.send_button').removeClass('disabled').addClass('white pulse');
-  $('.send_button i').addClass('text-darken-3');
-  $('.send-to-bottom').show();
+  if (todosValidos) {
+    $('.send_button').removeClass('disabled').addClass('white pulse');
+    $('.send_button i').addClass('text-darken-3');
+    $('.send-to-bottom').show();
 
-  const resultado = Math.round((freqs[0] * freqs[1] * freqs[2]) / 10000);
-  $('#homo_score_input').val(resultado); // <- ESTA es la línea que faltaba
+    // --- Score (alineado con API) ---
+    const fFirst = compoundFreq($('input[name="query[firstname]"]').val());
+    const fLast1 = pickFreq(normalizeStr($('input[name="query[lastname1]"]').val()));
+    const fLast2 = pickFreq(normalizeStr($('input[name="query[lastname2]"]').val()));
 
-  let mensaje = "";
+    const resultado = Math.round((fFirst * fLast1 * fLast2) / 10000);
+    $('#homo_score_input').val(resultado);
 
-  if (resultado < 2) {
-    mensaje = "Baja";
-  } else if (resultado < 5) {
-    mensaje = "Media";
-  } else if (resultado <= 10) {
-    mensaje = "Alta";
+    let mensaje = "";
+    if (resultado < 2) {
+      mensaje = "Baja";
+    } else if (resultado < 5) {
+      mensaje = "Media";
+    } else if (resultado <= 10) {
+      mensaje = "Alta";
+    } else {
+      mensaje = "Muy alta";
+    }
+
+    $('#name-warning').text(mensaje);
   } else {
-    mensaje = "Muy alta";
+    $('.send_button').addClass('disabled').removeClass('white pulse');
+    $('.send_button i').removeClass('text-darken-3');
+    $('.send-to-bottom').hide();
+    $('#name-warning').text('');
+    $('#homo_score_input').val('');
   }
-
-  $('#name-warning').text(mensaje);
-} else {
-  $('.send_button').addClass('disabled').removeClass('white pulse');
-  $('.send_button i').removeClass('text-darken-3');
-  $('.send-to-bottom').hide();
-  $('#name-warning').text('');
-  $('#homo_score_input').val('');
-}
 });
+
 
 	// CLEAR ALL BUTTONS
 		$('.clear-all').click(function() {

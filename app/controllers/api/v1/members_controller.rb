@@ -194,15 +194,48 @@ module Api
 
       # Replica la idea del JS: buscar frecuencia por “inclusion match” y default 5
       def compute_homo_score(firstname, lastname1, lastname2)
-        names_data = Name.all.pluck(:word, :freq).map { |w, f| [w.to_s, f.to_i] }.to_h
+        # Index normalizado: "jose" => 175, etc. (acentos/capitalización ya no importan)
+        names_norm = Name.all.pluck(:word, :freq).to_h do |w, f|
+          [normalize(w), f.to_i]
+        end
+        keys = names_norm.keys
+
+        # Helper local: exact > contained > containing
+        pick_best = lambda do |norm|
+          if keys.include?(norm)
+            norm
+          else
+            contained = keys.select { |k| norm.include?(k) }
+            if contained.any?
+              contained.max_by(&:length)
+            else
+              containing = keys.select { |k| k.include?(norm) }
+              containing.max_by(&:length)
+            end
+          end
+        end
 
         freqs = [firstname, lastname1, lastname2].map do |val|
           norm = normalize(val)
-          matched_key = names_data.keys.find do |k|
-            kn = normalize(k)
-            norm.include?(kn) || kn.include?(norm)
+          parts = norm.split(/\s+/).reject(&:blank?)
+
+          if parts.length > 1
+            part_freqs = parts.map do |p|
+              pbest = pick_best.call(p)
+              pbest ? names_norm[pbest] : 5
+            end
+
+            maxf = part_freqs.max || 5
+            avgf = (part_freqs.sum.to_f / part_freqs.length)
+
+            # bono pequeño por compuesto (10%), capado a +30% aunque haya 3+ partes
+            bonus = [0.10 * (parts.length - 1), 0.30].min
+            ( [avgf, maxf].max * (1.0 + bonus) ).round
+          else
+            best = pick_best.call(norm)
+            best ? names_norm[best] : 5
           end
-          matched_key ? names_data[matched_key] : 5
+
         end
 
         ((freqs[0] * freqs[1] * freqs[2]) / 10000.0).round
