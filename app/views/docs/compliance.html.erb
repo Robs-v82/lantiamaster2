@@ -749,7 +749,10 @@
 <h3 id="api-auth">Autenticación</h3>
 
 <p>
-  La API utiliza autenticación mediante API key. La llave debe enviarse en cada solicitud utilizando alguno de los
+  La API utiliza autenticación mediante API key. Puedes gestionar tu llave directamente en el Panel de consulta o, si no ha sido habilitada esta opción, contacta al equipo de soporte en <a href="mailto:plataforma@lantiaintelligence.com">plataforma@lantiaintelligence.com</a>.
+</p>
+<p>
+  La llave debe enviarse en cada solicitud utilizando alguno de los
   siguientes encabezados:
 </p>
 
@@ -819,7 +822,7 @@
   <pre><code data-code>
 curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search" \
   -H "Content-Type: application/json" \
-  -H "X-API-KEY: TU_API_KEY" \
+  -H "X-API-KEY: <span style="background-color: #ffee58;">TU_API_KEY</span>" \
   -d '{"name":"José Santos Godínez"}'
   </code></pre>
 </div>
@@ -832,7 +835,7 @@ curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search
   <pre><code data-code>
 curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search" \
   -H "Content-Type: application/json" \
-  -H "X-API-KEY: TU_API_KEY" \
+  -H "X-API-KEY: <span style="background-color: #ffee58;">TU_API_KEY</span>" \
   -d '{"firstname":"José","lastname1":"Santos","lastname2":"Godínez"}'
   </code></pre>
 </div>

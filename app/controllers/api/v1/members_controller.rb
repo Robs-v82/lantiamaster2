@@ -142,6 +142,9 @@ module Api
         end
 
         # --- 7) Response ---
+        score = homo_score
+        likelihood = namesake_likelihood(score)
+
         render json: {
           request_id: request.request_id,
           status: 200,
@@ -156,12 +159,14 @@ module Api
           },
           request: qp[:name].present? ? {
             name: qp[:name],
-            # homo_score: homo_score
+            name_score: score,
+            namesake_likelihood: likelihood
           } : {
             firstname: qp[:firstname],
             lastname1: qp[:lastname1],
             lastname2: qp[:lastname2],
-            # homo_score: homo_score
+            name_score: score,
+            namesake_likelihood: likelihood
           },
           query: { id: query_record.id },
           results: {
@@ -202,6 +207,22 @@ module Api
 
         ((freqs[0] * freqs[1] * freqs[2]) / 10000.0).round
       end
+
+      def namesake_likelihood(score)
+        s = score.to_i
+        return nil if s <= 0
+
+        if s < 2
+          "low"
+        elsif s < 5
+          "medium"
+        elsif s <= 10
+          "high"
+        else
+          "very_high"
+        end
+      end
+
     end
   end
 end
