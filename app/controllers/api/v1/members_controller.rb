@@ -113,6 +113,7 @@ module Api
         end
 
         # --- 5) Guardado / auditoría ---
+        dataset_last_updated_at = Member.maximum(:updated_at)
         query_record = Query.create!(
           firstname: qp[:firstname],
           lastname1: qp[:lastname1],
@@ -130,6 +131,7 @@ module Api
           success: true,
           request_id: request.request_id,
           result_count: potential_matches.size,
+          dataset_last_updated_at: dataset_last_updated_at,
           query_label: qp[:name].presence || [qp[:firstname], qp[:lastname1], qp[:lastname2]].compact.join(" ")
         )
 
@@ -145,20 +147,21 @@ module Api
           status: 200,
           meta: {
             api_version: api_version,
-            searched_at: Time.current.iso8601,
+            searched_at: Time.current.in_time_zone("America/Mexico_City").iso8601,
             plan: suscription[:level],
             limit: suscription[:points],
             used: info[:total_org],
-            remaining: remaining
+            remaining: remaining,
+            last_updated_at: query_record.dataset_last_updated_at&.in_time_zone("America/Mexico_City")&.strftime("%Y-%m-%d %H:%M"),
           },
           request: qp[:name].present? ? {
             name: qp[:name],
-            homo_score: homo_score
+            # homo_score: homo_score
           } : {
             firstname: qp[:firstname],
             lastname1: qp[:lastname1],
             lastname2: qp[:lastname2],
-            homo_score: homo_score
+            # homo_score: homo_score
           },
           query: { id: query_record.id },
           results: {

@@ -5,7 +5,7 @@
 require "csv"
 require "set"
 
-INPUT_FILE = File.join(__dir__, "A. PERFIL OC_Corte_20260110_OK - Pruebas.csv")
+INPUT_FILE = File.join(__dir__, "A. PERFIL OC_Corte_20260110_OK - Corregido.csv")
 
 def normalize(s)
   return "" if s.nil?

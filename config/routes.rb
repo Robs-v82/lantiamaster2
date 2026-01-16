@@ -182,5 +182,5 @@ Rails.application.routes.draw do
     post "organizations/:id/set_search_level", to: "organizations#set_search_level", as: :set_org_search_level
     post "organizations/admin_create", to: "organizations#admin_create"
 
-
+    get "docs/compliance"
 end

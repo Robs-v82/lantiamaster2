@@ -127,6 +127,13 @@
         <th>Registros analizados:</th>
         <td><%= @myQuery.search %></td>
       </tr>
+      <tr>
+      <th>Última actualización:</th>
+        <td>
+          <%= @last_updated_at ? @last_updated_at.in_time_zone("America/Mexico_City").strftime("%d/%m/%Y %H:%M") : "No disponible" %>
+        </td>
+      </tr>
+
       <% name_mode = @myQuery.firstname.blank? && @myQuery.lastname1.blank? && @myQuery.lastname2.blank? %>
       <% unless name_mode || @myQuery.homo_score.blank? %>
         <tr>
@@ -223,17 +230,23 @@
             <% end %>
           </td>
         </tr>
-        <% unless member.media_score.nil? %>
-          <tr style="border-top: 2px solid #33333C;">
-            <th style="font-weight: bold; padding-top: 10px;">Solidez de las fuentes:</th>
-            <td style="display: flex; align-items: center; gap: 8px;">
-              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: <%= member.media_score == true ? '#8bc34a' : '#ffeb3b' %>; flex-shrink: 0;"></span>
-              <span>
-                <%= member.media_score == true ? 'Alta' : 'Media' %>
-              </span>
-            </td>
-          </tr>
+
+        <%# Utilizo "if false" para eliminar este bloque.  %>
+        <% if false %>
+          <% unless member.media_score.nil? %>
+            <tr style="border-top: 2px solid #33333C;">
+              <th style="font-weight: bold; padding-top: 10px;">Solidez de las fuentes:</th>
+              <td style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: <%= member.media_score == true ? '#8bc34a' : '#ffeb3b' %>; flex-shrink: 0;"></span>
+                <span>
+                  <%= member.media_score == true ? 'Alta' : 'Media' %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
         <% end %>
+        <%# Aquí termina el if-false.  %>
+
         <tr style="border-top: 2px solid #33333C;">
           <th style="font-weight: bold; padding-top: 10px;">Nombre(s):</th>
           <td><%= member.firstname %></td>

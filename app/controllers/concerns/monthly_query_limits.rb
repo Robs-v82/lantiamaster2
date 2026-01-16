@@ -47,7 +47,7 @@ module MonthlyQueryLimits
     org_level = user&.member&.organization&.search_level.to_i
 
     @suscription = case org_level
-    when 1 then { level: "A", points: 10,  period: :year }
+    when 1 then { level: "A", points: 1200,  period: :year }
     when 2 then { level: "B", points: 2400,  period: :year }
     when 3 then { level: "C", points: 6000,  period: :year }
     when 4 then { level: "D", points: 12000, period: :year }

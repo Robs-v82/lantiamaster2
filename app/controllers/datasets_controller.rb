@@ -361,6 +361,7 @@ class DatasetsController < ApplicationController
 		user = User.find_by(id: session[:user_id])
 		return unless enforce_query_limit!(user)
 
+		dataset_last_updated_at = Member.maximum(:updated_at)
 		new_query = Query.new(
 		  firstname: query_params[:firstname],
 		  lastname1: query_params[:lastname1],
@@ -378,6 +379,7 @@ class DatasetsController < ApplicationController
 		  success: true,
 		  request_id: request.request_id,
 		  result_count: potential_matches.size,
+		  dataset_last_updated_at: dataset_last_updated_at,
 		  query_label: [query_params[:firstname], query_params[:lastname1], query_params[:lastname2]].compact.join(" ")
 		)
 		new_query.save!
@@ -395,11 +397,14 @@ class DatasetsController < ApplicationController
 		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
 		@state_officers = ["Gobernador", "Secretario de Seguridad"]
 		@other_organizations = ["Servicios lícitos", "Dirigente sindical", "Músico"]
-		@myQuery = if session[:query_id]
-			Query.find_by(id: session[:query_id])
-		else
-			User.find(session[:user_id]).queries.last
-		end
+		@myQuery =
+		  if session[:query_id].present?
+		    Query.find_by(id: session[:query_id])
+		  else
+		    User.find_by(id: session[:user_id])&.queries&.order(created_at: :desc)&.first
+		  end
+		@last_updated_at = @myQuery&.dataset_last_updated_at
+		@last_updated_at ||= @myQuery&.created_at  # fallback para consultas antiguas
 		@user = User.find(session[:user_id])
 		@keyMembers = Member
 		  .where(id: @myQuery.outcome)
@@ -417,6 +422,7 @@ def members_outcome_pdf
 		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
 		@state_officers = ["Gobernador", "Secretario de Seguridad"]
 		@other_organizations = ["Servicios lícitos", "Dirigente sindical", "Músico"]
+		@last_updated_at = Member.maximum(:updated_at)
 		@myQuery = if session[:query_id]
 			Query.find_by(id: session[:query_id])
 		else

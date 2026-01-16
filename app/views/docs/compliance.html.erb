@@ -1,0 +1,1027 @@
+<style>
+  .manual-container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 24px 18px 60px;
+    color: #33333C;
+    font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+
+  .manual-card {
+    background: #FFFFFF;
+    border-radius: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+
+  .manual-header {
+    padding: 22px 22px 12px;
+    border-bottom: 2px solid #EF4E50;
+  }
+
+  .manual-title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    color: #33333C;
+  }
+
+  .manual-subtitle {
+    margin: 8px 0 0;
+    font-size: 22px;
+    font-weight: 500;
+    color: rgba(51, 51, 60, .75);
+  }
+
+  .manual-body {
+    padding: 20px 22px 26px;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .manual-body h2 {
+    margin: 18px 0 12px;
+    font-size: 18px;
+    color: #EF4E50;
+    font-weight: 700;
+  }
+
+  /* ✅ espaciado VISIBLE entre párrafos, aunque exista CSS global */
+  .manual-body > p {
+    margin: 0 0 18px !important;
+  }
+  .manual-body > p:last-of-type {
+    margin-bottom: 0 !important;
+  }
+
+  /* bullets visibles dentro del texto */
+  .manual-body ul,
+  .manual-body ol {
+    list-style-type: disc !important;
+    list-style-position: outside !important;
+    margin: 0 0 18px 0 !important;   /* mismo “bloque” que un párrafo */
+    padding-left: 22px !important;    /* indent mínimo para que se vea el punto */
+  }
+
+  .manual-body li {
+    list-style-type: disc !important;
+    margin: 0 !important;             /* ✅ sin espacio extra entre bullets */
+    padding: 0 !important;
+  }
+
+  /* --- Plan cards (2x3) --- */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 10px 0 18px 0;
+  }
+
+  .plan-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(51, 51, 60, .12);
+    border-top: 3px solid #EF4E50;
+    border-radius: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    padding: 14px 14px 12px;
+  }
+
+  .plan-name {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #33333C;
+  }
+
+  .plan-line {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(51, 51, 60, .85);
+    line-height: 1.55;
+  }
+
+  .plan-badge {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #EF4E50;
+  }
+
+  /* --- Justificado (párrafos y bullets) --- */
+  .manual-body { text-align: justify; }
+  .manual-body li { text-align: justify; }
+
+  /* --- Layout con outline a la izquierda --- */
+  .docs-layout {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* En pantallas chicas, el outline se va arriba */
+  @media (max-width: 900px) {
+    .docs-layout { grid-template-columns: 1fr; }
+  }
+
+  .docs-nav {
+    position: sticky;
+    top: 160px;
+    background: #FFFFFF;
+    border-radius: 0;
+    box-shadow: none !important;
+    padding: 12px 10px;
+    border: none;
+  }
+
+  .docs-nav-title {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    letter-spacing: .2px;
+    color: rgba(51, 51, 60, .70);
+    font-weight: 600;
+    padding: 0 10px;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Links */
+  .docs-nav-links {
+    position: relative;
+  }
+
+  .docs-nav a {
+    display: block;
+    padding: 9px 10px 9px 14px;
+    margin: 2px 0;
+    color: rgba(51, 51, 60, .85);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    border-radius: 0;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .docs-nav a:hover {
+    background: rgba(239, 78, 80, 0.06);
+  }
+
+  /* Estado activo: SIN recuadro */
+  .docs-nav a.active {
+    color: #33333C !important;
+    font-weight: 600 !important;
+    border-left-color: #EF4E50 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Hover sin recuadro */
+  .docs-nav a:hover {
+    background: transparent !important;
+  }
+
+  /* Indicador “barrita” que se desplaza */
+  .docs-nav-indicator {
+    position: absolute;
+    left: 0;
+    width: 3px;
+    background: #EF4E50;
+    border-radius: 0;
+    top: 0;
+    height: 0;
+    transform: translateY(0);
+    transition: transform 180ms ease, height 180ms ease;
+  }
+
+  /* Tablas sobrias, sin border-radius */
+  .manual-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 18px 0;
+    background: #FFFFFF;
+    border: 1px solid rgba(51, 51, 60, .12);
+  }
+
+  .manual-table th {
+    text-align: left;
+    font-size: 13px;
+    letter-spacing: .2px;
+    color: rgba(51, 51, 60, .85);
+    padding: 10px 12px;
+    border-bottom: 2px solid #EF4E50;
+    background: rgba(239, 78, 80, .04);
+    font-weight: 700;
+  }
+
+  .manual-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(51, 51, 60, .10);
+    vertical-align: top;
+    font-size: 14px;
+  }
+
+  .manual-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .small-note {
+    font-size: 13px;
+    color: rgba(51, 51, 60, .75);
+    margin-top: -6px;
+    margin-bottom: 14px;
+  }
+
+  /* Desktop: más ancho y tipografía ligeramente mayor */
+  @media (min-width: 1024px) {
+    .manual-container {
+      max-width: 1180px;     /* antes ~980 */
+      padding: 28px 24px 70px;
+    }
+
+    .manual-body {
+      font-size: 17px;       /* antes 16 */
+      line-height: 1.8;
+    }
+  }
+
+  /* Subtítulos (API): tamaño consistente */
+  .manual-body h3 {
+    margin: 16px 0 10px;
+    font-size: 17px;
+    color: #EF4E50;
+    font-weight: 700;
+  }
+
+/* Snippets tipo docs */
+.code-snippet {
+  position: relative;
+  border: 1px solid rgba(51, 51, 60, .12);
+  background: rgba(51, 51, 60, .04);
+  padding: 12px 12px 12px 12px;
+  margin: 10px 0 18px 0;
+}
+
+.code-snippet .snippet-label {
+  font-size: 13px;
+  color: rgba(51, 51, 60, .75);
+  margin: 0 0 8px 0;
+}
+
+.code-snippet pre {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+.code-snippet code {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #33333C;
+  white-space: pre;
+}
+
+/* Botón copiar (Material Icons) */
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: 1px solid rgba(51, 51, 60, .18);
+  background: #FFFFFF;
+  color: #33333C;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  border-color: rgba(239, 78, 80, .45);
+}
+
+.copy-btn .material-icons {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.copy-btn.copied {
+  border-color: rgba(239, 78, 80, .65);
+}
+
+</style>
+
+<div class="manual-container">
+  <div class="docs-layout">
+
+    <nav class="docs-nav" aria-label="Outline">
+
+      <div class="docs-nav-links" id="docs-nav-links">
+        <div class="docs-nav-indicator" id="docs-indicator"></div>
+
+        <a href="#intro" class="docs-nav-link">INTRODUCCIÓN</a>
+        <a href="#manual" class="docs-nav-link">CONSULTAS MANUALES</a>
+        <a href="#matching" class="docs-nav-link">CRITERIOS DE COINCIDENCIA</a>
+        <a href="#homonimos" class="docs-nav-link">ESTIMACIÓN DE HOMÓNIMOS</a>
+        <a href="#resultados" class="docs-nav-link">RESULTADOS</a>
+        <a href="#api" class="docs-nav-link">API</a>
+        <a href="#api-auth" class="docs-nav-link left-extra-margin">Autenticación</a>
+          <a href="#api-endpoint" class="docs-nav-link left-extra-margin">Endpoint</a>
+          <a href="#api-request" class="docs-nav-link left-extra-margin">Solicitud</a>
+          <a href="#api-response" class="docs-nav-link left-extra-margin">Respuesta</a>
+          <a href="#api-errors" class="docs-nav-link left-extra-margin">Errores</a>
+          <a href="#api-rate-limit" class="docs-nav-link left-extra-margin">Límites de uso</a>
+        <a href="#plans" class="docs-nav-link">CONTEO DE CONSULTAS</a>
+      </div>
+    </nav>
+
+    <div class="manual-card z-depth-0">
+      <div class="manual-header">
+        <h1 class="manual-title">LANTIA COMPLIANCE</h1>
+        <p class="manual-subtitle">Documentación</p>
+      </div>
+    <div class="manual-body">
+      <h2 id="intro">Introducción</h2>
+
+      <p>
+        En los últimos años, el contexto de seguridad en México ha adquirido una mayor visibilidad pública,
+        particularmente a partir de la designación de diversas organizaciones criminales como grupos terroristas
+        y del incremento en la atención institucional y mediática sobre sus redes de influencia.
+        Este entorno ha incrementado los riesgos regulatorios, reputacionales y operativos para actores del sector
+        financiero y de otros sectores estratégicos.
+      </p>
+
+      <p>
+        En este contexto, desarrollamos <span class="emph">Lantia Compliance</span> como una herramienta especializada
+        para apoyar procesos de análisis de riesgo mediante la identificación de <span class="emph">personas de alto perfil</span> que han sido
+        <span class="emph">señaladas o expuestas</span> en relación con el crimen organizado, con base exclusivamente en información proveniente
+        de fuentes públicas. Los resultados tienen un carácter <span class="emph">reputacional</span>: se construyen a partir de información
+        periodística y otras fuentes abiertas, y no pretenden sustituir ni replicar registros o determinaciones judiciales.
+      </p>
+
+      <p>
+        La herramienta se sustenta en casi dos décadas de trabajo de Lantia en investigación de crimen organizado,
+        inteligencia de fuentes abiertas y construcción de bases de datos especializadas a partir de cobertura periodística
+        y registros públicos. Su metodología ha sido aplicada de forma consistente en todo el territorio nacional y se apoya
+        en criterios analíticos diseñados para ofrecer resultados comparables y auditables.
+      </p>
+
+      <p>
+        Lantia Compliance no pretende agotar el universo de personas u organizaciones vinculadas o expuestas a actividades
+        criminales —un universo inherentemente amplio y dinámico—, sino ofrecer un <span class="emph"> acervo estructurado</span>,
+        enfocado en individuos que, por su posición, trayectoria o entorno, presentan un riesgo de ser objeto de investigaciones, sanciones
+        o escrutinio público. Este acervo se encuentra en expansión continua y forma parte de un proyecto de largo plazo.
+      </p>
+      <br>
+      <h2 id="manual">Consultas manuales</h2>
+
+      <p>
+        La consulta manual se realiza desde el Panel de Consulta, al cual el usuario accede una vez que ha iniciado
+        sesión en la plataforma de Lantia Intelligence. Este panel permite ejecutar consultas individuales y revisar
+        tanto los parámetros ingresados como los resultados obtenidos.
+      </p>
+
+      <p>
+        Para realizar una consulta manual, el usuario debe capturar de forma obligatoria los siguientes campos de identificación:
+      </p>
+
+      <ul style="margin: 0 0 18px 18px;">
+        <li>Nombre(s)</li>
+        <li>Apellido paterno</li>
+        <li>Apellido materno</li>
+      </ul>
+
+      <p>
+        Cada uno de los campos debe contener al menos dos caracteres. El sistema no permite enviar la consulta
+        si alguno de los campos se encuentra incompleto.
+      </p>
+
+      <p>
+        Una vez capturados los tres campos obligatorios y antes de enviar la consulta, el sistema calcula de forma
+        automática la probabilidad de homónimos asociada a la combinación de nombre y apellidos ingresados. Este
+        indicador se muestra al usuario como una referencia previa, con el objetivo de anticipar la posible existencia
+        de múltiples personas que compartan un nombre similar o idéntico.
+      </p>
+
+      <p>
+        La probabilidad de homónimos no impide la ejecución de la consulta ni altera los criterios de coincidencia,
+        pero constituye un elemento de apoyo para la interpretación posterior de los resultados, particularmente
+        en aquellos casos en los que el nombre consultado es frecuente en la población.
+      </p>
+
+      <p>
+        Una vez enviada la consulta, el sistema procesa la información y presenta los resultados correspondientes en
+        el panel de resultados, junto con la información contextual
+        necesaria para su análisis y un resumen de los parámetros utilizados.
+      </p>
+      <br>
+      <h2 id="matching">Criterios de coincidencia</h2>
+
+      <p>
+        El sistema busca coincidencias entre el nombre consultado y los registros existentes mediante un proceso de
+        normalización y comparación textual. El objetivo es tolerar variaciones comunes de escritura sin depender
+        de coincidencias exactas (por ejemplo, diferencias de mayúsculas o acentos), dentro de los límites que se
+        describen a continuación.
+      </p>
+
+      <p>
+        La consulta opera en dos modalidades. En la modalidad estándar, el usuario proporciona tres campos:
+        nombre(s), apellido paterno y apellido materno. Alternativamente, la API permite enviar un único campo
+        name (nombre completo) para buscar como una sola cadena. En ambos casos, el sistema compara contra el
+        nombre principal del registro y también contra identidades alternativas asociadas al mismo.
+      </p>
+
+      <p>
+        Antes de realizar cualquier comparación, los textos se normalizan de la siguiente manera:
+      </p>
+
+      <ul style="margin: 0 0 18px 18px;">
+        <li>Se eliminan espacios sobrantes al inicio y al final.</li>
+        <li>Todo el texto se convierte a minúsculas.</li>
+        <li>Se eliminan acentos y caracteres diacríticos (por ejemplo, “Gómez” se evalúa como “gomez”).</li>
+        <li>No se admiten puntos ni otros caracteres especiales; la comparación se realiza únicamente sobre letras.</li>
+      </ul>
+
+      <p>
+        La regla de comparación principal es una coincidencia por inclusión. Esto significa que se considera coincidencia
+        cuando el texto consultado contiene al texto del registro, o cuando el texto del registro contiene al texto consultado.
+        Este criterio permite capturar variaciones frecuentes, como diferencias en el uso de nombres compuestos o
+        formas abreviadas sin signos (por ejemplo, “José Luis” frente a “J Luis”).
+      </p>
+
+      <p>
+        Este criterio de coincidencia por inclusión resulta particularmente útil en aquellos casos en los que los
+        medios de comunicación no reportan la totalidad de los nombres de pila de una persona y utilizan únicamente
+        uno de ellos o una variante parcial.
+      </p>
+
+      <p>
+        En modalidad estándar (tres campos), el sistema evalúa de forma independiente cada componente:
+        nombre(s), apellido paterno y apellido materno. Para que un registro sea considerado candidato, debe cumplirse
+        la coincidencia por inclusión en los tres componentes, una vez aplicadas las reglas de normalización.
+      </p>
+
+      <p>
+        En modalidad name (cadena completa), el sistema compara el nombre completo consultado contra el nombre completo
+        del registro. La coincidencia se define igualmente por inclusión, ya con el texto normalizado.
+      </p>
+
+      <p>
+        Además del nombre principal, el sistema considera identidades falsas o alternativas asociadas a cada registro.
+        Un registro puede coincidir si el nombre principal coincide o si coincide cualquiera de sus identidades
+        alternativas.
+      </p>
+
+      <p>
+        Para mejorar la calidad de los resultados, el sistema únicamente considera como candidatos aquellos registros
+        que cuentan con al menos una mención o evento asociado en fuentes abiertas. Esto asegura que los resultados
+        estén respaldados por actividad documentada.
+      </p>
+
+      <p>
+        Este mecanismo está diseñado para apoyar un análisis reputacional basado exclusivamente en información de
+        acceso público. La coincidencia de nombres es un criterio de búsqueda y no constituye, por sí misma, una
+        conclusión sobre identidad, responsabilidad o veracidad de los señalamientos. La interpretación final debe
+        realizarse revisando el detalle del registro y sus menciones asociadas.
+      </p>
+      <br>
+    <h2 id="homonimos">Estimación de homónimos</h2>
+
+    <p>
+      Antes de enviar una consulta manual, el sistema calcula automáticamente un indicador denominado
+      “probabilidad de homónimos”. Este indicador estima qué tan frecuente es la combinación de nombre(s)
+      y apellidos capturada, con el fin de anticipar la posibilidad de que existan múltiples personas con
+      el mismo nombre o con variantes muy cercanas.
+    </p>
+
+    <p>
+      El resultado es una estimación de carácter aproximado. El cálculo se realiza con base en el análisis de
+      frecuencias de nombres y apellidos observadas en una muestra representativa de la población mexicana.
+      Por su naturaleza estadística, el indicador debe interpretarse como una referencia orientativa, no como
+      una medición exacta.
+    </p>
+
+    <p>
+      El sistema genera un valor numérico (score) que representa el número de personas estimadas en la población mexicana con la combinación de nombres y apellidos que el usuario capturó. El sistema traduce el score de acuerdo a los siguientes rangos:
+    </p>
+
+    <table class="manual-table">
+      <thead>
+        <tr>
+          <th style="width: 35%;">Rango del score</th>
+          <th>Nivel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0 a &lt; 2</td>
+          <td>Baja</td>
+        </tr>
+        <tr>
+          <td>2 a &lt; 5</td>
+          <td>Media</td>
+        </tr>
+        <tr>
+          <td>5 a 10</td>
+          <td>Alta</td>
+        </tr>
+        <tr>
+          <td>&gt; 10</td>
+          <td>Muy alta</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+  <h2 id="resultados">Resultados</h2>
+  <p>
+    En esta sección se describe cómo interpretar la información que aparece en pantalla después de ejecutar una consulta.
+    En todos los casos, el sistema presenta un resumen de parámetros que incluye:
+  </p>
+
+  <ul>
+    <li>Identificador de consulta</li>
+    <li>Fecha y hora de la consulta</li>
+    <li>Número de registros analizados</li>
+    <li>Fecha y hora de la última actualización a los registros de la base de datos</li>
+  </ul>
+
+  <p>
+    Es importante señalar que, también en todos los casos, el usuario puede descargar un soporte en formato PDF que
+    acredite los parámetros de la consulta realizada y los resultados obtenidos.
+  </p>
+  <p>
+    En los casos en los que no existen coincidencias en la base de datos se presenta la leyenda: No identificamos registros de personas señaladas o personas expuestas que coincidan con los parámetros de consulta.
+  </p>
+  <p>
+    Cuando existen coincidencias, el sistema muestra hasta diez registros relevantes. Cada registro puede incluir los siguientes campos:
+  </p>
+
+  <table class="manual-table">
+    <thead>
+      <tr>
+        <th style="width: 34%;">Campo</th>
+        <th style="width: 16%;">Siempre disponible</th>
+        <th>Descripción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Nombre(s)</td>
+        <td>Sí</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Apellido paterno</td>
+        <td>Sí</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Apellido materno</td>
+        <td>Sí</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Alias</td>
+        <td>No</td>
+        <td>Alias reportados para el registro, cuando existen.</td>
+      </tr>
+      <tr>
+        <td>Fecha de nacimiento</td>
+        <td>No</td>
+        <td>Fecha exacta o aproximada (cuando es aproximada se muestra como “circa”).</td>
+      </tr>
+
+      <tr>
+        <td>Identidades falsas/alternativas</td>
+        <td>No</td>
+        <td>Nombres alternativos asociados al mismo registro, cuando existen. Este campo se utiliza también para capturar las distintas variantes cuando las fuentes escriben de forma inconsistente el nombre de una misma persona.</td>
+      </tr>
+
+      <tr>
+        <td>Cédula profesional</td>
+        <td>No</td>
+        <td>Listado de cédulas (número/tipo/profesión/institución/año), cuando existe información disponible.</td>
+      </tr>
+      <tr>
+        <td>Clasificación primaria</td>
+        <td>Sí</td>
+        <td>Clasificación del registro: “Persona señalada” o “Persona expuesta”.</td>
+      </tr>
+      <tr>
+        <td>Vínculo con la organización</td>
+        <td>Sí</td>
+        <td>Categoría del perfil (por ejemplo: Líder, Socio, Autoridad vinculada, Servicios lícitos, Familiar/allegado, etc.)</td>
+      </tr>
+      <tr>
+        <td>Nombramientos / cargos</td>
+        <td>No</td>
+        <td>Cargos o nombramientos relevantes que se muestran para el registro; pueden incluir un periodo o etiqueta de vigencia.</td>
+      </tr>
+      <tr>
+        <td>Organización asociada</td>
+        <td>Para personas señaladas</td>
+        <td>Nombre de la organización mostrada para el registro, cuando aplica. En ciertos casos puede tratarse de la organización con la que se estima hay una mayor probabilidad de asociación, o de la organización más relevante cuando en las fuentes se reporta asociación con múltiples organizaciones criminales. Excepcionalmente puede mostrarse como "por definir".</td>
+      </tr>
+
+      <tr>
+        <td>Designación como terrorista</td>
+        <td>Para personas señaladas</td>
+        <td>Estatus mostrado cuando existe relación con una organización designada (directa, por subordinación o por alianza).</td>
+      </tr>
+
+      <tr>
+        <td>Probables vínculos</td>
+        <td>No</td>
+        <td>Vínculos mostrados en el panel (si aplica).</td>
+      </tr>
+      <tr>
+        <td>Fuentes</td>
+        <td>No</td>
+        <td>Fuentes periodísticas asociadas a las menciones del registro, señalando lugar y fecha. Permite acceder a la fuente siempre que exista un enlace activo.</td>
+      </tr>
+      <tr>
+        <td>Notas</td>
+        <td>No</td>
+        <td>Contexto adicional mostrado para el registro, cuando existe.</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+      <p>
+      A continuación se definen las categorías de clasificación utilizadas por la herramienta:
+    </p>
+
+    <table class="manual-table">
+      <thead>
+        <tr>
+          <th style="width: 28%;">Categoría</th>
+          <th>Definición operativa</th>
+          <th style="width: 44%;">Perfiles incluidos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>PERSONA SEÑALADA</td>
+          <td>
+            Hay un señalamiento de que colabora con las actividades ilícitas de alguna de las 400+ organizaciones
+            criminales con presencia en México.
+          </td>
+          <td>
+            <ul>
+              <li>Líderes y miembros de organizaciones criminales.</li>
+              <li>Socios, que operan en ámbitos privados, en apariencia legales.</li>
+              <li>Autoridades vinculadas.</li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="manual-table">
+      <thead>
+        <tr>
+          <th style="width: 28%;">Categoría</th>
+          <th>Definición operativa</th>
+          <th style="width: 44%;">Perfiles típicos incluidos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>PERSONA EXPUESTA</td>
+          <td>
+            No existe un señalamiento; sin embargo, se estima que su exposición genera un riesgo de colaboración.
+          </td>
+          <td>
+            <ul>
+              <li>Servicios lícitos, que los ponen en contacto con personas señaladas.</li>
+              <li>Familiares y allegados.</li>
+              <li>Autoridades expuestas, en lugares y cargos de riesgo.</li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  <p>
+    La presencia de un registro y su clasificación no constituyen una determinación legal. Para cada registro se recomienda
+    revisar el contexto disponible (menciones, ubicación, fechas, organización y cargos) antes de emitir una interpretación.
+  </p>
+  <br>
+
+  <h2 id="api">API</h2>
+
+  <p>
+    Lantia Compliance cuenta con una interfaz de programación (API) para integrar consultas en procesos internos
+    de análisis de riesgo. La API expone un endpoint de consulta de personas y devuelve resultados en formato JSON,
+    manteniendo el mismo enfoque de análisis reputacional basado en fuentes abiertas descrito en este documento.
+  </p>
+
+  <p>
+    La API utiliza autenticación mediante API key. La llave se envía en el encabezado HTTP X-API-KEY. De manera
+    alternativa, también puede enviarse como token tipo Bearer en el encabezado Authorization.
+  </p>
+
+  <p>
+    A diferencia de la versión manual, la API admite dos modalidades de consulta: por nombre completo (campo name) o por tres campos (firstname,
+    lastname1 y lastname2). En ambos casos, el sistema aplica los mismos criterios generales de coincidencia de nombres
+    descritos en la sección correspondiente.
+  </p>
+
+  <p>
+    Las respuestas exitosas incluyen un identificador de solicitud (request_id), un bloque meta con información
+    de la versión y del plan (incluyendo límites y consumo), los parámetros de la solicitud recibida y una lista
+    de resultados (cuando existen coincidencias).
+  </p>
+
+  <p>
+    Cuando una solicitud no cumple requisitos de autenticación, permisos, parámetros mínimos o límites del plan,
+    la API responde con errores estandarizados en JSON y el código HTTP correspondiente (por ejemplo, 401, 403, 422 o 429).
+    Estas respuestas de error no devuelven resultados.
+  </p>
+
+<h3 id="api-auth">Autenticación</h3>
+
+<p>
+  La API utiliza autenticación mediante API key. La llave debe enviarse en cada solicitud utilizando alguno de los
+  siguientes encabezados:
+</p>
+
+<ul>
+  <li>X-API-KEY: &lt;tu_api_key&gt;</li>
+  <li>Authorization: Bearer &lt;tu_api_key&gt;</li>
+</ul>
+
+<p>
+  Si la llave es inválida o está ausente, la API responde con un error de autorización y no procesa la solicitud.
+</p>
+
+
+<h3 id="api-endpoint">Endpoint de consulta</h3>
+
+  <p>
+    Todas las solicitudes deben enviarse al dominio de la plataforma. La URL base es:
+  </p>
+
+  <ul>
+    <li>https://dashboard.lantiaintelligence.com</li>
+  </ul>
+
+  <p>
+    A partir de esta base, los endpoints se expresan como rutas relativas. Por ejemplo:
+  </p>
+
+  <ul>
+    <li>POST /api/v1/members/search</li>
+  </ul>
+
+<p>
+  Este endpoint permite consultar el acervo de personas utilizando los criterios de coincidencia descritos en la sección
+  correspondiente. La API admite dos modalidades de consulta: por nombre completo o por tres campos.
+</p>
+
+
+<h3 id="api-request">Cuerpo de la solicitud</h3>
+
+<p>
+  Modalidad 1: nombre completo (un solo campo):
+</p>
+
+<ul>
+  <li>name (obligatorio; mínimo 4 caracteres)</li>
+</ul>
+
+<p>
+  Modalidad 2: tres campos (obligatorios; mínimo 2 caracteres cada uno):
+</p>
+
+<ul>
+  <li>firstname</li>
+  <li>lastname1</li>
+  <li>lastname2</li>
+</ul>
+
+<p>
+  La solicitud debe enviarse en formato JSON con el encabezado Content-Type: application/json.
+</p>
+
+<div class="code-snippet" data-snippet>
+  <p class="snippet-label">Ejemplo (modo name)</p>
+  <button class="copy-btn" type="button" aria-label="Copiar" data-copy-btn>
+    <span class="material-icons">content_copy</span>
+  </button>
+  <pre><code data-code>
+curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search" \
+  -H "Content-Type: application/json" \
+  -H "X-API-KEY: TU_API_KEY" \
+  -d '{"name":"José Santos Godínez"}'
+  </code></pre>
+</div>
+
+<div class="code-snippet" data-snippet>
+  <p class="snippet-label">Ejemplo (modo 3 campos)</p>
+  <button class="copy-btn" type="button" aria-label="Copiar" data-copy-btn>
+    <span class="material-icons">content_copy</span>
+  </button>
+  <pre><code data-code>
+curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search" \
+  -H "Content-Type: application/json" \
+  -H "X-API-KEY: TU_API_KEY" \
+  -d '{"firstname":"José","lastname1":"Santos","lastname2":"Godínez"}'
+  </code></pre>
+</div>
+
+<h3 id="api-response">Respuesta exitosa</h3>
+
+<p>
+  Una respuesta exitosa (HTTP 200) incluye:
+</p>
+
+<ul>
+  <li>request_id</li>
+  <li>meta (incluye api_version, fecha/hora de consulta y última actualización del acervo)</li>
+  <li>request (los parámetros de solicitud recibidos)</li>
+  <li>query (identificador interno de la consulta)</li>
+  <li>results (conteo y lista de coincidencias)</li>
+</ul>
+
+<p>
+  La API devuelve la fecha/hora en horario de México para los campos de metadatos que representan tiempos del sistema
+  (por ejemplo: última actualización del acervo).
+</p>
+
+
+<h3 id="api-errors">Errores estandarizados</h3>
+
+<p>
+  Cuando una solicitud no puede procesarse, la API devuelve errores estandarizados en JSON con el código HTTP
+  correspondiente. El formato general incluye:
+</p>
+
+<ul>
+  <li>request_id</li>
+  <li>status</li>
+  <li>errors (lista con code y message)</li>
+  <li>meta (incluye api_version y metadatos adicionales cuando aplica)</li>
+</ul>
+
+<p>
+  Códigos HTTP comunes:
+</p>
+
+<ul>
+  <li>401 Unauthorized: API key inválida o ausente.</li>
+  <li>403 Forbidden: la organización no tiene acceso activo a la API.</li>
+  <li>422 Unprocessable Entity: parámetros incompletos o inválidos.</li>
+  <li>429 Too Many Requests: límite de consultas del plan excedido.</li>
+  <li>500 Internal Server Error: error inesperado (se registra request_id para soporte).</li>
+</ul>
+
+<br>
+      <h2 id="plans">Conteo de consultas</h2>
+
+      <p>
+        El acceso a Lantia Compliance está sujeto a un plan asociado a la organización del usuario. Cada plan establece
+        una cuota máxima de consultas que pueden utilizarse durante un periodo determinado.
+      </p>
+
+      <div class="plan-grid">
+        <div class="plan-card">
+          <p class="plan-name">Plan A</p>
+          <p class="plan-line">Cuota: 1,200 consultas</p>
+          <p class="plan-line">Periodo: anual</p>
+        </div>
+
+        <div class="plan-card">
+          <p class="plan-name">Plan B</p>
+          <p class="plan-line">Cuota: 2,400 consultas</p>
+          <p class="plan-line">Periodo: anual</p>
+        </div>
+
+        <div class="plan-card">
+          <p class="plan-name">Plan C</p>
+          <p class="plan-line">Cuota: 6,000 consultas</p>
+          <p class="plan-line">Periodo: anual</p>
+        </div>
+
+        <div class="plan-card">
+          <p class="plan-name">Plan D</p>
+          <p class="plan-line">Cuota: 12,000 consultas</p>
+          <p class="plan-line">Periodo: anual</p>
+        </div>
+
+        <div class="plan-card">
+          <p class="plan-name">Plan E</p>
+          <p class="plan-line">Cuota: 60,000 consultas</p>
+          <p class="plan-line">Periodo: anual</p>
+        </div>
+<%# 
+        <div class="plan-card">
+          <p class="plan-name">Plan de prueba <span class="plan-badge">(no renovable)</span></p>
+          <p class="plan-line">Cuota: 500 consultas</p>
+          <p class="plan-line">Periodo: mensual</p>
+        </div> %>
+      </div>
+
+      <p>
+        La cuota se contabiliza a nivel organización: todas las consultas realizadas por los usuarios pertenecientes
+        a la misma organización consumen del mismo saldo disponible.
+      </p>
+
+      <p>
+        Se contabiliza una consulta cuando el sistema acepta y procesa la solicitud de forma exitosa (por ejemplo,
+        cuando la solicitud cumple validaciones y se registra como consulta realizada). No se contabilizan solicitudes
+        rechazadas por autenticación, falta de acceso, validación de parámetros o cuando el sistema bloquea la solicitud
+        por haber alcanzado el límite del plan. En la sección de API, se describen los tipos de solicitudes
+        y respuestas que no generan consumo.
+      </p>
+
+      <p>Todas las consultas exitosas se contabilizan, independientemente de si el resultado arroja o no coincidencias.</p>
+
+      <p>
+        El Panel de Consulta muestra el plan activo, el número de consultas disponibles y el periodo de vigencia. Si la
+        organización alcanza el límite de su plan, el sistema bloquea nuevas consultas hasta que se renueve el periodo o
+        se contraten consultas adicionales.
+      </p>
+    </div> <!-- /.manual-card -->
+  </div> <!-- /.docs-layout -->
+</div> <!-- /.manual-container -->
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener("DOMContentLoaded", function () {
+    const links = Array.from(document.querySelectorAll(".docs-nav-link"));
+    const indicator = document.getElementById("docs-indicator");
+    const headings = Array.from(document.querySelectorAll(".manual-body h2[id]"));
+
+    function setActiveById(id) {
+      const active = links.find(a => a.getAttribute("href") === `#${id}`);
+      if (!active) return;
+
+      links.forEach(a => a.classList.toggle("active", a === active));
+
+      const top = active.offsetTop;
+      const height = active.offsetHeight;
+      indicator.style.height = `${height}px`;
+      indicator.style.transform = `translateY(${top}px)`;
+    }
+
+    if (headings.length) setActiveById(headings[0].id);
+
+    const io = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+      if (visible && visible.target && visible.target.id) {
+        setActiveById(visible.target.id);
+      }
+    }, { rootMargin: "-20% 0px -70% 0px", threshold: [0.1, 0.25, 0.5] });
+
+    headings.forEach(h => io.observe(h));
+
+    links.forEach(a => {
+      a.addEventListener("click", () => {
+        const id = (a.getAttribute("href") || "").replace("#", "");
+        if (id) setTimeout(() => setActiveById(id), 0);
+      });
+    });
+
+    const buttons = document.querySelectorAll("[data-copy-btn]");
+    buttons.forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const wrapper = btn.closest("[data-snippet]");
+        const codeEl = wrapper ? wrapper.querySelector("[data-code]") : null;
+        const text = codeEl ? codeEl.textContent.trim() : "";
+        if (!text) return;
+
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.classList.add("copied");
+          const icon = btn.querySelector(".material-icons");
+          if (icon) icon.textContent = "check";
+          setTimeout(() => {
+            btn.classList.remove("copied");
+            if (icon) icon.textContent = "content_copy";
+          }, 900);
+        } catch (e) {
+          /* Fallback: seleccionar texto si clipboard no está disponible */
+          const range = document.createRange();
+          range.selectNodeContents(codeEl);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      });
+    });
+
+
+  });
+</script>
+
+
+

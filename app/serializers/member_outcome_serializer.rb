@@ -7,7 +7,7 @@ class MemberOutcomeSerializer
   def as_json(*)
     {
       id: @m.id,
-      media_score: @m.media_score,
+      # media_score: @m.media_score,
       firstname: @m.firstname,
       lastname1: @m.lastname1,
       lastname2: @m.lastname2,
