@@ -253,7 +253,7 @@
     margin: 16px 0 10px;
     font-size: 17px;
     color: #EF4E50;
-    font-weight: 700;
+    font-weight: 300;
   }
 
 /* Snippets tipo docs */
@@ -324,7 +324,8 @@
 
       <div class="docs-nav-links" id="docs-nav-links">
         <div class="docs-nav-indicator" id="docs-indicator"></div>
-
+        <a href="/datasets/members_search" class="docs-nav-link" style="color: #ef4e50;"><i class="material-icons">arrow_back</i>PANEL DE CONSULTA</a>
+        <div class="small-break"></div>
         <a href="#intro" class="docs-nav-link">INTRODUCCIÓN</a>
         <a href="#manual" class="docs-nav-link">CONSULTAS MANUALES</a>
         <a href="#matching" class="docs-nav-link">CRITERIOS DE COINCIDENCIA</a>
@@ -334,10 +335,9 @@
         <a href="#api-auth" class="docs-nav-link left-extra-margin">Autenticación</a>
           <a href="#api-endpoint" class="docs-nav-link left-extra-margin">Endpoint</a>
           <a href="#api-request" class="docs-nav-link left-extra-margin">Solicitud</a>
-          <a href="#api-response" class="docs-nav-link left-extra-margin">Respuesta</a>
           <a href="#api-errors" class="docs-nav-link left-extra-margin">Errores</a>
-          <a href="#api-rate-limit" class="docs-nav-link left-extra-margin">Límites de uso</a>
-        <a href="#plans" class="docs-nav-link">CONTEO DE CONSULTAS</a>
+          <a href="#api-response" class="docs-nav-link left-extra-margin">Respuesta</a>
+        <a href="#plans" class="docs-nav-link">CONSUMO DE CONSULTAS</a>
       </div>
     </nav>
 
@@ -837,26 +837,6 @@ curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search
   </code></pre>
 </div>
 
-<h3 id="api-response">Respuesta exitosa</h3>
-
-<p>
-  Una respuesta exitosa (HTTP 200) incluye:
-</p>
-
-<ul>
-  <li>request_id</li>
-  <li>meta (incluye api_version, fecha/hora de consulta y última actualización del acervo)</li>
-  <li>request (los parámetros de solicitud recibidos)</li>
-  <li>query (identificador interno de la consulta)</li>
-  <li>results (conteo y lista de coincidencias)</li>
-</ul>
-
-<p>
-  La API devuelve la fecha/hora en horario de México para los campos de metadatos que representan tiempos del sistema
-  (por ejemplo: última actualización del acervo).
-</p>
-
-
 <h3 id="api-errors">Errores estandarizados</h3>
 
 <p>
@@ -883,8 +863,332 @@ curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search
   <li>500 Internal Server Error: error inesperado (se registra request_id para soporte).</li>
 </ul>
 
+<h3 id="api-response">Respuesta exitosa</h3>
+
+<p>
+  Una respuesta exitosa (HTTP 200) puede incluir los siguientes campos.
+</p>
+
+<table class="manual-table">
+  <thead>
+    <tr>
+      <th style="width: 34%;">Campo en API</th>
+      <th style="width: 36%;">Tipo / ejemplo</th>
+      <th>Equivalencia en versión manual</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>request_id</td>
+      <td>Cadena<br>Ej: "b3c1f2d2-9a6a-4c7e-9c2e-..."</td>
+      <td>Identificador de consulta (en el resumen de parámetros).</td>
+    </tr>
+
+    <tr>
+      <td>status</td>
+      <td>Entero<br>Ej: 200</td>
+      <td>No aplica (en manual no se muestra como campo).</td>
+    </tr>
+
+    <tr>
+      <td>meta</td>
+      <td>Objeto</td>
+      <td>No aplica (manual lo desglosa como campos).</td>
+    </tr>
+
+    <tr>
+      <td>meta.api_version</td>
+      <td>Cadena<br>Ej: "v1"</td>
+      <td>No aplica.</td>
+    </tr>
+
+    <tr>
+      <td>meta.searched_at</td>
+      <td>Cadena ISO8601<br>Ej: "2026-01-15T10:07:12-06:00"</td>
+      <td>Fecha y hora (en el resumen de parámetros).</td>
+    </tr>
+
+    <tr>
+      <td>meta.last_updated_at</td>
+      <td>Cadena<br>Ej: "2026-01-15 10:07"</td>
+      <td>Última actualización (en el resumen de parámetros).</td>
+    </tr>
+
+    <tr>
+      <td>meta.plan</td>
+      <td>Cadena<br>Ej: "A", "B", "C", "D", "E" o "prueba"</td>
+      <td>Plan (cuando se muestra en panel/encabezados; si no se muestra, no aplica).</td>
+    </tr>
+
+    <tr>
+      <td>meta.limit</td>
+      <td>Entero<br>Ej: 1200</td>
+      <td>Límite de consultas del plan (si se muestra en panel; si no, no aplica).</td>
+    </tr>
+
+    <tr>
+      <td>meta.used</td>
+      <td>Entero<br>Ej: 341</td>
+      <td>Consultas usadas en el periodo (si se muestra en panel; si no, no aplica).</td>
+    </tr>
+
+    <tr>
+      <td>meta.remaining</td>
+      <td>Entero<br>Ej: 859</td>
+      <td>Consultas restantes (si se muestra en panel; si no, no aplica).</td>
+    </tr>
+
+    <tr>
+      <td>request</td>
+      <td>Objeto</td>
+      <td>Parámetros de consulta (bloque de resumen).</td>
+    </tr>
+
+    <tr>
+      <td>request.name</td>
+      <td>Cadena (solo modo name)<br>Ej: "Juan Perez Lopez"</td>
+      <td>Nombre(s) + apellidos capturados.</td>
+    </tr>
+
+    <tr>
+      <td>request.firstname</td>
+      <td>Cadena (modo 3 campos)<br>Ej: "Juan"</td>
+      <td>Nombre(s).</td>
+    </tr>
+
+    <tr>
+      <td>request.lastname1</td>
+      <td>Cadena (modo 3 campos)<br>Ej: "Perez"</td>
+      <td>Apellido paterno.</td>
+    </tr>
+
+    <tr>
+      <td>request.lastname2</td>
+      <td>Cadena (modo 3 campos)<br>Ej: "Lopez"</td>
+      <td>Apellido materno.</td>
+    </tr>
+
+    <tr>
+      <td>request.homo_score</td>
+      <td>Entero<br>Ej: 7</td>
+      <td>Probabilidad de homónimos (se muestra como nivel y estimación).</td>
+    </tr>
+
+    <tr>
+      <td>query</td>
+      <td>Objeto</td>
+      <td>No aplica (manual no muestra el id interno).</td>
+    </tr>
+
+    <tr>
+      <td>query.id</td>
+      <td>Entero<br>Ej: 123456</td>
+      <td>No aplica.</td>
+    </tr>
+
+    <tr>
+      <td>results</td>
+      <td>Objeto</td>
+      <td>Bloque de resultados.</td>
+    </tr>
+
+    <tr>
+      <td>results.count</td>
+      <td>Entero<br>Ej: 3</td>
+      <td>Número de coincidencias (conteo de resultados).</td>
+    </tr>
+
+    <tr>
+      <td>results.members</td>
+      <td>Lista de objetos</td>
+      <td>Listado de coincidencias (tarjetas/registros).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].id</td>
+      <td>Entero<br>Ej: 98765</td>
+      <td>No se muestra como campo al usuario (id interno).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].firstname</td>
+      <td>Cadena<br>Ej: "Juan"</td>
+      <td>Nombre(s) del registro.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].lastname1</td>
+      <td>Cadena<br>Ej: "Perez"</td>
+      <td>Apellido paterno del registro.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].lastname2</td>
+      <td>Cadena<br>Ej: "Lopez"</td>
+      <td>Apellido materno del registro.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].alias</td>
+      <td>Lista de cadenas<br>Ej: ["El X", "El Y"]</td>
+      <td>Alias.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].birthday</td>
+      <td>Objeto o null</td>
+      <td>Fecha de nacimiento.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].birthday.approx</td>
+      <td>Booleano<br>Ej: true</td>
+      <td>Equivalente a “aproximada” (circa) cuando aplica.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].birthday.date</td>
+      <td>Cadena (YYYY-MM-DD)<br>Ej: "1982-04-15"</td>
+      <td>Fecha exacta (si existe).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].birthday.year</td>
+      <td>Cadena (YYYY)<br>Ej: "1982"</td>
+      <td>Año aproximado (si existe).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].fake_identities</td>
+      <td>Lista de objetos<br>Ej: [{"firstname":"...","lastname1":"...","lastname2":"..."}]</td>
+      <td>Identidades falsas/alternativas.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].titles</td>
+      <td>Lista de objetos</td>
+      <td>Cédula profesional (cuando existe).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].titles[].license_number</td>
+      <td>Cadena<br>Ej: "1234567"</td>
+      <td>Número de cédula.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].titles[].license_type</td>
+      <td>Cadena<br>(Pendiente: catálogo exacto)</td>
+      <td>Tipo de cédula (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].titles[].profession</td>
+      <td>Cadena<br>Ej: "Abogado"</td>
+      <td>Profesión (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].titles[].institution</td>
+      <td>Cadena<br>Ej: "UNAM"</td>
+      <td>Institución (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].titles[].year</td>
+      <td>Cadena<br>Ej: "2009"</td>
+      <td>Año (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].classification.involved</td>
+      <td>Booleano<br>(Pendiente: convención exacta)</td>
+      <td>Clasificación primaria (Persona señalada / Persona expuesta).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].rolegroup</td>
+      <td>Cadena<br>Ej: "Autoridad expuesta"</td>
+      <td>Vínculo con la organización.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].cartel</td>
+      <td>Objeto<br>Ej: {"id":1,"name":"..."}</td>
+      <td>Organización asociada (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].cartel_designation</td>
+      <td>Objeto</td>
+      <td>Designación como terrorista (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].notes</td>
+      <td>Lista de textos</td>
+      <td>Notas.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].appointments</td>
+      <td>Lista de objetos</td>
+      <td>Nombramientos / cargos.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].appointments[].role</td>
+      <td>Cadena<br>Ej: "Alcalde"</td>
+      <td>Cargo (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].appointments[].organization</td>
+      <td>Cadena<br>Ej: "Ayuntamiento de ..."</td>
+      <td>Institución (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].appointments[].span_label</td>
+      <td>Cadena<br>Ej: "2019–2021"</td>
+      <td>Periodo (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].hits</td>
+      <td>Lista de objetos</td>
+      <td>Fuentes (menciones/eventos) y ubicación.</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].hits[].date</td>
+      <td>Cadena (YYYY-MM-DD)<br>Ej: "2024-09-10"</td>
+      <td>Fecha de fuente/mención (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].hits[].link</td>
+      <td>Cadena (URL) o null</td>
+      <td>Enlace a fuente (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].hits[].county</td>
+      <td>Cadena o null</td>
+      <td>Municipio (si se muestra).</td>
+    </tr>
+
+    <tr>
+      <td>results.members[].hits[].state_shortname</td>
+      <td>Cadena o null</td>
+      <td>Estado (abreviatura) (si se muestra).</td>
+    </tr>
+  </tbody>
+</table>
+
+
 <br>
-      <h2 id="plans">Conteo de consultas</h2>
+      <h2 id="plans">Consumo de consultas</h2>
 
       <p>
         El acceso a Lantia Compliance está sujeto a un plan asociado a la organización del usuario. Cada plan establece
