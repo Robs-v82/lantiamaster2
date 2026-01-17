@@ -1,4 +1,4 @@
-class PasswordResetsController < ActionController::Base
+class PasswordResetsController < ActionController
   layout "application" 
   include AuthAudit
   # protect_from_forgery with: :null_session
