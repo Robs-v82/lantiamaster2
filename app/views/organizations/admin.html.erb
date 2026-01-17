@@ -103,6 +103,7 @@
         <tr>
           <th>ID</th>
           <th>Organización</th>
+          <th>subscription_started_at</th>
           <th>search_panel</th>
           <th>data_access</th>
           <th>search_level</th>
@@ -115,6 +116,14 @@
           <tr>
             <td><%= org.id %></td>
             <td><%= org.name %></td>
+            <td>
+              <% if org.subscription_started_at.present? %>
+                <span style="color:#2e7d32; font-weight:800;">✓</span>
+                <span style="margin-left:6px;"><%= l(org.subscription_started_at, format: "%-d %b %Y %H:%M") %></span>
+              <% else %>
+                <span style="color:#c62828; font-weight:800;">✗</span>
+              <% end %>
+            </td>
             <td><%= org.search_panel ? "Sí" : "No" %></td>
             <td><%= org.data_access.nil? ? "—" : (org.data_access ? "Sí" : "No") %></td>
 

@@ -25,15 +25,17 @@ module MonthlyQueryLimits
       return { usuario: 0, organizacion: 0, total: 0, total_org: 0 }
     end
 
-    queries_usuario = user.queries.where(created_at: inicio..fin).count
+    queries_usuario = user.queries.successful.where(created_at: inicio..fin).count
 
-    queries_organizacion = Query.where(user_id: org.users.where.not(id: user.id).pluck(:id))
-                                .where(created_at: inicio..fin)
-                                .count
+    queries_organizacion = Query.successful
+      .where(user_id: org.users.where.not(id: user.id).pluck(:id))
+      .where(created_at: inicio..fin)
+      .count
 
-    total_org = Query.where(user_id: org.users.pluck(:id))
-                     .where(created_at: inicio..fin)
-                     .count
+    total_org = Query.successful
+      .where(user_id: org.users.pluck(:id))
+      .where(created_at: inicio..fin)
+      .count
 
     {
       usuario: queries_usuario,
