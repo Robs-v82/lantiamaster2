@@ -51,13 +51,13 @@ module Api
         end
 
         # --- 2) homo_score ---
-        # Si viene name, solo lo usamos si lo mandan (no lo calculamos).
         homo_score =
           if qp[:name].present?
-            qp[:homo_score].presence
+            qp[:homo_score].presence || compute_name_score(qp[:name])
           else
             qp[:homo_score].presence || compute_homo_score(qp[:firstname], qp[:lastname1], qp[:lastname2])
           end
+
 
         # --- 3) Normalización input ---
         input_name = qp[:name].present? ? normalize(qp[:name]) : nil
@@ -255,6 +255,76 @@ module Api
           "very_high"
         end
       end
+
+      def pick_best_key(keys, norm)
+        return norm if keys.include?(norm)
+
+        contained = keys.select { |k| norm.include?(k) }
+        return contained.max_by(&:length) if contained.any?
+
+        containing = keys.select { |k| k.include?(norm) }
+        containing.max_by(&:length)
+      end
+
+      def token_freq(names_norm, keys, token_norm)
+        best = pick_best_key(keys, token_norm)
+        best ? names_norm[best] : 5
+      end
+
+      def compound_freq(names_norm, keys, raw)
+        norm = normalize(raw)
+        parts = norm.split(/\s+/).reject(&:blank?)
+        return token_freq(names_norm, keys, norm) if parts.length <= 1
+
+        part_freqs = parts.map { |p| token_freq(names_norm, keys, p) }
+        maxf = part_freqs.max || 5
+        avgf = part_freqs.sum.to_f / part_freqs.length
+
+        bonus = [0.10 * (parts.length - 1), 0.30].min
+        ([avgf, maxf].max * (1.0 + bonus)).round
+      end
+
+        # En modo name: exact match manda. Inclusion solo como fallback y con descuento.
+        def token_freq_strict(names_norm, keys, token_norm)
+          return 5 if token_norm.blank?
+
+          # exact
+          return names_norm[token_norm] if names_norm.key?(token_norm)
+
+          # fallback por inclusion (pero penalizado)
+          contained = keys.select { |k| token_norm.include?(k) }
+          best = if contained.any?
+            contained.max_by(&:length)
+          else
+            containing = keys.select { |k| k.include?(token_norm) }
+            containing.max_by(&:length)
+          end
+
+          base = best ? names_norm[best] : 5
+          # Penaliza fuerte porque no fue exacto (ajusta 0.25 a 0.10–0.40 según gusto)
+          (base * 0.25).round
+        end
+
+        def compute_name_score(full_name)
+          names_norm = Name.all.pluck(:word, :freq).to_h { |w, f| [normalize(w), f.to_i] }
+          keys = names_norm.keys
+
+          tokens = normalize(full_name).split(/\s+/).reject(&:blank?)
+          return nil if tokens.empty?
+
+          freqs = tokens.map { |t| token_freq_strict(names_norm, keys, t) }.sort.reverse
+
+          top3 = freqs.first(3)
+          top3 << 5 while top3.length < 3
+
+          base = ((top3[0] * top3[1] * top3[2]) / 10000.0).round
+
+          # Penalización por tokens extra (4+)
+          extras = [tokens.length - 3, 0].max
+          penalty = (0.60 ** extras)
+
+          (base * penalty).round
+        end
 
     end
   end
