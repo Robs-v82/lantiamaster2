@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lantia</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", media: "all" %>
+    <%= javascript_include_tag "application" %>
+  </head>
+
+  <body>
+    <% if flash[:alert].present? %>
+      <div style="padding:10px; margin:10px 0; border:1px solid #f5c2c7; background:#f8d7da;">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <% if flash[:notice].present? %>
+      <div style="padding:10px; margin:10px 0; border:1px solid #badbcc; background:#d1e7dd;">
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>
