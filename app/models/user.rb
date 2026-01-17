@@ -37,6 +37,9 @@ class User < ApplicationRecord
            dependent: :delete_all
 
   has_secure_token :api_key
+
+  before_create :skip_api_key_generation
+
   # =========================
   #  Password reset seguro
   # =========================
@@ -238,6 +241,12 @@ class User < ApplicationRecord
 
   def disable_mfa!
     update!(mfa_totp_secret: nil, mfa_enabled_at: nil, mfa_backup_codes_digest: nil, mfa_last_used_step: nil)
+  end
+
+  private
+
+  def skip_api_key_generation
+    self.api_key = nil
   end
 
 end

@@ -183,4 +183,6 @@ Rails.application.routes.draw do
     post "organizations/admin_create", to: "organizations#admin_create"
 
     get "docs/compliance"
+    post "users/api_key", to: "users#generate_api_key", as: :generate_user_api_key
+
 end

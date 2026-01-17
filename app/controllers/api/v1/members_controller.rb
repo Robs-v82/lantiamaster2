@@ -242,11 +242,12 @@ module Api
       end
 
       def namesake_likelihood(score)
+        return nil if score.nil?
+
         s = score.to_i
-        return nil if s <= 0
 
         if s < 2
-          "low"
+          "low"        # incluye 0 y 1
         elsif s < 5
           "medium"
         elsif s <= 10

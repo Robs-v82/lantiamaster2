@@ -1,4 +1,52 @@
 <style type="text/css">	
+/* Ajusta estos 3 valores a tu layout real */
+:root{
+  --header-offset: 150px;  /* altura de tu header/top spacing */
+  --footer-offset: 90px;   /* altura del footer rojo aprox */
+  --bottom-gap: 20px;      /* separación extra arriba del footer */
+}
+
+.queries-panel{
+  overflow: hidden; /* evita que el contenido empuje la columna */
+}
+
+.queries-panel__card{
+  height: calc(100vh - var(--header-offset) - var(--footer-offset) - var(--bottom-gap));
+  margin-bottom: var(--bottom-gap);  /* queda separado del footer */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* el card NO crece */
+  min-height: 0;    /* clave con flex */
+  align-items: stretch;
+}
+
+.queries-panel__content{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.queries-panel__scroll{
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+/* CLAVE: empuja la paginación al fondo aunque haya poco contenido */
+.queries-panel__pagination{
+  margin-top: auto;
+  flex: 0 0 auto;
+  padding: 20px 0 20px 0;
+  background: #fff;
+  border-top: none;
+}
+
+/* el card-content debe poder encogerse dentro del flex */
+#outcome-card { min-height: 0; }
+<%# #outcome-card .queries-panel__content { min-height: 0; overflow-y: auto; overflow-x: hidden; } %>
+
 	.collapsible.popout > li {
   box-shadow: none !important;
   margin: 0 !important;
@@ -93,10 +141,93 @@
 						<i class="small material-icons paletton-red-text right-min-margin">info</i>
 				</div>
 				<div class="info-box inline-block valign">
-						<h6 style="font-weight: 300; color: #ef4e50; margin-top: 8px; padding-bottom: 30px;">DOCUMENTACIÓN</h6>
+						<h6 style="font-weight: 300; color: #ef4e50; margin-top: 8px; padding-bottom: 10px;">DOCUMENTACIÓN</h6>
 				</div>
 				</a>
 			</div>
+
+<div>
+  <% if @user.api_key.blank? %>
+    <a href="#api-key-modal" class="modal-trigger">
+      <div class="info-box inline-block valign">
+        <i class="small material-icons paletton-red-text right-min-margin">code</i>
+      </div>
+      <div class="info-box inline-block valign">
+        <h6 style="font-weight: 300; color: #ef4e50; margin-top: 8px; padding-bottom: 10px;">
+          Generar API KEY
+        </h6>
+      </div>
+    </a>
+  <% else %>
+    <div class="info-box inline-block valign">
+
+      <div class="valign" style="display:flex; align-items:center; gap:10px; padding-bottom: 20px;">
+        <a href="#!" id="copy-api-key">
+          <i class="small material-icons paletton-red-text">content_copy</i>
+        </a>
+      <h6 style="font-weight: 300; color: #ef4e50; margin-top: 8px; padding-bottom: 6px;">
+        Tu API key:
+      </h6>
+        <span id="api-key-value" style="font-weight: 500; color: #000;">
+          <%= @user.api_key %>
+        </span>
+      </div>
+    </div> 
+    <br>
+
+    <script nonce="<%= csp_nonce %>">
+      document.addEventListener('DOMContentLoaded', function () {
+        var tips = document.querySelectorAll('.tooltipped');
+        M.Tooltip.init(tips);
+
+        var btn = document.getElementById('copy-api-key');
+        var valueEl = document.getElementById('api-key-value');
+        if (btn && valueEl) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var text = valueEl.textContent.trim();
+            navigator.clipboard.writeText(text).then(function () {
+              M.toast({html: 'API key copiado'});
+            });
+          });
+        }
+      });
+    </script>
+  <% end %>
+</div>
+
+
+<!-- API KEY MODAL -->
+<div id="api-key-modal" class="modal">
+  <div class="modal-content">
+    <%= image_tag "optimized_logo.jpg", class: "modal-logo" %>
+    <p class="p20 slim">
+      El API Key es una credencial personal para autenticar tus solicitudes a la API de Lantia.
+      No lo compartas. Si continúas, se generará un API Key.
+    </p>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+      <i class="material-icons small">close</i>
+    </a>
+
+    <!-- Botón continuar: por ahora deja el action como placeholder -->
+    <form action="<%= generate_user_api_key_path %>" method="post" style="display:inline;">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      <button type="submit" class="waves-effect waves-light btn" style="margin-right: 10px;">
+        Continuar
+      </button>
+    </form>
+  </div>
+</div>
+
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener('DOMContentLoaded', function () {
+    var els = document.querySelectorAll('.modal');
+    M.Modal.init(els);
+  });
+</script>
+
 
 		</div>	    
 		<div class="card paletton-grey">
@@ -166,62 +297,96 @@
 			</div>
 		</div>
 	</div>
-	<div class="col s12 m6 l4" style="height: calc(100vh - 150px); padding-bottom: 20px;">
-    <div id="outcome-card" class="card z-depth-1" style="background-color: white; margin-bottom: 30px; height: 100%; display: flex; flex-direction: column;">
-    <div class="card-content" style="color: #33333C; overflow-y: auto; flex-grow: 1; padding-right: 8px; padding-bottom: 20px;">
-      <table id="outcome-table" class="animate__animated animate__fadeIn" style="font-size: 14px; width: 100%;">
-        <tbody>
-          <tr style="border-bottom: none;">
-            <td colspan="2" style="font-weight: bold; padding-bottom: 15px;">
-              <%= @user.member.organization.name.upcase %>
-            </td>
-          </tr>
-          <tr style="border-bottom: 2px solid #33333C;">
-          	<td>
-          		<p>Suscripción: <span style="font-weight: 800;"><%= @suscription[:level] %></span></p>
-          		<br>
-							<p>
-							  <%= User.find(session[:user_id]).member.organization.name %> tiene
-							  <%= @suscription[:points] - @queries_info[:total] %> consulta<%= @suscription[:points] - @queries_info[:total] == 1 ? '' : 's' %> disponibles para usarse antes del
-								<%= l(@period_end, format: "%-d de %B de %Y") %>.
-							</p>
-          	</td>
-          	<td>
-          		<div id="grafico-uso-consultas" style="height: 200px; max-width: 200px; margin: 0 auto;"></div>
-          	</td>
-          </tr>
-        </tbody>
-      </table>
-			<div class="section">
-				<p ...>Tus consultas del periodo (<%= l(@period_start.to_date, format: "%-d %b %Y") %> – <%= l(@period_end.to_date, format: "%-d %b %Y") %>)</p>
+	<div class="col s12 m6 l4 queries-panel">
+    <div id="outcome-card" class="card z-depth-1 queries-panel__card" style="background-color: white;">
+			<div class="card-content queries-panel__content" style="color:#33333C; padding-right:8px; padding-bottom:0;">
+      <div class="queries-panel__scroll">
+	      <table id="outcome-table" class="animate__animated animate__fadeIn" style="font-size: 14px; width: 100%;">
+	        <tbody>
+	          <tr style="border-bottom: none;">
+	            <td colspan="2" style="font-weight: bold; padding-bottom: 15px;">
+	              <%= @user.member.organization.name.upcase %>
+	            </td>
+	          </tr>
+	          <tr style="border-bottom: 2px solid #33333C;">
+	          	<td>
+	          		<p>Suscripción: <span style="font-weight: 800;"><%= @suscription[:level] %></span></p>
+	          		<br>
+								<p>
+								  <%= User.find(session[:user_id]).member.organization.name %> tiene
+								  <%= @suscription[:points] - @queries_info[:total] %> consulta<%= @suscription[:points] - @queries_info[:total] == 1 ? '' : 's' %> disponibles para usarse antes del
+									<%= l(@period_end, format: "%-d de %B de %Y") %>.
+								</p>
+	          	</td>
+	          	<td>
+	          		<div id="grafico-uso-consultas" style="height: 200px; max-width: 200px; margin: 0 auto;"></div>
+	          	</td>
+	          </tr>
+	        </tbody>
+	      </table>
+				<div class="section">
+					<p ...>Tus consultas del periodo (<%= l(@period_start.to_date, format: "%-d %b %Y") %> – <%= l(@period_end.to_date, format: "%-d %b %Y") %>)</p>
 
-			  <ul class="collapsible popout" style="border: none;" data-collapsible="accordion">
-			    <% @queries_por_dia.sort.reverse.each do |fecha, queries| %>
-			      <li>
-			        <div class="collapsible-header" style="color: #33333C">
-			          <div style="font-weight: 600"><%= fecha.strftime("%d/%m/%Y") %></div><div class="right-align" style="width: 120px;"><span><%= queries.size %> consulta<%= queries.size > 1 ? 's' : '' %></span></div>
-			        </div>
-			        <div class="collapsible-body" style="padding: 15px;">
-			          <ul style="margin: 0; padding-left: 18px;">
-									<% queries.each do |q| %>
-									  <% clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{q.id}" %>
-									  <a href="<%= redirect_to_outcome_path(q.id) %>">
-									  <li class="consulta-item" style="display: flex; align-items: center; margin-bottom: 6px;">
-									    <button class="btn-flat transparent z-depth-0 clave-boton" style="min-width: 110px; font-weight: 500; margin-right: 12px; padding: 0 8px;">
-									      <%= clave %>
-									    </button>
-									    <span><%= q.query_label.presence || [q.firstname, q.lastname1, q.lastname2].compact.join(" ") %></span>
-									  </li>
-									  </a>
-									<% end %>
-			          </ul>
-			        </div>
-			      </li>
-			    <% end %>
-			  </ul>
+				  <ul class="collapsible popout" style="border: none;" data-collapsible="accordion">
+				    <% @queries_por_dia.sort.reverse.each do |fecha, queries| %>
+				      <li>
+				        <div class="collapsible-header" style="color: #33333C">
+				          <div style="font-weight: 600"><%= fecha.strftime("%d/%m/%Y") %></div><div class="right-align" style="width: 120px;"><span><%= queries.size %> consulta<%= queries.size > 1 ? 's' : '' %></span></div>
+				        </div>
+				        <div class="collapsible-body" style="padding: 15px;">
+				          <ul style="margin: 0; padding-left: 18px;">
+										<% queries.each do |q| %>
+										  <% clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{q.id}" %>
+										  <a href="<%= redirect_to_outcome_path(q.id) %>">
+										  <li class="consulta-item" style="display: flex; align-items: center; margin-bottom: 6px;">
+										    <button class="btn-flat transparent z-depth-0 clave-boton" style="min-width: 110px; font-weight: 500; margin-right: 12px; padding: 0 8px;">
+										      <%= clave %>
+										    </button>
+										    <span><%= q.query_label.presence || [q.firstname, q.lastname1, q.lastname2].compact.join(" ") %></span>
+										  </li>
+										  </a>
+										<% end %>
+				          </ul>
+				        </div>
+				      </li>
+				    <% end %>
+				  </ul>
+				</div>
 			</div>
     </div>
+    	<!-- paginación fuera del scroll -->
+	<% if @total_pages.to_i > 1 %>
+		<div class="queries-panel__pagination">
+		  <div class="center-align" style="margin-top: 0;">
+		    <ul class="pagination" style="margin: 0;">
+			      <% prev_page = [@qpage - 1, 1].max %>
+			      <% next_page = [@qpage + 1, @total_pages].min %>
+			      <li class="<%= 'disabled' if @qpage <= 1 %>">
+			        <%= link_to url_for(params.permit!.to_h.merge(qpage: prev_page)) do %>
+			          <i class="material-icons">chevron_left</i>
+			        <% end %>
+			      </li>
+
+			      <% start_page = [@qpage - 2, 1].max %>
+			      <% end_page   = [@qpage + 2, @total_pages].min %>
+
+			      <% (start_page..end_page).each do |p| %>
+			        <li class="<%= p == @qpage ? 'active' : 'waves-effect' %>">
+			          <%= link_to p, url_for(params.permit!.to_h.merge(qpage: p)) %>
+			        </li>
+			      <% end %>
+
+			      <li class="<%= 'disabled' if @qpage >= @total_pages %>">
+			        <%= link_to url_for(params.permit!.to_h.merge(qpage: next_page)) do %>
+			          <i class="material-icons">chevron_right</i>
+			        <% end %>
+			      </li>
+		    </ul>
+		  </div>
+		</div>
+	<% end %>
   </div>
+
 </div>
 </div>
 

@@ -117,7 +117,11 @@ class UsersController < ApplicationController
   def landing
   end
 
-
+  def generate_api_key
+    user = current_user_safe
+    user.regenerate_api_key if user.api_key.blank?
+    redirect_back fallback_location: users_index_path, notice: "API Key generado."
+  end
 
   private
 

@@ -853,10 +853,21 @@ def members_search
 	@period_start = start_at
 	@period_end   = level.between?(1,5) ? (start_at + 1.year) : (start_at + 1.month)
 
-	@queries_por_dia = @user.queries
+	per_page = 30
+	@qpage = params[:qpage].to_i
+	@qpage = 1 if @qpage < 1
+
+	base_scope = @user.queries
 	  .successful
 	  .where(created_at: Time.current.beginning_of_month..Time.current.end_of_month)
-	  .group_by { |q| q.created_at.to_date }
+	  .order(created_at: :desc)
+
+	@queries_total = base_scope.count
+	@total_pages = (@queries_total.to_f / per_page).ceil
+
+	@queries_page = base_scope.limit(per_page).offset((@qpage - 1) * per_page)
+
+	@queries_por_dia = @queries_page.group_by { |q| q.created_at.to_date }
 
 	if session[:plan_limit_error]
 		@plan_limit_error = true
