@@ -1,12 +1,12 @@
 class PasswordResetsController < ApplicationController
 
-  layout "public" 
+  layout "application" 
   skip_before_action :require_login, only: [:edit, :update], raise: false
-  skip_before_action :enforce_absolute_session, only: [:edit, :update, :create], raise: false
-  skip_before_action :enforce_session_timeout,  only: [:edit, :update, :create], raise: false
-  skip_before_action :enforce_session_version,  only: [:edit, :update, :create], raise: false
-  skip_before_action :sync_membership_session,  only: [:edit, :update, :create], raise: false
-  skip_before_action :set_variables, only: [:edit, :update, :create], raise: false
+  # skip_before_action :enforce_absolute_session, only: [:edit, :update, :create], raise: false
+  # skip_before_action :enforce_session_timeout,  only: [:edit, :update, :create], raise: false
+  # skip_before_action :enforce_session_version,  only: [:edit, :update, :create], raise: false
+  # skip_before_action :sync_membership_session,  only: [:edit, :update, :create], raise: false
+  # skip_before_action :set_variables, only: [:edit, :update, :create], raise: false
 
 
   include AuthAudit
