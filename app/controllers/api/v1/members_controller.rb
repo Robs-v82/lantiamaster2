@@ -68,7 +68,7 @@ module Api
         # --- 4) Matching ---
         t_load = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-        scope = Member.includes(
+        scope = Member.joins(:hits).distinct.(
           :fake_identities,
           :notes,
           :organization,
