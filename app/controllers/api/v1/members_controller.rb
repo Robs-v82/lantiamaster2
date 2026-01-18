@@ -68,7 +68,7 @@ module Api
         # --- 4) Matching ---
         t_load = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-        scope = Member.joins(:hits).distinct.(
+        scope = Member.joins(:hits).distinct.includes(
           :fake_identities,
           :notes,
           :organization,
@@ -76,7 +76,7 @@ module Api
           hits: { town: { county: :state } },
           titles: [:organization, :year],
           appointments: [:organization, :role]
-        ).distinct
+        )
 
         Rails.logger.info("[#{request.request_id}] PERF A0 scope_built ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_load)*1000).round}")
 
@@ -86,7 +86,6 @@ module Api
 
         t_b = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         potential_matches = candidates.select do |member|
-
           next false if member.hits.blank?
 
           # Omitir members sin al menos un nombre válido
@@ -94,7 +93,6 @@ module Api
                          member.fake_identities.none? { |fi| fi.firstname.present? || fi.lastname1.present? || fi.lastname2.present? }
 
           if input_name.present?
-            # --- Modo NAME (string completo) ---
             member_full = normalize(member.fullname)
             real_match = match?(input_name, member_full)
 
@@ -106,7 +104,6 @@ module Api
 
             real_match || fake_match
           else
-            # --- Modo clásico (3 campos) ---
             real_match =
               match?(input_firstname, normalize(member.firstname)) &&
               match?(input_lastname1, normalize(member.lastname1)) &&
@@ -121,13 +118,12 @@ module Api
             end
 
             real_match || fake_match
-          end          
+          end
         end
 
         Rails.logger.info("[#{request.request_id}] PERF B matches=#{potential_matches.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_b)*1000).round}")
 
         # --- 5) Guardado / auditoría ---
-
         dataset_last_updated_at = Member.maximum(:updated_at)
         query_record = Query.create!(
           firstname: qp[:firstname],
@@ -150,17 +146,17 @@ module Api
           query_label: qp[:name].presence || [qp[:firstname], qp[:lastname1], qp[:lastname2]].compact.join(" ")
         )
 
-      input_norm =
-        if qp[:name].present?
-          { mode: :name, name: normalize(qp[:name]) }
-        else
-          {
-            mode: :segmented,
-            firstname: normalize(qp[:firstname]),
-            lastname1: normalize(qp[:lastname1]),
-            lastname2: normalize(qp[:lastname2])
-          }
-        end
+        input_norm =
+          if qp[:name].present?
+            { mode: :name, name: normalize(qp[:name]) }
+          else
+            {
+              mode: :segmented,
+              firstname: normalize(qp[:firstname]),
+              lastname1: normalize(qp[:lastname1]),
+              lastname2: normalize(qp[:lastname2])
+            }
+          end
 
         t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
@@ -171,7 +167,6 @@ module Api
         end
 
         Rails.logger.info("[#{request.request_id}] PERF C payload=#{members_payload.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t1)*1000).round}")
-
 
         # --- 7) Response ---
         score = homo_score
