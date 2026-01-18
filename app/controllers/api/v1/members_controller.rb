@@ -112,6 +112,7 @@ module Api
 
             real_match || fake_match
           end
+
           Rails.logger.info("[#{request.request_id}] PERF A+B matches=#{potential_matches.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t0)*1000).round}")
           t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         end
@@ -156,6 +157,9 @@ module Api
           rolegroup = clasificar_rol(m)
           MemberOutcomeSerializer.new(m, rolegroup: rolegroup, input_norm: input_norm).as_json
         end
+
+        Rails.logger.info("[#{request.request_id}] PERF C payload=#{members_payload.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t1)*1000).round}")
+
 
         # --- 7) Response ---
         score = homo_score
