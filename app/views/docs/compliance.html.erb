@@ -1,23 +1,46 @@
 <style>
-  .manual-container {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 24px 18px 60px;
-    color: #33333C;
-    font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  }
 
-  .manual-card {
-    background: #FFFFFF;
-    border-radius: 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,.06);
-    overflow: hidden;
-  }
+:root{
+  --footer-fixed-h: 200px;
+  --footer-gap: 15px;
+}
 
-  .manual-header {
-    padding: 22px 22px 12px;
-    border-bottom: 2px solid #EF4E50;
+.manual-container{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px 18px var(--footer-gap);
+  color: #33333C;
+  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.manual-card{
+  background: #FFFFFF;
+  border-radius: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  height: calc(100vh - var(--footer-fixed-h) - var(--footer-gap) - 24px);
+}
+
+@media (min-width: 1024px){
+  .manual-container{
+    padding: 28px 24px var(--footer-gap);
   }
+  .manual-card{
+    height: calc(100vh - var(--footer-fixed-h) - var(--footer-gap) - 28px);
+  }
+}
+
+.manual-body-panel{
+  flex: 1;
+  overflow: auto;
+}
+
+.manual-header{
+  padding: 0px 22px 12px;
+}
 
   .manual-title {
     margin: 0;
@@ -68,6 +91,25 @@
     list-style-type: disc !important;
     margin: 0 !important;             /* ✅ sin espacio extra entre bullets */
     padding: 0 !important;
+  }
+
+  /* Panel hundido para el cuerpo del documento */
+  .manual-body-panel {
+    border: 1px solid rgba(51, 51, 60, .14);           /* marco delgado */
+  /* más intenso */
+  box-shadow:
+    inset 0 3px 7px rgba(0,0,0,.14),
+    inset 0 -2px 5px rgba(0,0,0,.08),
+    inset 0 1px 0 rgba(255,255,255,.62);
+    padding: 20px 22px 26px;                           /* conserva tu padding */
+    border-top-color: rgba(51, 51, 60, .18) !important;
+    border-top: 1px solid rgba(51, 51, 60, .18) !important;
+    outline: none !important;
+  }
+
+  /* Al mover padding al panel, deja .manual-body “plano” */
+  .manual-body {
+    padding: 0;                                        /* antes: 20px 22px 26px */
   }
 
   /* --- Plan cards (2x3) --- */
@@ -228,6 +270,14 @@
     border-bottom: none;
   }
 
+  .manual-response-table{
+    table-layout: fixed;
+  }
+  .manual-response-table th,
+  .manual-response-table td{
+    overflow-wrap: anywhere;
+  }
+
   .small-note {
     font-size: 13px;
     color: rgba(51, 51, 60, .75);
@@ -239,7 +289,7 @@
   @media (min-width: 1024px) {
     .manual-container {
       max-width: 1180px;     /* antes ~980 */
-      padding: 28px 24px 70px;
+      padding: 8px 24px 70px;
     }
 
     .manual-body {
@@ -315,6 +365,11 @@
   border-color: rgba(239, 78, 80, .65);
 }
 
+/* Tabla de Respuesta (3 columnas): hacer más ancha la 3ª */
+.manual-table th:nth-child(1){ width: 22%; }
+.manual-table th:nth-child(2){ width: 28%; }
+.manual-table th:nth-child(3){ width: 50%; }
+
 </style>
 
 <div class="manual-container">
@@ -346,8 +401,9 @@
         <h1 class="manual-title">LANTIA COMPLIANCE</h1>
         <p class="manual-subtitle">Documentación</p>
       </div>
-    <div class="manual-body">
-      <h2 id="intro">Introducción</h2>
+      <div class="manual-body-panel">
+        <div class="manual-body">
+          <h2 id="intro">Introducción</h2>
 
       <p>
         En los últimos años, el contexto de seguridad en México ha adquirido una mayor visibilidad pública,
@@ -823,7 +879,7 @@
 curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search" \
   -H "Content-Type: application/json" \
   -H "X-API-KEY: <span style="background-color: #ffee58;">TU_API_KEY</span>" \
-  -d '{"name":"José Santos Godínez"}'
+  -d '{"name":" <span style="background-color: #ffee58;">José Santos Godínez</span>"}'
   </code></pre>
 </div>
 
@@ -836,7 +892,7 @@ curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search
 curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search" \
   -H "Content-Type: application/json" \
   -H "X-API-KEY: <span style="background-color: #ffee58;">TU_API_KEY</span>" \
-  -d '{"firstname":"José","lastname1":"Santos","lastname2":"Godínez"}'
+  -d '{"firstname":"<span style="background-color: #ffee58;">José</span>", "lastname1":"<span style="background-color: #ffee58;">Santos</span>", "lastname2":"<span style="background-color: #ffee58;">Godínez</span>"}'
   </code></pre>
 </div>
 
@@ -872,12 +928,17 @@ curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search
   Una respuesta exitosa (HTTP 200) puede incluir los siguientes campos.
 </p>
 
-<table class="manual-table">
+<table class="manual-table manual-response-table">
+  <colgroup>
+    <col style="width: 22%;">
+    <col style="width: 28%;">
+    <col style="width: 50%;">  <!-- más ancha -->
+  </colgroup>
   <thead>
     <tr>
-      <th style="width: 34%;">Campo en API</th>
-      <th style="width: 36%;">Tipo / ejemplo</th>
-      <th>Equivalencia en versión manual</th>
+      <th style="width: 22%;">Campo en API</th>
+      <th style="width: 28%;">Tipo / ejemplo</th>
+      <th style="width: 50%;">Equivalencia en versión manual</th>
     </tr>
   </thead>
   <tbody>
@@ -1257,6 +1318,7 @@ curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search
         se contraten consultas adicionales.
       </p>
     </div> <!-- /.manual-card -->
+    </div>
   </div> <!-- /.docs-layout -->
 </div> <!-- /.manual-container -->
 <script nonce="<%= csp_nonce %>">
@@ -1329,6 +1391,3 @@ curl -sS -X POST "https://dashboard.lantiaintelligence.com/api/v1/members/search
 
   });
 </script>
-
-
-
