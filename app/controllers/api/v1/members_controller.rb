@@ -135,10 +135,22 @@ module Api
           query_label: qp[:name].presence || [qp[:firstname], qp[:lastname1], qp[:lastname2]].compact.join(" ")
         )
 
+      input_norm =
+        if qp[:name].present?
+          { mode: :name, name: normalize(qp[:name]) }
+        else
+          {
+            mode: :segmented,
+            firstname: normalize(qp[:firstname]),
+            lastname1: normalize(qp[:lastname1]),
+            lastname2: normalize(qp[:lastname2])
+          }
+        end
+
         # --- 6) Payload members ---
         members_payload = potential_matches.map do |m|
           rolegroup = clasificar_rol(m)
-          MemberOutcomeSerializer.new(m, rolegroup: rolegroup).as_json
+          MemberOutcomeSerializer.new(m, rolegroup: rolegroup, input_norm: input_norm).as_json
         end
 
         # --- 7) Response ---

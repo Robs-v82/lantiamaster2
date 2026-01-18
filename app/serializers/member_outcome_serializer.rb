@@ -1,7 +1,9 @@
 class MemberOutcomeSerializer
-  def initialize(member, rolegroup:)
+
+  def initialize(member, rolegroup:, input_norm: nil)
     @m = member
     @rolegroup = rolegroup
+    @input_norm = input_norm
   end
 
   def as_json(*)
@@ -17,6 +19,7 @@ class MemberOutcomeSerializer
       titles: titles_payload,
       classification: { involved: @m.involved },
       rolegroup: @rolegroup,
+      exact_match: exact_match_payload,
       cartel: cartel_payload,
       cartel_designation: cartel_designation_payload,
       notes: @m.notes.map(&:story),
@@ -101,4 +104,44 @@ class MemberOutcomeSerializer
       }
     end
   end
+
+  def exact_match_payload
+    return nil unless @input_norm.present?
+
+    if @input_norm[:mode] == :name
+      input = @input_norm[:name]
+      return false if input.blank?
+
+      candidates = [normalize(@m.fullname)] +
+        @m.fake_identities.map { |fi| normalize(fi.fullname) }
+
+      candidates.any? { |c| c.present? && c == input }
+    else
+      f  = @input_norm[:firstname]
+      l1 = @input_norm[:lastname1]
+      l2 = @input_norm[:lastname2]
+      return false if f.blank? || l1.blank? || l2.blank?
+
+      # match contra nombre principal
+      main_ok =
+        normalize(@m.firstname) == f &&
+        normalize(@m.lastname1) == l1 &&
+        normalize(@m.lastname2) == l2
+
+      return true if main_ok
+
+      # match contra identidades alternativas
+      @m.fake_identities.any? do |fi|
+        next false if fi.firstname.blank? || fi.lastname1.blank? || fi.lastname2.blank?
+        normalize(fi.firstname) == f &&
+        normalize(fi.lastname1) == l1 &&
+        normalize(fi.lastname2) == l2
+      end
+    end
+  end
+
+  def normalize(s)
+    I18n.transliterate(s.to_s.strip.downcase)
+  end
+
 end
