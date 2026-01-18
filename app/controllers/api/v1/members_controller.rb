@@ -66,6 +66,8 @@ module Api
         input_lastname2 = qp[:name].present? ? nil : normalize(qp[:lastname2])
 
         # --- 4) Matching ---
+        t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
         potential_matches = Member.includes(
           :fake_identities,
           :notes,
@@ -110,6 +112,8 @@ module Api
 
             real_match || fake_match
           end
+          Rails.logger.info("[#{request.request_id}] PERF A+B matches=#{potential_matches.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t0)*1000).round}")
+          t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         end
 
         # --- 5) Guardado / auditoría ---
