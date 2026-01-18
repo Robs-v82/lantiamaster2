@@ -66,9 +66,9 @@ module Api
         input_lastname2 = qp[:name].present? ? nil : normalize(qp[:lastname2])
 
         # --- 4) Matching ---
-        t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        t_load = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-        potential_matches = Member.includes(
+        scope = Member.includes(
           :fake_identities,
           :notes,
           :organization,
@@ -76,7 +76,17 @@ module Api
           hits: { town: { county: :state } },
           titles: [:organization, :year],
           appointments: [:organization, :role]
-        ).distinct.select do |member|
+        ).distinct
+
+        Rails.logger.info("[#{request.request_id}] PERF A0 scope_built ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_load)*1000).round}")
+
+        t_a = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        candidates = scope.to_a
+        Rails.logger.info("[#{request.request_id}] PERF A candidates=#{candidates.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_a)*1000).round}")
+
+        t_b = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        potential_matches = candidates.select do |member|
+
           next false if member.hits.blank?
 
           # Omitir members sin al menos un nombre válido
@@ -111,13 +121,13 @@ module Api
             end
 
             real_match || fake_match
-          end
+          end          
         end
 
-        Rails.logger.info("[#{request.request_id}] PERF A+B matches=#{potential_matches.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t0)*1000).round}")
-        t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        Rails.logger.info("[#{request.request_id}] PERF B matches=#{potential_matches.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_b)*1000).round}")
 
         # --- 5) Guardado / auditoría ---
+
         dataset_last_updated_at = Member.maximum(:updated_at)
         query_record = Query.create!(
           firstname: qp[:firstname],
@@ -151,6 +161,8 @@ module Api
             lastname2: normalize(qp[:lastname2])
           }
         end
+
+        t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
         # --- 6) Payload members ---
         members_payload = potential_matches.map do |m|
