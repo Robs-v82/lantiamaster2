@@ -112,10 +112,10 @@ module Api
 
             real_match || fake_match
           end
-
-          Rails.logger.info("[#{request.request_id}] PERF A+B matches=#{potential_matches.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t0)*1000).round}")
-          t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         end
+
+        Rails.logger.info("[#{request.request_id}] PERF A+B matches=#{potential_matches.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t0)*1000).round}")
+        t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
         # --- 5) Guardado / auditoría ---
         dataset_last_updated_at = Member.maximum(:updated_at)
