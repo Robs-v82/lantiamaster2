@@ -112,6 +112,17 @@ class UsersController < ApplicationController
   end
 
   def intro
+    user = User.find_by(id: session[:user_id])
+
+    # Si por alguna razón llega sin sesión, mándalo al login
+    unless user
+      redirect_to "/password" and return
+    end
+
+    org = user.member&.organization
+    data_access = (org.nil? ? true : (org.data_access == true))
+
+    @intro_destination = data_access ? "/users/index" : "/datasets/members_search"
   end
 
   def landing

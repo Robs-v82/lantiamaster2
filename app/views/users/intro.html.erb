@@ -42,9 +42,8 @@
 		ready = function(){
 			$(document).ready(function() {
 					setTimeout(function() {
-						window.location.href = '/users/index';
-					},3000
-		  			)
+					  window.location.href = "<%= @intro_destination %>";
+					}, 3000);
 				}
 			)
 		}

@@ -84,8 +84,12 @@ class OrganizationsController < ApplicationController
   def login
     normalized_email = password_params[:mail].to_s.strip.downcase
 
+    # Si NO usas citext en la BD, busca así:
     target_user = User.find_by('LOWER(mail) = ?', normalized_email)
+    # Si usas citext (ver sección 3), bastaría:
+    # target_user = User.find_by(mail: normalized_email)
 
+    # Usuario no encontrado → mismo mensaje genérico
     unless target_user
       audit!("login_failure", meta: { reason: "no_user", mail: normalized_email })
       flash[:alert] = "Correo o contraseña inválidos"
@@ -116,6 +120,7 @@ class OrganizationsController < ApplicationController
           exp = target_user.subscriptions.order(current_period_end: :desc).limit(1).pluck(:current_period_end).first
           session[:subscription_expired] = true
           session[:subscription_expired_on] = exp&.to_date&.to_s
+          # flash[:alert] = "Tu suscripción ha expirado."
         end
 
         audit!("login_failure", user: target_user, meta: { reason: "subscription_expired" })
@@ -132,24 +137,16 @@ class OrganizationsController < ApplicationController
 
       target_user.clear_failed_logins!
 
-      session[:user_id]         = target_user.id
-      session[:login_issued_at] = Time.current.to_i
-      session[:reauth_at]       = Time.current.to_i
-      session[:membership]      = target_user.membership_type || 0
-
-      # === NUEVO: misma lógica que el navbar para decidir el destino ===
-      org = target_user.member&.organization
-      show_panel  = (org&.search_panel == true)
-      data_access = (org.nil? ? true : (org.data_access == true))
-      panel_only  = (show_panel && !data_access)
-
-      destination = panel_only ? "/datasets/members_search" : "/intro"
-      # ================================================================
+      # (evita asignar dos veces user_id)
+      session[:user_id]        = target_user.id
+      session[:login_issued_at]= Time.current.to_i
+      session[:reauth_at]      = Time.current.to_i
+      session[:membership]     = target_user.membership_type || 0
 
       # OJO: asegúrate de que clear_session no borre las keys que acabas de poner
       helpers.clear_session
 
-      redirect_to destination
+      redirect_to "/intro"
     else
       audit!("login_failure", user: target_user, meta: { reason: "bad_password" })
       target_user.register_failed_login!
