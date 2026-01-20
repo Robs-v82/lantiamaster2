@@ -158,42 +158,74 @@
         </h6>
       </div>
     </a>
-  <% else %>
-    <div class="info-box inline-block valign">
 
-      <div class="valign" style="display:flex; align-items:center; gap:10px; padding-bottom: 20px;">
-        <a href="#!" id="copy-api-key">
-          <i class="small material-icons paletton-red-text">content_copy</i>
-        </a>
-      <h6 style="font-weight: 300; color: #ef4e50; margin-top: 8px; padding-bottom: 6px;">
-        Tu API key:
-      </h6>
-        <span id="api-key-value" style="font-weight: 500; color: #000;">
-          <%= @user.api_key %>
-        </span>
-      </div>
-    </div> 
-    <br>
+	<% else %>
+	  <div class="info-box inline-block valign">
+	    <div id="api-key-container" style="height: 50px; display: flex; align-items: center; gap: 10px; padding-bottom: 20px;">
+	      <a href="#!" id="reveal-api-key" style="display: flex; align-items: center; gap: 6px;">
+	        <i class="small material-icons paletton-red-text">code</i>
+	        <h6 style="font-weight: 300; color: #ef4e50; margin: 0;">Ver tu API key</h6>
+	      </a>
+	    </div>
+				<div id="api-key-visible" style="display: none; height: 50px; align-items: center; gap: 10px; padding-bottom: 20px; justify-content: space-between;">
+				  <div style="display: flex; align-items: center; gap: 10px;">
+				    <a href="#!" id="copy-api-key">
+				      <i class="small material-icons paletton-red-text">content_copy</i>
+				    </a>
+				    <h6 style="font-weight: 300; color: #ef4e50; margin: 0;">
+				      Tu API key:
+				    </h6>
+				    <span id="api-key-value" style="font-weight: 500; color: #000;">
+				      <%= @user.api_key %>
+				    </span>
+				  </div>
+				  <a href="#!" id="hide-api-key">
+				    <i class="material-icons paletton-red-text">close</i>
+				  </a>
+				</div>
+	  </div>
 
-    <script nonce="<%= csp_nonce %>">
-      document.addEventListener('DOMContentLoaded', function () {
-        var tips = document.querySelectorAll('.tooltipped');
-        M.Tooltip.init(tips);
+	  <script nonce="<%= csp_nonce %>">
+	    document.addEventListener('DOMContentLoaded', function () {
+	      const revealBtn = document.getElementById('reveal-api-key');
+	      const visibleDiv = document.getElementById('api-key-visible');
+	      const container = document.getElementById('api-key-container');
 
-        var btn = document.getElementById('copy-api-key');
-        var valueEl = document.getElementById('api-key-value');
-        if (btn && valueEl) {
-          btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            var text = valueEl.textContent.trim();
-            navigator.clipboard.writeText(text).then(function () {
-              M.toast({html: 'API key copiado'});
-            });
-          });
-        }
-      });
-    </script>
-  <% end %>
+	      if (revealBtn && visibleDiv && container) {
+	        revealBtn.addEventListener('click', function (e) {
+	          e.preventDefault();
+	          container.style.display = 'none';
+	          visibleDiv.style.display = 'flex';
+	        });
+	      }
+
+	      const copyBtn = document.getElementById('copy-api-key');
+	      const valueEl = document.getElementById('api-key-value');
+
+	      if (copyBtn && valueEl) {
+	        copyBtn.addEventListener('click', function (e) {
+	          e.preventDefault();
+	          const text = valueEl.textContent.trim();
+	          navigator.clipboard.writeText(text).then(function () {
+	            M.toast({html: 'API key copiado'});
+	          });
+	        });
+	      }
+
+				const hideBtn = document.getElementById('hide-api-key');
+
+				if (hideBtn) {
+				  hideBtn.addEventListener('click', function (e) {
+				    e.preventDefault();
+				    document.getElementById('api-key-visible').style.display = 'none';
+				    document.getElementById('api-key-container').style.display = 'flex';
+				  });
+				}
+
+	    });
+	  </script>
+	<% end %>
+
 </div>
 
 
