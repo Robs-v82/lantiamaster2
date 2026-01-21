@@ -135,26 +135,48 @@ class User < ApplicationRecord
     update_columns(failed_login_attempts: 0, locked_until: nil)
   end
 
-  def generate_email_verification_token!
-    token  = SecureRandom.urlsafe_base64(32)
-    cost   = if ActiveModel::SecurePassword.min_cost
-               BCrypt::Engine::MIN_COST
-             else
-               BCrypt::Engine.cost
-             end
-    digest = BCrypt::Password.create(token, cost: cost)
+  # def generate_email_verification_token!
+  #   token  = SecureRandom.urlsafe_base64(32)
+  #   cost   = if ActiveModel::SecurePassword.min_cost
+  #              BCrypt::Engine::MIN_COST
+  #            else
+  #              BCrypt::Engine.cost
+  #            end
+  #   digest = BCrypt::Password.create(token, cost: cost)
+
+  #   update!(
+  #     email_verification_digest: digest,
+  #     email_verification_sent_at: Time.current
+  #   )
+  #   token
+  # end
+
+  def generate_email_verification_token
+    token = SecureRandom.urlsafe_base64(32)
+    digest = BCrypt::Password.create(token)
 
     update!(
-      email_verification_digest: digest,
-      email_verification_sent_at: Time.current
+      email_verification_token_digest: digest,
+      email_verification_token_used_at: nil
     )
+
     token
   end
 
-  def valid_email_verification_token?(token)
-    return false if email_verification_digest.blank?
-    BCrypt::Password.new(email_verification_digest).is_password?(token) &&
-      !email_verification_expired?
+  def valid_email_verification_token?(submitted_token, ttl: 10.minutes)
+    digest = email_verification_token_digest
+    return false if submitted_token.blank? || digest.blank?
+
+    token_matches = BCrypt::Password.new(digest).is_password?(submitted_token)
+
+    return false unless token_matches
+
+    if email_verified?
+      return false if email_verification_token_used_at.blank?
+      Time.current <= email_verification_token_used_at + ttl
+    else
+      true
+    end
   end
 
   def email_verification_expired?(ttl_hours = 48)
@@ -165,8 +187,7 @@ class User < ApplicationRecord
   def mark_email_verified!
     update!(
       email_verified_at: Time.current,
-      email_verification_digest: nil,
-      email_verification_sent_at: nil
+      email_verification_token_used_at: Time.current
     )
   end
 

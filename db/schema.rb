@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_01_15_235007) do
+ActiveRecord::Schema.define(version: 2026_01_21_180528) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -726,8 +726,11 @@ ActiveRecord::Schema.define(version: 2026_01_15_235007) do
     t.text "mfa_backup_codes_digest"
     t.integer "mfa_last_used_step"
     t.string "api_key"
+    t.datetime "email_verification_token_used_at"
+    t.string "email_verification_token_digest"
     t.index ["api_key"], name: "index_users_on_api_key", unique: true
     t.index ["email_verification_digest"], name: "index_users_on_email_verification_digest"
+    t.index ["email_verification_token_digest"], name: "index_users_on_email_verification_token_digest", unique: true
     t.index ["locked_until"], name: "index_users_on_locked_until"
     t.index ["member_id"], name: "index_users_on_member_id"
     t.index ["mfa_enabled_at"], name: "index_users_on_mfa_enabled_at"

@@ -27,7 +27,7 @@ class UsersController < ApplicationController
         )
       end
 
-      verify_token = @user.generate_email_verification_token!
+      verify_token = @user.generate_email_verification_token
       reset_token  = @user.generate_password_reset!
       UserMailer.welcome_activation(@user, verify_token, reset_token).deliver_later
     end
