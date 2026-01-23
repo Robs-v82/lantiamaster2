@@ -353,8 +353,11 @@
           </td>
         </tr>
         <% relaciones = MemberRelationship
-                 .includes(:member_a, :member_b)
-                 .where("member_a_id = :id OR member_b_id = :id", id: member.id) %>
+          .includes(
+            member_a: [:role, :organization, :criminal_link],
+            member_b: [:role, :organization, :criminal_link]
+          )
+          .where("member_a_id = :id OR member_b_id = :id", id: member.id) %>
         <% if member.involved == false %>
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Rol o vínculo con el crimen organizado:</th>
@@ -479,27 +482,38 @@
                   <% relaciones.each do |rel| %>
                     <% if rel.member_a_id == member.id %>
                       <% otro = rel.member_b %>
-                      <li>
-                        -<%= rel.role_a_gender %> de
-                        <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>, 
-                        <% if otro.criminal_link %>
-                          <%= otro.criminal_link.name %>
-                        <% else %>
-                          <%= otro.organization.name %>
-                        <% end %>
-                      </li>
+                      <% rel_label = rel.role_a_gender %>
                     <% else %>
                       <% otro = rel.member_a %>
-                      <li>
-                        -<%= rel.role_b_gender %> de
-                        <%= otro.firstname %> <%= otro.lastname1 %> <%= otro.lastname2 %>, <%= otro.role.name %>,
-                        <% if otro.criminal_link %>
-                          <%= otro.criminal_link.name %>
-                        <% else %>
-                          <%= otro.organization.name %>
-                        <% end %>
-                      </li>
+                      <% rel_label = rel.role_b_gender %>
                     <% end %>
+
+                    <% otro_group = clasificar_rol(otro) %>
+                    <% otro_org = (otro.criminal_link || otro.organization) %>
+                    <% otro_role_name = otro.role&.name.to_s.strip %>
+                    
+                    <% partes = [] %>
+                    <% og = otro_group.to_s.strip %>
+                    <% partes << og if og.present? %>
+
+                    <% rn = otro.role&.name.to_s.strip %>
+                    <% autoridades_roles = ["Autoridad cooptada", "Autoridad expuesta", "Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad", "Policía", "Militar"] %>
+
+                    <% if rn.present? %>
+                      <%# si la clasificación ya indica autoridad (vinculada/expuesta/cooptada), no repitas el rol específico %>
+                      <% unless ["Autoridad vinculada", "Autoridad expuesta", "Autoridad cooptada"].include?(og) && autoridades_roles.include?(rn) %>
+                        <% partes << rn %>
+                      <% end %>
+                    <% end %>
+
+                    <% on = otro_org&.name.to_s.strip %>
+                    <% partes << on if on.present? %>
+
+                    <li>
+                      -<%= rel_label.to_s.strip %> de
+                      <%= [otro.firstname, otro.lastname1, otro.lastname2].map { |x| x.to_s.strip }.reject(&:blank?).join(" ") %>,
+                      <%= partes.join(", ") %>
+                    </li>
                   <% end %>
                 </ul>     
               </td>

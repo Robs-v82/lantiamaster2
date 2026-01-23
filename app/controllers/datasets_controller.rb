@@ -1,5 +1,6 @@
 class DatasetsController < ApplicationController
 	include MonthlyQueryLimits
+	helper_method :clasificar_rol
 	
 	require 'prawn'
 	require 'csv'
