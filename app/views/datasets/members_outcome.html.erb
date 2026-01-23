@@ -358,24 +358,36 @@
             member_b: [:role, :organization, :criminal_link]
           )
           .where("member_a_id = :id OR member_b_id = :id", id: member.id) %>
+        
+        <% role_name = member.role&.name.to_s.strip %>
+        <% org       = member.organization %>
+        <% county    = org&.county %>
+        <% state     = county&.state %>
+
         <% if member.involved == false %>
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Rol o vínculo con el crimen organizado:</th>
             <td>
               <%= memberGroup %>
-              <% if @all_officers .include?(member.role&.name) %>
+              <% role_name = member.role&.name.to_s.strip %>
+              <% if @all_officers.include?(role_name) %>
                 <br>
-                <%= member.role.name %>
-                <% if @federal_officers.include?(member.role&.name) %>
-                   en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
-                <% elsif @state_officers.include?(member.role&.name) %>
-                   de <%= member.organization.county.state.name %>
-                <% elsif member.role.name == "Regidor"%>
-                  en  <%= member.organization.county.name %>,
-                  <%= member.organization.county.state.shortname %>.
+                <%= role_name.presence || "" %>
+                <% if @federal_officers.include?(role_name) %>
+                  <% st_name = member.hits.where(title: "Nombramiento").first&.town&.county&.state&.name.to_s %>
+                  <% org_name = member.organization&.name.to_s %>
+                  <%= st_name.present? || org_name.present? ? " en #{st_name}#{st_name.present? && org_name.present? ? ", " : ""}#{org_name}" : "" %>
+                <% elsif @state_officers.include?(role_name) %>
+                  <% st_name = member.organization&.county&.state&.name.to_s %>
+                  <%= st_name.present? ? " de #{st_name}" : "" %>
+                <% elsif role_name == "Regidor" %>
+                  <% c_name  = member.organization&.county&.name.to_s %>
+                  <% st_short = member.organization&.county&.state&.shortname.to_s %>
+                  <%= (c_name.present? || st_short.present?) ? " en  #{c_name}#{c_name.present? && st_short.present? ? ",\n                  " : ""}#{st_short}." : "" %>
                 <% else %>
-                  de <%= member.organization.county.name %>,
-                  <%= member.organization.county.state.shortname %>.
+                  <% c_name  = member.organization&.county&.name.to_s %>
+                  <% st_short = member.organization&.county&.state&.shortname.to_s %>
+                  <%= (c_name.present? || st_short.present?) ? " de #{c_name}#{c_name.present? && st_short.present? ? ",\n                  " : ""}#{st_short}." : "" %>
                 <% end %>
                 <br>
                 <% if member.start_date? %>
@@ -384,12 +396,13 @@
                 <% if member.end_date? %>
                   a <%= member.end_date.strftime("%d/%m/%Y") %>
                 <% end %>
-              <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
+              <% elsif @other_organizations.include?(role_name) && member.criminal_link %>
               <br>
-              <%= member.role.name %>, <%= member.organization.name %>
+              <%= role_name.presence || "" %>, <%= member.organization&.name.to_s %>
               <% end %>
             </td>
           </tr>
+
         <% else %>
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Organización:</th>
@@ -446,7 +459,7 @@
                      en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
                   <% elsif @state_officers.include?(member.role&.name) %>
                      de <%= member.organization.county.state.name %>
-                  <% elsif member.role.name == "Regidor"%>
+                  <% elsif member.role&.name.to_s == "Regidor" %>
                     en  <%= member.organization.county.name %>,
                     <%= member.organization.county.state.shortname %>.
                   <% else %>
@@ -488,33 +501,20 @@
                       <% rel_label = rel.role_b_gender %>
                     <% end %>
 
-                    <% otro_group = clasificar_rol(otro) %>
-                    <% otro_org = (otro.criminal_link || otro.organization) %>
-                    <% otro_role_name = otro.role&.name.to_s.strip %>
-                    
-                    <% partes = [] %>
-                    <% og = otro_group.to_s.strip %>
-                    <% partes << og if og.present? %>
+                    <% otro_group = clasificar_rol(otro).to_s.strip %>
+                    <% otro_org_name = (otro&.criminal_link || otro&.organization)&.name.to_s.strip %>
 
-                    <% rn = otro.role&.name.to_s.strip %>
-                    <% autoridades_roles = ["Autoridad cooptada", "Autoridad expuesta", "Gobernador", "Alcalde", "Regidor", "Delegado estatal", "Coordinador estatal", "Secretario de Seguridad", "Policía", "Militar"] %>
-
-                    <% if rn.present? %>
-                      <%# si la clasificación ya indica autoridad (vinculada/expuesta/cooptada), no repitas el rol específico %>
-                      <% unless ["Autoridad vinculada", "Autoridad expuesta", "Autoridad cooptada"].include?(og) && autoridades_roles.include?(rn) %>
-                        <% partes << rn %>
-                      <% end %>
-                    <% end %>
-
-                    <% on = otro_org&.name.to_s.strip %>
-                    <% partes << on if on.present? %>
+                    <% parts = [] %>
+                    <% parts << otro_group if otro_group.present? %>
+                    <% parts << otro_org_name if otro_org_name.present? %>
 
                     <li>
                       -<%= rel_label.to_s.strip %> de
-                      <%= [otro.firstname, otro.lastname1, otro.lastname2].map { |x| x.to_s.strip }.reject(&:blank?).join(" ") %>,
-                      <%= partes.join(", ") %>
+                      <%= [otro&.firstname, otro&.lastname1, otro&.lastname2].map { |x| x.to_s.strip }.reject(&:blank?).join(" ") %>,
+                      <%= parts.join(", ") %>
                     </li>
                   <% end %>
+
                 </ul>     
               </td>
           <% else %>
