@@ -55,16 +55,120 @@ candidates = Member
   .includes(:role)
   .distinct
 
-puts "\n=== Autoridad expuesta SIN relaciones (con al menos un hit) ===\n\n"
+candidate_ids = candidates.pluck(:id)
+candidate_id_set = candidate_ids.to_h { |id| [id, true] }
 
-count = 0
-candidates.find_each(batch_size: 1000) do |m|
-  next unless clasificar_rol_local(m) == "Autoridad expuesta"
+hits = Hit
+  .joins(:members)
+  .where(members: { id: candidate_ids })
+  .includes(:members, town: { county: :state })
+  .distinct
+  .order(date: :desc, id: :desc)
 
-  full_name = [m.firstname, m.lastname1, m.lastname2].map { |x| x.to_s.strip }.reject(&:empty?).join(" ")
-  puts "----------------------------------------" if count > 0
-  puts "#{full_name} - #{m.id}"
-  count += 1
+feminine_role_map = {
+  "Padre" => "Madre", "Hijo" => "Hija", "Abuelo" => "Abuela", "Nieto" => "Nieta",
+  "Tio" => "Tia", "Sobrino" => "Sobrina", "Padrino" => "Madrina", "Ahijado" => "Ahijada",
+  "Abogado" => "Abogada", "Defendido" => "Defendida", "Jefe" => "Jefa", "Colaborador" => "Colaboradora",
+  "Hermano" => "Hermana", "Compañero" => "Compañera", "Amigo" => "Amiga", "Primo" => "Prima",
+  "Conyuge" => "Conyuge", "Pareja" => "Pareja", "Esposo" => "Esposa", "Socio" => "Socia",
+  "Allegado" => "Allegada", "Compadre" => "Comadre", "Cuñado" => "Cuñada", "Suegro" => "Suegra",
+  "Yerno" => "Nuera"
+}
+
+create_link = lambda do |member_a, member_b, role_a|
+  return if member_a.blank? || member_b.blank?
+  return if member_a.id == member_b.id
+
+  role_a = role_a.to_s.strip
+  role_b = (role_a == "Colaborador" ? "Jefe" : role_a) # aquí lo dejamos fijo para tu caso
+
+  role_a_gender = member_a.gender == "FEMENINO" ? (feminine_role_map[role_a] || role_a) : role_a
+  role_b_gender = member_b.gender == "FEMENINO" ? (feminine_role_map[role_b] || role_b) : role_b
+
+  existe = MemberRelationship.exists?(member_a_id: member_a.id, member_b_id: member_b.id, role_a: role_a, role_b: role_b) ||
+           MemberRelationship.exists?(member_a_id: member_b.id, member_b_id: member_a.id, role_a: role_b, role_b: role_a)
+
+  unless existe
+    MemberRelationship.create!(
+      member_a: member_a,
+      member_b: member_b,
+      role_a: role_a,
+      role_b: role_b,
+      role_a_gender: role_a_gender,
+      role_b_gender: role_b_gender
+    )
+  end
 end
 
-puts "\n\nTotal: #{count}\n"
+
+hits.each do |hit|
+  miembros = hit.members.select { |m| candidate_id_set[m.id] }
+  next if miembros.empty?
+
+  lugar = [
+    hit.town&.name.to_s.strip.presence,
+    hit.town&.county&.name.to_s.strip.presence,
+    hit.town&.county&.state&.shortname.to_s.strip.presence
+  ].compact.join(", ")
+
+  fecha = hit.date ? hit.date.strftime("%d/%m/%Y") : ""
+
+  # --- INSERTAR AQUÍ (dentro de hits.each), antes de imprimir el encabezado ---
+
+  hit_date = hit.date
+  county = hit.town&.county
+
+  mayor_name = nil
+
+  if county && hit_date
+    gov_org_prefix = "Gobierno Municipal de #{county.name}".to_s.strip
+
+    gov_org = county.organizations
+      .where("name ILIKE ?", "#{gov_org_prefix}%")
+      .order(:id)
+      .first
+
+    mayor = nil
+
+    if gov_org
+      mayor = gov_org.members
+        .joins(:role)
+        .where(roles: { name: "Alcalde" })
+        .where(involved: true)
+        .where("start_date IS NULL OR start_date <= ?", hit_date)
+        .where("end_date IS NULL OR end_date >= ?", hit_date)
+        .order(:id)
+        .first
+
+      if mayor
+        mayor_name = [mayor.firstname, mayor.lastname1, mayor.lastname2].map { |x| x.to_s.strip }.reject(&:blank?).join(" ")
+      end
+    end
+  end
+
+  mayor_line = mayor_name.present? ? "Alcalde involved: Sí - #{mayor_name}" : "Alcalde involved: No"
+
+  puts "#{lugar} - #{fecha}".strip
+  puts mayor_line
+  puts ""
+
+  miembros.sort_by { |m| [m.lastname1.to_s, m.lastname2.to_s, m.firstname.to_s, m.id] }.each do |m|
+    full_name = [m.firstname, m.lastname1, m.lastname2].map { |x| x.to_s.strip }.reject(&:blank?).join(" ")
+    puts "#{full_name} - #{m.id}"
+  end
+
+  # --- INSERTAR AQUÍ: crear relaciones Regidor -> Alcalde (solo si hay alcalde involved) ---
+
+  if mayor.present?
+    ActiveRecord::Base.transaction do
+      miembros.each do |reg|
+        next if reg.id == mayor.id
+        create_link.call(reg, mayor, "Colaborador")
+      end
+    end
+  end
+
+  puts ""
+  puts "------------------------------------------------------------"
+  puts ""
+end

@@ -1,4 +1,34 @@
 <style>
+    /* Hits: fecha/lugar (más pequeño, tipografía distinta y alineación) */
+   .hits-title { margin-bottom: 6px; }
+
+  .hit-meta {
+    font-size: 12.5px;              /* ligeramente más pequeño que 14px */
+    font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-variant-numeric: tabular-nums; /* alinea dígitos */
+    letter-spacing: 0.1px;
+    opacity: 0.92;
+  }
+
+  .hit-date {
+    display: inline-block;
+    text-align: right;  /* alinea todas las fechas al mismo borde */
+    white-space: nowrap;
+    margin-right: 3px;   /* antes 8px */
+    width: 76px;  
+  }
+
+  .hit-sep {
+    display: inline-block;
+    width: 10px;        /* reserva espacio para el "—" */
+    text-align: center;
+  }
+
+  .hit-place {
+    font-family: inherit; /* mantiene la tipografía de hit-meta */
+  }
+
+
   .marked-text {
     background-color: #FFF59D; /* amarillo pastel */
     padding: 2px 4px;
@@ -360,6 +390,7 @@
           .where("member_a_id = :id OR member_b_id = :id", id: member.id) %>
         
         <% role_name = member.role&.name.to_s.strip %>
+        <% fmt_role = ->(s) { v = s.to_s.strip; v.blank? ? nil : (v.casecmp("Regidor").zero? ? "Regidor/funcionario municipal" : v) } %>
         <% org       = member.organization %>
         <% county    = org&.county %>
         <% state     = county&.state %>
@@ -372,7 +403,7 @@
               <% role_name = member.role&.name.to_s.strip %>
               <% if @all_officers.include?(role_name) %>
                 <br>
-                <%= role_name.presence || "" %>
+                <%= fmt_role.call(role_name) || "" %>
                 <% if @federal_officers.include?(role_name) %>
                   <% st_name = member.hits.where(title: "Nombramiento").first&.town&.county&.state&.name.to_s %>
                   <% org_name = member.organization&.name.to_s %>
@@ -398,7 +429,8 @@
                 <% end %>
               <% elsif @other_organizations.include?(role_name) && member.criminal_link %>
               <br>
-              <%= role_name.presence || "" %>, <%= member.organization&.name.to_s %>
+              <%= fmt_role.call(role_name) || "" %>
+                , <%= member.organization&.name.to_s %>
               <% end %>
             </td>
           </tr>
@@ -454,7 +486,7 @@
                 <% end %>
                 <br>
                 <% if member.appointments.empty? %>
-                  <%= member.role.name %>
+                  <%= fmt_role.call(member.role.name) || "" %>
                   <% if @federal_officers.include?(member.role&.name) %>
                      en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
                   <% elsif @state_officers.include?(member.role&.name) %>
@@ -475,9 +507,9 @@
                   <% end %>
                 <% end %>
               <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
-                <%= member.role.name %>, <%= member.organization.name %>
+                <%= fmt_role.call(member.role.name) || "" %>, <%= member.organization.name %>
               <% else %>
-                <%= member.role&.name || "Sin definir" %>
+                <%= fmt_role.call(member.role&.name) || "Sin definir" %>
               <% end %>
             </td>
           </tr>
@@ -556,54 +588,121 @@
           </tr>
         <% end %>
 
-<%# === Nombramientos / Cargos (appointments) === %>
-<% appts = member.appointments.to_a %>
-<% appts_dedup = dedup_appointments_for_view(appts) %>
-<% if appts_dedup.any? %>
-  <tr style="border-top: 2px solid #33333C;">
-    <th style="font-weight: bold;">Nombramientos / Cargos:</th>
-    <td>
-      <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
-        <% appts_dedup
-             .sort_by { |(_a, s, e)| [s || Date.new(1,1,1), e || Date.new(9999,12,31)] }
-             .each do |appt, s, e| %>
-          <li style="margin-bottom: 6px;">
-            <%= appt.role&.name || "Cargo" %><% if appt.organization.present? %>, <%= appt.organization.name %><% end %>
-            <% if s.present? || e.present? %>
-              <br>
-              <%= appt_span_label(s, e) %>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    </td>
-  </tr>
-<% end %>
-
-          <tr>
-            <th style="vertical-align: top;">
-              <span style="font-weight: bold;">Actividad/menciones:</span>
+        <%# === Nombramientos / Cargos (appointments) === %>
+        <% appts = member.appointments.to_a %>
+        <% appts_dedup = dedup_appointments_for_view(appts) %>
+        <% if appts_dedup.any? %>
+          <tr style="border-top: 2px solid #33333C;">
+            <th style="font-weight: bold;">Nombramientos / Cargos:</th>
+            <td>
               <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
-                <% member.hits.order(date: :desc).each do |hit| %>
+                <% appts_dedup
+                     .sort_by { |(_a, s, e)| [s || Date.new(1,1,1), e || Date.new(9999,12,31)] }
+                     .each do |appt, s, e| %>
                   <li style="margin-bottom: 6px;">
-                  <% if hit.link.present? %>
-                    <a href="<%= hit.link %>" target="_blank" style="margin-right: 8px; text-decoration: none; color: inherit;">
-                      <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
-                    </a>
-                  <% else %>
-                    <span style="display: inline-block; width: 24px; margin-right: 8px;"></span>
-                  <% end %>
-                    <%= hit.date.strftime("%d/%m/%y") %> — 
-                    <% unless hit.town.county.name == "Sin definir" %>
-                      <span style="font-weight: 300;"><%= hit.town.county.name %>,</span>
+                    <%= fmt_role.call(appt.role&.name) || "Cargo" %><% if appt.organization.present? %>, <%= appt.organization.name %><% end %>
+                    <% if s.present? || e.present? %>
+                      <br>
+                      <%= appt_span_label(s, e) %>
                     <% end %>
-                    <%= hit.town.county.state.shortname %>
                   </li>
                 <% end %>
               </ul>
+            </td>
+          </tr>
+        <% end %>
+
+          <tr>
+            <th style="vertical-align: top;">
+              <div class="col s12 grayText hits-title">Actividad/menciones</div>
+              <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
+                
+                <% # --- Hits en dos bloques: primero member, luego relaciones (solo si expuesta + tiene relaciones) --- %>
+                <%
+                  show_related_hits = (member.involved == false && relaciones.any?)
+
+                  base_hits = member.hits.order(date: :desc).to_a
+
+                  related_hits =
+                    if show_related_hits
+                      seen_links = base_hits.map(&:link).compact
+
+                      others = relaciones.map { |rel| rel.member_a_id == member.id ? rel.member_b : rel.member_a }.compact.uniq
+                      rel_hits = others.flat_map { |m| m.hits.to_a }
+
+                      # sólo hits con link y que no existan ya en el member
+                      rel_hits = rel_hits.select { |h| h.link.present? && !seen_links.include?(h.link) }
+
+                      # dedup por link y ordenar desc
+                      rel_hits
+                        .uniq { |h| h.link }
+                        .sort_by { |h| h.date || Date.new(1,1,1) }
+                        .reverse
+                    else
+                      []
+                    end
+                %>
+
+                  <% base_hits.each do |hit| %>
+                    <li style="margin-bottom: 6px;">
+                    <% if hit.link.present? %>
+                      <a href="<%= hit.link %>" target="_blank" style="margin-left: 10px; text-decoration: none; color: inherit;">
+                        <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
+                      </a>
+                    <% else %>
+                      <span style="display: inline-block; width: 24px; margin-right: 8px;"></span>
+                    <% end %>
+
+                      <span class="hit-meta">
+                        <span class="hit-date"><%= hit.date.strftime("%d/%m/%y") %></span>
+                        <span class="hit-sep">—</span>
+                        <span class="hit-place">
+                          <% unless hit.town.county.name == "Sin definir" %>
+                            <%= hit.town.county.name %>,
+                          <% end %>
+                          <%= hit.town.county.state.shortname %>
+                        </span>
+                      </span>
+
+                    </li>
+                  <% end %>
+
+                  <% if related_hits.any? %>
+                    <li class="hits-separator" style="margin: 10px 0 8px 0;">
+                      <span style="display:block; border-top: 1px solid #e0e0e0;"></span>
+                    </li>
+                    <% related_hits.each do |hit| %>
+                    <!-- aquí va EXACTAMENTE el mismo <li> que ya tienes para imprimir un hit -->
+
+                    <li style="margin-bottom: 6px;">
+                    <% if hit.link.present? %>
+                      <a href="<%= hit.link %>" target="_blank" style="margin-left: 10px; text-decoration: none; color: inherit;">
+                        <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
+                      </a>
+                    <% else %>
+                      <span style="display: inline-block; width: 24px; margin-right: 8px;"></span>
+                    <% end %>
+
+                      <span class="hit-meta">
+                        <span class="hit-date"><%= hit.date.strftime("%d/%m/%y") %></span>
+                        <span class="hit-sep">—</span>
+                        <span class="hit-place">
+                          <% unless hit.town.county.name == "Sin definir" %>
+                            <%= hit.town.county.name %>,
+                          <% end %>
+                          <%= hit.town.county.state.shortname %>
+                        </span>
+                      </span>
+
+                    </li>
+
+                  <% end %>
+                <% end %>  
+
+              </ul>
             </th>
             <td>
-              <div id="map-container-<%= member.id %>" style="height: 280px; min-width: 280px;"></div>
+              <div id="map-container-<%= member.id %>" style="height: 280px; max-width: 450px;"></div>
             </td>
           </tr>
           
