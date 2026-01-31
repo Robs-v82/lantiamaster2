@@ -6,6 +6,30 @@
   --bottom-gap: 20px;      /* separación extra arriba del footer */
 }
 
+#queries-tabs a{
+  font-size: 1.15em;          /* hereda */
+  font-weight: 300;
+}
+
+/* Asegura que el contenido del tab historial siempre sea flex-col */
+#tab-historial{
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+/* Asegura que el scroll sea el único que crece */
+#tab-historial .queries-panel__scroll{
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* La paginación nunca crece ni entra al scroll */
+#tab-historial .queries-panel__pagination{
+  flex: 0 0 auto;
+}
+
 .queries-panel{
   overflow: hidden; /* evita que el contenido empuje la columna */
 }
@@ -77,6 +101,61 @@
 }
 </style>
 <script nonce="<%= csp_nonce %>">
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const labels = <%= raw(@org_donut_labels.to_json) %>;
+    const values = <%= raw(@org_donut_values.to_json) %>;
+
+    const seriesData = labels.map((name, i) => ({ name, y: values[i] }));
+
+    window.orgDonutChart = Highcharts.chart('donut-organizacion', {
+      chart: {
+        type: 'pie',
+        backgroundColor: 'transparent',
+        spacing: [10, 0, 0, 0]
+      },
+      title: { text: null },
+      credits: { enabled: false },
+      exporting: { enabled: false },
+
+			tooltip: {
+			  backgroundColor: 'white',
+			  borderColor: '#e0e0e0',
+			  style: { color: '#33333C' },
+			  formatter: function () {
+			    const pct = Highcharts.numberFormat(this.percentage, 1);
+			    const y   = Highcharts.numberFormat(this.y, 0, '.', ','); // coma miles
+			    return `<b>${this.point.name}</b><br><b>${pct}%</b> (${y})`;
+			  }
+			},
+      plotOptions: {
+        pie: {
+          innerSize: '40%',
+          dataLabels: {
+            enabled: true,
+            format: '{point.percentage:.1f}%',
+            style: { color: '#ffffff', fontWeight: '600', textOutline: 'none', fontSize: '14px'},
+            distance: -30
+          },
+          showInLegend: true
+        }
+      },
+
+      legend: {
+        align: 'right',
+        verticalAlign: 'middle',
+        layout: 'vertical',
+        itemStyle: { color: '#33333C', fontWeight: '600' }
+      },
+
+      colors: ['#fbbc04', '#46bdc6', '#34a853', '#ef4e50', '#adacac'],
+
+      series: [{
+        name: 'Miembros',
+        data: seriesData
+      }]
+    });
+  });
   window.addEventListener('load', function () {
     var el = document.getElementById('grafico-uso-consultas');
     if (!el) return;
@@ -102,7 +181,189 @@
     setTimeout(function(){ if (chart) chart.reflow(); }, 50);
     setTimeout(function(){ if (chart) chart.reflow(); }, 250);
   });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const categories = <%= raw(@hits_year_categories.to_json) %>;
+    const data       = <%= raw(@hits_year_data.to_json) %>;
+
+    window.docsByYearChart = Highcharts.chart('hits-por-anio', {
+      chart: {
+        type: 'column',
+        backgroundColor: 'transparent',
+        spacing: [10, 0, 0, 0]
+      },
+      title: { text: null },
+      credits: { enabled: false },
+      legend: { enabled: false },
+
+      exporting: { enabled: false },  // 👈 quita botón de descargas
+
+      xAxis: {
+        categories: categories,
+        labels: { style: { color: '#33333C', fontSize: '12px' } },
+        lineColor: '#e0e0e0',
+        tickColor: '#e0e0e0'
+      },
+
+      yAxis: {
+        title: { text: null },
+        labels: { enabled: false },   // 👈 quita etiquetas del eje vertical
+        gridLineColor: '#eeeeee'
+      },
+
+      tooltip: {
+        backgroundColor: 'white',
+        borderColor: '#e0e0e0',
+        style: { color: '#33333C' },
+        pointFormat: '<b>{point.y}</b> documentos'
+      },
+
+      plotOptions: {
+        column: {
+          borderWidth: 0,
+          borderRadius: 2,
+          pointPadding: 0.06,
+          groupPadding: 0.1
+        }
+      },
+
+      series: [{
+        name: 'Documentos',
+        data: data,
+        color: '#46bdc6'
+      }]
+    });
+  });
+
+   document.addEventListener('DOMContentLoaded', function () {
+    // cuando se abre/cierra cualquier collapsible
+    $(document).on('click', '.collapsible-header', function () {
+      setTimeout(function () {
+        if (window.orgDonutChart) window.orgDonutChart.reflow();
+        if (window.docsByYearChart) window.docsByYearChart.reflow();
+        if (window.mxStateMapChart) window.mxStateMapChart.reflow();
+      }, 250); // deja que Materialize termine la animación
+    });
+
+    // cuando cambias de tab (Materialize)
+    const tabsEl = document.getElementById('queries-tabs');
+    if (tabsEl && M && M.Tabs) {
+      const instance = M.Tabs.getInstance(tabsEl);
+      if (instance) {
+        const original = instance.options.onShow;
+        instance.options.onShow = function () {
+          if (original) original.apply(this, arguments);
+          setTimeout(function () {
+            if (window.orgDonutChart) window.orgDonutChart.reflow();
+            if (window.docsByYearChart) window.docsByYearChart.reflow();
+            if (window.mxStateMapChart) window.mxStateMapChart.reflow();
+          }, 50);
+        };
+      }
+    }
+  });
 </script>
+
+<script nonce="<%= csp_nonce %>">
+  $(document).ready(function () {
+    var el = document.getElementById('members-state-map');
+    if (!el) return;
+
+    var containerWidth = $('#members-state-map').width() || 300;
+		var mapHeight = Math.max(260, Math.min(420, Math.floor(containerWidth * 1.15)));
+
+    var data = [
+      <% @members_by_state.each do |(code, name), total| %>
+        { name: "<%= j(name.to_s) %>", value: <%= total.to_i %>, code: "<%= j(code.to_s) %>" },
+      <% end %>
+    ];
+
+    Highcharts.getJSON('/maps/national_map.json', function (geojson) {
+      Highcharts.mapChart('members-state-map', {
+
+				chart: {
+				  map: geojson,
+				  height: mapHeight,
+				  spacing: [0, 0, 0, 0],
+				  margin: [0, 0, 0, 0],
+				  style: { fontFamily: 'Poppins' }
+				},
+
+        title: false,
+        credits: false,
+        exporting: { enabled: false }, // consistente :contentReference[oaicite:2]{index=2}
+        legend: false,
+        mapNavigation: { enabled: false },
+
+				colors: ['#e0e0e0', '#ffa0a0', '#ef4e50', '#ad1111'],
+				colorAxis: {
+				  dataClassColor: 'category',
+				  dataClasses: (function () {
+				    const vals = data.map(d => d.value || 0);
+				    const max = Math.max.apply(null, vals);
+
+				    // umbrales proporcionales para que funcione con cifras grandes
+				    const b1 = Math.max(1, Math.ceil(max * 0.10));
+				    const b2 = Math.max(b1 + 1, Math.ceil(max * 0.30));
+
+				    return [
+				      { to: 0 },
+				      { from: 1, to: b1 },
+				      { from: b1, to: b2 },
+				      { from: b2 }
+				    ];
+				  })()
+				},
+
+        series: [{
+          data: data,
+          joinBy: 'name',
+          name: 'Personas físicas',
+          borderColor: 'white',
+          borderWidth: 1,
+          nullColor: '#bdbdbd',
+          states: {
+            hover: { color: '#ffffff', borderColor: '#424242' }
+          },
+          dataLabels: {
+            enabled: true,
+            format: '{point.properties.postal}'
+          }
+        }],
+
+        tooltip: {
+          headerFormat: '<span style="font-size:12px; color:#454157">{point.key}</span><br>',
+          pointFormatter: function () {
+            return '<span style="font-size:16px; color:#454157"><b>' +
+              Highcharts.numberFormat(this.value || 0, 0, '.', ',') +
+              '</b></span><br>';
+          }
+        }
+      });
+    });
+  });
+</script>
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener('DOMContentLoaded', function () {
+    const tabsEl = document.getElementById('queries-tabs');
+    if (!tabsEl || !M || !M.Tabs) return;
+
+    const inst = M.Tabs.getInstance(tabsEl);
+    if (!inst) return;
+
+    const original = inst.options.onShow;
+    inst.options.onShow = function (content) {
+      if (original) original.apply(this, arguments);
+
+      if (content && content.id === 'tab-historial') {
+        // fuerza recalculo de layout (sin “brincos”)
+        content.style.display = 'flex';
+        void content.offsetHeight;
+      }
+    };
+  });
+</script>
+
 <script nonce="<%= csp_nonce %>">
   document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form[action="/datasets/members_query"]');
@@ -338,97 +599,171 @@
 			</div>
 		</div>
 	</div>
-	<div class="col s12 m6 l4 queries-panel">
-    <div id="outcome-card" class="card z-depth-1 queries-panel__card" style="background-color: white;">
-			<div class="card-content queries-panel__content" style="color:#33333C; padding-right:8px; padding-bottom:0;">
-      <div class="queries-panel__scroll">
-	      <table id="outcome-table" class="animate__animated animate__fadeIn" style="font-size: 14px; width: 100%;">
-	        <tbody>
-	          <tr style="border-bottom: none;">
-	            <td colspan="2" style="font-weight: bold; padding-bottom: 15px;">
-	              <%= @user.member.organization.name.upcase %>
-	            </td>
-	          </tr>
-	          <tr style="border-bottom: 2px solid #33333C;">
-	          	<td>
-	          		<p>Suscripción: <span style="font-weight: 800;"><%= @suscription[:level] %></span></p>
-	          		<br>
-								<p>
-								  <%= User.find(session[:user_id]).member.organization.name %> tiene
-								  <%= @suscription[:points] - @queries_info[:total] %> consulta<%= @suscription[:points] - @queries_info[:total] == 1 ? '' : 's' %> disponibles para usarse antes del
-									<%= l(@period_end, format: "%-d de %B de %Y") %>.
-								</p>
-	          	</td>
-	          	<td>
-	          		<div id="grafico-uso-consultas" style="height: 200px; max-width: 200px; margin: 0 auto;"></div>
-	          	</td>
-	          </tr>
-	        </tbody>
-	      </table>
-				<div class="section">
-					<p ...>Tus consultas del periodo (<%= l(@period_start.to_date, format: "%-d %b %Y") %> – <%= l(@period_end.to_date, format: "%-d %b %Y") %>)</p>
+<div class="col s12 m6 l4 queries-panel">
+  <div id="outcome-card" class="card z-depth-1 queries-panel__card" style="background-color: white;">
 
-				  <ul class="collapsible popout" style="border: none;" data-collapsible="accordion">
-				    <% @queries_por_dia.sort.reverse.each do |fecha, queries| %>
-				      <li>
-				        <div class="collapsible-header" style="color: #33333C">
-				          <div style="font-weight: 600"><%= fecha.strftime("%d/%m/%Y") %></div><div class="right-align" style="width: 120px;"><span><%= queries.size %> consulta<%= queries.size > 1 ? 's' : '' %></span></div>
-				        </div>
-				        <div class="collapsible-body" style="padding: 15px;">
-				          <ul style="margin: 0; padding-left: 18px;">
-										<% queries.each do |q| %>
-										  <% clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{q.id}" %>
-										  <a href="<%= redirect_to_outcome_path(q.id) %>">
-										  <li class="consulta-item" style="display: flex; align-items: center; margin-bottom: 6px;">
-										    <button class="btn-flat transparent z-depth-0 clave-boton" style="min-width: 110px; font-weight: 500; margin-right: 12px; padding: 0 8px;">
-										      <%= clave %>
-										    </button>
-										    <span><%= q.query_label.presence || [q.firstname, q.lastname1, q.lastname2].compact.join(" ") %></span>
-										  </li>
-										  </a>
-										<% end %>
-				          </ul>
-				        </div>
-				      </li>
-				    <% end %>
-				  </ul>
-				</div>
+    <!-- Tabs header -->
+    <div class="card-content" style="padding-bottom:0;">
+      <ul id="queries-tabs" class="tabs" style="background: transparent;">
+        <li class="tab col s6"><a class="active" href="#tab-historial">consultas</a></li>
+        <li class="tab col s6"><a href="#tab-bd">Base de datos</a></li>
+      </ul>
+    </div>
+
+    <!-- Tabs content -->
+    <div class="card-content queries-panel__content" style="color:#33333C; padding-right:8px; padding-bottom:0; padding-top:0;">
+
+      <!-- TAB 1: Historial (todo lo que ya tenías) -->
+      <div id="tab-historial" class="queries-panel__content" style="height:100%; min-height:0;">
+        <div class="queries-panel__scroll">
+          <table id="outcome-table" class="animate__animated animate__fadeIn" style="font-size: 14px; width: 100%;">
+            <tbody>
+              <tr style="border-bottom: none;">
+                <td colspan="2" style="font-weight: bold; padding-bottom: 15px;">
+                  <%= @user.member.organization.name.upcase %>
+                </td>
+              </tr>
+              <tr style="border-bottom: 2px solid #33333C;">
+                <td>
+                  <p>Suscripción: <span style="font-weight: 800;"><%= @suscription[:level] %></span></p>
+                  <br>
+                  <p>
+                    <%= User.find(session[:user_id]).member.organization.name %> tiene
+                    <%= @suscription[:points] - @queries_info[:total] %> consulta<%= @suscription[:points] - @queries_info[:total] == 1 ? '' : 's' %> disponibles para usarse antes del
+                    <%= l(@period_end, format: "%-d de %B de %Y") %>.
+                  </p>
+                </td>
+                <td>
+                  <div id="grafico-uso-consultas" style="height: 200px; max-width: 200px; margin: 0 auto;"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="section">
+            <p>Tus consultas del periodo (<%= l(@period_start.to_date, format: "%-d %b %Y") %> – <%= l(@period_end.to_date, format: "%-d %b %Y") %>)</p>
+
+            <ul class="collapsible popout" style="border: none;" data-collapsible="accordion">
+              <% @queries_por_dia.sort.reverse.each do |fecha, queries| %>
+                <li>
+                  <div class="collapsible-header" style="color: #33333C">
+                    <div style="font-weight: 600"><%= fecha.strftime("%d/%m/%Y") %></div>
+                    <div class="right-align" style="width: 120px;">
+                      <span><%= queries.size %> consulta<%= queries.size > 1 ? 's' : '' %></span>
+                    </div>
+                  </div>
+
+                  <div class="collapsible-body" style="padding: 15px;">
+                    <ul style="margin: 0; padding-left: 18px;">
+                      <% queries.each do |q| %>
+                        <% clave = "#{@user.member.firstname.first}#{@user.member.lastname1.first}-#{@user.member.organization_id}-#{q.id}" %>
+                        <a href="<%= redirect_to_outcome_path(q.id) %>">
+                          <li class="consulta-item" style="display: flex; align-items: center; margin-bottom: 6px;">
+                            <button class="btn-flat transparent z-depth-0 clave-boton" style="min-width: 110px; font-weight: 500; margin-right: 12px; padding: 0 8px;">
+                              <%= clave %>
+                            </button>
+                            <span><%= q.query_label.presence || [q.firstname, q.lastname1, q.lastname2].compact.join(" ") %></span>
+                          </li>
+                        </a>
+                      <% end %>
+                    </ul>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+        <!-- paginación fuera del scroll (solo para Historial) -->
+        <% if @total_pages.to_i > 1 %>
+          <div class="queries-panel__pagination">
+            <div class="center-align" style="margin-top: 0;">
+              <ul class="pagination" style="margin: 0;">
+                <% prev_page = [@qpage - 1, 1].max %>
+                <% next_page = [@qpage + 1, @total_pages].min %>
+
+                <li class="<%= 'disabled' if @qpage <= 1 %>">
+                  <%= link_to url_for(params.permit!.to_h.merge(qpage: prev_page)) do %>
+                    <i class="material-icons">chevron_left</i>
+                  <% end %>
+                </li>
+
+                <% start_page = [@qpage - 2, 1].max %>
+                <% end_page   = [@qpage + 2, @total_pages].min %>
+
+                <% (start_page..end_page).each do |p| %>
+                  <li class="<%= p == @qpage ? 'active' : 'waves-effect' %>">
+                    <%= link_to p, url_for(params.permit!.to_h.merge(qpage: p)) %>
+                  </li>
+                <% end %>
+
+                <li class="<%= 'disabled' if @qpage >= @total_pages %>">
+                  <%= link_to url_for(params.permit!.to_h.merge(qpage: next_page)) do %>
+                    <i class="material-icons">chevron_right</i>
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+
+			<div id="tab-bd" style="padding-top: 8px; color:#33333C;">
+			  <br>
+				<table class="animate__animated animate__fadeIn" style="font-size: 16px; width: 100%; line-height: 1.2;">
+				  <tbody>
+				    <tr style="border-bottom: none;">
+				      <th style="text-align:left; width: 190px; padding: 2px 6px 2px 8px; color:#33333C;">
+				        Personas físicas:
+				      </th>
+				      <td style="padding: 2px 0; color:#33333C;">
+				        <%= number_with_delimiter(@targetMembers.count) %>
+				      </td>
+				    </tr>
+
+				    <tr style="border-bottom: none;">
+				      <th style="text-align:left; width: 190px; padding: 2px 6px 2px 8px; color:#33333C;">
+				        Última actualización:
+				      </th>
+				      <td style="padding: 2px 0; color:#33333C;">
+				        <%= @last_updated_at ? @last_updated_at.in_time_zone("America/Mexico_City").strftime("%d/%m/%Y %H:%M") : "No disponible" %>
+				      </td>
+				    </tr>
+				  </tbody>
+				</table>
+				<div style="border-top: 1px solid #e0e0e0; margin: 10px 0 8px 0;"></div>
+				<ul class="collapsible popout" style="border: none; margin-top: 12px;">  
+				  <li class="active" id="coll-state">
+				    <div class="collapsible-header" style="color:#33333C; font-weight:600; font-size:16px;">
+				      Distribución por estado
+				    </div>
+				    <div class="collapsible-body" style="padding: 12px 0 0 0;">
+				      <div id="members-state-map" style="max-height: 400px; width: 100%;"></div>
+				    </div>
+				  </li>
+				  <li id="coll-org">
+				    <div class="collapsible-header" style="color:#33333C; font-weight:600; font-size:16px;">
+				      Distribución por organización
+				    </div>
+				    <div class="collapsible-body" style="padding: 12px 0 0 0;">
+				      <div id="donut-organizacion" style="height: 260px; width: 100%;"></div>
+				    </div>
+				  </li>
+				  <li id="coll-year">
+				    <div class="collapsible-header" style="color:#33333C; font-weight:600; font-size:16px;">
+				      Documentos por año
+				    </div>
+				    <div class="collapsible-body" style="padding: 12px 0 0 0;">
+				      <div id="hits-por-anio" style="height: 240px; width: 100%;"></div>
+				    </div>
+				  </li>
+				</ul>
 			</div>
     </div>
-    	<!-- paginación fuera del scroll -->
-	<% if @total_pages.to_i > 1 %>
-		<div class="queries-panel__pagination">
-		  <div class="center-align" style="margin-top: 0;">
-		    <ul class="pagination" style="margin: 0;">
-			      <% prev_page = [@qpage - 1, 1].max %>
-			      <% next_page = [@qpage + 1, @total_pages].min %>
-			      <li class="<%= 'disabled' if @qpage <= 1 %>">
-			        <%= link_to url_for(params.permit!.to_h.merge(qpage: prev_page)) do %>
-			          <i class="material-icons">chevron_left</i>
-			        <% end %>
-			      </li>
-
-			      <% start_page = [@qpage - 2, 1].max %>
-			      <% end_page   = [@qpage + 2, @total_pages].min %>
-
-			      <% (start_page..end_page).each do |p| %>
-			        <li class="<%= p == @qpage ? 'active' : 'waves-effect' %>">
-			          <%= link_to p, url_for(params.permit!.to_h.merge(qpage: p)) %>
-			        </li>
-			      <% end %>
-
-			      <li class="<%= 'disabled' if @qpage >= @total_pages %>">
-			        <%= link_to url_for(params.permit!.to_h.merge(qpage: next_page)) do %>
-			          <i class="material-icons">chevron_right</i>
-			        <% end %>
-			      </li>
-		    </ul>
-		  </div>
-		</div>
-	<% end %>
   </div>
-
 </div>
+
+
 </div>
 
 <!-- PASSWORD ERROR MODAL -->

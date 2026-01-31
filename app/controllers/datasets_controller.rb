@@ -72,18 +72,19 @@ class DatasetsController < ApplicationController
 	end
 
 	def terrorist_search
-	  hits = Hit.all
-	  members = Member.joins(:hits).where(hits: { id: hits.pluck(:id) }).distinct
+	  hits = Hit.includes(:user, :members).to_a
+		member_ids = hits.flat_map { |h| h.member_ids }.uniq
+		members = Member.where(id: member_ids)
 	  @hits = hits
 	  @members = members
 
 	  # Tabla por usuario
-	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
-	  hits.includes(:user, :members).each do |hit|
-	    key = hit.user&.id || :undefined
-	    por_usuario_raw[key][:hits] += 1
-	    hit.members.each { |m| por_usuario_raw[key][:miembros] << m.id }
-	  end
+		por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
+		hits.each do |hit|
+		  user_id = hit.user&.id || :undefined
+		  por_usuario_raw[user_id][:hits] += 1
+		  hit.member_ids.each { |id| por_usuario_raw[user_id][:miembros] << id }
+		end
 	  @por_usuario = por_usuario_raw.sort_by { |_, data| -data[:miembros].size }.to_h
 
 	  # Tabla por tipo de exposición
@@ -418,26 +419,33 @@ class DatasetsController < ApplicationController
 		session.delete(:query_id) # ← limpia después de usar
 	end
 
-def members_outcome_pdf
-		@all_officers = ["Legislador", "Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal", "Regidor"]
-		@federal_officers = ["Delegado estatal", "Coordinador estatal"]
-		@state_officers = ["Gobernador", "Secretario de Seguridad"]
-		@other_organizations = ["Servicios lícitos", "Dirigente sindical", "Músico"]
-		@last_updated_at = Member.maximum(:updated_at)
-		@myQuery = if session[:query_id]
-			Query.find_by(id: session[:query_id])
-		else
-			User.find(session[:user_id]).queries.last
-		end
-		@user = User.find(session[:user_id])
-		@keyMembers = Member
-		  .where(id: @myQuery.outcome)
-		  .includes(appointments: [:organization, :role]) # 👈 precarga citas, org y rol
-		@keyRolegroups = []
-		@keyMembers.each {|member|
-			memberGroup = clasificar_rol(member)
-			@keyRolegroups.push(memberGroup)
-		}
+	def members_outcome_pdf
+	  @all_officers = ["Legislador", "Gobernador","Alcalde","Secretario de Seguridad","Delegado estatal", "Coordinador estatal", "Regidor"]
+	  @federal_officers = ["Delegado estatal", "Coordinador estatal"]
+	  @state_officers = ["Gobernador", "Secretario de Seguridad"]
+	  @other_organizations = ["Servicios lícitos", "Dirigente sindical", "Músico"]
+
+	  @myQuery =
+	    if session[:query_id].present?
+	      Query.find_by(id: session[:query_id])
+	    else
+	      User.find_by(id: session[:user_id])&.queries&.order(created_at: :desc)&.first
+	    end
+
+	  @last_updated_at = @myQuery&.dataset_last_updated_at
+	  @last_updated_at ||= @myQuery&.created_at
+
+	  @user = User.find(session[:user_id])
+
+	  @keyMembers = Member
+	    .where(id: @myQuery.outcome)
+	    .includes(appointments: [:organization, :role])
+
+	  @keyRolegroups = []
+	  @keyMembers.each do |member|
+	    @keyRolegroups << clasificar_rol(member)
+	  end
+
   @myQuery = Query.find_by(id: params[:id]) || User.find(session[:user_id]).queries.last
   @user = User.find(session[:user_id])
   @keyMembers = Member.where(id: @myQuery.outcome)
@@ -493,16 +501,30 @@ def members_outcome_pdf
   pdf.text "PARÁMETROS DE CONSULTA", size: 12, style: :bold, color: "EF4E50"
   pdf.move_down 8
 
-  resumen_data = [
-    ["ID:", clave],
-    ["Fecha y hora:", @myQuery.created_at.in_time_zone("America/Mexico_City").strftime("%d/%m/%Y %H:%M")],
-    ["Nombre(s):", @myQuery.firstname],
-    ["Apellido Paterno:", @myQuery.lastname1],
-    ["Apellido Materno:", @myQuery.lastname2],
-    ["Registros analizados:", @myQuery.search.to_s],
-    ["Probabilidad de homónimos:", homonimo_label],
-    ["", "Se estima que hay #{estimacion} mexicano(s) adulto(s) con el nombre y apellidos consultados o alguna de sus variantes."]
-  ]
+	resumen_data = [
+	  ["ID:", clave],
+	  ["Fecha y hora:", @myQuery.created_at.in_time_zone("America/Mexico_City").strftime("%d/%m/%Y %H:%M")]
+	]
+
+	name_mode = @myQuery.firstname.blank? && @myQuery.lastname1.blank? && @myQuery.lastname2.blank?
+
+	if !name_mode
+	  resumen_data << ["Nombre(s):", @myQuery.firstname]
+	  resumen_data << ["Apellido Paterno:", @myQuery.lastname1]
+	  resumen_data << ["Apellido Materno:", @myQuery.lastname2]
+	else
+	  resumen_data << ["Nombre consultado:", @myQuery.query_label.presence || "Sin especificar"]
+	end
+
+	resumen_data << ["Registros analizados:", @myQuery.search.to_s]
+	resumen_data << ["Última actualización:",
+	  @last_updated_at ? @last_updated_at.in_time_zone("America/Mexico_City").strftime("%d/%m/%Y %H:%M") : "No disponible"
+	]
+
+	unless name_mode || @myQuery.homo_score.blank?
+	  resumen_data << ["Probabilidad de homónimos:", homonimo_label]
+	  resumen_data << ["", "Se estima que hay #{estimacion} mexicano(s) adulto(s) con el nombre y apellidos consultados o alguna de sus variantes."]
+	end
 
   pdf.table(resumen_data, cell_style: { size: 10, padding: [4, 6, 4, 6] }, column_widths: [170, 330]) do
     row(0..-1).columns(0).font_style = :bold
@@ -533,12 +555,17 @@ def members_outcome_pdf
     memberGroup = defined?(@keyRolegroups) && @keyRolegroups.is_a?(Array) ? @keyRolegroups[index] : nil
 
     # Encabezado de bloque de registro
-    header_label =
-      if registros.size == 1
-        "REGISTRO ÚNICO"
-      else
-        %w[PRIMER SEGUNDO TERCER][index] || "#{index + 1}º REGISTRO"
-      end
+		header_label =
+		  if registros.size == 1
+		    "REGISTRO ÚNICO"
+		  else
+		    case index
+		    when 0 then "PRIMER REGISTRO"
+		    when 1 then "SEGUNDO REGISTRO"
+		    when 2 then "TERCER REGISTRO"
+		    else "#{index + 1}º REGISTRO"
+		    end
+		  end
 
     pdf.fill_color "FFFFFF"
     pdf.fill_rectangle [pdf.bounds.left, pdf.cursor], pdf.bounds.width, 18
@@ -547,14 +574,14 @@ def members_outcome_pdf
     pdf.move_down 6
 
     # Solidez de las fuentes (solo si media_score no es nil)
-    unless member.media_score.nil?
-      solidez = (member.media_score == true ? "Alta" : "Media")
-      pdf.table([["Solidez de las fuentes:", solidez]],
-                cell_style: { size: 10, padding: [4, 6, 4, 6] },
-                column_widths: [170, 330]) do
-        row(0).columns(0).font_style = :bold
-      end
-    end
+    # unless member.media_score.nil?
+    #   solidez = (member.media_score == true ? "Alta" : "Media")
+    #   pdf.table([["Solidez de las fuentes:", solidez]],
+    #             cell_style: { size: 10, padding: [4, 6, 4, 6] },
+    #             column_widths: [170, 330]) do
+    #     row(0).columns(0).font_style = :bold
+    #   end
+    # end
 
     # Nombre y apellidos
     data = []
@@ -606,14 +633,6 @@ def members_outcome_pdf
       end
     end
 
-    # Clasificación
-    clasif = member.involved == false ? "Persona expuesta" : "Persona señalada"
-    pdf.table([["Clasificación:", clasif]],
-              cell_style: { size: 10, padding: [4, 6, 4, 6] },
-              column_widths: [170, 330]) do
-      row(0).columns(0).font_style = :bold
-    end
-
     # Relaciones (consulta previa para posible ramificación)
     relaciones = MemberRelationship
                    .includes(:member_a, :member_b)
@@ -622,10 +641,9 @@ def members_outcome_pdf
     if member.involved == false
       # === Rama Persona expuesta (vista: "Rol o vínculo con el crimen organizado")
       rol_text = +""
-      rol_text << "#{memberGroup}\n" if memberGroup.present?
 
       if defined?(@all_officers) && @all_officers&.include?(member.role&.name)
-        rol_text << "\n#{member.role.name}"
+        rol_text << "#{member.role.name}"
         if defined?(@federal_officers) && @federal_officers&.include?(member.role&.name)
           estado = member.hits.where(title: "Nombramiento").first&.town&.county&.state&.name
           rol_text << " en #{estado}, #{member.organization&.name}"
@@ -642,9 +660,13 @@ def members_outcome_pdf
           fechas << "a #{member.end_date.strftime('%d/%m/%Y')}"
         end
         rol_text << "\n#{fechas.join(' ')}" if fechas.any?
-      elsif defined?(@other_organizations) && @other_organizations&.include?(member.role&.name) && member.criminal_link
-        rol_text << "\n#{member.role.name}, #{member.organization&.name}"
-      end
+			else
+			  rol_text << "#{memberGroup}\n" if memberGroup.present?
+
+			  if defined?(@other_organizations) && @other_organizations&.include?(member.role&.name) && member.criminal_link
+			    rol_text << "\n#{member.role.name}, #{member.organization&.name}"
+			  end
+			end
 
       pdf.table([["Rol o vínculo con el crimen organizado:", rol_text.strip]],
                 cell_style: { size: 10, padding: [4, 6, 4, 6] },
@@ -818,20 +840,50 @@ def members_outcome_pdf
                 column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
     end
 
-    # Actividad/menciones (mismos textos/orden y omisión de county "Sin definir")
-		hits_lines = member.hits.order(date: :desc).map do |hit|
-		  parts = [hit.date.strftime("%d/%m/%y") + " —"]
+		# Actividad/menciones (replica HTML: base hits + related hits cuando expuesta y con relaciones)
+		show_related_hits = (member.involved == false && relaciones.any?)
+
+		base_hits = member.hits.order(date: :desc).to_a
+
+		related_hits =
+		  if show_related_hits
+		    seen_links = base_hits.map(&:link).compact
+
+		    others = relaciones.map { |rel| rel.member_a_id == member.id ? rel.member_b : rel.member_a }.compact.uniq
+		    rel_hits = others.flat_map { |m| m.hits.to_a }
+
+		    # solo hits con link y que no existan ya en el member
+		    rel_hits = rel_hits.select { |h| h.link.present? && !seen_links.include?(h.link) }
+
+		    # dedup por link y ordenar desc
+		    rel_hits
+		      .uniq { |h| h.link }
+		      .sort_by { |h| h.date || Date.new(1,1,1) }
+		      .reverse
+		  else
+		    []
+		  end
+
+		fmt_hit = lambda do |hit|
+		  parts = ["#{hit.date.strftime('%d/%m/%y')} —"]
 		  parts << "#{hit.town.county.name}," unless hit.town.county.name == "Sin definir"
 		  parts << hit.town.county.state.shortname
 		  line = "• " + parts.join(" ")
-		  line += " #{hit.link}" if hit.respond_to?(:link) && hit.link.present?
+		  line += "\n  #{hit.link}" if hit.link.present?
 		  line
 		end
-    pdf.table([["Actividad/menciones:", hits_lines.join("\n")]],
-              cell_style: { size: 10, padding: [4, 6, 4, 6] },
-              column_widths: [170, 330]) do
-      row(0).columns(0).font_style = :bold
-    end
+
+		hits_lines = base_hits.map { |h| fmt_hit.call(h) }
+		if related_hits.any?
+		  hits_lines << "—"  # separador simple equivalente al divisor visual del HTML
+		  hits_lines.concat(related_hits.map { |h| fmt_hit.call(h) })
+		end
+
+		pdf.table([["Actividad/menciones:", hits_lines.join("\n")]],
+		          cell_style: { size: 10, padding: [4, 6, 4, 6] },
+		          column_widths: [170, 330]) do
+		  row(0).columns(0).font_style = :bold
+		end
 
     pdf.move_down 16
   end
@@ -839,13 +891,13 @@ def members_outcome_pdf
   send_data pdf.render, filename: "#{clave}.pdf", type: "application/pdf", disposition: "attachment"
 end
 
-
 def members_search
 	@names_data = Name.all.pluck(:word, :freq).map { |word, freq| [word.capitalize, freq] }.to_h
 	@user = User.find_by(id: session[:user_id])
 	ensure_trial_status!(@user)
 	@queries_info = consultas_en_periodo(@user)
 	@suscription = set_suscription(@user)
+	@targetMembers = Member.joins(:hits).distinct
 
 	org = @user&.member&.organization
 	start_at = org&.subscription_started_at || Time.current
@@ -863,6 +915,10 @@ def members_search
 	  .where(created_at: Time.current.beginning_of_month..Time.current.end_of_month)
 	  .order(created_at: :desc)
 
+	# Para el tab "Base de datos"
+	@myQuery = base_scope.first  # la consulta más reciente del mes (ya está ordenado desc)
+	@last_updated_at = Member.maximum(:updated_at)
+
 	@queries_total = base_scope.count
 	@total_pages = (@queries_total.to_f / per_page).ceil
 
@@ -870,6 +926,95 @@ def members_search
 
 	@queries_por_dia = @queries_page.group_by { |q| q.created_at.to_date }
 
+	# ===== Distribución por estado (miembros con al menos 1 hit) =====
+	@members_by_state = @targetMembers
+	  .joins(hits: { town: { county: :state } })
+	  .group('states.code', 'states.name')
+	  .count('DISTINCT members.id')
+
+	# ===== Distribución por organización (rápido, desde BD) =====
+	members_scope = Member.joins(:hits).distinct
+
+	# Total (para calcular "Otras" sin perder exactitud)
+	total_members = members_scope.count
+
+	# Key EXACTA al espíritu de terrorist_search:
+	# - si criminal_link existe -> bucket por criminal_link
+	# - si no -> bucket por organization_id
+	# - si no hay org -> undefined
+	group_key_sql = <<~SQL.squish
+	  CASE
+	    WHEN members.criminal_link_id IS NOT NULL THEN 'CLID:' || members.criminal_link_id::text
+	    WHEN members.organization_id IS NOT NULL THEN 'ORG:' || members.organization_id::text
+	    ELSE 'UNDEF'
+	  END
+	SQL
+
+	top = members_scope
+	  .group(Arel.sql(group_key_sql))
+	  .order(Arel.sql("COUNT(DISTINCT members.id) DESC"))
+	  .limit(4)
+	  .count("DISTINCT members.id") # => { "CL:xxx"=>123, "ORG:5"=>456, ... }
+
+	top_keys   = top.keys
+	top_counts = top.values
+	top_sum    = top_counts.sum
+	others     = total_members - top_sum
+
+	# Resolver labels (sin N+1)
+	org_ids = top_keys
+	  .select { |k| k.start_with?("ORG:") }
+	  .map { |k| k.split(":", 2).last.to_i }
+
+	org_rows = Organization.where(id: org_ids).pluck(:id, :name, :acronym)
+	org_map = org_rows.to_h { |id, name, acronym| [id, { name: name, acronym: acronym }] }
+
+	label_for = lambda do |key|
+	  return "Por definir" if key == "UNDEF"
+
+		if key.start_with?("CLID:")
+		  # por ahora mostramos el id; luego lo cambiamos a nombre si me dices el modelo/tabla
+		  key.split(":", 2).last.to_s
+	  elsif key.start_with?("ORG:")
+	    oid = key.split(":", 2).last.to_i
+	    info = org_map[oid]
+	    return "Por definir" unless info
+
+	    name = info[:name].to_s
+	    acronym = info[:acronym].to_s
+
+	    if name.length > 20 && acronym.present?
+	      acronym
+	    else
+	      name
+	    end
+	  else
+	    key.to_s
+	  end
+	end
+
+	@org_donut_labels = top_keys.map { |k| label_for.call(k) }
+	@org_donut_values = top_counts
+
+	if others > 0
+	  @org_donut_labels << "Otras"
+	  @org_donut_values << others
+	end
+
+	# ===== Hits por año (estadística global de la base de datos) =====
+	hits = Hit.where.not(date: nil).pluck(:date)
+
+	counts = Hash.new(0)
+	hits.each do |d|
+	  y = d.year
+	  counts[(y <= 2010) ? 2010 : y] += 1
+	end
+
+	years_sorted = counts.keys.sort
+	@hits_year_categories = years_sorted.map { |y| (y == 2010 ? "2010 o antes" : y.to_s) }
+	@hits_year_data       = years_sorted.map { |y| counts[y] }
+
+	# PLAN LIMIT ERROR
 	if session[:plan_limit_error]
 		@plan_limit_error = true
 	end
