@@ -932,68 +932,48 @@ def members_search
 	  .group('states.code', 'states.name')
 	  .count('DISTINCT members.id')
 
-	# ===== Distribución por organización (rápido, desde BD) =====
-	members_scope = Member.joins(:hits).distinct
+	# ===== Distribución por organización (rápido + cifras correctas) =====
+	members_scope = @targetMembers # IMPORTANTÍSIMO: usa el mismo universo ya calculado
 
-	# Total (para calcular "Otras" sin perder exactitud)
 	total_members = members_scope.count
 
-	# Key EXACTA al espíritu de terrorist_search:
-	# - si criminal_link existe -> bucket por criminal_link
-	# - si no -> bucket por organization_id
-	# - si no hay org -> undefined
-	group_key_sql = <<~SQL.squish
-	  CASE
-	    WHEN members.criminal_link_id IS NOT NULL THEN 'CLID:' || members.criminal_link_id::text
-	    WHEN members.organization_id IS NOT NULL THEN 'ORG:' || members.organization_id::text
-	    ELSE 'UNDEF'
-	  END
-	SQL
+	# Misma lógica que Terrorist Search:
+	# si hay criminal_link -> agrupa por criminal_link (Organization)
+	# si no -> agrupa por organization
+	# si no -> undefined
+	org_key_sql = "COALESCE(members.criminal_link_id, members.organization_id, 0)"
 
-	top = members_scope
-	  .group(Arel.sql(group_key_sql))
-	  .order(Arel.sql("COUNT(DISTINCT members.id) DESC"))
+	top_rows = members_scope
+	  .unscope(:select, :order)
+	  .select("#{org_key_sql} AS org_key, COUNT(DISTINCT members.id) AS cnt")
+	  .group("org_key")
+	  .order("cnt DESC")
 	  .limit(4)
-	  .count("DISTINCT members.id") # => { "CL:xxx"=>123, "ORG:5"=>456, ... }
 
-	top_keys   = top.keys
-	top_counts = top.values
-	top_sum    = top_counts.sum
-	others     = total_members - top_sum
+	top_keys   = top_rows.map { |r| r.org_key.to_i }   # 0 = Por definir
+	top_counts = top_rows.map { |r| r.cnt.to_i }
 
-	# Resolver labels (sin N+1)
-	org_ids = top_keys
-	  .select { |k| k.start_with?("ORG:") }
-	  .map { |k| k.split(":", 2).last.to_i }
+	top_sum = top_counts.sum
+	others  = total_members - top_sum
 
-	org_rows = Organization.where(id: org_ids).pluck(:id, :name, :acronym)
-	org_map = org_rows.to_h { |id, name, acronym| [id, { name: name, acronym: acronym }] }
+	# Resolver labels desde Organization (aplica a BOTH: organization_id y criminal_link_id)
+	org_ids = top_keys.reject { |id| id == 0 }
+	org_map = Organization.where(id: org_ids).pluck(:id, :name, :acronym)
+	  .to_h { |id, name, acronym| [id, { name: name, acronym: acronym }] }
 
-	label_for = lambda do |key|
-	  return "Por definir" if key == "UNDEF"
+	label_for = lambda do |org_id|
+	  return "Por definir" if org_id == 0
 
-		if key.start_with?("CLID:")
-		  # por ahora mostramos el id; luego lo cambiamos a nombre si me dices el modelo/tabla
-		  key.split(":", 2).last.to_s
-	  elsif key.start_with?("ORG:")
-	    oid = key.split(":", 2).last.to_i
-	    info = org_map[oid]
-	    return "Por definir" unless info
+	  info = org_map[org_id]
+	  return "Por definir" unless info
 
-	    name = info[:name].to_s
-	    acronym = info[:acronym].to_s
+	  name    = info[:name].to_s
+	  acronym = info[:acronym].to_s
 
-	    if name.length > 20 && acronym.present?
-	      acronym
-	    else
-	      name
-	    end
-	  else
-	    key.to_s
-	  end
+	  (name.length > 20 && acronym.present?) ? acronym : name
 	end
 
-	@org_donut_labels = top_keys.map { |k| label_for.call(k) }
+	@org_donut_labels = top_keys.map { |id| label_for.call(id) }
 	@org_donut_values = top_counts
 
 	if others > 0
