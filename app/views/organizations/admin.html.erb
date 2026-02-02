@@ -134,7 +134,7 @@
 
                 <div class="input-field" style="margin:0;">
                   <select name="organization[search_level]">
-                    <% (0..6).each do |lvl| %>
+                    <% (0..7).each do |lvl| %>
                       <option value="<%= lvl %>" <%= "selected" if org.search_level.to_i == lvl %>>
                         <%= lvl %>
                       </option>

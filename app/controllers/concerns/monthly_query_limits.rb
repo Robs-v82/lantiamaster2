@@ -12,15 +12,26 @@ module MonthlyQueryLimits
     if level.between?(1, 5)
       inicio = start_at
       fin    = start_at + 1.year
+
     elsif level == 6
       inicio = start_at
       fin    = start_at + 1.month
 
-      # ✅ Trial expirado: baja a sin suscripción y corta aquí
       if Time.current >= fin
         org.update_columns(search_level: 0, subscription_started_at: nil)
         return { usuario: 0, organizacion: 0, total: 0, total_org: 0 }
       end
+
+    elsif level == 7
+      inicio = start_at
+      fin    = start_at + 2.weeks
+
+      # si es no-renovable, al expirar baja a sin suscripción (igual que trial)
+      if Time.current >= fin
+        org.update_columns(search_level: 0, subscription_started_at: nil)
+        return { usuario: 0, organizacion: 0, total: 0, total_org: 0 }
+      end
+
     else
       return { usuario: 0, organizacion: 0, total: 0, total_org: 0 }
     end
