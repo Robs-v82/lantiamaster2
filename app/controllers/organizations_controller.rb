@@ -35,7 +35,7 @@ class OrganizationsController < ApplicationController
     org = Organization.find(params[:id])
     level = params[:organization][:search_level].to_i
     level = 0 if level < 0
-    level = 6 if level > 6
+    level = 7 if level > 7
 
     # Si cambia el nivel, reinicia el periodo
     if org.search_level.to_i != level
