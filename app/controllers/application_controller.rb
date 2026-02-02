@@ -324,7 +324,7 @@ class ApplicationController < ActionController::Base
 				"img-src 'self' data: https:; " \
 				"font-src 'self' https://fonts.gstatic.com data:; " \
 				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " \
-				"script-src 'self' 'nonce-#{nonce}' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com; " \
+				"script-src 'self' 'nonce-#{nonce}' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://www.gstatic.com; " \
 				"connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://maps.googleapis.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; " \
 				"form-action 'self'; upgrade-insecure-requests"
 

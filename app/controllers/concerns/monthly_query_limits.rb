@@ -55,6 +55,7 @@ module MonthlyQueryLimits
     when 4 then { level: "D", points: 12000, period: :year }
     when 5 then { level: "E", points: 60000, period: :year }
     when 6 then { level: "prueba", points: 500, period: :month, renewable: false }
+    when 7 then { level: "pruebas", points: 500, period: :two_weeks, renewable: false }
     else
       { level: "sin suscripción", points: 0, period: :none }
     end

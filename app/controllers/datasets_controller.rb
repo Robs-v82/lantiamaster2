@@ -904,7 +904,17 @@ def members_search
 	level = org&.search_level.to_i
 
 	@period_start = start_at
-	@period_end   = level.between?(1,5) ? (start_at + 1.year) : (start_at + 1.month)
+	
+	period = @suscription[:period]
+
+	@period_start = start_at
+	@period_end =
+	  case period
+	  when :year      then start_at + 1.year
+	  when :month     then start_at + 1.month
+	  when :two_weeks then start_at + 2.weeks
+	  else                 start_at
+	  end
 
 	per_page = 30
 	@qpage = params[:qpage].to_i
@@ -912,7 +922,7 @@ def members_search
 
 	base_scope = @user.queries
 	  .successful
-	  .where(created_at: Time.current.beginning_of_month..Time.current.end_of_month)
+	  .where(created_at: @period_start..@period_end)
 	  .order(created_at: :desc)
 
 	# Para el tab "Base de datos"
@@ -982,12 +992,15 @@ def members_search
 	end
 
 	# ===== Hits por año (estadística global de la base de datos) =====
-	hits = Hit.where.not(date: nil).pluck(:date)
+	year_rows = Hit.where.not(date: nil)
+  .group("EXTRACT(YEAR FROM date)")
+  .order(Arel.sql("EXTRACT(YEAR FROM date)"))
+  .count
 
 	counts = Hash.new(0)
-	hits.each do |d|
-	  y = d.year
-	  counts[(y <= 2010) ? 2010 : y] += 1
+	year_rows.each do |year_float, cnt|
+	  y = year_float.to_i
+	  counts[(y <= 2010) ? 2010 : y] += cnt
 	end
 
 	years_sorted = counts.keys.sort

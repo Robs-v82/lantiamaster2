@@ -1,5 +1,4 @@
 <% provide :head_tags do %>
-	<%= render "shared/freqcharts"%>
 	<% unless @paramsCookie[1] == "nationWise" %>
 		<%= render "shared/detentionmap"%>
 	<% end %>
