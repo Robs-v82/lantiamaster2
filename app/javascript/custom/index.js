@@ -19,10 +19,12 @@ $(document).ready(function(){
 $(document).ready(function(){
 
 	var loader = document.getElementById("preloader");
-	function vanish() {
-		console.log("VANISHING")
-		loader.classList.add('preloader-disappear');
-	}
+function vanish() {
+  var loader = document.getElementById("preloader");
+  if (!loader) return;
+  loader.classList.add("preloader-disappear");
+}
+
 	vanish()
 
 	// function unvanish() {
@@ -30,7 +32,6 @@ $(document).ready(function(){
 	// }
 
 	function slideVanish() {
-		console.log("PRELOADER")
 		$('.preloader-trigger').click(function(){
 			$('#preloader').removeClass('preloader-disappear')
 		})

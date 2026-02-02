@@ -1,7 +1,6 @@
 Rails.application.config.content_security_policy do |policy|
   # Scripts externos permitidos (coincidir con lo que uses)
   policy.script_src :self,
-                    "https://cdnjs.cloudflare.com",
                     "https://cdn.jsdelivr.net",
                     # Si de veras necesitas code.jquery.com, añade:
                     # "https://code.jquery.com",
@@ -11,7 +10,8 @@ Rails.application.config.content_security_policy do |policy|
   # Estilos y fuentes (usa Google Fonts si ya lo tienes en la vista)
   policy.style_src  :self, "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", :unsafe_inline
   policy.font_src   :self, "https://fonts.gstatic.com", :data
-
+  policy.connect_src :self, :https, :ws, :wss, "https://cdn.jsdelivr.net"
+  
   # *** Permite que TU propio sitio se iframee a sí mismo ***
   policy.frame_ancestors :self, "https://dashboard.lantiaintelligence.com", "https://lantiaintelligence.com"
 

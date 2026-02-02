@@ -70,6 +70,8 @@ class StatesController < ApplicationController
         @governorRole = Role.where(:name=>"Gobernador").last.id
         myName = load_irco_params[:year]+"_"+load_irco_params[:quarter]
         myQuarter = Quarter.where(:name=>myName).last
+        Rails.logger.info("LOAD_IRCO params=#{load_irco_params.to_h} myName=#{myName} myQuarter_id=#{myQuarter&.id} myQuarter_name=#{myQuarter&.name}")
+
         back_one_quarter = helpers.back_one_q(myQuarter)
         back_one_year = helpers.back_one_y(myQuarter)
         @evolutionArr = []
@@ -353,6 +355,7 @@ class StatesController < ApplicationController
     end
 
     def feel_safe(quarter, state)
+        Rails.logger.info("FEEL_SAFE quarter_id=#{quarter.id} ensu_attached=#{quarter.ensu.attached?} key=#{quarter.ensu.blob&.key}")
         ensu = quarter.ensu.download
         ensu = ensu.force_encoding("UTF-8")
         ensuArr = []
