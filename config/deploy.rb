@@ -30,7 +30,7 @@ set :linked_files, fetch(:linked_files, []).push(
 )
 
 # Conserva los credentials cifrados y su key en el servidor (no en Git)
-append :linked_files, "config/credentials.yml.enc", "config/master.key"
+append :linked_files, "config/credentials.yml.enc", "config/master.key", "config/master.key", "config/credentials.yml.enc"
 
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
