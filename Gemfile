@@ -76,6 +76,9 @@ gem 'wkhtmltopdf-binary', platforms: [:mri, :mingw, :x64_mingw]
 gem 'selenium-webdriver'
 gem 'ferrum'
 
+gem "lockbox", "~> 1.3"
+gem "blind_index", "~> 2.0"
+
 group :development, :test do
   gem "rspec-rails", "~> 4.1"
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
