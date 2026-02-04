@@ -32,8 +32,8 @@ set :linked_files, fetch(:linked_files, []).push(
 # Conserva los credentials cifrados y su key en el servidor (no en Git)
 append :linked_files, "config/credentials.yml.enc", "config/master.key"
 
-before "deploy:assets:precompile", "deploy:symlink:linked_files"
-before "deploy:migrate", "deploy:symlink:linked_files"
+# before "deploy:assets:precompile", "deploy:symlink:linked_files"
+# before "deploy:migrate", "deploy:symlink:linked_files"
 
 # set :default_env, {
 #   "LOCKBOX_MASTER_KEY" => ENV.fetch("LOCKBOX_MASTER_KEY"),
