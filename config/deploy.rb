@@ -18,7 +18,7 @@ set :keep_releases, 5
 set :db_local_clean, true
 set :db_remote_clean, true
 
-set :linked_files, %w{config/master.key}
+# set :linked_files, %w{config/master.key}
 
 set :deploy_via, :remote_cache
 
@@ -30,7 +30,7 @@ set :linked_files, fetch(:linked_files, []).push(
 )
 
 # Conserva los credentials cifrados y su key en el servidor (no en Git)
-append :linked_files, "config/credentials.yml.enc", "config/master.key"
+append :linked_files, "config/master.key", "config/credentials.yml.enc"
 
 # before "deploy:assets:precompile", "deploy:symlink:linked_files"
 # before "deploy:migrate", "deploy:symlink:linked_files"
