@@ -411,6 +411,26 @@ class DatasetsController < ApplicationController
 		@keyMembers = Member
 		  .where(id: @myQuery.outcome)
 		  .includes(appointments: [:organization, :role]) # 👈 precarga citas, org y rol
+		
+		# === NUEVO: detectar duplicado exacto member vs appointment ===
+		@exact_dup_appointment_by_member = {}
+
+		@keyMembers.each do |m|
+		  @exact_dup_appointment_by_member[m.id] = nil
+
+		  next unless m.role_id.present? && m.organization_id.present? && m.start_date.present? && m.end_date.present?
+
+		  dup = m.appointments.find do |a|
+		    a.role_id == m.role_id &&
+		    a.organization_id == m.organization_id &&
+		    a.county_id.nil? &&
+		    a.start_date == m.start_date &&
+		    a.end_date == m.end_date
+		  end
+
+		  @exact_dup_appointment_by_member[m.id] = dup
+		end
+
 		@keyRolegroups = []
 		@keyMembers.each {|member|
 			memberGroup = clasificar_rol(member)

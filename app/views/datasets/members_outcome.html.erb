@@ -401,7 +401,8 @@
             <td>
               <%= memberGroup %>
               <% role_name = member.role&.name.to_s.strip %>
-              <% if @all_officers.include?(role_name) %>
+              <% dup_appt = @exact_dup_appointment_by_member[member.id] %>
+              <% if @all_officers.include?(role_name) && dup_appt.blank? %>
                 <br>
                 <%= fmt_role.call(role_name) || "" %>
                 <% if @federal_officers.include?(role_name) %>
