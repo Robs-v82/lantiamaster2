@@ -589,6 +589,20 @@
           </tr>
         <% end %>
 
+        <style>
+          .mentions-subtitle{
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 10px 0 6px 0;
+            line-height: 1.2;
+            text-align: left;
+            padding-left: 11px;
+          }
+          .mentions-subtitle--spaced{
+            margin-top: 14px;
+          }
+        </style>
+
         <%# === Nombramientos / Cargos (appointments) === %>
         <% appts = member.appointments.to_a %>
         <% appts_dedup = dedup_appointments_for_view(appts) %>
@@ -644,6 +658,10 @@
                     end
                 %>
 
+                  <% if related_hits.any? %>
+                    <li class="mentions-subtitle">Directas</li>
+                  <% end %>
+
                   <% base_hits.each do |hit| %>
                     <li style="margin-bottom: 6px;">
                     <% if hit.link.present? %>
@@ -672,6 +690,8 @@
                     <li class="hits-separator" style="margin: 10px 0 8px 0;">
                       <span style="display:block; border-top: 1px solid #e0e0e0;"></span>
                     </li>
+                    <li class="mentions-subtitle mentions-subtitle--spaced">De personas vinculadas</li>
+
                     <% related_hits.each do |hit| %>
                     <!-- aquí va EXACTAMENTE el mismo <li> que ya tienes para imprimir un hit -->
 
