@@ -1,18 +1,8 @@
 # script_autoridades_filtradas.rb
 
-autoridades_base = [
-  "Gobernador","Alcalde","Regidor","Delegado estatal","Coordinador estatal",
-  "Secretario de Seguridad","Policía","Militar"
-]
 
 autoridadesExpuestas = Member
-  .joins(:role)
-  .where(
-    "roles.name = ? OR (roles.name IN (?) AND COALESCE(members.involved,false)=false)",
-    "Autoridad expuesta",
-    autoridades_base
-  )
-  .distinct
+  .joins(:hits).distinct.where(:involved=>false)
 
 autoridadesExpuestasSinRel = autoridadesExpuestas.where(<<~SQL)
   NOT EXISTS (
@@ -59,7 +49,7 @@ autoridadesFinal = autoridadesExpuestasSinRelSinNotas
 # --- SALIDA FINAL SIN ERRORES DE DISTINCT/ORDER BY ---
 
 # Subquery de IDs únicos (sin ORDER)
-base_ids = autoridadesFinal
+base_ids = autoridadesExpuestasSinRelSinNotas
   .unscope(:order)
   .select("members.id")
   .distinct
