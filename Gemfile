@@ -109,3 +109,6 @@ gem "httparty", "~> 0.23.1"
 gem "rotp", "~> 6.3"
 
 gem "rqrcode", "~> 2.2"
+
+gem "lockbox", "~> 1.4"
+gem "blind_index", "~> 2.3"
