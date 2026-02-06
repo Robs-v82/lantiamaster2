@@ -56,7 +56,6 @@ base_ids = autoridadesExpuestasSinRelSinNotas
 
 # Conteo final
 total = Member.where(id: base_ids).count
-puts "Total de miembros que cumplieron todas las condiciones: #{total}"
 
 todos = Member
   .where(id: base_ids)
@@ -68,4 +67,6 @@ puts "Listado completo (id, nombre completo, organización):"
 todos.each_with_index do |(id, fn, l1, l2, org_name), i|
   nombre = [fn, l1, l2].compact.join(" ")
   puts "#{i+1}. #{id} — #{nombre} — #{org_name || 'Sin organización'}"
+puts "Total de miembros que cumplieron todas las condiciones: #{total}"
+
 end
