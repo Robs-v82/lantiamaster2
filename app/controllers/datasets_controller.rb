@@ -1034,20 +1034,12 @@ def members_search
 	session[:plan_limit_error] = false
 end
 
-def terrorist_panel	
-  @empresas = Organization.where.not(:criminal_link=>nil)
+def terrorist_panel
+  @empresas = Organization.where.not(criminal_link: nil)
 
-  if session[:load_success]
-    @load_success = true
-  end
-
-  if session[:filename]
-    @filename = session[:filename]
-  end
-
-  if session[:message]
-    @mesagge = session[:message]
-  end
+  @load_success = true if session[:load_success]
+  @filename = session[:filename] if session[:filename]
+  @mesagge = session[:message] if session[:message] # (ojo: ¿quisiste decir @message?)
 
   @forms = [
     { caption: "Notas/links", myAction: "/datasets/upload_hits", timeSearch: nil, myObject: "file", loaded: nil, fileWindow: true },
@@ -1057,7 +1049,42 @@ def terrorist_panel
   # 🔽 Carteles para el select (criminal_link), ordenados por nombre
   cartels = Sector.where(scian2: 98).last&.organizations&.uniq || []
   @cartels = cartels.sort_by { |cartel| cartel.name.to_s }
-  @cartels.push(Organization.find_by(:name=>"Por definir"))
+  @cartels.push(Organization.find_by(name: "Por definir"))
+
+  # =========================
+  # Conflictos (targetMembers)
+  # =========================
+  target_members = Member.joins(:hits).distinct
+  jn_notes = Note.reflect_on_association(:members).join_table
+
+  sin_genero_scope = target_members.where(gender: nil)
+
+  falta_referencias_scope = target_members
+    .where(involved: false)
+    .where(<<~SQL)
+      NOT EXISTS (
+        SELECT 1
+        FROM member_relationships mr
+        WHERE mr.member_a_id = members.id OR mr.member_b_id = members.id
+      )
+    SQL
+    .where(<<~SQL)
+      NOT EXISTS (
+        SELECT 1
+        FROM #{jn_notes} j
+        WHERE j.member_id = members.id
+      )
+    SQL
+
+  @conflictos = {}
+  @conflictos[:sin_genero] = sin_genero_scope.count
+  @conflictos[:falta_referencias] = falta_referencias_scope.count
+
+  conflictos_total = sin_genero_scope.or(falta_referencias_scope).distinct.count
+  total = target_members.count
+
+  @conflictos[:sin_conflicto] = total - conflictos_total
+  @conflictos[:total] = total
 end
 
 def upload_linked_organization

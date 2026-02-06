@@ -48,7 +48,36 @@
 		</div>
 	<% end %>
 
+	<!-- === Conflictos === -->
+	<div class="col l6 m8 s12">
+	  <div class="card" style="background-color:#EF4E50;">
+	    <div class="card-content white-text">
+	      <span class="card-title">Conflictos</span>
 
+	      <p>
+	        <strong>Members sin género:</strong>
+	        <%= @conflictos[:sin_genero] %>
+	      </p>
+
+	      <p>
+	        <strong>Falta de referencias:</strong>
+	        <%= @conflictos[:falta_referencias] %>
+	      </p>
+
+	      <hr style="border-top:1px solid rgba(255,255,255,0.4); margin:12px 0;">
+
+	      <p>
+	        <strong>Members sin conflicto:</strong>
+	        <%= @conflictos[:sin_conflicto] %>
+	      </p>
+
+	      <p>
+	        <strong>Total de members:</strong>
+	        <%= @conflictos[:total] %>
+	      </p>
+	    </div>
+	  </div>
+	</div>
 
 		
 	<!-- === FORMULARIO: ORGANIZACIONES === -->
