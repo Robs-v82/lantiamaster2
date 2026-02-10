@@ -1161,6 +1161,76 @@ def upload_members
 		"Socio de un grupo criminal" => "Socio"
 	}
 
+	# ✅ Clasificación criminal_role según criterios acordados
+	lookup_true = {
+	  # Líder
+	  "Líder" => "Líder",
+
+	  # Miembro
+	  "Extorsionador" => "Miembro",
+	  "Jefe operativo" => "Miembro",
+	  "Sicario" => "Miembro",
+	  "Jefe de plaza" => "Miembro",
+	  "Operador" => "Miembro",
+	  "Jefe de célula" => "Miembro",
+	  "Traficante o distribuidor" => "Miembro",
+	  "Narcomenudista" => "Miembro",
+	  "Jefe de sicarios" => "Miembro",
+	  "Jefe regional" => "Miembro",
+
+	  # Socio
+	  "Abogado" => "Socio",
+	  "Manager" => "Socio",
+	  "Socio" => "Socio",
+	  "Artista" => "Socio",
+	  "Dirigente sindical" => "Socio",
+	  "Alcalde" => "Socio",
+	  "Músico" => "Socio",
+
+	  # Autoridad vinculada
+	  "Militar" => "Autoridad vinculada",
+	  "Coordinador estatal" => "Autoridad vinculada",
+	  "Regidor" => "Autoridad vinculada",
+	  "Policía" => "Autoridad vinculada",
+	  "Delegado estatal" => "Autoridad vinculada",
+	  "Gobernador" => "Autoridad vinculada",
+	  "Autoridad cooptada" => "Autoridad vinculada",
+	  "Secretario de Seguridad" => "Autoridad vinculada",
+
+	  # nil explícito
+	  "Sin definir" => nil
+	}.freeze
+
+	lookup_false = {
+	  # Autoridad expuesta
+	  "Regidor" => "Autoridad expuesta",
+	  "Policía" => "Autoridad expuesta",
+	  "Delegado estatal" => "Autoridad expuesta",
+	  "Autoridad expuesta" => "Autoridad expuesta",
+	  "Artista" => "Autoridad expuesta",
+	  "Gobernador" => "Autoridad expuesta",
+	  "Alcalde" => "Autoridad expuesta",
+	  "Secretario de Seguridad" => "Autoridad expuesta",
+
+	  # Servicios lícitos
+	  "Servicios lícitos" => "Servicios lícitos",
+	  "Abogado" => "Servicios lícitos",
+	  "Manager" => "Servicios lícitos",
+	  "Dirigente sindical" => "Servicios lícitos",
+	  "Músico" => "Servicios lícitos",
+
+	  # Familiar/allegado
+	  "Familiar" => "Familiar/allegado",
+
+	  # nil explícito
+	  "Sin definir" => nil
+	}.freeze
+
+	compute_criminal_role = lambda do |involved_value, role_name|
+	  return nil if role_name.blank?
+	  involved_value ? lookup_true[role_name] : lookup_false[role_name]
+	end
+
 	# 🔎 Función auxiliar refinada para encontrar la organización
 	def find_organization_by_name_or_alias(name)
 	  return nil if name.blank?
@@ -1364,6 +1434,8 @@ def upload_members
 		# Si la organización ya tiene criminal_link, úsalo para el nuevo miembro
 		org_criminal_link_id = myOrganization&.criminal_link_id
 
+		criminal_role_value = compute_criminal_role.call(valor_involved, role)
+
 		# Crear el nuevo miembro con género estimado (si existe)
 		myMember = Member.create!(
 		  firstname: firstname,
@@ -1373,6 +1445,7 @@ def upload_members
 		  alias: alias_array,
 		  role: rol,
 		  involved: valor_involved,
+		  criminal_role: criminal_role_value,
 		  gender: assignable_gender,
 		  criminal_link_id: org_criminal_link_id
 		)

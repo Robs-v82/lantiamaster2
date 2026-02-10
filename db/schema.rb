@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_02_03_060328) do
+ActiveRecord::Schema.define(version: 2026_02_10_183536) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -447,7 +447,9 @@ ActiveRecord::Schema.define(version: 2026_02_03_060328) do
     t.integer "criminal_link_id"
     t.boolean "involved"
     t.boolean "birthday_aprox", default: false
+    t.string "criminal_role"
     t.index ["arrest_id"], name: "index_members_on_arrest_id"
+    t.index ["criminal_role"], name: "index_members_on_criminal_role"
     t.index ["detention_id"], name: "index_members_on_detention_id"
     t.index ["member_id"], name: "index_members_on_member_id"
     t.index ["organization_id"], name: "index_members_on_organization_id"

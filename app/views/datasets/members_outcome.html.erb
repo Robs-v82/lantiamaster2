@@ -399,11 +399,16 @@
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Rol o vínculo con el crimen organizado:</th>
             <td>
-              <%= memberGroup %>
-              <% role_name = member.role&.name.to_s.strip %>
-              <% dup_appt = @exact_dup_appointment_by_member[member.id] %>
-              <% if @all_officers.include?(role_name) && dup_appt.blank? %>
-                <br>
+                <%# Preferir criminal_role (nuevo esquema). Mantener memberGroup como fallback por compatibilidad. %>
+                <% cr = member.criminal_role.presence %>
+                <%= cr || memberGroup || "Sin definir" %>
+
+                <% role_name = member.role&.name.to_s.strip %>
+                <% dup_appt = @exact_dup_appointment_by_member[member.id] %>
+
+                <%# Detalle territorial solo si se trata de una autoridad expuesta %>
+                <% if cr == "Autoridad expuesta" && @all_officers.include?(role_name) && dup_appt.blank? %>
+                  <br>
                 <%= fmt_role.call(role_name) || "" %>
                 <% if @federal_officers.include?(role_name) %>
                   <% st_name = member.hits.where(title: "Nombramiento").first&.town&.county&.state&.name.to_s %>
@@ -479,36 +484,57 @@
           <tr style="border-top: 2px solid #33333C;">
             <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
             <td>
-              <% if @all_officers .include?(member.role&.name) %>
-                <% if member.involved?  %>
-                  Autoridad vinculada
-                <%else%>
-                  Autoridad expuesta
-                <% end %>
-                <br>
-                <% if member.appointments.empty? %>
-                  <%= fmt_role.call(member.role.name) || "" %>
-                  <% if @federal_officers.include?(member.role&.name) %>
-                     en <%= member.hits.where(:title=>"Nombramiento").first.town.county.state.name %>, <%= member.organization.name %>
-                  <% elsif @state_officers.include?(member.role&.name) %>
-                     de <%= member.organization.county.state.name %>
-                  <% elsif member.role&.name.to_s == "Regidor" %>
-                    en  <%= member.organization.county.name %>,
-                    <%= member.organization.county.state.shortname %>.
-                  <% else %>
-                    de <%= member.organization.county.name %>,
-                    <%= member.organization.county.state.shortname %>.
-                  <% end %>
+              <%# Preferir el nuevo campo criminal_role para simplificar reglas %>
+              <% cr = member.criminal_role.presence %>
+
+              <% if cr.present? %>
+                <%= cr %>
+
+                <%# Si es autoridad, mantenemos el detalle territorial/cargo %>
+                <% if ["Autoridad vinculada", "Autoridad expuesta"].include?(cr) %>
                   <br>
-                  <% if member.start_date? %>
-                    <%= member.start_date.strftime("%d/%m/%Y") %>
+                  <% if member.appointments.empty? && member.role.present? %>
+                    <%= fmt_role.call(member.role.name) || "" %>
+
+                    <% if @federal_officers.include?(member.role&.name) %>
+                      <% nombramiento_hit = member.hits.where(title: "Nombramiento").order(date: :desc).first %>
+                      <% if nombramiento_hit&.town&.county&.state.present? %>
+                        en <%= nombramiento_hit.town.county.state.name %><% if member.organization.present? %>, <%= member.organization.name %><% end %>
+                      <% end %>
+                    <% elsif @state_officers.include?(member.role&.name) %>
+                      <% if member.organization&.county&.state.present? %>
+                        de <%= member.organization.county.state.name %>
+                      <% end %>
+                    <% elsif member.role&.name.to_s == "Regidor" %>
+                      <% if member.organization&.county.present? %>
+                        en <%= member.organization.county.name %>, <%= member.organization.county.state.shortname %>.
+                      <% end %>
+                    <% else %>
+                      <% if member.organization&.county.present? %>
+                        de <%= member.organization.county.name %>, <%= member.organization.county.state.shortname %>.
+                      <% end %>
+                    <% end %>
+
+                    <% if member.start_date? || member.end_date? %>
+                      <br>
+                      <% if member.start_date? %><%= member.start_date.strftime("%d/%m/%Y") %><% end %>
+                      <% if member.end_date? %> a <%= member.end_date.strftime("%d/%m/%Y") %><% end %>
+                    <% end %>
                   <% end %>
-                  <% if member.end_date? %>
-                    a <%= member.end_date.strftime("%d/%m/%Y") %>
+
+                <% else %>
+                  <%# Para no-autoridad, mostramos rol y (si existe) la org criminal_link u organization %>
+                  <% if member.role.present? %>
+                    <br>
+                    <%= fmt_role.call(member.role.name) || "" %>
+                    <% if member.criminal_link.present? %>
+                      , <%= member.criminal_link.name %>
+                    <% elsif member.organization.present? %>
+                      , <%= member.organization.name %>
+                    <% end %>
                   <% end %>
                 <% end %>
-              <% elsif @other_organizations.include?(member.role&.name) && member.criminal_link %>
-                <%= fmt_role.call(member.role.name) || "" %>, <%= member.organization.name %>
+
               <% else %>
                 <%= fmt_role.call(member.role&.name) || "Sin definir" %>
               <% end %>
@@ -534,7 +560,11 @@
                       <% rel_label = rel.role_b_gender %>
                     <% end %>
 
-                    <% otro_group = clasificar_rol(otro).to_s.strip %>
+                    <%# Preferir criminal_role para describir a la contraparte (fallback a la función existente si estuviera definida) %>
+                    <% otro_group = otro&.criminal_role.presence %>
+                    <% if otro_group.blank? && defined?(clasificar_rol) %>
+                      <% otro_group = clasificar_rol(otro).to_s.strip %>
+                    <% end %>
                     <% otro_org_name = (otro&.criminal_link || otro&.organization)&.name.to_s.strip %>
 
                     <% parts = [] %>
