@@ -1207,7 +1207,6 @@ def upload_members
 	  "Policía" => "Autoridad expuesta",
 	  "Delegado estatal" => "Autoridad expuesta",
 	  "Autoridad expuesta" => "Autoridad expuesta",
-	  "Artista" => "Autoridad expuesta",
 	  "Gobernador" => "Autoridad expuesta",
 	  "Alcalde" => "Autoridad expuesta",
 	  "Secretario de Seguridad" => "Autoridad expuesta",
@@ -1216,6 +1215,7 @@ def upload_members
 	  "Servicios lícitos" => "Servicios lícitos",
 	  "Abogado" => "Servicios lícitos",
 	  "Manager" => "Servicios lícitos",
+	  "Artista" => "Servicios lícitos",
 	  "Dirigente sindical" => "Servicios lícitos",
 	  "Músico" => "Servicios lícitos",
 
