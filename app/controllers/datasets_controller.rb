@@ -1184,10 +1184,10 @@ def upload_members
 	  "Socio" => "Socio",
 	  "Artista" => "Socio",
 	  "Dirigente sindical" => "Socio",
-	  "Alcalde" => "Socio",
 	  "Músico" => "Socio",
 
 	  # Autoridad vinculada
+	  "Alcalde" => "Autoridad vinculada",
 	  "Militar" => "Autoridad vinculada",
 	  "Coordinador estatal" => "Autoridad vinculada",
 	  "Regidor" => "Autoridad vinculada",
