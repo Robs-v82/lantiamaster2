@@ -5,4 +5,5 @@ class Hit < ApplicationRecord
   validates :link, uniqueness: true, allow_nil: true
   validates :legacy_id, uniqueness: true
   has_one_attached :pdf
+  has_one_attached :pdf_snapshot
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_02_10_183536) do
+ActiveRecord::Schema.define(version: 2026_02_12_041426) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -208,6 +208,16 @@ ActiveRecord::Schema.define(version: 2026_02_10_183536) do
     t.boolean "national"
     t.boolean "protected_link", default: false, null: false
     t.bigint "user_id"
+    t.integer "fetch_status"
+    t.datetime "fetched_at"
+    t.text "final_url"
+    t.text "raw_html"
+    t.text "plain_text"
+    t.text "fetch_error"
+    t.string "backup_status"
+    t.string "backup_source"
+    t.integer "backup_version", default: 0
+    t.datetime "backup_checked_at"
     t.index ["town_id"], name: "index_hits_on_town_id"
     t.index ["user_id"], name: "index_hits_on_user_id"
   end
