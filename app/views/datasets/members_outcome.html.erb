@@ -509,6 +509,47 @@
             <td>
               <% cr = member.criminal_role.to_s.strip.presence %>
               <%= cr || "Sin definir" %>
+
+              <%# Caso especial (involved=true): Autoridad vinculada + Regidor sin appointments %>
+              <% if cr == "Autoridad vinculada" && member.appointments.empty? && member.role&.name.to_s.strip == "Regidor" %>
+
+                <br>
+                Regidor/funcionario municipal
+                <% if member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id %>
+                  <% muni = member.organization&.county&.name.to_s.strip %>
+                  <% st   = member.organization&.county&.state&.shortname.to_s.strip %>
+                  <% if muni.present? && st.present? %>
+                    en <%= muni %>, <%= st %>
+                  <% end %>
+                <% end %>
+              <% end %>
+
+              <%# Caso (involved=true): Autoridad vinculada + funcionario NO regidor, sin appointments %>
+              <% if cr == "Autoridad vinculada" && member.appointments.empty? %>
+                <% role_name = member.role&.name.to_s.strip %>
+
+                <% if role_name.present? && role_name != "Regidor" && !["Autoridad vinculada", "Autoridad cooptada"].include?(role_name) %>
+                  <br>
+                  <% line2_parts = [role_name] %>
+
+                  <% if member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id %>
+                    <% org_name = member.organization&.name.to_s.strip %>
+                    <% line2_parts << org_name if org_name.present? %>
+                  <% end %>
+
+                  <%= line2_parts.join(", ") %>
+                <% end %>
+              <% end %>
+
+              <%# Caso especial (involved=true): Socio con organization distinta a criminal_link => 2da línea solo organization.name %>
+              <% if cr == "Socio" && member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id %>
+                <% org_name = member.organization&.name.to_s.strip %>
+                <% if org_name.present? %>
+                  <br>
+                  <%= org_name %>
+                <% end %>
+              <% end %>
+              
             </td>
           </tr>
 
