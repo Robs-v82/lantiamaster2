@@ -331,34 +331,48 @@ class DatasetsController < ApplicationController
 	  input_lastname1 = I18n.transliterate(query_params[:lastname1].to_s.strip.downcase)
 	  input_lastname2 = I18n.transliterate(query_params[:lastname2].to_s.strip.downcase)
 
-	  def match?(input, candidate)
-	    return false if candidate.blank?
-	    return true if input.blank?
-	    input.include?(candidate) || candidate.include?(input)
-	  end
+		match = lambda do |input, candidate|
+		  return false if candidate.blank?
+		  return true if input.blank?
+		  input.include?(candidate) || candidate.include?(input)
+		end
 
-	  potential_matches = Member.includes(:fake_identities, :hits).distinct.select do |member|
-	    next false if member.hits.blank?
-	    # Omitir members sin al menos un nombre válido
-	    next false if member.firstname.blank? && member.lastname1.blank? && member.lastname2.blank? &&
-	                   member.fake_identities.none? { |fi| fi.firstname.present? || fi.lastname1.present? || fi.lastname2.present? }
+		# ===== Fase 1 (ligera): solo nombres + fake_identities para matching =====
+		base_scope = Member.joins(:hits).distinct
 
-	    real_match =
-	      match?(input_firstname, I18n.transliterate(member.firstname.to_s.downcase)) &&
-	      match?(input_lastname1, I18n.transliterate(member.lastname1.to_s.downcase)) &&
-	      match?(input_lastname2, I18n.transliterate(member.lastname2.to_s.downcase))
+		candidates = base_scope
+		  .select(:id, :firstname, :lastname1, :lastname2, :alias)
+		  .preload(:fake_identities)
+		  .to_a
 
-	    fake_match = member.fake_identities.any? do |fi|
-	      # Saltar identidades totalmente vacías
-	      next false if fi.firstname.blank? && fi.lastname1.blank? && fi.lastname2.blank?
+		potential_match_ids = candidates.filter_map do |member|
+		  # Omitir members sin al menos un nombre válido
+		  next nil if member.firstname.blank? && member.lastname1.blank? && member.lastname2.blank? &&
+		              member.fake_identities.none? { |fi| fi.firstname.present? || fi.lastname1.present? || fi.lastname2.present? }
 
-	      match?(input_firstname, I18n.transliterate(fi.firstname.to_s.downcase)) &&
-	      match?(input_lastname1, I18n.transliterate(fi.lastname1.to_s.downcase)) &&
-	      match?(input_lastname2, I18n.transliterate(fi.lastname2.to_s.downcase))
-	    end
+		  real_match =
+		    match.call(input_firstname, I18n.transliterate(member.firstname.to_s.downcase)) &&
+		    match.call(input_lastname1, I18n.transliterate(member.lastname1.to_s.downcase)) &&
+		    match.call(input_lastname2, I18n.transliterate(member.lastname2.to_s.downcase))
 
-	    real_match || fake_match
-	  end
+		  fake_match = member.fake_identities.any? do |fi|
+		    next false if fi.firstname.blank? && fi.lastname1.blank? && fi.lastname2.blank?
+
+		    match.call(input_firstname, I18n.transliterate(fi.firstname.to_s.downcase)) &&
+		    match.call(input_lastname1, I18n.transliterate(fi.lastname1.to_s.downcase)) &&
+		    match.call(input_lastname2, I18n.transliterate(fi.lastname2.to_s.downcase))
+		  end
+
+		  (real_match || fake_match) ? member.id : nil
+		end
+
+		# ===== Fase 2 (pesada): ya solo cargar hits para el payload / auditoría =====
+		potential_matches =
+		  if potential_match_ids.empty?
+		    []
+		  else
+		    Member.where(id: potential_match_ids).includes(:fake_identities, :hits).to_a
+		  end
 
 		user = User.find_by(id: session[:user_id])
 		return unless enforce_query_limit!(user)
