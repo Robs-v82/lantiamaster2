@@ -65,26 +65,54 @@ def search
   input_lastname2 = qp[:name].present? ? nil : normalize(qp[:lastname2])
 
   # --- 4) Matching ---
-
-  # PERF A0: construir scope
   t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
   base_scope = Member.joins(:hits).distinct
   Rails.logger.info("[#{request.request_id}] PERF A0 scope_built ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t0)*1000).round}")
 
-  # PERF A: cargar candidatos (ligero) + fake_identities
+  # === Prefiltro SQL (barato) ===
+  # Objetivo: reducir candidatos antes del matching Ruby.
+  # Seguridad: si con prefiltro quedan 0 matches, hacemos fallback a base_scope (sin perder resultados).
+  prefilter_token =
+    if input_name.present?
+      # toma el token más largo para maximizar selectividad (>= 4)
+      input_name.split(/\s+/).map(&:strip).select { |t| t.length >= 4 }.max_by(&:length)
+    else
+      # modo segmentado: usa lastname1/lastname2 (>= 2)
+      [input_lastname1, input_lastname2].compact.map(&:strip).select { |t| t.length >= 2 }.max_by(&:length)
+    end
+
+  prefiltered_scope =
+    if prefilter_token.present?
+      q = "%#{prefilter_token.downcase}%"
+      base_scope
+        .left_joins(:fake_identities)
+        .where(
+          "LOWER(members.firstname) LIKE :q OR LOWER(members.lastname1) LIKE :q OR LOWER(members.lastname2) LIKE :q OR LOWER(members.alias) LIKE :q OR " \
+          "LOWER(fake_identities.firstname) LIKE :q OR LOWER(fake_identities.lastname1) LIKE :q OR LOWER(fake_identities.lastname2) LIKE :q",
+          q: q
+        )
+        .distinct
+    else
+      base_scope
+    end
+
+  # === Fase 1 (ligera): cargar candidatos mínimos + fake_identities ===
+  def load_candidates(scope)
+    scope
+      .select(:id, :firstname, :lastname1, :lastname2, :alias)
+      .preload(:fake_identities)
+      .to_a
+  end
+
   t_a = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-  candidates_relation = base_scope
-    .select(:id, :firstname, :lastname1, :lastname2, :alias)
-    .preload(:fake_identities)
+  candidates = load_candidates(prefiltered_scope)
+  Rails.logger.info("[#{request.request_id}] PERF A candidates_loaded=#{candidates.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_a)*1000).round} prefilter=#{prefilter_token.presence || "none"}")
 
-  candidates = candidates_relation.to_a
-  Rails.logger.info("[#{request.request_id}] PERF A candidates_loaded=#{candidates.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_a)*1000).round}")
-
-  # PERF B: matching (solo sobre candidatos ya cargados)
+  # === Matching (Ruby) ===
   t_b = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
   potential_match_ids = candidates.filter_map do |member|
-    # Omitir members sin al menos un nombre válido (real o fake)
     next nil if member.firstname.blank? && member.lastname1.blank? && member.lastname2.blank? &&
                 member.fake_identities.none? { |fi| fi.firstname.present? || fi.lastname1.present? || fi.lastname2.present? }
 
@@ -117,9 +145,50 @@ def search
     end
   end
 
+  # === Fallback: si el prefiltro dio 0 matches, reintenta sin prefiltro (para no perder resultados) ===
+  if potential_match_ids.empty? && prefilter_token.present?
+    t_f = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    candidates = load_candidates(base_scope)
+
+    potential_match_ids = candidates.filter_map do |member|
+      next nil if member.firstname.blank? && member.lastname1.blank? && member.lastname2.blank? &&
+                  member.fake_identities.none? { |fi| fi.firstname.present? || fi.lastname1.present? || fi.lastname2.present? }
+
+      if input_name.present?
+        member_full = normalize(member.fullname)
+        real_match = match?(input_name, member_full)
+
+        fake_match = member.fake_identities.any? do |fi|
+          next false if fi.firstname.blank? && fi.lastname1.blank? && fi.lastname2.blank?
+          fi_full = normalize(fi.fullname)
+          match?(input_name, fi_full)
+        end
+
+        (real_match || fake_match) ? member.id : nil
+      else
+        real_match =
+          match?(input_firstname, normalize(member.firstname)) &&
+          match?(input_lastname1, normalize(member.lastname1)) &&
+          match?(input_lastname2, normalize(member.lastname2))
+
+        fake_match = member.fake_identities.any? do |fi|
+          next false if fi.firstname.blank? && fi.lastname1.blank? && fi.lastname2.blank?
+
+          match?(input_firstname, normalize(fi.firstname)) &&
+          match?(input_lastname1, normalize(fi.lastname1)) &&
+          match?(input_lastname2, normalize(fi.lastname2))
+        end
+
+        (real_match || fake_match) ? member.id : nil
+      end
+    end
+
+    Rails.logger.info("[#{request.request_id}] PERF B_fallback matches=#{potential_match_ids.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_f)*1000).round}")
+  end
+
   Rails.logger.info("[#{request.request_id}] PERF B matches=#{potential_match_ids.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_b)*1000).round}")
 
-  # Fase 2 (pesada): solo cargar lo necesario para el payload de los matches
+  # === Fase 2 (pesada): cargar asociaciones completas SOLO para matches ===
   potential_matches =
     if potential_match_ids.empty?
       []
