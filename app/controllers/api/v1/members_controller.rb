@@ -71,27 +71,34 @@ def search
   Rails.logger.info("[#{request.request_id}] PERF A0 scope_built ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t0)*1000).round}")
 
   # === Prefiltro SQL (barato) ===
-  # Objetivo: reducir candidatos antes del matching Ruby.
-  # Seguridad: si con prefiltro quedan 0 matches, hacemos fallback a base_scope (sin perder resultados).
-  prefilter_token =
+  # Objetivo: reducir candidatos antes del matching Ruby, sin dejarlo en 1.
+  # Estrategia: tomar hasta 2 tokens y aplicar OR (si cualquiera coincide, se incluye).
+  prefilter_tokens =
     if input_name.present?
-      # toma el token más largo para maximizar selectividad (>= 4)
-      input_name.split(/\s+/).map(&:strip).select { |t| t.length >= 4 }.max_by(&:length)
+      toks = input_name.split(/\s+/).map(&:strip).map(&:downcase)
+      toks.select { |t| t.length >= 4 }.sort_by { |t| -t.length }.first(2)
     else
-      # modo segmentado: usa lastname1/lastname2 (>= 2)
-      [input_lastname1, input_lastname2].compact.map(&:strip).select { |t| t.length >= 2 }.max_by(&:length)
+      toks = [input_lastname1, input_lastname2].compact.map(&:strip).map(&:downcase)
+      toks.select { |t| t.length >= 2 }.first(2)
     end
 
+  conditions = []
+  binds = {}
+
+  prefilter_tokens.each_with_index do |tok, idx|
+    key = :"q#{idx}"
+    binds[key] = "%#{tok}%"
+    conditions <<(
+      "LOWER(members.firstname) LIKE :#{key} OR LOWER(members.lastname1) LIKE :#{key} OR LOWER(members.lastname2) LIKE :#{key} OR LOWER(members.alias) LIKE :#{key} OR " \
+      "LOWER(fake_identities.firstname) LIKE :#{key} OR LOWER(fake_identities.lastname1) LIKE :#{key} OR LOWER(fake_identities.lastname2) LIKE :#{key}"
+    )
+  end
+
   prefiltered_scope =
-    if prefilter_token.present?
-      q = "%#{prefilter_token.downcase}%"
+    if conditions.any?
       base_scope
         .left_joins(:fake_identities)
-        .where(
-          "LOWER(members.firstname) LIKE :q OR LOWER(members.lastname1) LIKE :q OR LOWER(members.lastname2) LIKE :q OR LOWER(members.alias) LIKE :q OR " \
-          "LOWER(fake_identities.firstname) LIKE :q OR LOWER(fake_identities.lastname1) LIKE :q OR LOWER(fake_identities.lastname2) LIKE :q",
-          q: q
-        )
+        .where("(#{conditions.map { |c| "(#{c})" }.join(" OR ")})", **binds)
         .distinct
     else
       base_scope
