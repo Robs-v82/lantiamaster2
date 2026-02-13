@@ -1144,14 +1144,19 @@ def terrorist_panel
       )
     SQL
 
+   falta_respaldo = Member.joins(:hits).left_joins(:notes).where(notes: { id: nil }).where.not(id: Member.joins(:hits).where(hits: { backup_status: "ok" }).distinct.select(:id)).distinct
+
   @conflictos = {}
   @conflictos[:sin_genero] = sin_genero_scope.count
   @conflictos[:falta_referencias] = falta_referencias_scope.count
+  @conflictos[:falta_respaldo] = falta_respaldo.count
 
-  conflictos_total = sin_genero_scope.or(falta_referencias_scope).distinct.count
+  conflictos_total = sin_genero_scope.or(falta_referencias_scope).distinct
+  Member.joins(:hits).left_joins(:notes).where(notes: { id: nil }).where.not(id: Member.joins(:hits).where(hits: { backup_status: "ok" }).distinct.select(:id)).distinct
+
   total = target_members.count
 
-  @conflictos[:sin_conflicto] = total - conflictos_total
+  @conflictos[:sin_conflicto] = conflictos_total
   @conflictos[:total] = total
 end
 
