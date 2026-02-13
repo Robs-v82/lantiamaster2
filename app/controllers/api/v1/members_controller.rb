@@ -114,7 +114,7 @@ def search
 
   t_a = Process.clock_gettime(Process::CLOCK_MONOTONIC)
   candidates = load_candidates(prefiltered_scope)
-  Rails.logger.info("[#{request.request_id}] PERF A candidates_loaded=#{candidates.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_a)*1000).round} prefilter=#{prefilter_token.presence || "none"}")
+  Rails.logger.info("[#{request.request_id}] PERF A candidates_loaded=#{candidates.size} ms=#{((Process.clock_gettime(Process::CLOCK_MONOTONIC)-t_a)*1000).round} ... prefilter=#{prefilter_tokens.presence || "none"}")
 
   # === Matching (Ruby) ===
   t_b = Process.clock_gettime(Process::CLOCK_MONOTONIC)
