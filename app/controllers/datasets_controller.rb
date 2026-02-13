@@ -2487,6 +2487,9 @@ end
 		loaded = 0
 		skipped = 0
 		errors = []
+		snapshots_ok = 0
+		snapshots_fail = 0
+
 		user_agent = "WickedPdf/1.0 (Lantia Intelligence)"
 		myFile = load_hit_params[:file]
 		CSV.foreach(myFile, headers: true, encoding: "bom|utf-8") do |row|
@@ -2543,60 +2546,76 @@ end
 	    end
 
 	    # Crear el hit
-	    Hit.create!(
-			legacy_id: legacy_id,
-			date: date,
-			title: title,
-			link: link,
-			report: report,
-			town_id: town,
-			user_id: session[:user_id]
-	    )
-	    loaded += 1
+			targetHit = Hit.create!(
+			  legacy_id: legacy_id,
+			  date: date,
+			  title: title,
+			  link: link,
+			  report: report,
+			  town_id: town,
+			  user_id: session[:user_id]
+			)
+			loaded += 1
 
-	    begin
-		    targetHit = Hit.last
-		    next unless targetHit.link.present? && targetHit.link.start_with?('http')
-		    puts "🌀 Generando PDF para: #{targetHit.link}"
-	    	timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-	    	image_url = "https://dashboard.lantiaintelligence.com/assets/Lantia_LogoPositivo.png"
+			# 1) Nuevo respaldo (pdf_snapshot + html/plain_text si aplica)
+			begin
+			  HitSnapshotFetcher.call!(targetHit, require_members: false)
+			  targetHit.reload
+			  if targetHit.backup_status == "ok" && targetHit.fetch_error.blank? && (targetHit.raw_html.present? || targetHit.pdf_snapshot.attached?)
+			    snapshots_ok += 1
+			  else
+			    snapshots_fail += 1
+			  end
+			rescue => e
+			  snapshots_fail += 1
+			  # NO detiene la carga; solo registra
+			  puts "⚠️ SnapshotFetcher Hit ##{targetHit.id}: #{e.class} #{e.message}"
+			end
 
-		    html_header = <<~HTML
-		      <div style='font-size: 14px; font-family: sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;'>
-		        <img src='#{image_url}' style='width: 160px; display: block; margin-bottom: 10px;' alt='Lantia Logo'>
-		        <div style="font-size: 14px;">
-		          Fuente:<span style="font-weight: 800;"> #{targetHit.link}</span><br>
-		          Capturado:<span style="font-weight: 800;"> #{timestamp}</span><br>
-		          User-Agent:<span style="font-weight: 800;"> #{user_agent}</span><br>
-		          Organización:<span style="font-weight: 800;"> Estrategias, Decisiones y Mejores Prácticas</span>
-		        </div>
-		      </div>
-		    HTML
+			# 2) Proceso viejo (WickedPdf) se mantiene tal cual
+	    # begin
+		  #   targetHit = Hit.last
+		  #   next unless targetHit.link.present? && targetHit.link.start_with?('http')
+		  #   puts "🌀 Generando PDF para: #{targetHit.link}"
+	    # 	timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+	    # 	image_url = "https://dashboard.lantiaintelligence.com/assets/Lantia_LogoPositivo.png"
 
-		    Timeout.timeout(45) do
-		      html_body = URI.open(targetHit.link, "User-Agent" => user_agent).read
+		  #   html_header = <<~HTML
+		  #     <div style='font-size: 14px; font-family: sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;'>
+		  #       <img src='#{image_url}' style='width: 160px; display: block; margin-bottom: 10px;' alt='Lantia Logo'>
+		  #       <div style="font-size: 14px;">
+		  #         Fuente:<span style="font-weight: 800;"> #{targetHit.link}</span><br>
+		  #         Capturado:<span style="font-weight: 800;"> #{timestamp}</span><br>
+		  #         User-Agent:<span style="font-weight: 800;"> #{user_agent}</span><br>
+		  #         Organización:<span style="font-weight: 800;"> Estrategias, Decisiones y Mejores Prácticas</span>
+		  #       </div>
+		  #     </div>
+		  #   HTML
 
-		      pdf = WickedPdf.new.pdf_from_string(
-		        html_header + html_body,
-		        encoding: 'UTF-8',
-		        margin: { top: 20, bottom: 10 },
-		        disable_javascript: true,
-		        javascript_delay: 3000,
-		        print_media_type: true,
-		        zoom: 1.25,
-		        dpi: 150,
-		        viewport_size: '1280x1024'
-		      )
+		  #   Timeout.timeout(45) do
+		  #     html_body = URI.open(targetHit.link, "User-Agent" => user_agent).read
 
-		      io = StringIO.new(pdf)
-		      targetHit.pdf.attach(io: io, filename: "targetHit_#{targetHit.id}.pdf", content_type: 'application/pdf')
-		      puts "✅ PDF adjuntado a Hit ##{targetHit.id}"
-		    end
+		  #     pdf = WickedPdf.new.pdf_from_string(
+		  #       html_header + html_body,
+		  #       encoding: 'UTF-8',
+		  #       margin: { top: 20, bottom: 10 },
+		  #       disable_javascript: true,
+		  #       javascript_delay: 3000,
+		  #       print_media_type: true,
+		  #       zoom: 1.25,
+		  #       dpi: 150,
+		  #       viewport_size: '1280x1024'
+		  #     )
 
-		  rescue => e
-		    puts "⚠️ Error en Hit ##{targetHit.id}: #{e.message}"
-		    targetHit.update(protected_link: true)
-		  end
+		  #     io = StringIO.new(pdf)
+		  #     targetHit.pdf.attach(io: io, filename: "targetHit_#{targetHit.id}.pdf", content_type: 'application/pdf')
+		  #     puts "✅ PDF adjuntado a Hit ##{targetHit.id}"
+		  #   end
+
+		  # rescue => e
+		  #   puts "⚠️ Error en Hit ##{targetHit.id}: #{e.message}"
+		  #   targetHit.update(protected_link: true)
+		  # end
 
 		rescue => e
 			errors << { legacy_id: legacy_id, error: e.message }
@@ -2609,7 +2628,7 @@ end
 		errors.each { |e| puts e.inspect }
 	  	session[:filename] = load_hit_params[:file].original_filename
 		session[:load_success] = true
-		session[:message] = "✅ Hits cargados: #{loaded} \n ⚠️ Hits omitidos (legacy_id duplicado): #{skipped}"
+		session[:message] = "✅ Hits cargados: #{loaded}\n⚠️ Hits omitidos (legacy_id duplicado): #{skipped}\n📦 Respaldos creados: #{snapshots_ok}\n🧾 Sin respaldo: #{snapshots_fail}"
 		
 		nationalMedia = [
 		  "infobae.com",
