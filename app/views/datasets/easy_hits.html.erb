@@ -520,7 +520,7 @@
 </div>
 
 <% if @message.present? %>
-  <script>
+  <script nonce="<%= csp_nonce %>">
     document.addEventListener('DOMContentLoaded', function () {
       var el = document.getElementById('easyResultModal');
       if (el) {
