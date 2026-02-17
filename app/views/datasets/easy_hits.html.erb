@@ -1,0 +1,291 @@
+<div class="row">
+  <div class="col l6 m8 s12">
+    <div class="card cyan darken-1">
+      <div class="card-content white-text">
+        <form action="/datasets/easy_hits" method="post">
+          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+          <div class="row">
+            <div class="col s11 left">
+              <span class="card-title">Cargar hit (manual)</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="hit_date" name="hit[date]" type="date" required style="background:white; color:black; padding-left:8px;">
+              <label for="hit_date" class="black-text">Fecha</label>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="hit_location_label" type="text" list="location_list" autocomplete="off" required style="background:white; color:black; padding-left:8px;">
+              <label for="hit_location_label" class="black-text" style="padding-left: 12px">Municipio o Estado</label>
+
+              <input type="hidden" id="hit_location_code" name="hit[location_code]" />
+
+              <datalist id="location_list">
+                <% @county_options.each do |opt| %>
+                  <option value="<%= opt[:label] %>" data-code="<%= opt[:code] %>"></option>
+                <% end %>
+                <% @state_options.each do |opt| %>
+                  <option value="<%= opt[:label] %>" data-code="<%= opt[:code] %>"></option>
+                <% end %>
+              </datalist>
+
+              <small style="opacity:0.9;">Ej: Tequila, Jal. (o un Estado)</small>
+            </div>
+          </div>
+
+          <script type="text/javascript" nonce="<%= csp_nonce %>">
+            function bindEasyHitsLocation() {
+              const input = document.getElementById("hit_location_label");
+              const hidden = document.getElementById("hit_location_code");
+              const list = document.getElementById("location_list");
+              if (!input || !hidden || !list) return;
+
+              const sync = () => {
+                const v = input.value;
+                const opt = Array.from(list.options).find(o => o.value === v);
+                hidden.value = opt ? (opt.dataset.code || "") : "";
+              };
+
+              input.addEventListener("input", sync);
+              input.addEventListener("change", sync);
+              input.addEventListener("blur", sync);
+            }
+
+            document.addEventListener("DOMContentLoaded", bindEasyHitsLocation);
+            document.addEventListener("turbo:load", bindEasyHitsLocation);
+            document.addEventListener("turbolinks:load", bindEasyHitsLocation);
+          </script>
+
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="hit_title" name="hit[title]" type="text" required style="background:white; color:black; padding-left:8px;">
+              <label for="hit_title" class="black-text" style="padding-left: 12px;">Título</label>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="hit_link" name="hit[link]" type="text" required style="background:white; color:black; padding-left:8px;">
+              <label for="hit_link" class="black-text" style="padding-left: 12px">Link</label>
+            </div>
+          </div>
+
+          <div class="card-action">
+            <button type="submit" class="btn waves-effect waves-light">Guardar hit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <datalist id="members_list">
+      <% Member.joins(:hits).distinct.order(:id).each do |m| %>
+        <option value="<%= m.fullname %>"></option>
+      <% end %>
+    </datalist>
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">Últimos 3 hits (creados o intentados)</span>
+
+        <% attempts = (session[:easy_hit_attempts] || []) %>
+
+        <% if attempts.empty? %>
+          <p style="opacity:0.7;">Aún no hay registros.</p>
+        <% else %>
+          <ul class="collapsible">
+            <% attempts.each_with_index do |a, idx| %>
+              <% town = a["town_id"].present? ? Town.find_by(id: a["town_id"]) : nil %>
+              <% unless town.county.name == "Sin definir" %>
+                <% place = town ? "#{town.county.name} (#{town.county.full_code})" : "—" %>
+              <% else %>
+                <% place = town ? "#{town.county.state.name}" : "—" %>
+              <% end %>
+
+              <li>
+                <div class="collapsible-header">
+                  <% if a["status"] == "ok" %>
+                    <i class="material-icons">check_circle</i>
+                  <% else %>
+                    <i class="material-icons">error</i>
+                  <% end %>
+
+                  <span style="margin-right:10px;"><strong><%= a["legacy_id"].presence || "—" %></strong></span>
+                  <span style="opacity:0.8;"><%= a["title"].presence || "(sin título)" %></span>
+                </div>
+
+                <div class="collapsible-body">
+                  <p><strong>Lugar:</strong> <%= place %></p>
+                  <p><strong>Fecha:</strong> <%= a["date"].presence || "—" %></p>
+                  <p><strong>Link:</strong> <% if a["link"].present? %><a href="<%= a["link"] %>" target="_blank"><%= a["link"] %></a><% else %>—<% end %></p>
+
+                  <% if a["status"] != "ok" %>
+                    <p style="color:#b71c1c;"><strong>Error:</strong> <%= a["message"].presence || "No se pudo crear" %></p>
+                  <% end %>
+
+                  <% if a["status"] == "ok" && a["legacy_id"].present? %>
+                    <div style="margin-top:12px;">
+                      <a class="btn-small" href="/datasets/easy_hits?open_legacy=<%= a["legacy_id"] %>#add-members">
+                        Agregar miembros
+                      </a>
+                    </div>
+                  <% end %>
+                <br>
+                  <% hit = Hit.find_by(legacy_id: a["legacy_id"]) %>
+                  <% unless hit.plain_text == nil %>
+                    <% if hit.present? %>
+                      <div style="margin-top:15px;">
+                        <form action="/datasets/add_members_to_hits" method="post">
+                          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                          <input type="hidden" name="hit_id" value="<%= hit.id %>">
+                          <div class="members-fields" data-hit="<%= hit.id %>">
+                            <div class="member-field input-field">
+                              <input type="text" class="member-autocomplete" list="members_list" autocomplete="off" placeholder="Selecciona un member">
+                              <input type="hidden" class="member-id-hidden" name="member_ids[]">
+                            </div>
+                          </div>
+
+                          <a href="#!" class="btn-small add-member-field" data-hit="<%= hit.id %>" style="margin-top:8px;">
+                            <i class="material-icons">add</i>
+                          </a>
+
+                          <button type="submit" class="btn-small" style="margin-top:8px;">Submit</button>
+                        </form>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+    </div>
+
+    <script nonce="<%= csp_nonce %>">
+      document.addEventListener("DOMContentLoaded", function() {
+        var elems = document.querySelectorAll(".collapsible");
+        if (window.M && M.Collapsible) M.Collapsible.init(elems);
+      });
+      document.addEventListener("turbo:load", function() {
+        var elems = document.querySelectorAll(".collapsible");
+        if (window.M && M.Collapsible) M.Collapsible.init(elems);
+      });
+    </script>
+    <script nonce="<%= csp_nonce %>">
+      function bindAddMemberButtons() {
+        document.querySelectorAll(".add-member-field").forEach((btn) => {
+          if (btn.dataset.bound === "1") return;
+          btn.dataset.bound = "1";
+
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const hitId = btn.dataset.hit;
+            const container = document.querySelector(`.members-fields[data-hit="${hitId}"]`);
+            if (!container) return;
+
+            const first = container.querySelector(".member-field");
+            if (!first) return;
+
+            const clone = first.cloneNode(true);
+            // limpia valores
+            const vis = clone.querySelector(".member-autocomplete");
+            const hid = clone.querySelector(".member-id-hidden");
+            if (vis) vis.value = "";
+            if (hid) hid.value = "";
+
+            container.appendChild(clone);
+
+            // si tienes bind del autocomplete (aunque lo de acentos lo veamos después),
+            // re-bindea listeners para el nuevo campo:
+            if (typeof bindMemberAutocomplete === "function") bindMemberAutocomplete();
+          });
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", bindAddMemberButtons);
+      document.addEventListener("turbo:load", bindAddMemberButtons);
+      document.addEventListener("turbolinks:load", bindAddMemberButtons);
+    </script>
+
+
+  </div>
+
+  <!-- Listado falta respaldo -->
+  <div class="col l6 m12 s12">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">Miembros sin respaldo</span>
+        <p style="margin-top:-8px; opacity:0.7;">
+          Total: <%= @members_falta_respaldo.size %>
+        </p>
+
+        <div style="max-height:520px; overflow-y:auto; margin-top:10px;">
+          <ul class="collection">
+            <% @members_falta_respaldo.each do |m| %>
+              <li class="collection-item">
+                <strong><%= m.id %></strong> — <%= m.fullname %> - <%= m.organization.name %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<% if @load_success %>
+  <div id="load-modal" class="modal">
+    <div class="modal-content">
+      <%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
+      <p class="p20 slim"><%= @message %></p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+        <i class="material-icons small">close</i>
+      </a>
+    </div>
+  </div>
+<% end %>
+
+<script nonce="<%= csp_nonce %>">
+  function norm(s) {
+    return (s || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Diccionario: "nombre normalizado" => id
+  const MEMBER_NAME_TO_ID = {
+    <% Member.joins(:hits).distinct.order(:id).each do |m| %>
+      "<%= ActiveSupport::Inflector.transliterate(m.fullname.to_s).downcase.gsub(/[^a-z0-9\s]/, " ").squeeze(" ").strip %>": <%= m.id %>,
+    <% end %>
+  };
+
+  function bindMemberAutocomplete() {
+    document.querySelectorAll(".member-autocomplete").forEach((input) => {
+      const hidden = input.parentElement.querySelector(".member-id-hidden");
+      if (!hidden) return;
+
+      const sync = () => {
+        const key = norm(input.value);
+        hidden.value = MEMBER_NAME_TO_ID[key] ? String(MEMBER_NAME_TO_ID[key]) : "";
+      };
+
+      input.addEventListener("input", sync);
+      input.addEventListener("change", sync);
+      input.addEventListener("blur", sync);
+      sync();
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", bindMemberAutocomplete);
+  document.addEventListener("turbo:load", bindMemberAutocomplete);
+  document.addEventListener("turbolinks:load", bindMemberAutocomplete);
+</script>

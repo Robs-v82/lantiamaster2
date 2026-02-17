@@ -185,4 +185,8 @@ Rails.application.routes.draw do
     get "docs/compliance"
     post "users/api_key", to: "users#generate_api_key", as: :generate_user_api_key
 
+    get  "/datasets/easy_hits", to: "datasets#easy_hits"
+    post "/datasets/easy_hits", to: "datasets#create_easy_hit"
+    post "/datasets/add_members_to_hits", to: "datasets#add_members_to_hits"
+
 end

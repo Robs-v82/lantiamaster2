@@ -18,7 +18,7 @@ class DatasetsController < ApplicationController
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
 	before_action :require_recent_auth, only: [:members_outcome]
 	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome]
-	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel, :state_members, :clear_members, :clear_state_members]
+	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel, :easy_hits, :create_easy_hit, :state_members, :clear_members, :clear_state_members]
 
 	def show
 	end
@@ -2488,6 +2488,307 @@ end
     	}
     end
 
+	def easy_hits
+	  @load_success = true if session[:load_success]
+	  @filename     = session[:filename] if session[:filename]
+	  @message      = session[:message]  if session[:message]
+
+	  # Limpia flags para que el modal no se repita al refrescar
+	  session.delete(:load_success)
+	  session.delete(:filename)
+	  session.delete(:message)
+
+	  # Para el autocomplete (por ahora: Town + State)
+		states_by_id = State.pluck(:id, :shortname).to_h
+
+		@county_options = County.order(:name).pluck(:name, :full_code, :state_id).map do |name, full_code, state_id|
+		  st = states_by_id[state_id]
+		  label = st.present? ? "#{name}, #{st}" : name
+		  { label: label, code: full_code }
+		end
+
+		@state_options = State.order(:name).pluck(:name, :code, :shortname).map do |name, code, shortname|
+		  # Para estados: mandamos "STATE:<code>" al hidden para distinguirlo de county
+		  label = shortname.present? ? "#{name} (#{shortname})" : name
+		  { label: label, code: "STATE:#{code}" }
+		end
+
+		# SOLO INCLUYE MEMBERS SIN NINGÚN LINK
+		falta_respaldo = Member
+		  .joins(:hits)
+		  .where.not(
+		    id: Member.joins(:hits).where.not(hits: { link: nil }).distinct.select(:id)
+		  )
+		  .distinct
+
+		# INCLUYE LINKS INVÁLIDOS
+		# falta_respaldo = Member
+		#   .joins(:hits)
+		#   .left_joins(:notes)
+		#   .where(notes: { id: nil })
+		#   .where.not(
+		#     id: Member.joins(:hits).where(hits: { backup_status: "ok" }).distinct.select(:id)
+		#   )
+		#   .distinct
+
+		@members_falta_respaldo = falta_respaldo.order(:id)
+
+	end
+
+	def create_easy_hit
+		push_attempt = lambda do |status:, title: nil, date: nil, link: nil, location_code: nil, legacy_id: nil, town_id: nil, message: nil|
+		  session[:easy_hit_attempts] ||= []
+		  session[:easy_hit_attempts].unshift({
+		    at: Time.zone.now.to_s,
+		    status: status,
+		    legacy_id: legacy_id,
+		    title: title,
+		    date: (date&.to_s),
+		    link: link,
+		    location_code: location_code,
+		    town_id: town_id,
+		    message: message
+		  })
+		  session[:easy_hit_attempts] = session[:easy_hit_attempts].take(3)
+		end
+
+	  errors = []
+	  snapshots_ok = 0
+	  snapshots_fail = 0
+
+	  date  = Date.parse(easy_hit_params[:date]) rescue nil
+	  title = easy_hit_params[:title].to_s.strip
+	  link  = easy_hit_params[:link].to_s.strip
+	  location_code = easy_hit_params[:location_code].to_s.strip
+
+	  # Validación: fecha
+	  if date.nil?
+	    errors << "Fecha inválida"
+	  end
+
+	  # Validación: link único y presente
+	  if link.blank?
+	    errors << "Link vacío"
+		elsif (existing_hit = Hit.find_by(link: link))
+		  errors << "El link ya existe"
+		  push_attempt.call(
+		    status: "error",
+		    legacy_id: existing_hit.legacy_id,
+		    title: existing_hit.title,
+		    date: existing_hit.date,
+		    link: existing_hit.link,
+		    town_id: existing_hit.town_id,
+		    message: "El link ya existe (Hit ##{existing_hit.id})"
+		  )
+	  end
+
+	  # Validación: location_code viene del autocomplete
+	  if location_code.blank?
+	    errors << "Selecciona un municipio o estado de la lista"
+	  end
+
+	  if errors.any?
+	    session[:load_success] = true
+	    session[:message] = "❌ No se pudo cargar el hit:\n- " + errors.join("\n- ")
+	    return redirect_to "/datasets/easy_hits"
+	  end
+
+	  # Resolver town_id a partir de County.full_code o State.code
+	  town_id = nil
+
+	  if location_code.start_with?("STATE:")
+	    state_code = location_code.split("STATE:").last
+	    town_full_code = "#{state_code}0000000"
+	    town_id = Town.find_by(full_code: town_full_code)&.id
+	    if town_id.nil?
+	      session[:load_success] = true
+	      session[:message] = "❌ No se encontró el town del estado (full_code=#{town_full_code})."
+	      return redirect_to "/datasets/easy_hits"
+	    end
+	  else
+	    # County.full_code (ej: 14094) → town "Sin definir" (140940000)
+	    county_full_code = location_code
+	    town_full_code = "#{county_full_code}0000"
+	    town_id = Town.find_by(full_code: town_full_code)&.id
+	    if town_id.nil?
+	      session[:load_success] = true
+	      session[:message] = "❌ No se encontró el town del municipio (full_code=#{town_full_code})."
+	      return redirect_to "/datasets/easy_hits"
+	    end
+	  end
+
+		require "securerandom"
+		require "uri"
+
+		domain = begin
+		  URI.parse(link).host.to_s.sub(/\Awww\./, "")
+		rescue
+		  ""
+		end
+
+		user = current_user_safe rescue nil
+		initials =
+		  if user&.respond_to?(:member) && user.member
+		    [
+		      user.member.firstname.to_s[0],
+		      user.member.lastname1.to_s[0]
+		    ].compact.join.upcase
+		  else
+		    "XX"
+		  end
+
+		date_part = date.strftime("%Y%m%d")
+		rand_part = SecureRandom.random_number(100).to_s.rjust(2, "0")
+		domain_part = domain.gsub(/[^a-zA-Z0-9]/, "").downcase.first(20)
+
+		legacy_id = "#{domain_part}_#{date_part}_#{initials}_#{rand_part}"
+
+		# Garantiza unicidad (por si colisiona)
+		tries = 0
+		while Hit.exists?(legacy_id: legacy_id) && tries < 10
+		  rand_part = SecureRandom.random_number(100).to_s.rjust(2, "0")
+		  legacy_id = "#{domain_part}_#{date_part}_#{initials}_#{rand_part}"
+		  tries += 1
+		end
+
+	  # Crear hit
+	  target_hit = Hit.create!(
+	    legacy_id: legacy_id,
+	    date: date,
+	    title: title,
+	    link: link,
+	    town_id: town_id,
+	    user_id: session[:user_id]
+	  )
+
+	  push_attempt.call(
+	  	status: "ok",
+	  	legacy_id: target_hit.legacy_id,
+			title: target_hit.title,
+			date: target_hit.date,
+			link: target_hit.link,
+	  	town_id: target_hit.town_id,
+	  	message: "Hit creado el "+ I18n.l(target_hit.created_at, format: :long)
+	  )
+
+		national_media = [
+		  "infobae.com",
+		  "jornada.com.mx",
+		  "oem.com.mx",
+		  "lasillarota.com",
+		  "milenio.com",
+		  "proceso.com.mx",
+		  "excelsior.com.mx",
+		  "elfinanciero.com.mx",
+		  "eluniversal.com.mx",
+		  "eleconomista.com.mx",
+		  "sinembargo.mx",
+		  "aristeguinoticias.com",
+		  "reforma.com",
+		  "univision.com",
+		  "latinus.us"
+		]
+
+		domain = begin
+		  URI.parse(target_hit.link.to_s).host.to_s.sub(/\Awww\./, "")
+		rescue
+		  ""
+		end
+
+		target_hit.update_column(:national, national_media.include?(domain))
+
+	  # Snapshot
+	  begin
+	    HitSnapshotFetcher.call!(target_hit, require_members: false)
+	    target_hit.reload
+	    if target_hit.backup_status == "ok" && target_hit.fetch_error.blank? && (target_hit.raw_html.present? || target_hit.pdf_snapshot.attached?)
+	      snapshots_ok += 1
+	    else
+	      snapshots_fail += 1
+	    end
+	  rescue => e
+	    snapshots_fail += 1
+	    puts "⚠️ SnapshotFetcher Hit ##{target_hit.id}: #{e.class} #{e.message}"
+	  end
+
+	  session[:load_success] = true
+	  session[:message] = "✅ Hit cargado.\n📦 Respaldos creados: #{snapshots_ok}\n🧾 Sin respaldo: #{snapshots_fail}"
+	  redirect_to "/datasets/easy_hits"
+
+	rescue => e
+	  session[:load_success] = true
+	  session[:message] = "❌ Error inesperado: #{e.message}"
+	  redirect_to "/datasets/easy_hits"
+	end
+
+	def add_members_to_hits
+	  hit = Hit.find(params[:hit_id])
+
+	  member_ids = Array(params[:member_ids]).map(&:to_s).reject(&:blank?).map(&:to_i).uniq
+	  if member_ids.empty?
+	    session[:load_success] = true
+	    session[:message] = "❌ No seleccionaste ningún member."
+	    return redirect_to "/datasets/easy_hits"
+	  end
+
+	  text_norm = normalize_es(hit.plain_text.to_s)
+
+		raw_ids = Array(params[:member_ids]).map(&:to_s)
+
+		# Preserva orden, quita vacíos, y elimina duplicados manteniendo primera aparición
+		ordered_ids = []
+		seen = {}
+		raw_ids.each do |s|
+		  next if s.blank?
+		  id = s.to_i
+		  next if id <= 0
+		  next if seen[id]
+		  seen[id] = true
+		  ordered_ids << id
+		end
+
+		if ordered_ids.empty?
+		  session[:load_success] = true
+		  session[:message] = "❌ No seleccionaste ningún member."
+		  return redirect_to "/datasets/easy_hits"
+		end
+
+		members_by_id = Member.where(id: ordered_ids).index_by(&:id)
+
+		lines = []
+
+		ordered_ids.each do |id|
+		  m = members_by_id[id]
+		  if m.nil?
+		    lines << "❌ (ID #{id}) No encontrado"
+		    next
+		  end
+
+		  last_norm = normalize_es(m.lastname1.to_s)
+		  ok = last_norm.present? && text_norm.include?(last_norm)
+
+		  if ok
+		    hit.members << m unless hit.members.exists?(m.id)
+		    lines << "✅ #{m.fullname}"
+		  else
+		    lines << "❌ #{m.fullname}"
+		  end
+		end
+
+		session[:load_success] = true
+		session[:message] = lines.join("\n")
+		return redirect_to "/datasets/easy_hits"
+
+	rescue ActiveRecord::RecordNotFound
+	  session[:load_success] = true
+	  session[:message] = "❌ No se encontró el hit."
+	  redirect_to "/datasets/easy_hits"
+	rescue => e
+	  session[:load_success] = true
+	  session[:message] = "❌ Error inesperado: #{e.message}"
+	  redirect_to "/datasets/easy_hits"
+	end
+
 	def upload_hits
 		loaded = 0
 		skipped = 0
@@ -2576,51 +2877,6 @@ end
 			  # NO detiene la carga; solo registra
 			  puts "⚠️ SnapshotFetcher Hit ##{targetHit.id}: #{e.class} #{e.message}"
 			end
-
-			# 2) Proceso viejo (WickedPdf) se mantiene tal cual
-	    # begin
-		  #   targetHit = Hit.last
-		  #   next unless targetHit.link.present? && targetHit.link.start_with?('http')
-		  #   puts "🌀 Generando PDF para: #{targetHit.link}"
-	    # 	timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-	    # 	image_url = "https://dashboard.lantiaintelligence.com/assets/Lantia_LogoPositivo.png"
-
-		  #   html_header = <<~HTML
-		  #     <div style='font-size: 14px; font-family: sans-serif; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;'>
-		  #       <img src='#{image_url}' style='width: 160px; display: block; margin-bottom: 10px;' alt='Lantia Logo'>
-		  #       <div style="font-size: 14px;">
-		  #         Fuente:<span style="font-weight: 800;"> #{targetHit.link}</span><br>
-		  #         Capturado:<span style="font-weight: 800;"> #{timestamp}</span><br>
-		  #         User-Agent:<span style="font-weight: 800;"> #{user_agent}</span><br>
-		  #         Organización:<span style="font-weight: 800;"> Estrategias, Decisiones y Mejores Prácticas</span>
-		  #       </div>
-		  #     </div>
-		  #   HTML
-
-		  #   Timeout.timeout(45) do
-		  #     html_body = URI.open(targetHit.link, "User-Agent" => user_agent).read
-
-		  #     pdf = WickedPdf.new.pdf_from_string(
-		  #       html_header + html_body,
-		  #       encoding: 'UTF-8',
-		  #       margin: { top: 20, bottom: 10 },
-		  #       disable_javascript: true,
-		  #       javascript_delay: 3000,
-		  #       print_media_type: true,
-		  #       zoom: 1.25,
-		  #       dpi: 150,
-		  #       viewport_size: '1280x1024'
-		  #     )
-
-		  #     io = StringIO.new(pdf)
-		  #     targetHit.pdf.attach(io: io, filename: "targetHit_#{targetHit.id}.pdf", content_type: 'application/pdf')
-		  #     puts "✅ PDF adjuntado a Hit ##{targetHit.id}"
-		  #   end
-
-		  # rescue => e
-		  #   puts "⚠️ Error en Hit ##{targetHit.id}: #{e.message}"
-		  #   targetHit.update(protected_link: true)
-		  # end
 
 		rescue => e
 			errors << { legacy_id: legacy_id, error: e.message }
@@ -2886,6 +3142,16 @@ def merge_members
 end
 
 private
+
+def easy_hit_params
+  params.require(:hit).permit(:date, :title, :link, :location_code)
+end
+
+
+def normalize_es(str)
+  s = ActiveSupport::Inflector.transliterate(str.to_s).downcase
+  s.gsub(/[^a-z0-9\s]/, " ").squeeze(" ").strip
+end
 
 def reciprocal_link_type(type)
   map = {
