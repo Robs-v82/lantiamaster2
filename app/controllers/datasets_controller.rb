@@ -2516,8 +2516,13 @@ end
 		# SOLO INCLUYE MEMBERS SIN NINGÚN LINK
 		falta_respaldo = Member
 		  .joins(:hits)
+		  .left_joins(:notes)
+		  .where(notes: { id: nil })
 		  .where.not(
-		    id: Member.joins(:hits).where.not(hits: { link: nil }).distinct.select(:id)
+		    id: Member.joins(:hits)
+		              .where.not(hits: { link: nil })
+		              .distinct
+		              .select(:id)
 		  )
 		  .distinct
 
