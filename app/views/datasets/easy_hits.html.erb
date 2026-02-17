@@ -127,7 +127,7 @@
                 <br>
                   <% hit = Hit.find_by(legacy_id: a["legacy_id"]) %>
                   <% if hit.present? %>
-                    <% unless hit.plain_text == nil %>
+                    <% if hit.plain_text != nil %>
                       <div style="margin-top:15px;">
                         <form action="/datasets/add_members_to_hits" method="post">
                           <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
@@ -143,6 +143,32 @@
                             <i class="material-icons">add</i>
                           </a>
                           <button type="submit" class="btn-small" style="margin-top:8px;">Submit</button>
+                        </form>
+                      </div>
+                    <% elsif hit.backup_source == "pdf" %>
+                      <div style="margin-top:15px;">
+                        <p style="opacity:0.8; margin-bottom:10px;">
+                          Respaldo en PDF: no hay validación automática en texto.
+                        </p>
+
+                        <form action="/datasets/add_members_to_hits_pdf" method="post" class="pdf-members-form">
+                          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                          <input type="hidden" name="hit_id" value="<%= hit.id %>">
+
+                          <div class="members-fields" data-hit="<%= hit.id %>">
+                            <div class="member-field input-field">
+                              <input type="text" class="member-autocomplete" list="members_list" autocomplete="off" placeholder="Selecciona un member">
+                              <input type="hidden" class="member-id-hidden" name="member_ids[]">
+                            </div>
+                          </div>
+
+                          <a href="#!" class="btn-small add-member-field" data-hit="<%= hit.id %>" style="margin-top:8px;">
+                            <i class="material-icons">add</i>
+                          </a>
+
+                          <button type="button" class="btn-small modal-trigger pdf-confirm-btn" data-target="pdf-confirm-modal" style="margin-top:8px;">
+                            Submit
+                          </button>
                         </form>
                       </div>
                     <% else %>
@@ -283,4 +309,73 @@
   document.addEventListener("DOMContentLoaded", bindMemberAutocomplete);
   document.addEventListener("turbo:load", bindMemberAutocomplete);
   document.addEventListener("turbolinks:load", bindMemberAutocomplete);
+</script>
+
+<div id="pdf-confirm-modal" class="modal">
+  <div class="modal-content">
+    <h5>Respaldo en PDF</h5>
+    <p>El respaldo está en formato PDF. Por favor, verifica que los siguientes nombres aparezcan en el archivo correspondiente:</p>
+<%#     <p>
+      <strong>Link:</strong>
+      <a id="pdf-confirm-link" href="#" target="_blank"></a>
+    </p> %>
+    <ul id="pdf-confirm-names" class="collection"></ul>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close btn-flat">Cancelar</a>
+    <a href="#!" id="pdf-confirm-continue" class="btn">Continuar</a>
+  </div>
+</div>
+
+<script nonce="<%= csp_nonce %>">
+  function initPdfConfirmFlow() {
+    // init modal (Materialize)
+    const modals = document.querySelectorAll(".modal");
+    if (window.M && M.Modal) M.Modal.init(modals);
+
+    let pendingForm = null;
+
+    document.querySelectorAll(".pdf-confirm-btn").forEach((btn) => {
+      if (btn.dataset.bound === "1") return;
+      btn.dataset.bound = "1";
+
+      btn.addEventListener("click", () => {
+        pendingForm = btn.closest("form");
+        if (!pendingForm) return;
+
+        // construye lista de nombres (texto visible) a partir de inputs member-autocomplete
+        const names = Array.from(pendingForm.querySelectorAll(".member-autocomplete"))
+          .map(i => (i.value || "").trim())
+          .filter(v => v.length > 0);
+
+        const ul = document.getElementById("pdf-confirm-names");
+        ul.innerHTML = "";
+        names.forEach((n) => {
+          const li = document.createElement("li");
+          li.className = "collection-item";
+          li.textContent = n;
+          ul.appendChild(li);
+        });
+
+        // abre modal
+        const modalEl = document.getElementById("pdf-confirm-modal");
+        if (window.M && M.Modal) {
+          const instance = M.Modal.getInstance(modalEl) || M.Modal.init(modalEl);
+          instance.open();
+        }
+      });
+    });
+
+    const cont = document.getElementById("pdf-confirm-continue");
+    if (cont && cont.dataset.bound !== "1") {
+      cont.dataset.bound = "1";
+      cont.addEventListener("click", () => {
+        if (pendingForm) pendingForm.submit(); // ahora sí hace el POST
+      });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", initPdfConfirmFlow);
+  document.addEventListener("turbo:load", initPdfConfirmFlow);
+  document.addEventListener("turbolinks:load", initPdfConfirmFlow);
 </script>

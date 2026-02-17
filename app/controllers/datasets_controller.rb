@@ -2789,6 +2789,47 @@ end
 	  redirect_to "/datasets/easy_hits"
 	end
 
+	def add_members_to_hits_pdf
+	  hit = Hit.find(params[:hit_id])
+
+	  member_ids = Array(params[:member_ids]).map(&:to_s)
+	  ordered_ids = []
+	  seen = {}
+	  member_ids.each do |s|
+	    next if s.blank?
+	    id = s.to_i
+	    next if id <= 0
+	    next if seen[id]
+	    seen[id] = true
+	    ordered_ids << id
+	  end
+
+	  if ordered_ids.empty?
+	    session[:load_success] = true
+	    session[:message] = "❌ No seleccionaste ningún member."
+	    return redirect_to "/datasets/easy_hits"
+	  end
+
+	  members = Member.where(id: ordered_ids).index_by(&:id)
+
+	  names = []
+	  ordered_ids.each do |id|
+	    m = members[id]
+	    next if m.nil?
+	    hit.members << m unless hit.members.exists?(m.id)
+	    names << m.fullname
+	  end
+
+	  # Modal final (solo nombres, sin ✅/❌)
+	  session[:load_success] = true
+	  session[:message] = "Miembros agregados al hit:\n\n" + names.map { |n| "- #{n}" }.join("\n")
+	  redirect_to "/datasets/easy_hits"
+	rescue => e
+	  session[:load_success] = true
+	  session[:message] = "❌ Error inesperado: #{e.message}"
+	  redirect_to "/datasets/easy_hits"
+	end
+
 	def upload_hits
 		loaded = 0
 		skipped = 0
