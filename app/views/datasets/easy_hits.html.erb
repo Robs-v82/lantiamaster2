@@ -247,87 +247,89 @@
           <ul class="collection">
             <% @members_falta_respaldo.each do |m| %>
               <li class="collection-item" style="padding:0;">
-  <ul class="collapsible" style="margin:0; box-shadow:none;">
-    <li>
-      <div class="collapsible-header" style="display:flex; align-items:center; justify-content:space-between;">
-        <div>
-          <strong><%= m.id %></strong> — <%= m.fullname %> - <%= m.organization.name %>
-        </div>
+                <ul class="collapsible" style="margin:0; box-shadow:none;">
+                  <li>
+                    <div class="collapsible-header" style="display:flex; align-items:center; justify-content:space-between;">
+                      <div>
+                        <strong><%= m.id %></strong> — <%= m.fullname %> - <%= m.organization.name %>
+                      </div>
 
-        <a
-          href="#!"
-          class="secondary-content modal-trigger easy-member-delete-trigger"
-          data-target="easy-member-delete-modal"
-          data-member-id="<%= m.id %>"
-          data-member-name="<%= m.fullname %>"
-          style="margin-left:12px;"
-        >
-          <i class="material-icons red-text">close</i>
-        </a>
-      </div>
+                      <a
+                        href="#!"
+                        class="secondary-content modal-trigger easy-member-delete-trigger"
+                        data-target="easy-member-delete-modal"
+                        data-member-id="<%= m.id %>"
+                        data-member-name="<%= m.fullname %>"
+                        style="margin-left:12px;"
+                      >
+                        <i class="material-icons red-text">close</i>
+                      </a>
+                    </div>
 
-      <div class="collapsible-body member_edit" style="padding:16px;">
-        <div class="row grey lighten-2" style="padding:10px;">
-          <%= form_with model: m, url: update_member_name_path(m), local: true do |f| %>
-            <div class="input-field col m2 s6">
-              <%= f.label :firstname, "Nombre" %>
-              <%= f.text_field :firstname, class: "validate", value: m.firstname %>
-            </div>
-            <div class="input-field col m2 s6">
-              <%= f.label :lastname1, "Apellido paterno" %>
-              <%= f.text_field :lastname1, class: "validate", value: m.lastname1 %>
-            </div>
-            <div class="input-field col m2 s6">
-              <%= f.label :lastname2, "Apellido materno" %>
-              <%= f.text_field :lastname2, class: "validate", value: m.lastname2 %>
-            </div>
-            <div class="input-field col m2 s6">
-              <%= f.label :gender, "Género", class: "active" %>
-              <%= f.select :gender,
-                    options_for_select([
-                      ["MASCULINO", "MASCULINO"],
-                      ["FEMENINO", "FEMENINO"],
-                      ["No identificado", "No identificado"]
-                    ], selected: m.gender.presence || "No identificado"),
-                    {},
-                    class: "browser-default" %>
-            </div>
-            <div class="input-field col m2 s6">
-              <%= f.label :involved, "Estatus", class: "active" %>
-              <%= f.select :involved,
-                    options_for_select([
-                      ["SEÑALADO", "true"],
-                      ["EXPUESTO", "false"],
-                    ], selected: m.involved),
-                    {},
-                    class: "browser-default" %>
-            </div>
+                    <div class="collapsible-body member_edit" style="padding:16px;">
+                      <div class="row grey lighten-2" style="padding:10px;">
+                        <%= form_with model: m, url: update_member_name_path(m), local: true do |f| %>
+                          <div class="input-field col m2 s6">
+                            <%= f.label :firstname, "Nombre" %>
+                            <%= f.text_field :firstname, class: "validate", value: m.firstname %>
+                          </div>
+                          <div class="input-field col m2 s6">
+                            <%= f.label :lastname1, "Apellido paterno" %>
+                            <%= f.text_field :lastname1, class: "validate", value: m.lastname1 %>
+                          </div>
+                          <div class="input-field col m2 s6">
+                            <%= f.label :lastname2, "Apellido materno" %>
+                            <%= f.text_field :lastname2, class: "validate", value: m.lastname2 %>
+                          </div>
+                          <div class="input-field col m2 s6">
+                            <%= f.label :gender, "Género", class: "active" %>
+                            <%= f.select :gender,
+                                  options_for_select([
+                                    ["MASCULINO", "MASCULINO"],
+                                    ["FEMENINO", "FEMENINO"],
+                                    ["No identificado", "No identificado"]
+                                  ], selected: m.gender.presence || "No identificado"),
+                                  {},
+                                  class: "browser-default" %>
+                          </div>
+                          <div class="input-field col m2 s6">
+                            <%= f.label :involved, "Estatus", class: "active" %>
+                            <%= f.select :involved,
+                                  options_for_select([
+                                    ["SEÑALADO", "true"],
+                                    ["EXPUESTO", "false"],
+                                  ], selected: m.involved),
+                                  {},
+                                  class: "browser-default" %>
+                          </div>
 
-            <div class="input-field col m2 s6">
-              <%= f.label :role_id, "Rol", class: "active" %>
-              <%= f.select :role_id,
-                    Role.where(name: @all_roles).order(:name).pluck(:name, :id),
-                    { include_blank: "Selecciona un rol" },
-                    class: "browser-default" %>
-            </div>
+                          <div class="input-field col m2 s6">
+                            <%= f.label :role_id, "Rol", class: "active" %>
+                            <%= f.select :role_id,
+                                  Role.where(name: @all_roles).order(:name).pluck(:name, :id),
+                                  { include_blank: "Selecciona un rol" },
+                                  class: "browser-default" %>
+                          </div>
 
-            <div class="col s12" style="margin-top:10px;">
-              <%= hidden_field_tag :return_to, "easy_hits" %>
-              <%= f.submit "Actualizar", class: "btn blue" %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </li>
-  </ul>
-</li>
+                          <div class="col s12" style="margin-top:10px;">
+                            <%= hidden_field_tag :return_to, "easy_hits" %>
+                            <%= f.submit "Actualizar", class: "btn blue" %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </li>
             <% end %>
           </ul>
         </div>
       </div>
     </div>
+    <div>
+      MSG=<%= @message.inspect %> | OK=<%= @load_success.inspect %>
+    </div>
   </div>
-
 </div>
 
 <script nonce="<%= csp_nonce %>">
@@ -521,12 +523,21 @@
 
 <% if @message.present? %>
   <script nonce="<%= csp_nonce %>">
-    document.addEventListener('DOMContentLoaded', function () {
-      var el = document.getElementById('easyResultModal');
-      if (el) {
-        var instance = M.Modal.init(el);
+    function openEasyResultModal() {
+      var modalEl = document.getElementById("easyResultModal");
+      if (!modalEl) return;
+
+      if (window.M && M.Modal) {
+        var instance = M.Modal.init(modalEl, {
+          dismissible: true
+        });
+
         instance.open();
       }
-    });
+    }
+
+    document.addEventListener("DOMContentLoaded", openEasyResultModal);
+    document.addEventListener("turbo:load", openEasyResultModal);
+    document.addEventListener("turbolinks:load", openEasyResultModal);
   </script>
 <% end %>

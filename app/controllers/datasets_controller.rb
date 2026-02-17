@@ -254,76 +254,54 @@ class DatasetsController < ApplicationController
 
 	def update_name
 	  member = Member.find(params[:id])
-	  nombre = member.firstname.strip
+	  nombre = member.firstname.to_s.strip
 	  nuevo_genero = params[:member][:gender]&.strip&.capitalize
 
-	  if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender))
-	    
-	    # Ruta al archivo CSV
-
-			if Rails.env.production?
-			  # gender_file = Rails.root.join("..", "shared", "names_by_gender.csv").expand_path
-			  gender_file = "/var/www/lantiamaster/shared/names_by_gender.csv"
-			else
-			  gender_file = Rails.root.join("scripts", "names_by_gender.csv")
-			end
-
-			unless File.exist?(gender_file)
-			  raise "No se encontró el archivo de géneros en #{gender_file}"
-			end
-
-	    table = CSV.read(gender_file, headers: true)
-
-	    # Buscar si el nombre ya está
-	    row = table.find { |r| r['firstname'].to_s.strip.casecmp(nombre).zero? }
-
-	    if row.nil?
-	      # Agregar nuevo nombre
-	      table << [nombre, nuevo_genero]
-	    elsif row['genero_estimado'].strip.downcase == "desconocido"
-	      row['genero_estimado'] = nuevo_genero
+	  redirect_target =
+	    if params[:return_to] == "easy_hits"
+	      "/datasets/easy_hits"
+	    else
+	      { controller: :datasets, action: :state_members, code: params[:state_code] }
 	    end
 
-	    # Guardar archivo actualizado
-	    CSV.open(gender_file, 'w') do |csv|
-	      csv << ["firstname", "genero_estimado"]
-	      table.each { |row| csv << row }
-	    end	    
-			redirect_target =
-			  if params[:return_to] == "easy_hits"
-			    { controller: :datasets, action: :easy_hits }
-			  else
-			    { controller: :datasets, action: :state_members, code: params[:state_code] }
-			  end
-
-			if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender))
-			  reclass = ReclassifyMemberCriminalRole.call(member: member)
-				unless reclass.ok?
-				  flash[:error] = "Se actualizó el miembro, pero no se pudo reclasificar: #{reclass.error}"
-				  Rails.logger.warn("[ReclassifyMemberCriminalRole] member_id=#{member.id} error=#{reclass.error}")
-				end
-			  redirect_to redirect_target
-			else
-			  flash[:error] = "No se pudo actualizar el miembro"
-			  redirect_to redirect_target
-			end
-	  else
-	    flash[:error] = "No se pudo actualizar el miembro"
-			redirect_target =
-			  if params[:return_to] == "easy_hits"
-			    { controller: :datasets, action: :easy_hits }
-			  else
-			    { controller: :datasets, action: :state_members, code: params[:state_code] }
-			  end
-
-			if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender))
-			  # ... (tu lógica del CSV se queda igual)
-			  redirect_to redirect_target
-			else
-			  flash[:error] = "No se pudo actualizar el miembro"
-			  redirect_to redirect_target
-			end
+	  unless member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender))
+	    session[:load_success] = false
+	    session[:message] = "❌ No se pudo actualizar el miembro"
+	    return redirect_to redirect_target
 	  end
+
+	  # === tu lógica del CSV (igual) ===
+	  if Rails.env.production?
+	    gender_file = "/var/www/lantiamaster/shared/names_by_gender.csv"
+	  else
+	    gender_file = Rails.root.join("scripts", "names_by_gender.csv")
+	  end
+
+	  raise "No se encontró el archivo de géneros en #{gender_file}" unless File.exist?(gender_file)
+
+	  table = CSV.read(gender_file, headers: true)
+	  row = table.find { |r| r['firstname'].to_s.strip.casecmp(nombre).zero? }
+
+	  if row.nil?
+	    table << [nombre, nuevo_genero]
+	  elsif row['genero_estimado'].to_s.strip.downcase == "desconocido"
+	    row['genero_estimado'] = nuevo_genero
+	  end
+
+	  CSV.open(gender_file, 'w') do |csv|
+	    csv << ["firstname", "genero_estimado"]
+	    table.each { |r| csv << r }
+	  end
+	  # === fin CSV ===
+
+	  reclass = ReclassifyMemberCriminalRole.call(member: member)
+	  unless reclass.ok?
+	    Rails.logger.warn("[ReclassifyMemberCriminalRole] member_id=#{member.id} error=#{reclass.error}")
+	  end
+
+	  session[:load_success] = true
+	  session[:message] = "✅ Miembro actualizado"
+	  redirect_to redirect_target
 	end
 
 	def download_state_rackets
