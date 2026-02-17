@@ -189,5 +189,6 @@ Rails.application.routes.draw do
     post "/datasets/easy_hits", to: "datasets#create_easy_hit"
     post "/datasets/add_members_to_hits", to: "datasets#add_members_to_hits"
     post "/datasets/add_members_to_hits_pdf", to: "datasets#add_members_to_hits_pdf"
+    post "/datasets/destroy_easy_member"
 
 end

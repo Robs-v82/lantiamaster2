@@ -288,12 +288,41 @@ class DatasetsController < ApplicationController
 	    CSV.open(gender_file, 'w') do |csv|
 	      csv << ["firstname", "genero_estimado"]
 	      table.each { |row| csv << row }
-	    end
+	    end	    
+			redirect_target =
+			  if params[:return_to] == "easy_hits"
+			    { controller: :datasets, action: :easy_hits }
+			  else
+			    { controller: :datasets, action: :state_members, code: params[:state_code] }
+			  end
 
-	    redirect_to controller: :datasets, action: :state_members, code: params[:state_code]
+			if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender))
+			  reclass = ReclassifyMemberCriminalRole.call(member: member)
+				unless reclass.ok?
+				  flash[:error] = "Se actualizó el miembro, pero no se pudo reclasificar: #{reclass.error}"
+				  Rails.logger.warn("[ReclassifyMemberCriminalRole] member_id=#{member.id} error=#{reclass.error}")
+				end
+			  redirect_to redirect_target
+			else
+			  flash[:error] = "No se pudo actualizar el miembro"
+			  redirect_to redirect_target
+			end
 	  else
 	    flash[:error] = "No se pudo actualizar el miembro"
-	    redirect_to controller: :datasets, action: :state_members, code: params[:state_code]
+			redirect_target =
+			  if params[:return_to] == "easy_hits"
+			    { controller: :datasets, action: :easy_hits }
+			  else
+			    { controller: :datasets, action: :state_members, code: params[:state_code] }
+			  end
+
+			if member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender))
+			  # ... (tu lógica del CSV se queda igual)
+			  redirect_to redirect_target
+			else
+			  flash[:error] = "No se pudo actualizar el miembro"
+			  redirect_to redirect_target
+			end
 	  end
 	end
 
@@ -1567,6 +1596,8 @@ def upload_members
 		  end
 		end
 
+		reclass = ReclassifyMemberCriminalRole.call(member: myMember)
+
 		myMember.hits << myHit
 
 			if row["detention"].to_s.strip == "1" && myHit.present?
@@ -2489,9 +2520,10 @@ end
     end
 
 	def easy_hits
-	  @load_success = true if session[:load_success]
+	  @load_success = session[:load_success] unless session[:load_success].nil?
 	  @filename     = session[:filename] if session[:filename]
 	  @message      = session[:message]  if session[:message]
+	  @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical","Artista","Músico","Manager"]
 
 	  # Limpia flags para que el modal no se repita al refrescar
 	  session.delete(:load_success)
@@ -2537,7 +2569,6 @@ end
 		#   .distinct
 
 		@members_falta_respaldo = falta_respaldo.order(:id)
-
 	end
 
 	def create_easy_hit
@@ -2832,6 +2863,24 @@ end
 	rescue => e
 	  session[:load_success] = true
 	  session[:message] = "❌ Error inesperado: #{e.message}"
+	  redirect_to "/datasets/easy_hits"
+	end
+
+	def destroy_easy_member
+	  member = Member.find(params[:member_id])
+
+	  result = DestroyEasyMember.call(member: member)
+
+	  if result.ok?
+	    session[:load_success] = true
+	    session[:filename]     = nil
+	    session[:message]      = "Registro eliminado con éxito"
+	  else
+	    session[:load_success] = false
+	    session[:filename]     = nil
+	    session[:message]      = result.error
+	  end
+
 	  redirect_to "/datasets/easy_hits"
 	end
 

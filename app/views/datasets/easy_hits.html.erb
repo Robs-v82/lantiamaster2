@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col l6 m8 s12">
+  <div class="col l4 m8 s12">
     <div class="card cyan darken-1">
       <div class="card-content white-text">
         <form action="/datasets/easy_hits" method="post">
@@ -235,7 +235,7 @@
   </div>
 
   <!-- Listado falta respaldo -->
-  <div class="col l6 m12 s12">
+  <div class="col l8 m12 s12">
     <div class="card">
       <div class="card-content">
         <span class="card-title">Miembros sin respaldo</span>
@@ -246,9 +246,81 @@
         <div style="max-height:520px; overflow-y:auto; margin-top:10px;">
           <ul class="collection">
             <% @members_falta_respaldo.each do |m| %>
-              <li class="collection-item">
-                <strong><%= m.id %></strong> — <%= m.fullname %> - <%= m.organization.name %>
-              </li>
+              <li class="collection-item" style="padding:0;">
+  <ul class="collapsible" style="margin:0; box-shadow:none;">
+    <li>
+      <div class="collapsible-header" style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <strong><%= m.id %></strong> — <%= m.fullname %> - <%= m.organization.name %>
+        </div>
+
+        <a
+          href="#!"
+          class="secondary-content modal-trigger easy-member-delete-trigger"
+          data-target="easy-member-delete-modal"
+          data-member-id="<%= m.id %>"
+          data-member-name="<%= m.fullname %>"
+          style="margin-left:12px;"
+        >
+          <i class="material-icons red-text">close</i>
+        </a>
+      </div>
+
+      <div class="collapsible-body member_edit" style="padding:16px;">
+        <div class="row grey lighten-2" style="padding:10px;">
+          <%= form_with model: m, url: update_member_name_path(m), local: true do |f| %>
+            <div class="input-field col m2 s6">
+              <%= f.label :firstname, "Nombre" %>
+              <%= f.text_field :firstname, class: "validate", value: m.firstname %>
+            </div>
+            <div class="input-field col m2 s6">
+              <%= f.label :lastname1, "Apellido paterno" %>
+              <%= f.text_field :lastname1, class: "validate", value: m.lastname1 %>
+            </div>
+            <div class="input-field col m2 s6">
+              <%= f.label :lastname2, "Apellido materno" %>
+              <%= f.text_field :lastname2, class: "validate", value: m.lastname2 %>
+            </div>
+            <div class="input-field col m2 s6">
+              <%= f.label :gender, "Género", class: "active" %>
+              <%= f.select :gender,
+                    options_for_select([
+                      ["MASCULINO", "MASCULINO"],
+                      ["FEMENINO", "FEMENINO"],
+                      ["No identificado", "No identificado"]
+                    ], selected: m.gender.presence || "No identificado"),
+                    {},
+                    class: "browser-default" %>
+            </div>
+            <div class="input-field col m2 s6">
+              <%= f.label :involved, "Estatus", class: "active" %>
+              <%= f.select :involved,
+                    options_for_select([
+                      ["SEÑALADO", "true"],
+                      ["EXPUESTO", "false"],
+                    ], selected: m.involved),
+                    {},
+                    class: "browser-default" %>
+            </div>
+
+            <div class="input-field col m2 s6">
+              <%= f.label :role_id, "Rol", class: "active" %>
+              <%= f.select :role_id,
+                    Role.where(name: @all_roles).order(:name).pluck(:name, :id),
+                    { include_blank: "Selecciona un rol" },
+                    class: "browser-default" %>
+            </div>
+
+            <div class="col s12" style="margin-top:10px;">
+              <%= hidden_field_tag :return_to, "easy_hits" %>
+              <%= f.submit "Actualizar", class: "btn blue" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </li>
+  </ul>
+</li>
             <% end %>
           </ul>
         </div>
@@ -257,20 +329,6 @@
   </div>
 
 </div>
-
-<% if @load_success %>
-  <div id="load-modal" class="modal">
-    <div class="modal-content">
-      <%= image_tag "optimized_logo.jpg", :class => "modal-logo"%>
-      <p class="p20 slim"><%= @message %></p>
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class="modal-close waves-effect waves-green btn-flat">
-        <i class="material-icons small">close</i>
-      </a>
-    </div>
-  </div>
-<% end %>
 
 <script nonce="<%= csp_nonce %>">
   function norm(s) {
@@ -309,6 +367,72 @@
   document.addEventListener("DOMContentLoaded", bindMemberAutocomplete);
   document.addEventListener("turbo:load", bindMemberAutocomplete);
   document.addEventListener("turbolinks:load", bindMemberAutocomplete);
+</script>
+
+<!-- Modal: Confirmar eliminación de member (easy hits) -->
+<div id="easy-member-delete-modal" class="modal">
+  <div class="modal-content">
+    <h5>Advertencia</h5>
+    <p>Si continúas, se eliminará este registro.</p>
+    <p style="margin-top:12px;">
+      <strong>ID:</strong> <span id="easy-member-delete-id">—</span><br>
+      <strong>Nombre:</strong> <span id="easy-member-delete-name">—</span>
+    </p>
+
+    <form id="easy-member-delete-form" action="/datasets/destroy_easy_member" method="post" style="margin-top:18px;">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      <input type="hidden" name="member_id" id="easy-member-delete-member-id" value="">
+    </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close btn-flat">Cancelar</a>
+    <a href="#!" id="easy-member-delete-continue" class="btn red">Continuar</a>
+  </div>
+</div>
+
+<script nonce="<%= csp_nonce %>">
+  function initEasyMemberDeleteFlow() {
+    // init modals (Materialize)
+    const modals = document.querySelectorAll(".modal");
+    if (window.M && M.Modal) M.Modal.init(modals);
+
+    document.querySelectorAll(".easy-member-delete-trigger").forEach((btn) => {
+      if (btn.dataset.bound === "1") return;
+      btn.dataset.bound = "1";
+
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.memberId || "";
+        const name = btn.dataset.memberName || "";
+
+        const idSpan = document.getElementById("easy-member-delete-id");
+        const nameSpan = document.getElementById("easy-member-delete-name");
+        const hidden = document.getElementById("easy-member-delete-member-id");
+
+        if (idSpan) idSpan.textContent = id;
+        if (nameSpan) nameSpan.textContent = name;
+        if (hidden) hidden.value = id;
+
+        const modalEl = document.getElementById("easy-member-delete-modal");
+        if (modalEl && window.M && M.Modal) {
+          const instance = M.Modal.getInstance(modalEl) || M.Modal.init(modalEl);
+          instance.open();
+        }
+      });
+    });
+
+    const cont = document.getElementById("easy-member-delete-continue");
+    if (cont && cont.dataset.bound !== "1") {
+      cont.dataset.bound = "1";
+      cont.addEventListener("click", () => {
+        const form = document.getElementById("easy-member-delete-form");
+        if (form) form.submit();
+      });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", initEasyMemberDeleteFlow);
+  document.addEventListener("turbo:load", initEasyMemberDeleteFlow);
+  document.addEventListener("turbolinks:load", initEasyMemberDeleteFlow);
 </script>
 
 <div id="pdf-confirm-modal" class="modal">
@@ -379,3 +503,30 @@
   document.addEventListener("turbo:load", initPdfConfirmFlow);
   document.addEventListener("turbolinks:load", initPdfConfirmFlow);
 </script>
+
+<!-- Modal: resultado (éxito / error) -->
+<div id="easyResultModal" class="modal">
+  <div class="modal-content">
+    <h5><%= @load_success ? "Listo" : "Aviso" %></h5>
+
+    <p style="<%= @load_success ? 'color: #2e7d32;' : 'color: #c62828;' %>">
+      <%= @message %>
+    </p>
+  </div>
+
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cerrar</a>
+  </div>
+</div>
+
+<% if @message.present? %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var el = document.getElementById('easyResultModal');
+      if (el) {
+        var instance = M.Modal.init(el);
+        instance.open();
+      }
+    });
+  </script>
+<% end %>
