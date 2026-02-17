@@ -124,18 +124,10 @@
                   <% if a["status"] != "ok" %>
                     <p style="color:#b71c1c;"><strong>Error:</strong> <%= a["message"].presence || "No se pudo crear" %></p>
                   <% end %>
-
-                  <% if a["status"] == "ok" && a["legacy_id"].present? %>
-                    <div style="margin-top:12px;">
-                      <a class="btn-small" href="/datasets/easy_hits?open_legacy=<%= a["legacy_id"] %>#add-members">
-                        Agregar miembros
-                      </a>
-                    </div>
-                  <% end %>
                 <br>
                   <% hit = Hit.find_by(legacy_id: a["legacy_id"]) %>
-                  <% unless hit.plain_text == nil %>
-                    <% if hit.present? %>
+                  <% if hit.present? %>
+                    <% unless hit.plain_text == nil %>
                       <div style="margin-top:15px;">
                         <form action="/datasets/add_members_to_hits" method="post">
                           <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
@@ -150,9 +142,12 @@
                           <a href="#!" class="btn-small add-member-field" data-hit="<%= hit.id %>" style="margin-top:8px;">
                             <i class="material-icons">add</i>
                           </a>
-
                           <button type="submit" class="btn-small" style="margin-top:8px;">Submit</button>
                         </form>
+                      </div>
+                    <% else %>
+                      <div style="margin-top:15px;">
+                        <h6 class="center-align"style="color: #ef4e50">Hit sin respaldo</h6>
                       </div>
                     <% end %>
                   <% end %>
