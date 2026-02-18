@@ -106,14 +106,20 @@
 
               <li>
                 <div class="collapsible-header">
-                  <% if a["status"] == "ok" %>
-                    <i class="material-icons">check_circle</i>
-                  <% else %>
-                    <i class="material-icons">error</i>
-                  <% end %>
+                  <div class="row">
+                    <div class="col s12">
+                      <% if a["status"] == "ok" %>
+                        <i class="material-icons">check_circle</i>
+                      <% else %>
+                        <i class="material-icons">error</i>
+                      <% end %>
 
-                  <span style="margin-right:10px;"><strong><%= a["legacy_id"].presence || "—" %></strong></span>
-                  <span style="opacity:0.8;"><%= a["title"].presence || "(sin título)" %></span>
+                      <span style="margin-right:10px;"><strong><%= a["legacy_id"].presence || "—" %></strong></span>
+                    </div>
+                    <div class="col s12">
+                      <span style="opacity:0.8;"><%= a["title"].presence || "(sin título)" %></span>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="collapsible-body">
@@ -174,6 +180,25 @@
                     <% else %>
                       <div style="margin-top:15px;">
                         <h6 class="center-align"style="color: #ef4e50">Hit sin respaldo</h6>
+                      </div>
+                      <%# dentro del bloque "Hit sin respaldo" %>
+                      <div style="margin-top:12px;">
+                        <form action="/datasets/upload_hit_pdf_snapshot" method="post" enctype="multipart/form-data">
+                          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                          <input type="hidden" name="hit_id" value="<%= hit.id %>">
+
+                          <input type="file"
+                                 id="easy_pdf_file_<%= hit.id %>"
+                                 name="pdf_snapshot"
+                                 accept="application/pdf"
+                                 required>
+
+                          <div id="easy_pdf_name_<%= hit.id %>"
+                               style="border:1px solid #EF4E50; border-radius:0; padding:0.5rem;">
+                            Haz clic aquí para seleccionar el PDF…
+                          </div>
+                          <button type="submit" class="btn">Subir respaldo</button>
+                        </form>
                       </div>
                     <% end %>
                   <% end %>
@@ -521,4 +546,55 @@
   document.addEventListener("DOMContentLoaded", initPdfConfirmFlow);
   document.addEventListener("turbo:load", initPdfConfirmFlow);
   document.addEventListener("turbolinks:load", initPdfConfirmFlow);
+</script>
+<script nonce="<%= csp_nonce %>">
+  function bindEasyPdfFilePathClicks() {
+    document.querySelectorAll('.file-path[data-file-id]').forEach((fp) => {
+      if (fp.dataset.bound === "1") return;
+      fp.dataset.bound = "1";
+
+      fp.addEventListener('click', () => {
+        const id = fp.dataset.fileId;
+        const fileInput = document.getElementById(id);
+        if (fileInput) fileInput.click();
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', bindEasyPdfFilePathClicks);
+  document.addEventListener('turbo:load', bindEasyPdfFilePathClicks);
+  document.addEventListener('turbolinks:load', bindEasyPdfFilePathClicks);
+</script>
+
+<script nonce="<%= csp_nonce %>">
+  (function () {
+    function bindEasyPdfNames() {
+      document.querySelectorAll('input[type="file"][id^="easy_pdf_file_"]').forEach((inp) => {
+        if (inp.dataset.bound === "1") return;
+        inp.dataset.bound = "1";
+
+        inp.addEventListener("change", () => {
+          const id = inp.id.replace("easy_pdf_file_", "");
+          const box = document.getElementById("easy_pdf_name_" + id);
+          if (!box) return;
+
+          const file = inp.files && inp.files[0];
+          box.textContent = file ? file.name : "Haz clic aquí para seleccionar el PDF…";
+        });
+
+        // opcional: click en el cuadro rojo abre selector
+        const id = inp.id.replace("easy_pdf_file_", "");
+        const box = document.getElementById("easy_pdf_name_" + id);
+        if (box && box.dataset.bound !== "1") {
+          box.dataset.bound = "1";
+          box.style.cursor = "pointer";
+          box.addEventListener("click", () => inp.click());
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", bindEasyPdfNames);
+    document.addEventListener("turbo:load", bindEasyPdfNames);
+    document.addEventListener("turbolinks:load", bindEasyPdfNames);
+  })();
 </script>

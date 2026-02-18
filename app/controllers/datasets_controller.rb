@@ -3227,6 +3227,56 @@ def merge_members
 	redirect_to datasets_clear_members_path
 end
 
+def upload_hit_pdf_snapshot
+  hit = Hit.find(params[:hit_id])
+  file = params[:pdf_snapshot]
+
+  if file.blank?
+    session[:load_success] = false
+    session[:message] = "❌ No seleccionaste ningún archivo."
+    return redirect_to "/datasets/easy_hits"
+  end
+
+  # Validación mínima: content-type y extensión
+  ct = file.content_type.to_s
+  name = file.original_filename.to_s.downcase
+
+  unless ct == "application/pdf" || name.ends_with?(".pdf")
+    session[:load_success] = false
+    session[:message] = "❌ El archivo debe ser un PDF."
+    return redirect_to "/datasets/easy_hits"
+  end
+
+  # Adjunta el PDF
+  hit.pdf_snapshot.attach(file)
+
+  unless hit.pdf_snapshot.attached?
+    session[:load_success] = false
+    session[:message] = "❌ No se pudo adjuntar el PDF."
+    return redirect_to "/datasets/easy_hits"
+  end
+
+  # Dejar el hit como “PDF OK” (similar a cuando el link ya es PDF)
+  hit.update_columns(
+    backup_source: "pdf",
+    backup_status: "ok",
+    fetch_error: nil,
+    updated_at: Time.current
+  )
+
+  session[:load_success] = true
+  session[:message] = "✅ PDF agregado como respaldo del hit ##{hit.id}."
+  redirect_to "/datasets/easy_hits"
+rescue ActiveRecord::RecordNotFound
+  session[:load_success] = false
+  session[:message] = "❌ No se encontró el hit."
+  redirect_to "/datasets/easy_hits"
+rescue => e
+  session[:load_success] = false
+  session[:message] = "❌ Error: #{e.message}"
+  redirect_to "/datasets/easy_hits"
+end
+
 def easy_members
   current_user = User.find(session[:user_id])
   # 1) Legacy IDs existentes (solo válidos)
