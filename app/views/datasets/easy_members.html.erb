@@ -1,0 +1,278 @@
+<div class="row">
+  <div class="col l4 m8 s12">
+    <div class="card cyan darken-1">
+      <div class="card-content white-text">
+        <form action="/datasets/easy_members" method="post">
+          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+          <div class="row">
+            <div class="col s11 left">
+              <span class="card-title">Vincular / crear member + asignar hit</span>
+            </div>
+          </div>
+
+          <!-- 1) Legacy ID (solo existente) -->
+          <div class="row">
+            <div class="input-field col s12">
+              <input
+                id="easy_legacy_label"
+                type="text"
+                list="legacy_ids_list"
+                autocomplete="off"
+                required
+                style="background:white; color:black; padding-left:8px;"
+              >
+              <label for="easy_legacy_label" class="black-text" style="padding-left: 12px;">Legacy ID del hit</label>
+
+              <input type="hidden" id="easy_legacy_id" name="easy_member[legacy_id]" />
+
+              <datalist id="legacy_ids_list">
+                <% @legacy_ids.each do |lid| %>
+                  <option value="<%= lid %>"></option>
+                <% end %>
+              </datalist>
+
+              <small style="opacity:0.9;">Debe existir en Hits</small>
+            </div>
+          </div>
+
+          <script type="text/javascript" nonce="<%= csp_nonce %>">
+            function bindEasyMembersLegacy() {
+              const input = document.getElementById("easy_legacy_label");
+              const hidden = document.getElementById("easy_legacy_id");
+              const list = document.getElementById("legacy_ids_list");
+              if (!input || !hidden || !list) return;
+
+              const existsInList = (v) => Array.from(list.options).some(o => o.value === v);
+
+              const sync = () => {
+                const v = (input.value || "").trim();
+                if (v.length === 0) {
+                  hidden.value = "";
+                  input.setCustomValidity("Selecciona un Legacy ID existente.");
+                  return;
+                }
+
+                if (existsInList(v)) {
+                  hidden.value = v;
+                  input.setCustomValidity("");
+                } else {
+                  hidden.value = "";
+                  input.setCustomValidity("Ese Legacy ID no existe. Selecciona uno del listado.");
+                }
+              };
+
+              input.addEventListener("input", sync);
+              input.addEventListener("change", sync);
+              input.addEventListener("blur", sync);
+            }
+
+            document.addEventListener("DOMContentLoaded", bindEasyMembersLegacy);
+            document.addEventListener("turbo:load", bindEasyMembersLegacy);
+            document.addEventListener("turbolinks:load", bindEasyMembersLegacy);
+          </script>
+
+          <!-- 2) firstname (autocomplete, admite nuevos) -->
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="easy_firstname" name="easy_member[firstname]" type="text" list="firstnames_list" autocomplete="off" required
+                style="background:white; color:black; padding-left:8px;">
+              <label for="easy_firstname" class="black-text" style="padding-left: 12px;">Nombre</label>
+
+              <datalist id="firstnames_list">
+                <% @firstnames.each do |v| %>
+                  <option value="<%= v %>"></option>
+                <% end %>
+              </datalist>
+            </div>
+          </div>
+
+          <!-- 3) lastname1 (autocomplete, admite nuevos) -->
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="easy_lastname1" name="easy_member[lastname1]" type="text" list="lastname1s_list" autocomplete="off" required
+                style="background:white; color:black; padding-left:8px;">
+              <label for="easy_lastname1" class="black-text" style="padding-left: 12px;">Apellido paterno</label>
+
+              <datalist id="lastname1s_list">
+                <% @lastname1s.each do |v| %>
+                  <option value="<%= v %>"></option>
+                <% end %>
+              </datalist>
+            </div>
+          </div>
+
+          <!-- 4) lastname2 (autocomplete, admite nuevos) -->
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="easy_lastname2" name="easy_member[lastname2]" type="text" list="lastname2s_list" autocomplete="off" required
+                style="background:white; color:black; padding-left:8px;">
+              <label for="easy_lastname2" class="black-text" style="padding-left: 12px;">Apellido materno</label>
+
+              <datalist id="lastname2s_list">
+                <% @lastname2s.each do |v| %>
+                  <option value="<%= v %>"></option>
+                <% end %>
+              </datalist>
+            </div>
+          </div>
+
+          <!-- 5) Rol (dropdown) -->
+          <div class="row">
+            <div class="input-field col s12">
+              <label class="black-text active" style="padding-left: 12px;">Rol propuesto</label>
+              <select name="easy_member[role_id]" class="browser-default" required>
+                <option value="" disabled selected>Selecciona un rol</option>
+                <% @roles_dropdown.each do |name, id| %>
+                  <option value="<%= id %>"><%= name %></option>
+                <% end %>
+              </select>
+            </div>
+          </div>
+
+          <!-- 6) Organización (cartels, sugerido solo existente) -->
+          <div class="row">
+            <div class="input-field col s12">
+              <input
+                id="easy_org_label"
+                type="text"
+                list="cartels_list"
+                autocomplete="off"
+                required
+                style="background:white; color:black; padding-left:8px;"
+              >
+              <label for="easy_org_label" class="black-text" style="padding-left: 12px;">Organización</label>
+
+              <input type="hidden" id="easy_org_id" name="easy_member[organization_id]" />
+
+              <datalist id="cartels_list">
+                <% @cartels.each do |org| %>
+                  <option value="<%= org.name %>" data-id="<%= org.id %>"></option>
+                <% end %>
+              </datalist>
+
+              <small style="opacity:0.9;">Debe salir del catálogo de carteles</small>
+            </div>
+          </div>
+
+          <script type="text/javascript" nonce="<%= csp_nonce %>">
+            function bindEasyMembersOrg() {
+              const input = document.getElementById("easy_org_label");
+              const hidden = document.getElementById("easy_org_id");
+              const list = document.getElementById("cartels_list");
+              if (!input || !hidden || !list) return;
+
+              const sync = () => {
+                const v = (input.value || "").trim();
+                const opt = Array.from(list.options).find(o => o.value === v);
+                if (opt) {
+                  hidden.value = opt.dataset.id || "";
+                  input.setCustomValidity("");
+                } else {
+                  hidden.value = "";
+                  input.setCustomValidity("Selecciona una organización del listado.");
+                }
+              };
+
+              input.addEventListener("input", sync);
+              input.addEventListener("change", sync);
+              input.addEventListener("blur", sync);
+            }
+
+            document.addEventListener("DOMContentLoaded", bindEasyMembersOrg);
+            document.addEventListener("turbo:load", bindEasyMembersOrg);
+            document.addEventListener("turbolinks:load", bindEasyMembersOrg);
+          </script>
+
+          <div class="card-action">
+            <button type="submit" class="btn waves-effect waves-light">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Opcional: área de debug igual que easy_hits -->
+    <div>
+      MSG=<%= @message.inspect %> | OK=<%= @load_success.inspect %>
+    </div>
+  </div>
+
+  <!-- Columna derecha (la dejamos simple por ahora) -->
+  <div class="col l8 m12 s12">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">Últimos hits</span>
+
+        <!-- Buscador por link (GET) -->
+        <form action="/datasets/easy_members" method="get" style="margin-top:10px;">
+          <div class="row" style="margin-bottom:0;">
+            <div class="input-field col s9">
+              <input id="hit_link_search" name="hit_link" type="text" value="<%= params[:hit_link].to_s %>"
+                     style="padding-left:8px;">
+              <label for="hit_link_search" class="active">Buscar por link</label>
+            </div>
+            <div class="col s3" style="margin-top:18px;">
+              <button type="submit" class="btn waves-effect waves-light">Buscar</button>
+            </div>
+          </div>
+        </form>
+
+        <% if params[:hit_link].present? %>
+          <% if @link_hit.present? %>
+            <p style="margin-top:-5px; color:#1b5e20;">
+              Encontrado. Se agregó arriba.
+            </p>
+          <% else %>
+            <p style="margin-top:-5px; color:#b71c1c;">
+              No existe un hit con ese link.
+            </p>
+          <% end %>
+        <% end %>
+
+        <div style="max-height:520px; overflow-y:auto; margin-top:10px;">
+          <ul class="collection">
+            <% @recent_hits.each do |h| %>
+              <% town = h.town %>
+              <% place =
+                if town.present?
+                  if town.county&.name.present? && town.county.name != "Sin definir"
+                    "#{town.county.name}"
+                  else
+                    "#{town.county&.state&.name}"
+                  end
+                else
+                  "—"
+                end
+              %>
+
+              <li class="collection-item" style="padding:12px 14px;">
+                <div style="line-height:1.25;">
+                  <div>
+                    <strong><%= h.legacy_id.presence || "—" %></strong>
+                    <span style="opacity:0.85;"> — <%= place %></span>
+                    <span style="opacity:0.85;"> — <%= h.date.present? ? h.date : "—" %></span>
+                  </div>
+
+                  <div style="opacity:0.9; margin-top:4px;">
+                    <% if h.title.present? %>
+                      <span><%= h.title %></span>
+                    <% else %>
+                      <span style="opacity:0.7;">(sin título)</span>
+                    <% end %>
+                  </div>
+
+                  <% if h.link.present? %>
+                    <div style="margin-top:4px;">
+                      <a href="<%= h.link %>" target="_blank"><%= h.link %></a>
+                    </div>
+                  <% end %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

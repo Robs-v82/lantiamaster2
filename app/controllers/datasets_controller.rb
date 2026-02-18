@@ -264,7 +264,7 @@ class DatasetsController < ApplicationController
 	      { controller: :datasets, action: :state_members, code: params[:state_code] }
 	    end
 
-	  unless member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender))
+	  unless member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender, :org_target_id))
 	    session[:load_success] = false
 	    session[:message] = "❌ No se pudo actualizar el miembro"
 	    return redirect_to redirect_target
@@ -298,6 +298,18 @@ class DatasetsController < ApplicationController
 	  unless reclass.ok?
 	    Rails.logger.warn("[ReclassifyMemberCriminalRole] member_id=#{member.id} error=#{reclass.error}")
 	  end
+
+	  # --- Actualizar organización (criminal_link o organization) ---
+		org_id = params[:org_target_id].presence
+
+		if org_id
+		  if member.criminal_link_id.present?
+		    member.update_column(:criminal_link_id, org_id.to_i)
+		  else
+		    member.update_column(:organization_id, org_id.to_i)
+		  end
+		end
+		# --- fin ---
 
 	  session[:load_success] = true
 	  session[:message] = "✅ Miembro actualizado"
@@ -2502,6 +2514,7 @@ end
 	  @filename     = session[:filename] if session[:filename]
 	  @message      = session[:message]  if session[:message]
 	  @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical","Artista","Músico","Manager"]
+	  @cartels = helpers.get_cartels
 
 	  # Limpia flags para que el modal no se repita al refrescar
 	  session.delete(:load_success)
@@ -3212,6 +3225,313 @@ def merge_members
 	  redirect_to "/datasets/clear_state_members/#{session[:clear_state]}" and return
 	end	
 	redirect_to datasets_clear_members_path
+end
+
+def easy_members
+  current_user = User.find(session[:user_id])
+  # 1) Legacy IDs existentes (solo válidos)
+  @legacy_ids = Hit.where.not(legacy_id: [nil, ""]).distinct.order(:legacy_id).pluck(:legacy_id)
+
+  targetMembers = Member.joins(:hits).distinct
+  
+  # 2) Autocomplete de nombres (únicos, pero permitimos nuevos en el input)
+  @firstnames = targetMembers.where.not(firstname: [nil, ""]).distinct.order(:firstname).pluck(:firstname)
+  @lastname1s = targetMembers.where.not(lastname1: [nil, ""]).distinct.order(:lastname1).pluck(:lastname1)
+  @lastname2s = targetMembers.where.not(lastname2: [nil, ""]).distinct.order(:lastname2).pluck(:lastname2)
+
+  # 3) Roles (usar @all_roles como en easy_hits; fallback si no está seteado)
+  roles_scope = if defined?(@all_roles) && @all_roles.present?
+                  Role.where(name: @all_roles)
+                else
+                  Role.all
+                end
+  @roles_dropdown = roles_scope.order(:name).pluck(:name, :id)
+
+  # 4) Organizaciones criminales (helper que ya tienes)
+  @cartels = helpers.get_cartels
+
+  @message = session[:message]
+  @load_success = session[:load_success]
+
+  # === NUEVO: panel derecho (10 hits recientes del usuario + búsqueda por link) ===
+  link_q = params[:hit_link].to_s.strip
+  @link_hit = nil
+
+  if link_q.present?
+    @link_hit = Hit.find_by(link: link_q)
+  end
+
+  # OJO: asumo que Hit tiene user_id (como “creados por el usuario”).
+  # Si tu columna se llama distinto, me dices y lo ajusto en 1 línea.
+  recent = Hit.where(user_id: current_user.id).order(created_at: :desc).limit(10).to_a
+
+  if @link_hit.present?
+    # lo subimos arriba, sin duplicar
+    recent = ([ @link_hit ] + recent).uniq { |h| h.id }.take(10)
+  end
+
+  @recent_hits = recent
+end
+
+def create_easy_member
+  p = easy_member_params
+
+  legacy_id = p[:legacy_id].to_s.strip
+  original_fn  = normalize_caps(p[:firstname].to_s.strip)
+  original_ln1 = normalize_caps(p[:lastname1].to_s.strip)
+  original_ln2 = normalize_caps(p[:lastname2].to_s.strip)
+
+  firstname, lastname1, lastname2 = corregir_nombres(original_fn, original_ln1, original_ln2)
+
+  role = Role.find_by(id: p[:role_id])
+  org  = Organization.find_by(id: p[:organization_id])
+  hit  = Hit.find_by(legacy_id: legacy_id)
+
+  attempt = {
+    "legacy_id" => legacy_id,
+    "firstname" => firstname,
+    "lastname1" => lastname1,
+    "lastname2" => lastname2,
+    "role_id" => p[:role_id],
+    "organization_id" => p[:organization_id]
+  }
+
+  unless hit.present?
+    attempt["status"] = "error"
+    attempt["message"] = "Legacy ID no existe en Hits"
+    push_easy_member_attempt(attempt)
+    session[:load_success] = false
+    session[:message] = attempt["message"]
+    return redirect_to "/datasets/easy_members"
+  end
+
+  unless role.present?
+    attempt["status"] = "error"
+    attempt["message"] = "Rol inválido"
+    push_easy_member_attempt(attempt)
+    session[:load_success] = false
+    session[:message] = attempt["message"]
+    return redirect_to "/datasets/easy_members"
+  end
+
+  unless org.present?
+    attempt["status"] = "error"
+    attempt["message"] = "Organización inválida"
+    push_easy_member_attempt(attempt)
+    session[:load_success] = false
+    session[:message] = attempt["message"]
+    return redirect_to "/datasets/easy_members"
+  end
+
+  # 1) Buscar match exacto
+  miembros_potenciales = Member.where(firstname: firstname, lastname1: lastname1, lastname2: lastname2)
+
+  match = miembros_potenciales.find do |m|
+    m.firstname == firstname && m.lastname1 == lastname1 && m.lastname2 == lastname2
+  end
+
+  # 2) Si no hay exacto, buscar similar (tu método privado en este controlador)
+  match ||= Member.where.not(firstname: [nil, ""], lastname1: [nil, ""], lastname2: [nil, ""]).find do |m|
+    members_similar?(m, OpenStruct.new(firstname: firstname, lastname1: lastname1, lastname2: lastname2))
+  end
+
+  role_name = role.name.to_s
+
+  # Helpers “mini” para criminal_role (misma idea que en upload_members)
+  lookup_true = {
+    "Líder" => "Líder",
+    "Operador" => "Miembro",
+    "Socio" => "Socio",
+    "Abogado" => "Socio",
+    "Manager" => "Socio",
+    "Artista" => "Socio",
+    "Músico" => "Socio",
+    "Autoridad cooptada" => "Autoridad vinculada",
+    "Regidor" => "Autoridad vinculada",
+    "Policía" => "Autoridad vinculada",
+    "Militar" => "Autoridad vinculada",
+    "Alcalde" => "Autoridad vinculada",
+    "Gobernador" => "Autoridad vinculada",
+    "Delegado estatal" => "Autoridad vinculada",
+    "Secretario de Seguridad" => "Autoridad vinculada",
+    "Sin definir" => nil
+  }.freeze
+
+  lookup_false = {
+    "Autoridad expuesta" => "Autoridad expuesta",
+    "Regidor" => "Autoridad expuesta",
+    "Policía" => "Autoridad expuesta",
+    "Militar" => "Autoridad expuesta",
+    "Alcalde" => "Autoridad expuesta",
+    "Gobernador" => "Autoridad expuesta",
+    "Delegado estatal" => "Autoridad expuesta",
+    "Secretario de Seguridad" => "Autoridad expuesta",
+    "Servicios lícitos" => "Servicios lícitos",
+    "Abogado" => "Servicios lícitos",
+    "Manager" => "Servicios lícitos",
+    "Artista" => "Servicios lícitos",
+    "Músico" => "Servicios lícitos",
+    "Familiar" => "Familiar/allegado",
+    "Sin definir" => nil
+  }.freeze
+
+  compute_criminal_role = lambda do |involved_value, rn|
+    return nil if rn.blank?
+    involved_value ? lookup_true[rn] : lookup_false[rn]
+  end
+
+  if match.present?
+    # ====== EXISTENTE: actualizar “suave” + sumar hit ======
+
+    case role_name
+    when "Líder", "Operador", "Socio"
+      match.update(role: role, involved: true)
+    when "Autoridad cooptada"
+      match.update(involved: true)
+      match.update(criminal_link: org)
+    when "Autoridad expuesta", "Regidor"
+      match.update(role: role) if match.role_id.nil?
+      match.update(involved: false) if match.involved.nil?
+      match.update(criminal_link: org)
+    else
+      # No forzamos cambios
+    end
+
+    match.hits << hit unless match.hits.exists?(hit.id)
+
+    attempt["status"] = "ok"
+    attempt["message"] = "Member existente: hit agregado"
+    attempt["member_id"] = match.id
+    push_easy_member_attempt(attempt)
+
+    session[:load_success] = true
+    session[:message] = attempt["message"]
+    return redirect_to "/datasets/easy_members"
+  end
+
+  # ====== NUEVO: crear member + sumar hit ======
+
+  involved_value = ["Líder", "Operador", "Autoridad cooptada", "Socio"].include?(role_name)
+  criminal_role_value = compute_criminal_role.call(involved_value, role_name)
+
+  # Estimar género (si se puede; si falla, nil)
+  assignable_gender = estimate_gender(firstname)
+
+  org_criminal_link_id = org&.criminal_link_id
+
+  myMember = Member.create!(
+    firstname: firstname,
+    lastname1: lastname1,
+    lastname2: lastname2,
+    organization: org,
+    role: role,
+    involved: involved_value,
+    criminal_role: criminal_role_value,
+    gender: assignable_gender,
+    criminal_link_id: org_criminal_link_id
+  )
+
+  myMember.hits << hit
+
+  # Lógica especial para Regidor (misma idea que tu CSV)
+  if role_name == "Regidor" && hit.present?
+    hit_date = hit.date
+    county_id = hit.town&.county_id
+
+    if county_id && hit_date.present?
+      county_org_ids = Organization.where(county_id: county_id).pluck(:id)
+      alcalde_role = Role.find_by(name: "Alcalde")
+
+      alcalde = Member.where(
+        organization_id: county_org_ids,
+        role_id: alcalde_role&.id,
+        involved: true
+      ).where("start_date <= ? AND (end_date IS NULL OR end_date >= ?)", hit_date, hit_date).first
+
+      if alcalde.present?
+        myMember.update!(
+          organization_id: alcalde.organization_id,
+          criminal_link_id: alcalde.criminal_link_id
+        )
+
+        MemberRelationship.create!(
+          member_a_id: alcalde.id,
+          member_b_id: myMember.id,
+          role_a: "Jefe",
+          role_b: "Colaborador",
+          role_a_gender: alcalde.gender == "FEMENINO" ? "Jefa" : "Jefe",
+          role_b_gender: myMember.gender == "FEMENINO" ? "Colaboradora" : "Colaborador"
+        )
+      end
+    end
+  end
+
+  # Si existe tu service, lo llamamos (si no existe, no rompe)
+  if defined?(ReclassifyMemberCriminalRole)
+    ReclassifyMemberCriminalRole.call(member: myMember)
+  end
+
+  attempt["status"] = "ok"
+  attempt["message"] = "Member creado: hit agregado"
+  attempt["member_id"] = myMember.id
+  push_easy_member_attempt(attempt)
+
+  session[:load_success] = true
+  session[:message] = attempt["message"]
+  redirect_to "/datasets/easy_members"
+end
+
+private
+
+def easy_member_params
+  params.require(:easy_member).permit(:legacy_id, :firstname, :lastname1, :lastname2, :role_id, :organization_id)
+end
+
+def push_easy_member_attempt(payload)
+  session[:easy_member_attempts] ||= []
+  session[:easy_member_attempts].unshift(payload)
+  session[:easy_member_attempts] = session[:easy_member_attempts].take(5)
+end
+
+def corregir_nombres(fn, ln1, ln2)
+  if fn.to_s.strip.split.size == 1 && ln1.to_s.strip.split.size == 1 && ln2.to_s.strip.split.size == 2
+    nuevo_fn = "#{fn.strip} #{ln1.strip}"
+    nuevo_ln1, nuevo_ln2 = ln2.strip.split
+    return [nuevo_fn, nuevo_ln1, nuevo_ln2]
+  end
+  [fn, ln1, ln2]
+end
+
+def normalize_caps(text)
+  return text if text.blank?
+  es_mayusculas = text == text.upcase && text.match?(/[A-ZÁÉÍÓÚÑ]/)
+  es_mayusculas ? text.split.map(&:capitalize).join(" ") : text
+end
+
+def estimate_gender(firstname)
+  return nil if firstname.blank?
+
+  gender_file =
+    if Rails.env.production?
+      "/var/www/lantiamaster/shared/names_by_gender.csv"
+    else
+      Rails.root.join("scripts", "names_by_gender.csv").to_s
+    end
+
+  return nil unless File.exist?(gender_file)
+
+  row = CSV.read(gender_file, headers: true).find do |r|
+    r["firstname"].to_s.strip.downcase == firstname.to_s.strip.downcase
+  end
+
+  estimated = row&.[]("genero_estimado").to_s.strip.downcase
+  case estimated
+  when "masculino" then "MASCULINO"
+  when "femenino"  then "FEMENINO"
+  else nil
+  end
+rescue
+  nil
 end
 
 private
