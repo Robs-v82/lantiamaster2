@@ -2498,7 +2498,7 @@ end
     end
 
 	def easy_hits
-	  @load_success = session[:load_success] unless session[:load_success].nil?
+	  @load_success = session[:load_success]
 	  @filename     = session[:filename] if session[:filename]
 	  @message      = session[:message]  if session[:message]
 	  @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical","Artista","Músico","Manager"]

@@ -343,11 +343,13 @@
   }
 
   // Diccionario: "nombre normalizado" => id
-  const MEMBER_NAME_TO_ID = {
-    <% Member.joins(:hits).distinct.order(:id).each do |m| %>
-      "<%= ActiveSupport::Inflector.transliterate(m.fullname.to_s).downcase.gsub(/[^a-z0-9\s]/, " ").squeeze(" ").strip %>": <%= m.id %>,
-    <% end %>
-  };
+  const MEMBER_NAME_TO_ID = <%= raw(
+    Member.joins(:hits).distinct.order(:id).map { |m|
+      key = ActiveSupport::Inflector.transliterate(m.fullname.to_s)
+        .downcase.gsub(/[^a-z0-9\s]/, " ").squeeze(" ").strip
+      [key, m.id]
+    }.to_h.to_json
+  ) %>;
 
   function bindMemberAutocomplete() {
     document.querySelectorAll(".member-autocomplete").forEach((input) => {
@@ -441,10 +443,6 @@
   <div class="modal-content">
     <h5>Respaldo en PDF</h5>
     <p>El respaldo está en formato PDF. Por favor, verifica que los siguientes nombres aparezcan en el archivo correspondiente:</p>
-<%#     <p>
-      <strong>Link:</strong>
-      <a id="pdf-confirm-link" href="#" target="_blank"></a>
-    </p> %>
     <ul id="pdf-confirm-names" class="collection"></ul>
   </div>
   <div class="modal-footer">
@@ -505,39 +503,3 @@
   document.addEventListener("turbo:load", initPdfConfirmFlow);
   document.addEventListener("turbolinks:load", initPdfConfirmFlow);
 </script>
-
-<!-- Modal: resultado (éxito / error) -->
-<div id="easyResultModal" class="modal">
-  <div class="modal-content">
-    <h5><%= @load_success ? "Listo" : "Aviso" %></h5>
-
-    <p style="<%= @load_success ? 'color: #2e7d32;' : 'color: #c62828;' %>">
-      <%= @message %>
-    </p>
-  </div>
-
-  <div class="modal-footer">
-    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cerrar</a>
-  </div>
-</div>
-
-<% if @message.present? %>
-  <script nonce="<%= csp_nonce %>">
-    function openEasyResultModal() {
-      var modalEl = document.getElementById("easyResultModal");
-      if (!modalEl) return;
-
-      if (window.M && M.Modal) {
-        var instance = M.Modal.init(modalEl, {
-          dismissible: true
-        });
-
-        instance.open();
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", openEasyResultModal);
-    document.addEventListener("turbo:load", openEasyResultModal);
-    document.addEventListener("turbolinks:load", openEasyResultModal);
-  </script>
-<% end %>
