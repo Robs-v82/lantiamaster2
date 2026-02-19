@@ -2573,7 +2573,7 @@ end
 		    town_id: town_id,
 		    message: message
 		  })
-		  session[:easy_hit_attempts] = session[:easy_hit_attempts].take(2)
+		  session[:easy_hit_attempts] = session[:easy_hit_attempts].take(1)
 		end
 
 	  errors = []
