@@ -124,7 +124,6 @@
 
                 <div class="collapsible-body">
                   <p><strong>Lugar:</strong> <%= place %></p>
-                  <p><strong>Fecha:</strong> <%= a["date"].presence || "—" %></p>
                   <p><strong>Link:</strong> <% if a["link"].present? %><a href="<%= a["link"] %>" target="_blank"><%= a["link"] %></a><% else %>—<% end %></p>
 
                   <% if a["status"] != "ok" %>

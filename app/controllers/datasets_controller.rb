@@ -2566,17 +2566,14 @@ end
 		push_attempt = lambda do |status:, title: nil, date: nil, link: nil, location_code: nil, legacy_id: nil, town_id: nil, message: nil|
 		  session[:easy_hit_attempts] ||= []
 		  session[:easy_hit_attempts].unshift({
-		    at: Time.zone.now.to_s,
 		    status: status,
 		    legacy_id: legacy_id,
-		    title: title,
-		    date: (date&.to_s),
+		    title: title.to_s[0, 30],
 		    link: link,
-		    location_code: location_code,
 		    town_id: town_id,
 		    message: message
 		  })
-		  session[:easy_hit_attempts] = session[:easy_hit_attempts].take(3)
+		  session[:easy_hit_attempts] = session[:easy_hit_attempts].take(2)
 		end
 
 	  errors = []
