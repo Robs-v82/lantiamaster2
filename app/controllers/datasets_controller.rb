@@ -3322,6 +3322,12 @@ end
 
 def create_easy_member
   p = easy_member_params
+  alias_raw = p[:alias_raw].to_s
+	alias_list = alias_raw
+	  .split(";")
+	  .map { |s| s.strip }
+	  .reject(&:blank?)
+	  .uniq
 
   legacy_id = p[:legacy_id].to_s.strip
   original_fn  = normalize_caps(p[:firstname].to_s.strip)
@@ -3444,6 +3450,12 @@ def create_easy_member
       # No forzamos cambios
     end
 
+		if alias_list.any?
+		  current_aliases = Array(match.alias).map(&:to_s)
+		  merged = (current_aliases + alias_list).map(&:strip).reject(&:blank?).uniq
+		  match.update(alias: merged)
+		end
+
     match.hits << hit unless match.hits.exists?(hit.id)
 
     attempt["status"] = "ok"
@@ -3470,6 +3482,7 @@ def create_easy_member
     firstname: firstname,
     lastname1: lastname1,
     lastname2: lastname2,
+    alias: alias_list,
     organization: org,
     role: role,
     involved: involved_value,
@@ -3531,7 +3544,7 @@ end
 private
 
 def easy_member_params
-  params.require(:easy_member).permit(:legacy_id, :firstname, :lastname1, :lastname2, :role_id, :organization_id)
+  params.require(:easy_member).permit(:legacy_id, :firstname, :lastname1, :lastname2, :role_id, :organization_id, :alias_raw)
 end
 
 def push_easy_member_attempt(payload)
