@@ -690,16 +690,20 @@
                       seen_links = base_hits.map(&:link).compact
 
                       others = relaciones.map { |rel| rel.member_a_id == member.id ? rel.member_b : rel.member_a }.compact.uniq
-                      rel_hits = others.flat_map { |m| m.hits.to_a }
+
+                      rel_pairs = others.flat_map do |m|
+                        m.hits.to_a.map { |h| [h, m] }  # <-- guardamos el member origen
+                      end
 
                       # sólo hits con link y que no existan ya en el member
-                      rel_hits = rel_hits.select { |h| h.link.present? && !seen_links.include?(h.link) }
+                      rel_pairs = rel_pairs.select { |(h, _m)| h.link.present? && !seen_links.include?(h.link) }
 
                       # dedup por link y ordenar desc
-                      rel_hits
-                        .uniq { |h| h.link }
-                        .sort_by { |h| h.date || Date.new(1,1,1) }
-                        .reverse
+                      related_hits =
+                        rel_pairs
+                          .uniq { |(h, _m)| h.link }
+                          .sort_by { |(h, _m)| h.date || Date.new(1,1,1) }
+                          .reverse
                     else
                       []
                     end
@@ -708,17 +712,32 @@
                   <% if related_hits.any? %>
                     <li class="mentions-subtitle">Directas</li>
                   <% end %>
-
+                  <% ref_member = member %>
                   <% base_hits.each do |hit| %>
-                    <li style="margin-bottom: 6px;">
+                    <li style="margin-bottom: 6px; display:flex; align-items:center;">
                     
-                    <% if hit.link.present? %>
-                      <a href="<%= hit.link %>" target="_blank" style="margin-left: 10px; text-decoration: none; color: inherit;">
-                        <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
-                      </a>
-                    <% else %>
-                      <span style="display: inline-block; width: 24px; margin-right: 8px;"></span>
-                    <% end %>
+                      <span class="hit-icons" style="display:inline-flex; align-items:center; gap:6px; width:40px; margin-left:10px;">
+                        <% if hit.link.present? %>
+                          <a href="<%= hit.link %>" target="_blank" style="color: inherit;">
+                            <i class="material-icons" style="font-size:18px; display:block">open_in_new</i>
+                          </a>
+                        <% else %>
+                          <span style="width:18px;"></span>
+                        <% end %>
+                        <% if hit.pdf_snapshot.attached? %>
+                          <%= link_to url_for(hit.pdf_snapshot), target: "_blank", style: "color:inherit;" do %>
+                            <i class="material-icons" style="font-size:18px; display:block;">picture_as_pdf</i>
+                          <% end %>
+                        <% elsif hit.plain_text.present? %>
+                          <a href="#modal-plain-text-<%= hit.id %>" class="modal-trigger" style="color:inherit;">
+                            <i class="material-icons" style="font-size:18px; display:block;">description</i>
+                          </a>
+                        <% else %>
+                          <span style="width:18px;"></span>
+                        <% end %>
+
+                        <!-- Aquí después agregaremos el icono de texto o PDF -->
+                      </span>
 
                       <span class="hit-meta">
                         <span class="hit-date"><%= hit.date.strftime("%d/%m/%y") %></span>
@@ -740,17 +759,33 @@
                     </li>
                     <li class="mentions-subtitle mentions-subtitle--spaced">De personas vinculadas</li>
 
-                    <% related_hits.each do |hit| %>
+                    <% related_hits.each do |hit, ref_member| %>
                     <!-- aquí va EXACTAMENTE el mismo <li> que ya tienes para imprimir un hit -->
 
-                    <li style="margin-bottom: 6px;">
-                    <% if hit.link.present? %>
-                      <a href="<%= hit.link %>" target="_blank" style="margin-left: 10px; text-decoration: none; color: inherit;">
-                        <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
-                      </a>
-                    <% else %>
-                      <span style="display: inline-block; width: 24px; margin-right: 8px;"></span>
-                    <% end %>
+                    <li style="margin-bottom: 6px; display:flex; align-items:center;">
+
+                      <span class="hit-icons" style="display:inline-flex; align-items:center; gap:6px; width:40px; margin-left:10px;">
+                        <% if hit.link.present? %>
+                          <a href="<%= hit.link %>" target="_blank" style="color: inherit;">
+                            <i class="material-icons" style="font-size:18px; display:block">open_in_new</i>
+                          </a>
+                        <% else %>
+                          <span style="width:18px;"></span>
+                        <% end %>
+                        <% if hit.pdf_snapshot.attached? %>
+                          <%= link_to url_for(hit.pdf_snapshot), target: "_blank", style: "color:inherit;" do %>
+                            <i class="material-icons" style="font-size:18px; display:block;">picture_as_pdf</i>
+                          <% end %>
+                        <% elsif hit.plain_text.present? %>
+                          <a href="#modal-plain-text-<%= hit.id %>" class="modal-trigger" style="color:inherit;">
+                            <i class="material-icons" style="font-size:18px; display:block;">description</i>
+                          </a>
+                        <% else %>
+                          <span style="width:18px;"></span>
+                        <% end %>
+
+                        <!-- Aquí después agregaremos el icono de texto o PDF -->
+                      </span>
 
                       <span class="hit-meta">
                         <span class="hit-date"><%= hit.date.strftime("%d/%m/%y") %></span>
@@ -764,6 +799,78 @@
                       </span>
 
                     </li>
+
+<% if hit.plain_text.present? %>
+  <%
+    term_primary  = ref_member&.fullname.to_s
+    term_fallback = ref_member&.lastname1.to_s
+    term_for_excerpt = nil
+
+    norm_text = normalize_for_match(hit.plain_text)
+    if term_primary.present? && norm_text.include?(normalize_for_match(term_primary))
+      term_for_excerpt = term_primary
+    elsif term_fallback.present? && norm_text.include?(normalize_for_match(term_fallback))
+      term_for_excerpt = term_fallback
+    end
+
+    excerpt_text =
+      term_for_excerpt.present? ? excerpt_around_term(hit.plain_text, term_for_excerpt, total_words: 40) : nil
+
+    terms_to_highlight = [term_primary, term_fallback].map(&:to_s).map(&:strip).reject(&:blank?)
+    highlighted_excerpt = excerpt_text.present? ? highlight_terms_html(excerpt_text, terms_to_highlight) : nil
+    highlighted_full    = highlight_terms_html(hit.plain_text, terms_to_highlight)
+
+    # Marca de agua "sólida": incluye lo que ayuda a acreditar el respaldo
+    wm = []
+    wm << "Hit ##{hit.id}"
+    wm << "Date: #{hit.date&.strftime("%d/%m/%Y")}" if hit.respond_to?(:date) && hit.date.present?
+    wm << "Fetched: #{hit.fetched_at&.strftime("%d/%m/%Y %H:%M")}" if hit.respond_to?(:fetched_at) && hit.fetched_at.present?
+    wm << "HTTP: #{hit.fetch_status}" if hit.respond_to?(:fetch_status) && hit.fetch_status.present?
+    wm << "Final URL: #{hit.final_url}" if hit.respond_to?(:final_url) && hit.final_url.present?
+    wm << "Backup: #{hit.backup_status}" if hit.respond_to?(:backup_status) && hit.backup_status.present?
+    wm << "Backup src: #{hit.backup_source}" if hit.respond_to?(:backup_source) && hit.backup_source.present?
+    wm << "Backup ver: #{hit.backup_version}" if hit.respond_to?(:backup_version) && hit.backup_version.present?
+    wm << "Backup checked: #{hit.backup_checked_at&.strftime("%d/%m/%Y %H:%M")}" if hit.respond_to?(:backup_checked_at) && hit.backup_checked_at.present?
+    wm << "Protected: #{hit.protected_link ? "true" : "false"}" if hit.respond_to?(:protected_link) && !hit.protected_link.nil?
+
+    watermark_line = wm.join(" · ")
+  %>
+
+  <div id="modal-plain-text-<%= hit.id %>" class="modal">
+    <div class="modal-content">
+
+      <% if watermark_line.present? %>
+        <div style="white-space: pre-wrap; line-height:1.55;">
+          <%= watermark_line %>
+        </div>
+      <% end %>
+
+      <div style="margin:12px 0; border-top:1px solid #9e9e9e;"></div>
+
+      <div style="font-weight:500; font-size:1.15rem; margin:0 0 10px 0;">
+        <%= hit.title %>
+      </div>
+
+      <% if excerpt_text.present? %>
+        <div style="margin:12px 0; border-top:1px solid #9e9e9e;"></div>
+        <div style="white-space: pre-wrap; line-height:1.55;">
+          <%= sanitize(highlighted_excerpt, tags: ["span"], attributes: ["style"]) %>
+        </div>
+      <% end %>
+
+      <div style="margin:12px 0; border-top:1px solid #9e9e9e;"></div>
+
+      <div style="white-space: pre-wrap; line-height:1.55;">
+        <%= sanitize(highlighted_full, tags: ["span"], attributes: ["style"]) %>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <a href="#!" class="modal-close btn-flat">Cerrar</a>
+    </div>
+  </div>
+<% end %>
 
                   <% end %>
                 <% end %>  
