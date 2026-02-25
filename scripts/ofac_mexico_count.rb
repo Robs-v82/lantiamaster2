@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require "set"
 require "csv"
 require "open-uri"
 require "fileutils"
@@ -73,29 +73,44 @@ end
 # --- Parse ADD: ENT_NUM + COUNTRY (col 0 y 6) ---
 mexico_individuals = Set.new
 
+# --- Parse ADD: ENT_NUM + COUNTRY (col 0 y 4 en tu add.csv) ---
 add_rows = 0
-mexico_add_rows = 0
+country_rows = Hash.new(0)                 # filas de direcciones por país (para referencia)
+individuals_by_country = Hash.new { |h,k| h[k] = Set.new }  # individuos únicos por país
 
 CSV.foreach(add_path, headers: false, encoding: "bom|utf-8") do |row|
   next if row.nil?
   next if row.length == 1 && row[0].to_s.include?("\u001A")
   next if row.length < 5
 
-  add_rows += 1  # <-- aquí, antes de filtrar
+  add_rows += 1
 
   ent_num = row[0].to_s.strip
-  country = row[4].to_s.strip.upcase # <-- en tu add.csv, COUNTRY está en [4]
+  country = row[4].to_s.strip
+  next if country.empty? || country == "-0-"
 
-  next unless country == "MEXICO"
-  mexico_add_rows += 1
+  country_rows[country] += 1
 
+  # Solo nos interesan individuos SDN
   next unless individual_ent_nums.include?(ent_num)
-  mexico_individuals.add(ent_num)
+
+  # Un individuo cuenta 1 vez por país (aunque tenga varias direcciones)
+  individuals_by_country[country].add(ent_num)
 end
 
 puts
-puts "SDN rows: #{sdn_rows}"
-puts "Individuals in SDN: #{individual_ent_nums.size}"
 puts "ADD rows: #{add_rows}"
-puts "ADD rows with country == MEXICO: #{mexico_add_rows}"
-puts "Individuals con alguna dirección en MEXICO: #{mexico_individuals.size}"
+
+# Tabla: individuos únicos por país (descendente)
+puts
+puts "Individuals (SDN_TYPE=INDIVIDUAL) con >=1 dirección por país (unique ENT_NUM):"
+puts "-" * 72
+puts format("%-35s %10s %14s", "Country", "Individuals", "ADD rows")
+puts "-" * 72
+
+individuals_by_country
+  .map { |country, set| [country, set.size, country_rows[country]] }
+  .sort_by { |country, ind_count, add_count| [-ind_count, -add_count, country] }
+  .each do |country, ind_count, add_count|
+    puts format("%-35s %10d %14d", country, ind_count, add_count)
+  end

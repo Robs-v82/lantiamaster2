@@ -194,4 +194,11 @@ Rails.application.routes.draw do
 
     get  "/datasets/easy_members", to: "datasets#easy_members"
     post "/datasets/easy_members", to: "datasets#create_easy_member"
+
+    resources :datasets do
+      collection do
+        get :easy_hits
+      end
+    end
+
 end

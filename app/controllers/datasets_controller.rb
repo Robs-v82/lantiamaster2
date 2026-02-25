@@ -249,7 +249,15 @@ class DatasetsController < ApplicationController
 	  end
 
 	  flash[:notice] = "Vínculo creado exitosamente"
-	  redirect_to controller: :datasets, action: :state_members, code: state_code
+	  
+		redirect_target =
+		  if params[:return_to] == "easy_hits"
+		    "/datasets/easy_hits?member_id=#{params[:source_member_id]}"
+		  else
+		    { controller: :datasets, action: :state_members, code: params[:state_code] }
+		  end
+
+		redirect_to redirect_target
 	end
 
 	def update_name
@@ -264,7 +272,14 @@ class DatasetsController < ApplicationController
 	      { controller: :datasets, action: :state_members, code: params[:state_code] }
 	    end
 
-	  unless member.update(params.require(:member).permit(:firstname, :lastname1, :lastname2, :role_id, :involved, :gender, :org_target_id))
+	  # ✅ Construimos attrs y NO actualizamos role_id si viene vacío/nulo
+	  attrs = params.require(:member).permit(
+	    :firstname, :lastname1, :lastname2, :role_id, :involved, :gender, :org_target_id
+	  )
+
+	  attrs.delete(:role_id) if attrs[:role_id].blank?
+
+	  unless member.update(attrs)
 	    session[:load_success] = false
 	    session[:message] = "❌ No se pudo actualizar el miembro"
 	    return redirect_to redirect_target
@@ -300,16 +315,16 @@ class DatasetsController < ApplicationController
 	  end
 
 	  # --- Actualizar organización (criminal_link o organization) ---
-		org_id = params[:org_target_id].presence
+	  org_id = params[:org_target_id].presence
 
-		if org_id
-		  if member.criminal_link_id.present?
-		    member.update_column(:criminal_link_id, org_id.to_i)
-		  else
-		    member.update_column(:organization_id, org_id.to_i)
-		  end
-		end
-		# --- fin ---
+	  if org_id
+	    if member.criminal_link_id.present?
+	      member.update_column(:criminal_link_id, org_id.to_i)
+	    else
+	      member.update_column(:organization_id, org_id.to_i)
+	    end
+	  end
+	  # --- fin ---
 
 	  session[:load_success] = true
 	  session[:message] = "✅ Miembro actualizado"
@@ -2513,7 +2528,13 @@ end
 	  @load_success = session[:load_success]
 	  @filename     = session[:filename] if session[:filename]
 	  @message      = session[:message]  if session[:message]
-	  @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical","Artista","Músico","Manager"]
+	  roles_scope = if defined?(@all_roles) && @all_roles.present?
+	                  Role.where(name: @all_roles)
+	                else
+	                  Role.all
+	                end
+	  @roles_dropdown = roles_scope.order(:name).pluck(:name)
+	  # @all_roles = ["Gobernador","Líder","Operador","Autoridad cooptada","Familiar","Socio","Alcalde","Delegado estatal","Secretario de Seguridad","Autoridad expuesta","Servicios lícitos","Periodista","Abogado","Coordinador estatal","Regidor","Policía","Militar","Dirigente sindical","Artista","Músico","Manager"]
 	  @cartels = helpers.get_cartels
 
 	  # Limpia flags para que el modal no se repita al refrescar
@@ -2560,6 +2581,17 @@ end
 		#   .distinct
 
 		@members_falta_respaldo = falta_respaldo.order(:id)
+
+		selected_id = params[:member_id].presence
+
+		@selected_member =
+		  if selected_id && Member.joins(:hits).where(id: selected_id).exists?
+		    Member.find(selected_id)
+		  end		
+
+		@link_types = ["Hermano","Esposo","Padre","Hijo","Abuelo","Nieto","Tio","Sobrino","Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado", "Suegro", "Yerno"]
+
+
 	end
 
 	def create_easy_hit

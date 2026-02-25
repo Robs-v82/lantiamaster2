@@ -260,6 +260,173 @@
 
   <!-- Listado falta respaldo -->
   <div class="col l8 m12 s12">
+
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">Buscar individuos</span>
+
+        <%= form_with url: easy_hits_datasets_path, method: :get, local: true do %>
+
+          <div class="input-field" style="border: 1px solid rgba(0,0,0,.2); padding: 10px; border-radius: 6px;">
+            <input
+              type="text"
+              id="member_search_autocomplete"
+              class="member-autocomplete"
+              list="members_list"
+              autocomplete="off"
+              placeholder="Escribe un nombre..."
+            >
+            <input type="hidden" name="member_id" class="member-id-hidden">
+          </div>
+
+          <div style="margin-top:8px; font-size: 0.95rem; opacity: 0.85;">
+            ID seleccionado: <span id="selected_member_id_label">—</span>
+          </div>
+
+          <button class="btn waves-effect waves-light" type="submit">
+            Buscar
+          </button>
+        <% end %>
+      </div>
+    </div>
+
+    <script nonce="<%= csp_nonce %>">
+      document.addEventListener("DOMContentLoaded", function() {
+        const container = document.getElementById("member_search_autocomplete")?.closest(".input-field");
+        if (!container) return;
+
+        const input  = container.querySelector(".member-autocomplete");
+        const hidden = container.querySelector(".member-id-hidden");
+        const label  = document.getElementById("selected_member_id_label");
+        if (!input || !hidden || !label) return;
+
+        const updateLabel = () => {
+          label.textContent = hidden.value && hidden.value.length > 0 ? hidden.value : "—";
+        };
+
+        // cuando el binder existente llene el hidden, esto lo refleja
+        input.addEventListener("input", updateLabel);
+        input.addEventListener("change", updateLabel);
+
+        // por si ya venía precargado
+        updateLabel();
+      });
+    </script>
+
+    <% if @selected_member.present? %>
+      <% m = @selected_member %>
+
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">
+            Editar individuo: <%= m.fullname %> (<%= m.id %>)
+          </span>
+
+          <div class="row grey lighten-2" style="padding:10px; margin-top:10px;">
+            <%= form_with model: m, url: update_member_name_path(m), local: true do |f| %>
+              <div class="input-field col l3 m4 s6">
+                <%= f.label :firstname, "Nombre", class: "active" %>
+                <%= f.text_field :firstname, class: "validate", value: m.firstname %>
+              </div>
+
+              <div class="input-field col l3 m4 s6">
+                <%= f.label :lastname1, "Apellido paterno", class: "active" %>
+                <%= f.text_field :lastname1, class: "validate", value: m.lastname1 %>
+              </div>
+
+              <div class="input-field col l3 m4 s6">
+                <%= f.label :lastname2, "Apellido materno", class: "active" %>
+                <%= f.text_field :lastname2, class: "validate", value: m.lastname2 %>
+              </div>
+
+              <div class="input-field col l3 m4 s6">
+                <%= f.label :gender, "Género", class: "active" %>
+                <%= f.select :gender,
+                      options_for_select([
+                        ["MASCULINO", "MASCULINO"],
+                        ["FEMENINO", "FEMENINO"],
+                        ["No identificado", "No identificado"]
+                      ], selected: m.gender.presence || "No identificado"),
+                      {},
+                      class: "browser-default" %>
+              </div>
+
+              <div class="input-field col l3 m4 s6">
+                <%= f.label :role_id, "Rol", class: "active" %>
+                <%= f.select :role_id,
+                      Role.where(name: @roles_dropdown).order(:name).pluck(:name, :id),
+                      { include_blank: "Selecciona un rol" },
+                      class: "browser-default" %>
+              </div>
+
+              <% selected_org_id = m.criminal_link_id.presence || m.organization_id %>
+
+              <div class="input-field col l3 m4 s6">
+                <%= label_tag :org_target_id, "Organización", class: "active" %>
+
+                <% cartels_options =
+                    @cartels.map do |c|
+                      c.is_a?(Array) ? [c[0], c[1]] : [c.name, c.id]
+                    end
+                %>
+
+                <%= select_tag :org_target_id,
+                      options_for_select(cartels_options, selected_org_id),
+                      include_blank: "Selecciona organización",
+                      class: "browser-default" %>
+              </div>
+
+              <div class="input-field col l3 m4 s6">
+                <%= f.label :involved, "Estatus", class: "active" %>
+                <%= f.select :involved,
+                      options_for_select([
+                        ["SEÑALADO", "true"],
+                        ["EXPUESTO", "false"],
+                      ], selected: m.involved),
+                      {},
+                      class: "browser-default" %>
+              </div>
+
+              <div class="col l3 m4 s6" style="margin-top:10px;">
+                <%= hidden_field_tag :return_to, "easy_hits" %>
+                <%= f.submit "Actualizar", class: "btn blue" %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="row grey lighten-2" style="margin-top: 10px; padding: 10px;">
+            <div class="col s12">
+              <h6>Añadir vínculo</h6>
+
+              <%= form_with url: add_member_link_path, method: :post, local: true do |lf| %>
+                <div class="col s12">
+                  <span><strong><%= m.firstname %></strong> es</span>
+                </div>
+
+                <div class="input-field col m4 s12">
+                  <%= label_tag :link_type, "Tipo de vínculo", class: "active" %>
+                  <%= select_tag :link_type, options_for_select(@link_types), prompt: "Selecciona vínculo", class: "browser-default" %>
+                </div>
+
+                <div class="input-field col m4 s12">
+                  <%= label_tag :target_member_id, "ID del miembro destino", class: "active" %>
+                  <%= number_field_tag :target_member_id, nil, placeholder: "Ej. 153204", class: "validate" %>
+                </div>
+
+                <%= hidden_field_tag :source_member_id, m.id %>
+                <%= hidden_field_tag :return_to, "easy_hits" %>
+
+                <div class="col s12" style="margin-top: 10px;">
+                  <%= lf.submit "Crear vínculo", class: "btn blue" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    <% end %>
+
     <div class="card">
       <div class="card-content">
         <span class="card-title">Miembros sin respaldo</span>
@@ -319,7 +486,7 @@
                           <div class="input-field col l3 m4 s6">
                             <%= f.label :role_id, "Rol", class: "active" %>
                             <%= f.select :role_id,
-                                  Role.where(name: @all_roles).order(:name).pluck(:name, :id),
+                                  Role.where(name: @roles_dropdown).order(:name).pluck(:name, :id),
                                   { include_blank: "Selecciona un rol" },
                                   class: "browser-default" %>
                           </div>
