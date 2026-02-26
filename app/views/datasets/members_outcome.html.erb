@@ -248,8 +248,32 @@
         </td>
       </tr>
       <% registros = @keyMembers.first(10) %>
+
       <% registros.each_with_index do |member, index| %>
+
+        <%
+          persona_tipo = (member.involved == false) ? "Persona expuesta" : "Persona señalada"
+          definiciones_tipo = {
+            "Persona señalada" => "Persona respecto de la cual existen menciones documentadas de colaboración, pertenencia o liderazgo que la vinculan directa o indirectamente con actividades las ilícitas de una organización criminal. El señalamiento puede derivar tanto de investigaciones formales como de testimonios o fuentes plausibles.",
+            "Persona expuesta" => "Persona para la cual NO tenemos registrado un señalamiento directo de participación en actividades del crimen organizado, pero cuya posición, relaciones, actividades profesionales o entorno la colocan en un nivel relevante de riesgo reputacional o de integridad."
+          }
+
+          definiciones_role = {
+            "Líder" => "Persona identificada como figura de dirección, mando o toma de decisiones estratégicas dentro de una organización criminal. Ejerce control operativo, financiero o territorial, coordina estructuras subordinadas y participa en la definición de actividades ilícitas. Puede ser reconocida por autoridades, medios o investigaciones como cabecilla, dirigente o responsable principal de la estructura delictiva.",
+            "Miembro" => "Persona señalada como integrante operativo de una organización criminal, sin que necesariamente ejerza funciones de liderazgo. Puede desempeñar roles logísticos, financieros, de seguridad, reclutamiento, transporte, enlace o ejecución.",
+            "Socio" => "Persona que, bajo una actividad empresarial o profesional aparentemente lícita, mantiene vínculos documentados con una organización criminal o sus integrantes. Puede fungir como facilitador financiero, prestanombres, proveedor estratégico o intermediario comercial. La categoría implica señalamiento de colaboración funcional desde estructuras formales o privadas que sirven como cobertura o soporte indirecto.",
+            "Autoridad vinculada" => "Servidor público respecto del cual existen señalamientos de colaboración, protección, encubrimiento o beneficio indebido en favor de una organización criminal. Implica un señalamiento explícito de connivencia o participación, no únicamente un riesgo derivado del cargo.",
+            "Servicios lícitos" => "Persona que desarrolla actividades profesionales o comerciales legítimas, pero cuya operación la coloca en contacto recurrente con personas señaladas. La exposición surge de la interacción contractual o funcional (servicios legales, financieros, inmobiliarios, logísticos, etc.). No existe imputación de colaboración, pero sí un riesgo reputacional o de integridad derivado del vínculo operativo.",
+            "Familiar/allegado" => "Persona con relación de parentesco o de cercanía significativa con individuos señalados. La exposición deriva del vínculo afectivo, patrimonial o de convivencia, no de una actividad ilícita atribuida. La categoría reconoce el riesgo potencial de influencia, presión o utilización indirecta, sin que exista un señalamiento público de participación en actividades delictivas.",
+            "Autoridad expuesta" => "Servidor público cuya relación jeráquica con una autoridad vinculada, o bien cuya jurisdicción territorial o función institucional, lo coloca en interacción probable con organizaciones criminales. No existe señalamiento de colaboración; la exposición se deriva del riesgo del entorno, no de conducta atribuida."
+          }
+        %>
+
         <% if member.criminal_link.present? ; cartel = member.criminal_link; else cartel = member.organization; end %>
+
+        <% cr = member.criminal_role.to_s.strip.presence %>
+        <%= cr || "Sin definir" %>
+
         <% memberGroup = @keyRolegroups[index] %>
         <tr class="white-text" style="background-color: #33333C;">
           <td colspan="2" style="padding-top: 15px;" class="center-align">
@@ -362,11 +386,17 @@
           </tr>
         <% end %>
 
-
-
-
         <tr  style="border-top: 2px solid #33333C;">
-          <th style="font-weight: bold;">Clasificación:</th>
+          <th style="font-weight: bold;">
+              <a href="#member-def-modal"
+                 class="modal-trigger member-def-trigger paletton-red-text"
+                 data-title="<%= persona_tipo %>"
+                 data-body="<%= definiciones_tipo[persona_tipo] %>"
+                 style="margin-right: 10px;">
+                <i class="material-icons" style="vertical-align: middle;">info</i>
+              </a>
+            Clasificación:
+          </th>
           <td>
             <span style="display: inline-block; margin-right: 20px;">
               <i class="material-icons" style="vertical-align: middle;">
@@ -410,7 +440,18 @@
 
         <% if member.involved == false %>
           <tr style="border-top: 2px solid #33333C;">
-            <th style="font-weight: bold;">Rol o vínculo con el crimen organizado:</th>
+            <th style="font-weight: bold;">
+              <% if cr.present? && definiciones_role[cr].present? %>
+                <a href="#member-def-modal"
+                   class="modal-trigger member-def-trigger paletton-red-text"
+                   data-title="<%= cr %>"
+                   data-body="<%= definiciones_role[cr] %>"
+                   style="margin-right: 10px;">
+                  <i class="material-icons" style="vertical-align: middle;">info</i>
+                </a>
+              <% end %>
+              <span>Rol o vínculo con el crimen organizado:</span>
+            </th>
             <td>
               <% cr = member.criminal_role.to_s.strip.presence %>
 
@@ -505,7 +546,18 @@
             </td>
           </tr>
           <tr style="border-top: 2px solid #33333C;">
-            <th style="font-weight: bold;">Rol o vínculo con la organización:</th>
+            <th style="font-weight: bold;">
+              <% if cr.present? && definiciones_role[cr].present? %>
+                <a href="#member-def-modal"
+                   class="modal-trigger member-def-trigger paletton-red-text"
+                   data-title="<%= cr %>"
+                   data-body="<%= definiciones_role[cr] %>"
+                   style="margin-right: 10px;">
+                  <i class="material-icons" style="vertical-align: middle;">info</i>
+                </a>
+              <% end %>
+              <span>Rol o vínculo con la organización:</span>
+            </th>
             <td>
               <% cr = member.criminal_role.to_s.strip.presence %>
               <%= cr || "Sin definir" %>
@@ -864,6 +916,16 @@
       </div>
     </div>
 
+    <div id="member-def-modal" class="modal" style="max-height: 65%; max-width: 80%; padding: 22px;">
+      <div class="modal-content" style="overflow-y: auto; font-size: 14px; line-height: 1.7; color: #333;">
+        <h5 id="member-def-modal-title" style="margin-top: 0; color:#041F3A; font-weight: 700;"></h5>
+        <p id="member-def-modal-body" style="margin-bottom: 0;"></p>
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-close btn-flat" style="color: #EF4E50;">Cerrar</a>
+      </div>
+    </div>
+
 
   <script nonce="<%= csp_nonce %>">
     document.addEventListener("DOMContentLoaded", function() {
@@ -968,6 +1030,21 @@
           });
         });
       }
+
+      const defModal = document.querySelectorAll('#member-def-modal');
+      M.Modal.init(defModal);
+
+      document.querySelectorAll('.member-def-trigger').forEach(el => {
+        el.addEventListener('click', function () {
+          const title = this.getAttribute('data-title') || '';
+          const body  = this.getAttribute('data-body')  || '';
+          const t = document.getElementById('member-def-modal-title');
+          const b = document.getElementById('member-def-modal-body');
+          if (t) t.textContent = title;
+          if (b) b.textContent = body;
+        });
+      });
+
     });
   </script>
       <% end %>
