@@ -272,7 +272,6 @@
         <% if member.criminal_link.present? ; cartel = member.criminal_link; else cartel = member.organization; end %>
 
         <% cr = member.criminal_role.to_s.strip.presence %>
-        <%= cr || "Sin definir" %>
 
         <% memberGroup = @keyRolegroups[index] %>
         <tr class="white-text" style="background-color: #33333C;">
