@@ -1035,6 +1035,7 @@ def members_search
 	  when :year      then start_at + 1.year
 	  when :month     then start_at + 1.month
 	  when :two_weeks then start_at + 2.weeks
+	  when :week then start_at + 1.weeks
 	  else                 start_at
 	  end
 
