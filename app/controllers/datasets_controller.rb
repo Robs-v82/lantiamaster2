@@ -2558,27 +2558,27 @@ end
 		end
 
 		# SOLO INCLUYE MEMBERS SIN NINGÚN LINK
-		falta_respaldo = Member
-		  .joins(:hits)
-		  .left_joins(:notes)
-		  .where(notes: { id: nil })
-		  .where.not(
-		    id: Member.joins(:hits)
-		              .where.not(hits: { link: nil })
-		              .distinct
-		              .select(:id)
-		  )
-		  .distinct
-
-		# INCLUYE LINKS INVÁLIDOS
 		# falta_respaldo = Member
 		#   .joins(:hits)
 		#   .left_joins(:notes)
 		#   .where(notes: { id: nil })
 		#   .where.not(
-		#     id: Member.joins(:hits).where(hits: { backup_status: "ok" }).distinct.select(:id)
+		#     id: Member.joins(:hits)
+		#               .where.not(hits: { link: nil })
+		#               .distinct
+		#               .select(:id)
 		#   )
 		#   .distinct
+
+		# INCLUYE LINKS INVÁLIDOS
+		falta_respaldo = Member
+		  .joins(:hits)
+		  .left_joins(:notes)
+		  .where(notes: { id: nil })
+		  .where.not(
+		    id: Member.joins(:hits).where(hits: { backup_status: "ok" }).distinct.select(:id)
+		  )
+		  .distinct
 
 		@members_falta_respaldo = falta_respaldo.order(:id)
 
