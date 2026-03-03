@@ -481,6 +481,32 @@
                                   <% if h.date.present? %>
                                     <span style="opacity:0.65;"> — <%= h.date %></span>
                                   <% end %>
+
+                                  <% unless h.pdf_snapshot.attached? %>
+                                    <div style="margin-top:10px;">
+                                      <form action="/datasets/upload_hit_pdf_snapshot" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                                        <input type="hidden" name="hit_id" value="<%= h.id %>">
+
+                                        <input type="file"
+                                               id="easy_pdf_file_<%= m.id %>_<%= h.id %>"
+                                               name="pdf_snapshot"
+                                               accept="application/pdf"
+                                               required
+                                               style="display:none;">
+
+                                        <div id="easy_pdf_name_<%= m.id %>_<%= h.id %>"
+                                             style="border:1px solid #EF4E50; padding:0.5rem; cursor:pointer;">
+                                          Haz clic aquí para seleccionar el PDF…
+                                        </div>
+
+                                        <button type="submit" class="btn-small" style="margin-top:8px;">
+                                          Subir respaldo
+                                        </button>
+                                      </form>
+                                    </div>
+                                  <% end %>
+                                  
                                 </li>
                               <% end %>
                             </ul>
