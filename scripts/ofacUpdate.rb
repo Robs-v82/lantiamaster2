@@ -21,7 +21,7 @@ def download(url, dest)
     "User-Agent" => "Mozilla/5.0 (Ruby OFAC script)"
   }
 
-  URI.open(url, headers) do |remote|
+  URI.open(url, headers.merge(ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE)) do |remote|
     File.binwrite(dest, remote.read)
   end
 end
