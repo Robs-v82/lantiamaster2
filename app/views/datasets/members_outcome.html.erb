@@ -330,6 +330,26 @@
               </td>
           </tr>
         <% end %>
+
+        <% if member.ofac_designation? || member.ofac_ent_num.present? %>
+          <tr style="border-top: 2px solid #33333C;">
+            <th style="font-weight: bold;">Designación OFAC:</th>
+            <td>
+              <% if member.ofac_designation? %>
+                <span class="marked-text">Persona incluida en listado OFAC.</span>
+              <% else %>
+                Registro relacionado con OFAC.
+              <% end %>
+
+              <% if member.ofac_ent_num.present? %>
+                <br>
+                <span style="font-weight: 500;">Folio OFAC:</span>
+                <%= member.ofac_ent_num %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+        
         <% if member.fake_identities.any? %>
           <tr>
             <th style="font-weight: bold;">Identidades falsas/alternativas:</th>
