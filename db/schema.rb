@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_03_15_190906) do
+ActiveRecord::Schema.define(version: 2026_03_15_231658) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -461,6 +461,7 @@ ActiveRecord::Schema.define(version: 2026_03_15_190906) do
     t.boolean "ofac_designation"
     t.string "ofac_ent_num"
     t.date "ofac_last_update"
+    t.boolean "audit", default: false
     t.index ["arrest_id"], name: "index_members_on_arrest_id"
     t.index ["criminal_role"], name: "index_members_on_criminal_role"
     t.index ["detention_id"], name: "index_members_on_detention_id"

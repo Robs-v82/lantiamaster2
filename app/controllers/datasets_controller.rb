@@ -20,6 +20,13 @@ class DatasetsController < ApplicationController
 	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome]
 	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel, :easy_hits, :create_easy_hit, :state_members, :clear_members, :clear_state_members]
 
+	def audit_member
+	  member = Member.find(params[:id])
+	  member.update(audit: true)
+
+	  redirect_back fallback_location: 'datasets/easy_members'
+	end
+
 	def show
 	end
 	

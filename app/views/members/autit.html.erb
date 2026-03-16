@@ -1,0 +1,20 @@
+<div class="col l8 m12 s12">
+  <div class="card">
+    <div class="card-content">
+      <span class="card-title">Miembros auditados</span>
+      <p style="margin-top:-8px; opacity:0.7;">
+        Total: <%= @members.size %>
+      </p>
+
+      <div style="max-height:520px; overflow-y:auto; margin-top:10px;">
+        <ul class="collection">
+          <% @members.each do |m| %>
+            <li class="collection-item">
+              <strong><%= m.id %></strong> — <%= m.fullname %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

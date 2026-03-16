@@ -10,6 +10,10 @@ class MembersController < ApplicationController
 
 	require 'pp'
 
+	def audit
+		@members = Member.joins(:hits).distinct.where(:audit=>true)
+	end
+
 	def detentions
 		# Detention.all.each{|i|
 		# 	i.detainees.destroy_all

@@ -436,7 +436,7 @@
 
         <div style="max-height:520px; overflow-y:auto; margin-top:10px;">
           <ul class="collection">
-            <% @members_falta_respaldo.limit(30).each do |m| %>
+            <% @members_falta_respaldo.where(audit:false).limit(30).each do |m| %>
               <li class="collection-item" style="padding:0;">
                 <ul class="collapsible" style="margin:0; box-shadow:none;">
                   <li>
@@ -444,17 +444,27 @@
                       <div>
                         <strong><%= m.id %></strong> — <%= m.fullname %> - <%= m.organization.name %>
                       </div>
+                      <div style="display:flex; align-items:center; gap:10px;">
 
-                      <a
-                        href="#!"
-                        class="secondary-content modal-trigger easy-member-delete-trigger"
-                        data-target="easy-member-delete-modal"
-                        data-member-id="<%= m.id %>"
-                        data-member-name="<%= m.fullname %>"
-                        style="margin-left:12px;"
-                      >
-                        <i class="material-icons red-text">close</i>
-                      </a>
+                      <% unless m.audit %>
+                        <%= link_to "Auditoría",
+                            audit_member_path(m),
+                            method: :post,
+                            class: "btn-small blue",
+                            data: { confirm: "¿Marcar este miembro como auditado?" } %>
+                      <% end %>
+
+                        <a
+                          href="#!"
+                          class="secondary-content modal-trigger easy-member-delete-trigger"
+                          data-target="easy-member-delete-modal"
+                          data-member-id="<%= m.id %>"
+                          data-member-name="<%= m.fullname %>"
+                        >
+                          <i class="material-icons red-text">close</i>
+                        </a>
+                      </div>
+
                     </div>
 
                     <div class="collapsible-body member_edit" style="padding:16px;">
