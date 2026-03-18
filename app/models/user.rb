@@ -163,7 +163,7 @@ class User < ApplicationRecord
     token
   end
 
-  def valid_email_verification_token?(submitted_token, ttl: 10.minutes)
+  def valid_email_verification_token?(submitted_token, ttl: 72.hours)
     digest = email_verification_token_digest
     return false if submitted_token.blank? || digest.blank?
 
@@ -171,15 +171,11 @@ class User < ApplicationRecord
 
     return false unless token_matches
 
-    if email_verified?
-      return false if email_verification_token_used_at.blank?
-      Time.current <= email_verification_token_used_at + ttl
-    else
-      true
-    end
+    return true if email_verified?
+    true
   end
 
-  def email_verification_expired?(ttl_hours = 48)
+  def email_verification_expired?(ttl_hours = 72)
     return true if email_verification_sent_at.blank?
     email_verification_sent_at < ttl_hours.hours.ago
   end

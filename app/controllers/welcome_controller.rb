@@ -8,7 +8,6 @@ class WelcomeController < ApplicationController
     raw_vt    = params[:token_v].to_s
     raw_rt    = params[:token_r].to_s
 
-    # Normalización defensiva: muchos clientes convierten '+' a ' ' en querystrings
     vt = normalize_token(raw_vt)
     rt = normalize_token(raw_rt)
 
@@ -31,34 +30,34 @@ class WelcomeController < ApplicationController
       return render plain: "Token de verificación inválido o expirado", status: :unprocessable_entity
     end
 
-    begin
-      unless user.valid_email_verification_token?(vt)
-        Rails.logger.warn(log_kv(
-          event: "welcome#show.invalid_email_token",
-          user_id: user.id,
-          vt_hint: hint_token(vt)
-        ))
-        return render plain: "Token de verificación inválido o expirado", status: :unprocessable_entity
-      end
-    rescue => e
-      Rails.logger.error(log_kv(
-        event: "welcome#show.valid_email_verification_token_error",
-        user_id: user.id,
-        error_class: e.class.name,
-        error_message: e.message
-      ))
-      raise
-    end
-
-    if !user.email_verified?
-      user.mark_email_verified!
+    if user.email_verified?
       Rails.logger.info(log_kv(
-        event: "welcome#show.email_marked_verified",
+        event: "welcome#show.email_already_verified",
         user_id: user.id
       ))
     else
+      begin
+        unless user.valid_email_verification_token?(vt)
+          Rails.logger.warn(log_kv(
+            event: "welcome#show.invalid_email_token",
+            user_id: user.id,
+            vt_hint: hint_token(vt)
+          ))
+          return render plain: "Token de verificación inválido o expirado", status: :unprocessable_entity
+        end
+      rescue => e
+        Rails.logger.error(log_kv(
+          event: "welcome#show.valid_email_verification_token_error",
+          user_id: user.id,
+          error_class: e.class.name,
+          error_message: e.message
+        ))
+        raise
+      end
+
+      user.mark_email_verified!
       Rails.logger.info(log_kv(
-        event: "welcome#show.email_already_verified",
+        event: "welcome#show.email_marked_verified",
         user_id: user.id
       ))
     end
