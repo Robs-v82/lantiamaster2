@@ -682,6 +682,7 @@ class DatasetsController < ApplicationController
   registros.each_with_index do |member, index|
     cartel = member.criminal_link.present? ? member.criminal_link : member.organization
     memberGroup = defined?(@keyRolegroups) && @keyRolegroups.is_a?(Array) ? @keyRolegroups[index] : nil
+    cr = member.criminal_role.to_s.strip.presence
 
     # Encabezado de bloque de registro
 		header_label =
@@ -739,8 +740,29 @@ class DatasetsController < ApplicationController
       data << ["Identidades falsas/alternativas:", lista]
     end
 
+    clasificacion = member.involved == false ? "Persona expuesta" : "Persona señalada"
+    data << ["Clasificación:", clasificacion]
+
     pdf.table(data, cell_style: { size: 10, padding: [4, 6, 4, 6] }, column_widths: [170, 330]) do
       row(0..-1).columns(0).font_style = :bold
+    end
+
+    if member.ofac_designation? || member.ofac_ent_num.present?
+      ofac_text = if member.ofac_designation?
+                    "Persona incluida en listado OFAC."
+                  else
+                    "Registro relacionado con OFAC."
+                  end
+
+      if member.ofac_ent_num.present?
+        ofac_text << "\nFolio OFAC: #{member.ofac_ent_num}"
+      end
+
+      pdf.table([["Designación OFAC:", ofac_text]],
+                cell_style: { size: 10, padding: [4, 6, 4, 6] },
+                column_widths: [170, 330]) do
+        row(0).columns(0).font_style = :bold
+      end
     end
 
     # Cédulas profesionales (expandido en PDF)
@@ -764,38 +786,66 @@ class DatasetsController < ApplicationController
 
     # Relaciones (consulta previa para posible ramificación)
     relaciones = MemberRelationship
-                   .includes(:member_a, :member_b)
+                   .includes(
+                     member_a: [:role, :organization, :criminal_link],
+                     member_b: [:role, :organization, :criminal_link]
+                   )
                    .where("member_a_id = :id OR member_b_id = :id", id: member.id)
+                   .where(<<~SQL)
+                     EXISTS (
+                       SELECT 1
+                       FROM hits_members hm
+                       WHERE hm.member_id = member_relationships.member_a_id
+                     )
+                     AND EXISTS (
+                       SELECT 1
+                       FROM hits_members hm
+                       WHERE hm.member_id = member_relationships.member_b_id
+                     )
+                   SQL
 
     if member.involved == false
       # === Rama Persona expuesta (vista: "Rol o vínculo con el crimen organizado")
       rol_text = +""
+      rol_text << (cr || "Sin definir")
 
-      if defined?(@all_officers) && @all_officers&.include?(member.role&.name)
-        rol_text << "#{member.role.name}"
-        if defined?(@federal_officers) && @federal_officers&.include?(member.role&.name)
-          estado = member.hits.where(title: "Nombramiento").first&.town&.county&.state&.name
-          rol_text << " en #{estado}, #{member.organization&.name}"
-        elsif defined?(@state_officers) && @state_officers&.include?(member.role&.name)
-          rol_text << " de #{member.organization&.county&.state&.name}"
-        elsif member.role&.name == "Regidor"
-          rol_text << " en  #{member.organization&.county&.name}, #{member.organization&.county&.state&.shortname}."
-        else
-          rol_text << " de #{member.organization&.county&.name}, #{member.organization&.county&.state&.shortname}."
-        end
-        fechas = []
-        fechas << member.start_date.strftime("%d/%m/%Y") if member.start_date?
-        if member.end_date?
-          fechas << "a #{member.end_date.strftime('%d/%m/%Y')}"
-        end
-        rol_text << "\n#{fechas.join(' ')}" if fechas.any?
-			else
-			  rol_text << "#{memberGroup}\n" if memberGroup.present?
+      if cr == "Servicios lícitos"
+        role_name = member.role&.name.to_s.strip
+        extra_parts = []
+        extra_parts << role_name if role_name.present? && role_name != "Servicios lícitos"
 
-			  if defined?(@other_organizations) && @other_organizations&.include?(member.role&.name) && member.criminal_link
-			    rol_text << "\n#{member.role.name}, #{member.organization&.name}"
-			  end
-			end
+        if member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id
+          org_name = member.organization&.name.to_s.strip
+          extra_parts << org_name if org_name.present?
+        end
+
+        rol_text << "\n#{extra_parts.join(', ')}" if extra_parts.any?
+      end
+
+      if cr == "Autoridad expuesta" && member.appointments.empty? && member.role&.name.to_s.strip == "Regidor"
+        rol_text << "\nRegidor/funcionario municipal"
+
+        if member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id
+          muni = member.organization&.county&.name.to_s.strip
+          st   = member.organization&.county&.state&.shortname.to_s.strip
+          rol_text << " en #{muni}, #{st}" if muni.present? && st.present?
+        end
+      end
+
+      if cr == "Autoridad expuesta" && member.appointments.empty?
+        role_name = member.role&.name.to_s.strip
+
+        if role_name.present? && role_name != "Regidor" && role_name != cr
+          line2_parts = [role_name]
+
+          if member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id
+            org_name = member.organization&.name.to_s.strip
+            line2_parts << org_name if org_name.present?
+          end
+
+          rol_text << "\n#{line2_parts.join(', ')}"
+        end
+      end
 
       pdf.table([["Rol o vínculo con el crimen organizado:", rol_text.strip]],
                 cell_style: { size: 10, padding: [4, 6, 4, 6] },
@@ -907,33 +957,38 @@ class DatasetsController < ApplicationController
                 column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
 
       # Rol o vínculo con la organización (mismas ramas que la vista)
-      rol_org_text =
-        if defined?(@all_officers) && @all_officers&.include?(member.role&.name)
-          autoridad = member.involved? ? "Autoridad vinculada" : "Autoridad expuesta"
-          detalle = +""
-          if member.appointments.empty?
-            detalle << member.role.name
-            if defined?(@federal_officers) && @federal_officers&.include?(member.role&.name)
-              estado = member.hits.where(title: "Nombramiento").first&.town&.county&.state&.name
-              detalle << " en #{estado}, #{member.organization&.name}"
-            elsif defined?(@state_officers) && @state_officers&.include?(member.role&.name)
-              detalle << " de #{member.organization&.county&.state&.name}"
-            elsif member.role&.name == "Regidor"
-              detalle << " en  #{member.organization&.county&.name}, #{member.organization&.county&.state&.shortname}."
-            else
-              detalle << " de #{member.organization&.county&.name}, #{member.organization&.county&.state&.shortname}."
-            end
-            fechas = []
-            fechas << member.start_date.strftime("%d/%m/%Y") if member.start_date?
-            fechas << "a #{member.end_date.strftime('%d/%m/%Y')}" if member.end_date?
-            detalle << "\n#{fechas.join(' ')}" if fechas.any?
-          end
-          "#{autoridad}\n#{detalle}".strip
-        elsif defined?(@other_organizations) && @other_organizations&.include?(member.role&.name) && member.criminal_link
-          "#{member.role.name}, #{member.organization&.name}"
-        else
-          member.role&.name || "Sin definir"
+      rol_org_text = +""
+      rol_org_text << (cr || "Sin definir")
+
+      if cr == "Autoridad vinculada" && member.appointments.empty? && member.role&.name.to_s.strip == "Regidor"
+        rol_org_text << "\nRegidor/funcionario municipal"
+
+        if member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id
+          muni = member.organization&.county&.name.to_s.strip
+          st   = member.organization&.county&.state&.shortname.to_s.strip
+          rol_org_text << " en #{muni}, #{st}" if muni.present? && st.present?
         end
+      end
+
+      if cr == "Autoridad vinculada" && member.appointments.empty?
+        role_name = member.role&.name.to_s.strip
+
+        if role_name.present? && role_name != "Regidor" && !["Autoridad vinculada", "Autoridad cooptada"].include?(role_name)
+          line2_parts = [role_name]
+
+          if member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id
+            org_name = member.organization&.name.to_s.strip
+            line2_parts << org_name if org_name.present?
+          end
+
+          rol_org_text << "\n#{line2_parts.join(', ')}"
+        end
+      end
+
+      if cr == "Socio" && member.organization_id.present? && member.criminal_link_id.present? && member.organization_id != member.criminal_link_id
+        org_name = member.organization&.name.to_s.strip
+        rol_org_text << "\n#{org_name}" if org_name.present?
+      end
 
       pdf.table([["Rol o vínculo con la organización:", rol_org_text]],
                 cell_style: { size: 10, padding: [4, 6, 4, 6] },
