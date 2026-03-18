@@ -13,34 +13,49 @@ raise 'Falta SCRAPINGBEE_API_KEY' if SCRAPINGBEE_API_KEY.to_s.strip.empty?
 
 OUTPUT_CSV = 'daily_search_links.csv'
 REQUEST_TIMEOUT = 45
-MAX_RESULTS_PER_QUERY = 10
+MAX_RESULTS_PER_QUERY = 5
 
 ALLOWED_NEWS_DOMAINS = [
+  "jornada.com.mx",
+  "infobae.com",
+  "proceso.com.mx",
   "milenio.com",
   "eluniversal.com.mx",
   "reforma.com",
-  "excelsior.com.mx",
-  "jornada.com.mx",
-  "proceso.com.mx",
-  "animalpolitico.com",
+  "eleconomista.com.mx",
   "elfinanciero.com.mx",
-  "infobae.com",
-  "latinus.us",
-  "debate.com.mx",
-  "telediario.mx",
-  "heraldodemexico.com.mx",
+  "excelsior.com.mx",
+  "zetatijuana.com",
+  "sinembargo.mx",
+  "lasillarota.com",
+  "oem.com.mx",
+  "informador.mx",
   "noroeste.com.mx",
-  "zocalo.com.mx",
-  "vanguardia.com.mx",
-  "am.com.mx"
-]
+  "gob.mx",
+  "elnorte.com",
+  "elsiglodetorreon.com.mx",
+  "animalpolitico.com",
+  "wradio.com.mx"
+].freeze
 
 DEFAULT_ORGANIZATIONS = [
   'cartel',
-  'CJNG'
-]
+  'Cártel Jalisco',
+  'CJNG',
+  'Cártel de Sinaloa',
+  'Mayiza',
+  'Chapitos',
+  'Barredora',
+  'Los Primos',
+  'Cárteles Unidos',
+  'Cártel del Noreste',
+  'Familia Michoacana',
+  'huachicol',
+  'cobro de cuota'
+].freeze
 
 KEYWORDS = [
+  'empresario',
   'detenido',
   'capturado',
   'operador',
@@ -58,7 +73,7 @@ KEYWORDS = [
   'tesorero',
   'gobernador',
   'diputado'
-]
+].freeze
 
 def build_queries(organization_name)
   KEYWORDS.map { |keyword| %("#{organization_name}" "#{keyword}") }
@@ -109,6 +124,18 @@ rescue
   nil
 end
 
+def allowed_news_domain?(url)
+  uri = URI.parse(url)
+  host = uri.host.to_s.downcase
+  return false if host.empty?
+
+  ALLOWED_NEWS_DOMAINS.any? do |allowed_domain|
+    host == allowed_domain || host.end_with?(".#{allowed_domain}")
+  end
+rescue
+  false
+end
+
 def parse_duckduckgo_results(html)
   doc = Nokogiri::HTML(html)
   results = []
@@ -123,6 +150,7 @@ def parse_duckduckgo_results(html)
 
     clean_url = normalize_url(href)
     next unless clean_url
+    next unless allowed_news_domain?(clean_url)
 
     results << {
       title: title,

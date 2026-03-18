@@ -153,7 +153,7 @@ def search
   end
 
   # === Fallback: si el prefiltro dio 0 matches, reintenta sin prefiltro (para no perder resultados) ===
-  if potential_match_ids.empty? && prefilter_token.present?
+  if potential_match_ids.empty? && prefilter_tokens.present?
     t_f = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     candidates = load_candidates(base_scope)
 
