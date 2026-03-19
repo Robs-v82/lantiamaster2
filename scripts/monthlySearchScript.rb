@@ -14,10 +14,10 @@ raise 'Falta SCRAPINGBEE_API_KEY' if SCRAPINGBEE_API_KEY.to_s.strip.empty?
 OUTPUT_CSV = 'daily_search_links.csv'
 REQUEST_TIMEOUT = 45
 MAX_RESULTS_PER_QUERY = 5
-REQUIRED_TERM = 'guerrero'
+REQUIRED_TERM = 'sonora'
 
 ALLOWED_NEWS_DOMAINS = [
-  "suracapulco.mx",
+  "infocajeme.com",
   "jornada.com.mx",
   "infobae.com",
   "proceso.com.mx",
@@ -42,17 +42,19 @@ ALLOWED_NEWS_DOMAINS = [
 
 DEFAULT_ORGANIZATIONS = [
   'cartel',
-  'La Nueva Empresa',
-  'Los Rojos',
+  'Arellano Félix',
+  'Beltrán Leyva',
+  'Arellano Félix',
+  'Los Salazar',
+  'Cártel de Caborca',
+  'Los Rusos',
+  'Los Deltas',
+  'Los Paredes',
+  'Los Cazadores',
   'CJNG',
   'Cártel de Sinaloa',
-  'Los Ardillos',
-  'Cártel del Sur',
   'Chapitos',
-  'Los Tlacos',
-  'Guerreros Unidos',
-  'Familia Michoacana',
-  'Gente Nueva',
+  'Mayiza',
   'huachicol',
   'cobro de cuota'
 ].freeze
@@ -184,7 +186,7 @@ end
 
 organizations = ARGV.empty? ? DEFAULT_ORGANIZATIONS : ARGV
 rows = []
-seen_urls = Set.new
+seen_pairs = Set.new
 
 organizations.each do |organization_name|
   puts "Buscando: #{organization_name}"
@@ -196,8 +198,9 @@ organizations.each do |organization_name|
       results = search_results_for_query(query)
 
       results.each do |result|
-        next if seen_urls.include?(result[:source_url])
-        seen_urls << result[:source_url]
+        pair_key = [result[:source_url], keyword]
+        next if seen_pairs.include?(pair_key)
+        seen_pairs << pair_key
 
         rows << {
           organization_name: organization_name,
@@ -218,9 +221,9 @@ puts "Listo: #{rows.size} links guardados en #{OUTPUT_CSV}"
 puts "\nLinks encontrados:\n\n"
 
 rows
-  .map { |r| r[:source_url] }
-  .uniq
-  .sort
-  .each do |link|
-    puts link
+  .group_by { |r| r[:source_url] }
+  .sort_by { |link, _group| link }
+  .each do |link, group|
+    keywords = group.map { |r| r[:keyword] }.uniq.sort
+    puts "#{link} | palabras clave: #{keywords.join(', ')}"
   end

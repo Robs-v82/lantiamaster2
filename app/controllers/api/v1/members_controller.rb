@@ -372,33 +372,33 @@ end
         end
       end
 
-      def pick_best_key(keys, norm)
-        return norm if keys.include?(norm)
+        def pick_best_key(keys, norm)
+          return norm if keys.include?(norm)
 
-        contained = keys.select { |k| norm.include?(k) }
-        return contained.max_by(&:length) if contained.any?
+          contained = keys.select { |k| norm.include?(k) }
+          return contained.max_by(&:length) if contained.any?
 
-        containing = keys.select { |k| k.include?(norm) }
-        containing.max_by(&:length)
-      end
+          containing = keys.select { |k| k.include?(norm) }
+          containing.max_by(&:length)
+        end
 
-      def token_freq(names_norm, keys, token_norm)
-        best = pick_best_key(keys, token_norm)
-        best ? names_norm[best] : 5
-      end
+        def token_freq(names_norm, keys, token_norm)
+          best = pick_best_key(keys, token_norm)
+          best ? names_norm[best] : 5
+        end
 
-      def compound_freq(names_norm, keys, raw)
-        norm = normalize(raw)
-        parts = norm.split(/\s+/).reject(&:blank?)
-        return token_freq(names_norm, keys, norm) if parts.length <= 1
+        def compound_freq(names_norm, keys, raw)
+          norm = normalize(raw)
+          parts = norm.split(/\s+/).reject(&:blank?)
+          return token_freq(names_norm, keys, norm) if parts.length <= 1
 
-        part_freqs = parts.map { |p| token_freq(names_norm, keys, p) }
-        maxf = part_freqs.max || 5
-        avgf = part_freqs.sum.to_f / part_freqs.length
+          part_freqs = parts.map { |p| token_freq(names_norm, keys, p) }
+          maxf = part_freqs.max || 5
+          avgf = part_freqs.sum.to_f / part_freqs.length
 
-        bonus = [0.10 * (parts.length - 1), 0.30].min
-        ([avgf, maxf].max * (1.0 + bonus)).round
-      end
+          bonus = [0.10 * (parts.length - 1), 0.30].min
+          ([avgf, maxf].max * (1.0 + bonus)).round
+        end
 
         # En modo name: exact match manda. Inclusion solo como fallback y con descuento.
         def token_freq_strict(names_norm, keys, token_norm)
