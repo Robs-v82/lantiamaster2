@@ -41,7 +41,7 @@ batch_scope = scope.order(:id)
 batch_scope = batch_scope.where("members.id > ?", START_ID) if START_ID.present?
 batch_scope = batch_scope.limit(LIMIT)
 
-last_member_id = nil
+$last_member_id = nil
 
 batch_scope.each do |member|
   full_name = [
@@ -52,7 +52,7 @@ batch_scope.each do |member|
 
   next if full_name.blank?
 
-  last_member_id = member.id
+  $last_member_id = member.id
 
   query = %("#{full_name}" #{sites_query})
   url = "https://www.google.com/search?q=#{CGI.escape(query)}"
@@ -76,6 +76,8 @@ batch_scope.each do |member|
       not_matched_names << full_name
       puts "NO MATCH"
     end
+    puts "====Pausa aleatoria====="
+    sleep(rand(4..7))
 
   rescue Ferrum::BrowserError => e
     puts "ERROR DE SESION: #{e.message}"
@@ -103,7 +105,7 @@ puts "Total revisados: #{matched_names.size + not_matched_names.size + failed_na
 puts "Con match: #{matched_names.size}"
 puts "Sin match: #{not_matched_names.size}"
 puts "Con error: #{failed_names.size}"
-puts "Último member.id procesado: #{last_member_id}"
+puts "Último member.id procesado: #{$last_member_id}"
 
 puts "\nNombres con match:"
 matched_names.each { |name| puts "- #{name}" }
