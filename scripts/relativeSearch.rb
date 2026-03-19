@@ -16,7 +16,7 @@ sites_query = [
 ].join(" OR ")
 
 LIMIT = 20
-START_ID = nil
+START_ID = nil unless defined?(START_ID)
 
 def build_browser
   Ferrum::Browser.new(
