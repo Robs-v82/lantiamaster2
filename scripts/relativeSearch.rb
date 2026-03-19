@@ -2,7 +2,11 @@ require "ferrum"
 require "cgi"
 
 gobernador = Role.find_by(name: "Gobernador")
-scope = Member.joins(:hits).distinct.where(involved: true).where.not(role: gobernador)
+scope = Member
+  .joins(:hits)
+  .distinct
+  .where(involved: true)
+  # .where.not(role: gobernador)
 
 sites_query = [
   "site:legislacion.edomex.gob.mx",
