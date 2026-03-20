@@ -2,11 +2,7 @@ require "ferrum"
 require "cgi"
 
 gobernador = Role.find_by(name: "Gobernador")
-scope = Member
-  .joins(:hits)
-  .distinct
-  .where(involved: true)
-  # .where.not(role: gobernador)
+scope = Member.joins(:hits).distinct.where(involved: true).where.not(role: gobernador)
 
 sites_query = [
   "site:legislacion.edomex.gob.mx",
@@ -64,6 +60,8 @@ batch_scope.each do |member|
   begin
     puts "\n[#{member.id}] Buscando: #{full_name}"
     browser.goto(url)
+    html = browser.body.to_s
+    puts html[0..5000]
     sleep 5
 
     body_text = browser.body.to_s.gsub(/\s+/, " ").strip
