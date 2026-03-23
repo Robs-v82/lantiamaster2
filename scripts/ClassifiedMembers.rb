@@ -40,7 +40,7 @@ MAP_TRUE = {
   "Socio" => ["Abogado", "Manager", "Socio", "Artista", "Dirigente sindical", "Músico"],
   "Autoridad vinculada" => ["Militar", "Coordinador estatal", "Alcalde", "Regidor", "Policía",
                             "Delegado estatal", "Gobernador", "Autoridad cooptada",
-                            "Secretario de Seguridad"],
+                            "Secretario de Seguridad", "Legislador"],
   nil => ["Sin definir"]
 }.freeze
 
@@ -48,11 +48,11 @@ EXPECTED_FALSE = [
   "Regidor", "Policía", "Delegado estatal", "Autoridad expuesta", "Artista",
   "Gobernador", "Alcalde", "Secretario de Seguridad", "Coordinador estatal",
   "Servicios lícitos", "Abogado", "Manager", "Dirigente sindical", "Músico",
-  "Familiar", "Sin definir"
+  "Familiar", "Sin definir","Legislador"
 ].freeze
 
 MAP_FALSE = {
-  "Autoridad expuesta" => ["Regidor", "Policía", "Delegado estatal", "Autoridad expuesta",
+  "Autoridad expuesta" => ["Regidor", "Policía", "Delegado estatal", "Autoridad expuesta","Legislador",
                            "Gobernador", "Alcalde", "Secretario de Seguridad", "Coordinador estatal"],
   "Servicios lícitos" => ["Servicios lícitos", "Abogado", "Manager", "Dirigente sindical", "Músico", "Artista"],
   "Familiar/allegado" => ["Familiar"],
