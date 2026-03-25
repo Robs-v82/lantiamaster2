@@ -20,13 +20,12 @@ START_ID = nil unless defined?(START_ID)
 
 def build_browser
   Ferrum::Browser.new(
-    headless: true,
-    timeout: 60,
-    process_timeout: 60,
+    headless: false,
+    timeout: 30,
+    process_timeout: 20,
     browser_options: {
       "no-sandbox" => nil,
-      "disable-dev-shm-usage" => nil,
-      "disable-gpu" => nil
+      "disable-dev-shm-usage" => nil
     }
   )
 end
@@ -41,7 +40,7 @@ batch_scope = scope.order(:id)
 batch_scope = batch_scope.where("members.id > ?", START_ID) if START_ID.present?
 batch_scope = batch_scope.limit(LIMIT)
 
-$last_member_id = nil
+last_member_id = nil
 
 batch_scope.each do |member|
   full_name = [
@@ -52,7 +51,7 @@ batch_scope.each do |member|
 
   next if full_name.blank?
 
-  $last_member_id = member.id
+  last_member_id = member.id
 
   query = %("#{full_name}" #{sites_query})
   url = "https://www.google.com/search?q=#{CGI.escape(query)}"
@@ -60,9 +59,7 @@ batch_scope.each do |member|
   begin
     puts "\n[#{member.id}] Buscando: #{full_name}"
     browser.goto(url)
-    html = browser.body.to_s
-    puts html[0..5000]
-    sleep 5
+    sleep(rand(6..17))
 
     body_text = browser.body.to_s.gsub(/\s+/, " ").strip
     normalized_body = body_text.upcase
@@ -78,8 +75,6 @@ batch_scope.each do |member|
       not_matched_names << full_name
       puts "NO MATCH"
     end
-    puts "====Pausa aleatoria====="
-    sleep(rand(4..7))
 
   rescue Ferrum::BrowserError => e
     puts "ERROR DE SESION: #{e.message}"
@@ -107,7 +102,7 @@ puts "Total revisados: #{matched_names.size + not_matched_names.size + failed_na
 puts "Con match: #{matched_names.size}"
 puts "Sin match: #{not_matched_names.size}"
 puts "Con error: #{failed_names.size}"
-puts "Último member.id procesado: #{$last_member_id}"
-
+puts "Último member.id procesado: #{last_member_id}"
+START_ID = last_member_id
 puts "\nNombres con match:"
 matched_names.each { |name| puts "- #{name}" }

@@ -216,6 +216,8 @@ class OrganizationsController < ApplicationController
     @quarters = helpers.get_specific_quarters(Year.all, "leads")
     @states = State.all.sort
     @allActivities = Sector.where(:scian2=>"98").last.divisions
+    coalition_keys = helpers.coalitionKeys
+    organizations_cookie = Cookie.where(category: "organizations").last
     if session[:checkedStates]
       @checkedStates = Cookie.find(session[:checkedStates]).data
     elsif session[:membership] < 2
@@ -273,9 +275,9 @@ class OrganizationsController < ApplicationController
         end
       }
       @cartels = byType.flatten
-      if @checkedStates.count == 32 && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.count == 3
-        @colorArr = Cookie.where(:category=>"organizations").last.data[0][:colorData]
-        @alliedCartels = Cookie.where(:category=>"organizations").last.data[0][:alliedCartels]
+      if @checkedStates.count == 32 && @checkedCoalitions == coalition_keys && @checkedTypes.count == 3
+        @colorArr = organizations_cookie.data[0][:colorData]
+        @alliedCartels = organizations_cookie.data[0][:alliedCartels]
         @alliedCartels = @alliedCartels.uniq
       else
         @colorArr = []
@@ -283,7 +285,7 @@ class OrganizationsController < ApplicationController
         @cartels.each {|cartel|
           cartelIn = false
           @checkedCoalitions.each{|thisCoalition|
-            if cartel.coalition = thisCoalition["name"]
+            if cartel.coalition == thisCoalition["name"]
                @colorArr.push(thisCoalition["material_color"])
                cartelIn = true
             end
@@ -312,7 +314,7 @@ class OrganizationsController < ApplicationController
       end
 
      
-      if myPlaces == State.all && @checkedCoalitions == helpers.coalitionKeys && @checkedTypes.count == 3
+      if myPlaces == State.all && @checkedCoalitions == coalition_keys && @checkedTypes.count == 3
         @placeArr = Cookie.where(:category=>"organizations").last.data[0][:placeData].uniq
       else
         @placeArr = []
@@ -613,6 +615,8 @@ class OrganizationsController < ApplicationController
       ]
 
       @allActivities = Sector.where(:scian2=>"98").last.divisions
+      coalition_keys = helpers.coalitionKeys
+      organizations_cookie = Cookie.where(category: "organizations").last
       @allActivities.each{|activity|
         if activityArr.include? activity.name
           @myActivities.push(activity)
@@ -746,7 +750,7 @@ class OrganizationsController < ApplicationController
       @key = Rails.application.credentials.google_maps_api_key
 
 
-      @allCoalitions = helpers.coalitionKeys
+      @allCoalitions = coalition_keys
       cartelIn = false
       @allCoalitions.each{|coalition|
         leader = Organization.where(:name=>coalition["name"]).last
@@ -941,9 +945,9 @@ class OrganizationsController < ApplicationController
 
       # UPDATE DIVISIONS
       generalDivision = Division.find_by(scian3: 980)
-      if generalDivision && !targetOrganization.divisions.include?(generalDivision)
-        targetOrganization.divisions << generalDivision
-      end
+
+      target_division_ids = []
+      target_division_ids << generalDivision.id if generalDivision
 
       divisions.each do |y|
         myDivision = Division.find_by(scian3: y[:scian3])
@@ -951,9 +955,11 @@ class OrganizationsController < ApplicationController
 
         if row[y[:slot]] == "1"
           puts "ACTIVITY HIT: #{targetOrganization.name} -> #{y[:name]}"
-          targetOrganization.divisions << myDivision unless targetOrganization.divisions.include?(myDivision)
+          target_division_ids << myDivision.id
         end
       end
+
+      targetOrganization.division_ids = target_division_ids.uniq
 
       # --- UPDATE PARENT, ORIGIN, ALLIES, RIVALS ---
 

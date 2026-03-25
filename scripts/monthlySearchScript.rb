@@ -14,7 +14,7 @@ raise 'Falta SCRAPINGBEE_API_KEY' if SCRAPINGBEE_API_KEY.to_s.strip.empty?
 OUTPUT_CSV = 'daily_search_links.csv'
 REQUEST_TIMEOUT = 45
 MAX_RESULTS_PER_QUERY = 5
-REQUIRED_TERM = 'sonora'
+REQUIRED_TERM = 'baja california'
 
 ALLOWED_NEWS_DOMAINS = [
   "infocajeme.com",
@@ -31,8 +31,6 @@ ALLOWED_NEWS_DOMAINS = [
   "sinembargo.mx",
   "lasillarota.com",
   "oem.com.mx",
-  "informador.mx",
-  "noroeste.com.mx",
   "gob.mx",
   "elnorte.com",
   "elsiglodetorreon.com.mx",
@@ -48,9 +46,6 @@ DEFAULT_ORGANIZATIONS = [
   'Los Salazar',
   'Cártel de Caborca',
   'Los Rusos',
-  'Los Deltas',
-  'Los Paredes',
-  'Los Cazadores',
   'CJNG',
   'Cártel de Sinaloa',
   'Chapitos',
