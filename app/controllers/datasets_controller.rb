@@ -785,24 +785,24 @@ class DatasetsController < ApplicationController
     end
 
     # Relaciones (consulta previa para posible ramificación)
-    relaciones = MemberRelationship
-                   .includes(
-                     member_a: [:role, :organization, :criminal_link],
-                     member_b: [:role, :organization, :criminal_link]
-                   )
-                   .where("member_a_id = :id OR member_b_id = :id", id: member.id)
-                   .where(<<~SQL)
-                     EXISTS (
-                       SELECT 1
-                       FROM hits_members hm
-                       WHERE hm.member_id = member_relationships.member_a_id
-                     )
-                     AND EXISTS (
-                       SELECT 1
-                       FROM hits_members hm
-                       WHERE hm.member_id = member_relationships.member_b_id
-                     )
-                   SQL
+		relaciones = MemberRelationship
+		               .includes(
+		                 member_a: [:role, :organization, :criminal_link],
+		                 member_b: [:role, :organization, :criminal_link]
+		               )
+		               .where("member_a_id = :id OR member_b_id = :id", id: member.id)
+		               .where(<<~SQL)
+		                 EXISTS (
+		                   SELECT 1
+		                   FROM hits_members hm
+		                   WHERE hm.member_id = member_relationships.member_a_id
+		                 )
+		                 AND EXISTS (
+		                   SELECT 1
+		                   FROM hits_members hm
+		                   WHERE hm.member_id = member_relationships.member_b_id
+		                 )
+		               SQL
 
     if member.involved == false
       # === Rama Persona expuesta (vista: "Rol o vínculo con el crimen organizado")
@@ -855,23 +855,32 @@ class DatasetsController < ApplicationController
 
       # Probables vínculos (si existen), si no, la vista muestra Organización/Designación
       if relaciones.any?
-        vinculos = relaciones.map do |rel|
-          if rel.member_a_id == member.id
-            otro = rel.member_b
-            "-#{rel.role_a_gender} de #{otro.firstname} #{otro.lastname1} #{otro.lastname2}, "\
-            "#{otro.role&.name}, #{otro.criminal_link ? otro.criminal_link.name : otro.organization&.name}"
-          else
-            otro = rel.member_a
-            "-#{rel.role_b_gender} de #{otro.firstname} #{otro.lastname1} #{otro.lastname2}, "\
-            "#{otro.role&.name}, #{otro.criminal_link ? otro.criminal_link.name : otro.organization&.name}"
-          end
-        end.join("\n")
+				vinculos = relaciones.map do |rel|
+				  if rel.member_a_id == member.id
+				    otro = rel.member_b
+				    rel_label = rel.role_a_gender
+				  else
+				    otro = rel.member_a
+				    rel_label = rel.role_b_gender
+				  end
 
-        pdf.table([["Probables vínculos de #{member.firstname}:", vinculos]],
-                  cell_style: { size: 10, padding: [4, 6, 4, 6] },
-                  column_widths: [170, 330]) do
-          row(0).columns(0).font_style = :bold
-        end
+				  otro_group = otro.criminal_role.to_s.strip.presence
+				  otro_org_name =
+				    if otro.criminal_link.present?
+				      otro.criminal_link.name.to_s.strip
+				    else
+				      otro.organization&.name.to_s.strip
+				    end
+
+				  otro_org_name = "organización por definir" if otro_org_name == "Por definir"
+
+				  parts = []
+				  parts << otro_group if otro_group.present?
+				  parts << otro_org_name if otro_org_name.present?
+
+				  "-#{rel_label} de #{[otro.firstname, otro.lastname1, otro.lastname2].map(&:to_s).map(&:strip).reject(&:empty?).join(' ')}, " \
+				  "#{parts.join(', ')}"
+				end.join("\n")
       else
         # Bloque Organización + Designación (como en el else de la vista)
         org_name = cartel&.name || "Sin definir"
@@ -994,6 +1003,100 @@ class DatasetsController < ApplicationController
                 cell_style: { size: 10, padding: [4, 6, 4, 6] },
                 column_widths: [170, 330]) { row(0).columns(0).font_style = :bold }
     end
+
+		# === Relaciones (independiente de involved) ===
+		if relaciones.any?
+		  vinculos = relaciones.map do |rel|
+		    if rel.member_a_id == member.id
+		      otro = rel.member_b
+		      rel_label = rel.role_a_gender
+		    else
+		      otro = rel.member_a
+		      rel_label = rel.role_b_gender
+		    end
+
+		    otro_group = otro.criminal_role.to_s.strip.presence
+
+		    otro_org_name =
+		      if otro.criminal_link.present?
+		        otro.criminal_link.name.to_s.strip
+		      else
+		        otro.organization&.name.to_s.strip
+		      end
+
+		    otro_org_name = "organización por definir" if otro_org_name == "Por definir"
+
+		    parts = []
+		    parts << otro_group if otro_group.present?
+		    parts << otro_org_name if otro_org_name.present?
+
+		    "-#{rel_label} de #{[otro.firstname, otro.lastname1, otro.lastname2].map(&:to_s).map(&:strip).reject(&:empty?).join(' ')}, " \
+		    "#{parts.join(', ')}"
+		  end.join("\n")
+
+		  pdf.table([["Probables vínculos de #{member.firstname}:", vinculos]],
+		            cell_style: { size: 10, padding: [4, 6, 4, 6] },
+		            column_widths: [170, 330]) do
+		    row(0).columns(0).font_style = :bold
+		  end
+
+			relacion_orgs = relaciones.map do |rel|
+			  otro = rel.member_a_id == member.id ? rel.member_b : rel.member_a
+
+			  if otro.criminal_link.present?
+			    otro.criminal_link.name.to_s.strip
+			  else
+			    otro.organization&.name.to_s.strip
+			  end
+			end.reject(&:blank?).uniq
+
+			relacion_unica_nombre = relacion_orgs.size == 1 ? relacion_orgs.first : nil
+			relacion_unica_nombre = nil if relacion_unica_nombre == "Por definir"
+
+			relacion_cartel = nil
+			relacion_cartel_designado = nil
+			relacion_fuente = nil
+			relacion_fuente_tipo = nil
+
+			if relacion_unica_nombre.present?
+			  relacion_cartel = Organization.find_by(name: relacion_unica_nombre)
+
+			  if relacion_cartel&.designation
+			    relacion_cartel_designado = relacion_cartel
+			  elsif relacion_cartel&.parent&.designation
+			    relacion_cartel_designado = relacion_cartel.parent
+			    relacion_fuente = relacion_cartel_designado.name
+			    relacion_fuente_tipo = "subordinada a"
+			  elsif relacion_cartel&.allies.present?
+			    aliadas_designadas = Organization.where(id: relacion_cartel.allies).select(&:designation)
+			    if aliadas_designadas.any?
+			      relacion_cartel_designado = aliadas_designadas.first
+			      relacion_fuente = relacion_cartel_designado.name
+			      relacion_fuente_tipo = "aliada a"
+			    end
+			  end
+			end
+
+			if relacion_unica_nombre.present?
+			  designacion_texto =
+			    if relacion_cartel_designado.present? && relacion_fuente.nil?
+			      "Cártel designado como terrorista.\n#{relacion_cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+			    elsif relacion_cartel_designado.present? && relacion_fuente_tipo.present?
+			      "Organización #{relacion_fuente_tipo} #{relacion_fuente}\n" \
+			      "Cártel designado como terrorista.\n" \
+			      "#{relacion_cartel_designado.designation_date.strftime('%d/%m/%Y')}"
+			    else
+			      "Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas."
+			    end
+
+			  pdf.table([["Designación del Departamento de Estado:", designacion_texto]],
+			            cell_style: { size: 10, padding: [4, 6, 4, 6] },
+			            column_widths: [170, 330]) do
+			    row(0).columns(0).font_style = :bold
+			  end
+			end
+		  
+		end
 
     # Notas
     if member.notes.any?

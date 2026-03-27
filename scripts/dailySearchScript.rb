@@ -10,6 +10,7 @@ require "ferrum"
 OUTPUT_CSV = "daily_search_links.csv"
 MAX_RESULTS_PER_QUERY = 5
 SEARCH_ENGINE = "google" # opciones: "google" o "duckduckgo"
+KEYWORD_COMBINATION_LIMIT = 3
 
 ALLOWED_NEWS_DOMAINS = [
   "jornada.com.mx",
@@ -38,10 +39,10 @@ ALLOWED_NEWS_DOMAINS = [
 DEFAULT_ORGANIZATIONS = [
   "cartel",
   "Cártel Jalisco",
-  "CJNG",
   "Cártel de Sinaloa",
   "Mayiza",
   "Chapitos",
+  "CJNG",
   "Cárteles Unidos",
   "Cártel del Noreste",
   "Familia Michoacana",
@@ -55,7 +56,6 @@ KEYWORDS = [
   "operador",
   "líder",
   "prestanombres",
-  "lavado de dinero",
   "vínculos",
   "alcalde",
   "funcionario",
@@ -74,8 +74,22 @@ def build_browser
   )
 end
 
-def build_queries(organization_name)
-  KEYWORDS.map { |keyword| %("#{organization_name}" "#{keyword}") }
+def build_queries(organization_name, use_keywords: true)
+  if use_keywords
+    KEYWORDS.map do |keyword|
+      {
+        keyword: keyword,
+        query: %("#{organization_name}" "#{keyword}")
+      }
+    end
+  else
+    [
+      {
+        keyword: nil,
+        query: %("#{organization_name}")
+      }
+    ]
+  end
 end
 
 def google_url(query)
@@ -212,7 +226,7 @@ def search_results_for_query(browser, query)
   url = search_url_for(query)
 
   browser.goto(url)
-  sleep(rand(7..10))
+  sleep(rand(8..12))
 
   maybe_accept_google_consent(browser) if SEARCH_ENGINE == "google"
 
@@ -240,11 +254,15 @@ browser = build_browser
 rows = []
 seen_urls = Set.new
 
-organizations.each do |organization_name|
+organizations.each_with_index do |organization_name, index|
+  use_keywords = index < KEYWORD_COMBINATION_LIMIT
+  queries = build_queries(organization_name, use_keywords: use_keywords)
+
   puts "Buscando: #{organization_name}"
 
-  build_queries(organization_name).each do |query|
-    keyword = query.scan(/"([^"]+)"/).flatten.last
+  queries.each do |query_data|
+    query = query_data[:query]
+    keyword = query_data[:keyword]
 
     begin
       results = search_results_for_query(browser, query)

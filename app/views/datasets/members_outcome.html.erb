@@ -627,7 +627,7 @@
         <% end %>
 
         <% if member.involved == false %> 
-          <tr>
+        <tr>
           <% if relaciones.any? %>
               <th>
                 <span style="font-weight: bold;">Probables vínculos de <%= member.firstname %>:</span>  
@@ -655,6 +655,7 @@
                         otro&.organization&.name.to_s.strip
                       end
                     %>
+                    <% otro_org_name = "organización criminal por definir." if otro_org_name == "Por definir" %>
                     <% parts = [] %>
                     <% parts << otro_group if otro_group.present? %>
                     <% parts << otro_org_name if otro_org_name.present? %>
@@ -694,6 +695,89 @@
           <% end %>
           <% end %>
           </tr>
+
+          <% if !relaciones.any? && cartel&.name.present? && cartel.name != "Por definir" %>
+            <tr>
+              <th style="font-weight: bold;">Designación del Departamento de Estado:</th>
+              <td>
+                <% if cartel_designado.present? && cartel_fuente.nil? %>
+                  <span class="marked-text">Cártel designado como terrorista.</span><br>
+                  <%= cartel_designado.designation_date.strftime("%d/%m/%Y") %>
+                <% elsif cartel_designado.present? && cartel_fuente_tipo.present? %>
+                  Organización <%= cartel_fuente_tipo %> <%= cartel_fuente %><br>
+                  <span class="marked-text">Cártel designado como terrorista.</span><br>
+                  <span style="padding: 2px 4px !important;"><%= cartel_designado.designation_date.strftime("%d/%m/%Y") %></span>
+                <% else %>
+                  Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas.
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+
+          <%
+            relacion_orgs = relaciones.map do |rel|
+              otro = (rel.member_a_id == member.id) ? rel.member_b : rel.member_a
+
+              if otro&.criminal_link_id.present?
+                otro.criminal_link&.name.to_s.strip
+              else
+                otro&.organization&.name.to_s.strip
+              end
+            end.reject(&:blank?).uniq
+
+            relacion_unica_nombre = relacion_orgs.size == 1 ? relacion_orgs.first : nil
+
+            # ⛔️ Nuevo filtro: excluir "Por definir"
+            if relacion_unica_nombre == "Por definir"
+              relacion_unica_nombre = nil
+            end
+
+            relacion_cartel = nil
+            relacion_fuente = nil
+            relacion_fuente_tipo = nil
+
+            if relacion_unica_nombre.present?
+              relacion_cartel = Organization.find_by(name: relacion_unica_nombre)
+
+              if relacion_cartel&.designation
+                relacion_cartel_designado = relacion_cartel
+              elsif relacion_cartel&.parent&.designation
+                relacion_cartel_designado = relacion_cartel.parent
+                relacion_fuente = relacion_cartel_designado.name
+                relacion_fuente_tipo = "subordinada a"
+              elsif relacion_cartel&.allies.present?
+                aliadas_designadas = Organization.where(id: relacion_cartel.allies).select(&:designation)
+                if aliadas_designadas.any?
+                  relacion_cartel_designado = aliadas_designadas.first
+                  relacion_fuente = relacion_cartel_designado.name
+                  relacion_fuente_tipo = "aliada a"
+                end
+              else
+                relacion_cartel_designado = nil
+              end
+            else
+              relacion_cartel_designado = nil
+            end
+          %>
+
+          <% if relaciones.any? && relacion_unica_nombre.present? %>
+            <tr>
+              <th style="font-weight: bold;">Designación del Departamento de Estado:</th>
+              <td>
+                <% if relacion_cartel_designado.present? && relacion_fuente.nil? %>
+                  <span class="marked-text">Cártel designado como terrorista.</span><br>
+                  <%= relacion_cartel_designado.designation_date.strftime("%d/%m/%Y") %>
+                <% elsif relacion_cartel_designado.present? && relacion_fuente_tipo.present? %>
+                  Organización <%= relacion_fuente_tipo %> <%= relacion_fuente %><br>
+                  <span class="marked-text">Cártel designado como terrorista.</span><br>
+                  <span style="padding: 2px 4px !important;"><%= relacion_cartel_designado.designation_date.strftime("%d/%m/%Y") %></span>
+                <% else %>
+                  Organización sin vínculos de alianza o subordinación a cárteles designados como terroristas.
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          <% relacion_cartel_designado = nil if !defined?(relacion_cartel_designado) %>
         <% end %>
         <% if member.notes.any? %>
           <tr>
