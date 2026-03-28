@@ -1,5 +1,6 @@
 class DatasetsController < ApplicationController
 	include MonthlyQueryLimits
+	include ApplicationHelper
 	helper_method :clasificar_rol
 	
 	require 'prawn'
@@ -894,10 +895,10 @@ class DatasetsController < ApplicationController
 
         if cartel&.designation
           cartel_designado = cartel
-        elsif cartel&.parent&.designation
-          cartel_designado = cartel.parent
-          cartel_fuente = cartel_designado.name
-          cartel_fuente_tipo = "subordinada a"
+				elsif (ancestro_designado = designated_ancestor_for(cartel)).present?
+				  cartel_designado = ancestro_designado
+				  cartel_fuente = cartel_designado.name
+				  cartel_fuente_tipo = "subordinada a"
         elsif cartel&.allies.present?
           aliadas_designadas = Organization.where(id: cartel.allies).select(&:designation)
           if aliadas_designadas.any?
@@ -936,10 +937,10 @@ class DatasetsController < ApplicationController
 
       if cartel&.designation
         cartel_designado = cartel
-      elsif cartel&.parent&.designation
-        cartel_designado = cartel.parent
-        cartel_fuente = cartel_designado.name
-        cartel_fuente_tipo = "subordinada a"
+			elsif (ancestro_designado = designated_ancestor_for(cartel)).present?
+			  cartel_designado = ancestro_designado
+			  cartel_fuente = cartel_designado.name
+			  cartel_fuente_tipo = "subordinada a"
       elsif cartel&.allies.present?
         aliadas_designadas = Organization.where(id: cartel.allies).select(&:designation)
         if aliadas_designadas.any?
@@ -1005,7 +1006,7 @@ class DatasetsController < ApplicationController
     end
 
 		# === Relaciones (independiente de involved) ===
-		if relaciones.any?
+		if member.involved == false && relaciones.any?
 		  vinculos = relaciones.map do |rel|
 		    if rel.member_a_id == member.id
 		      otro = rel.member_b
@@ -1063,8 +1064,8 @@ class DatasetsController < ApplicationController
 
 			  if relacion_cartel&.designation
 			    relacion_cartel_designado = relacion_cartel
-			  elsif relacion_cartel&.parent&.designation
-			    relacion_cartel_designado = relacion_cartel.parent
+			  elsif (ancestro_designado = designated_ancestor_for(relacion_cartel)).present?
+			    relacion_cartel_designado = ancestro_designado
 			    relacion_fuente = relacion_cartel_designado.name
 			    relacion_fuente_tipo = "subordinada a"
 			  elsif relacion_cartel&.allies.present?
@@ -1095,7 +1096,7 @@ class DatasetsController < ApplicationController
 			    row(0).columns(0).font_style = :bold
 			  end
 			end
-		  
+
 		end
 
     # Notas

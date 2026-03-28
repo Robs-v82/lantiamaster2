@@ -536,8 +536,8 @@
 
           <% if cartel&.designation %>
             <% cartel_designado = cartel %>
-          <% elsif cartel&.parent&.designation %>
-            <% cartel_designado = cartel.parent %>
+          <% elsif (ancestro_designado = designated_ancestor_for(cartel)).present? %>
+            <% cartel_designado = ancestro_designado %>
             <% cartel_fuente = cartel_designado.name %>
             <% cartel_fuente_tipo = "subordinada a" %>
           <% elsif cartel&.allies.present? %>
@@ -681,8 +681,8 @@
 
           <% if cartel&.designation %>
             <% cartel_designado = cartel %>
-          <% elsif cartel&.parent&.designation %>
-            <% cartel_designado = cartel.parent %>
+          <% elsif (ancestro_designado = designated_ancestor_for(cartel)).present? %>
+            <% cartel_designado = ancestro_designado %>
             <% cartel_fuente = cartel_designado.name %>
             <% cartel_fuente_tipo = "subordinada a" %>
           <% elsif cartel&.allies.present? %>
@@ -739,13 +739,13 @@
             if relacion_unica_nombre.present?
               relacion_cartel = Organization.find_by(name: relacion_unica_nombre)
 
-              if relacion_cartel&.designation
-                relacion_cartel_designado = relacion_cartel
-              elsif relacion_cartel&.parent&.designation
-                relacion_cartel_designado = relacion_cartel.parent
-                relacion_fuente = relacion_cartel_designado.name
-                relacion_fuente_tipo = "subordinada a"
-              elsif relacion_cartel&.allies.present?
+                if relacion_cartel&.designation
+                  relacion_cartel_designado = relacion_cartel
+                elsif (ancestro_designado = designated_ancestor_for(relacion_cartel)).present?
+                  relacion_cartel_designado = ancestro_designado
+                  relacion_fuente = relacion_cartel_designado.name
+                  relacion_fuente_tipo = "subordinada a"
+                elsif relacion_cartel&.allies.present?
                 aliadas_designadas = Organization.where(id: relacion_cartel.allies).select(&:designation)
                 if aliadas_designadas.any?
                   relacion_cartel_designado = aliadas_designadas.first
