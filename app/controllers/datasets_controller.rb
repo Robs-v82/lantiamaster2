@@ -1,6 +1,6 @@
 class DatasetsController < ApplicationController
 	include MonthlyQueryLimits
-	include ApplicationHelper
+	include DatasetsHelper
 	helper_method :clasificar_rol
 	
 	require 'prawn'
