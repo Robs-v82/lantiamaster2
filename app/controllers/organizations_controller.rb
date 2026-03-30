@@ -237,32 +237,22 @@ class OrganizationsController < ApplicationController
     ]
     allCartels = Sector.where(:scian2=>98).last.organizations.where(:active=>true).uniq
 
-      @checkedTypes = []
-      session[:organization_selection][0].each{|key|
-        @checkedTypes.push(League.find(key.to_i))
-      }
+      @checkedTypes = League.where(id: session[:organization_selection][0].map(&:to_i))
 
       @type_title = get_type_title(@checkedTypes)
       @typeKeys = allCartels.pluck(:mainleague_id).uniq
-      @allTypes = []
-      @typeKeys.each{|key|
-        @allTypes.push(League.find(key.to_i))
-      }
+      @allTypes = League.where(id: @typeKeys)
 
       @allCoalitions = helpers.coalitionKeys
       @checkedCoalitions = session[:organization_selection][1]
-      @cartels = []
-      myStates = []
-      @checkedStates.each{|id|
-        state = State.find(id.to_i)
-        myStates.push(state)
-        localOrganizations = state.rackets.where(:active=>true).uniq
-        @checkedTypes.each{|type|
-          @cartels.push(type.organizations.merge(localOrganizations))
-        }
-      }
-      @cartels.flatten!
-      @cartels = @cartels.uniq
+      myStates = State.where(id: @checkedStates).to_a
+      @cartels = Organization
+        .joins("JOIN organizations_towns ot ON ot.organization_id = organizations.id
+                JOIN towns t ON t.id = ot.town_id
+                JOIN counties c ON c.id = t.county_id")
+        .where(active: true, mainleague_id: @checkedTypes.map(&:id), "c.state_id": @checkedStates)
+        .distinct
+        .to_a
       @cartels = @cartels.sort_by{|cartel| cartel.name}
       byType = [[],[],[]]
       @cartels.each{|cartel|
@@ -308,75 +298,65 @@ class OrganizationsController < ApplicationController
       @n = @alliedCartels.count-1
 
       if @checkedStates.count == 1
-        myPlaces = State.find(@checkedStates).last.counties
+        myPlaces = State.find(@checkedStates).last.counties.to_a
       else
         myPlaces = myStates
       end
 
-     
       if myPlaces == State.all && @checkedCoalitions == coalition_keys && @checkedTypes.count == 3
         @placeArr = Cookie.where(:category=>"organizations").last.data[0][:placeData].uniq
       else
         @placeArr = []
+        allied_ids = @alliedCartels.map(&:id)
+        allied_by_id = @alliedCartels.index_by(&:id)
+
+        if @checkedStates.count > 1
+          place_id_col = "c.state_id"
+          place_join   = "JOIN counties c ON c.id = t.county_id"
+        else
+          place_id_col = "t.county_id"
+          place_join   = ""
+        end
+
+        orgs_by_place = Organization
+          .joins("JOIN organizations_towns ot ON ot.organization_id = organizations.id
+                  JOIN towns t ON t.id = ot.town_id #{place_join}")
+          .where(id: allied_ids, place_id_col => myPlaces.map(&:id))
+          .distinct
+          .pluck(place_id_col, "organizations.id")
+          .group_by(&:first)
+          .transform_values { |pairs| pairs.map { |_, org_id| allied_by_id[org_id] }.compact }
+
         myPlaces.each{|place|
-          placeRackets = place.rackets.merge(@alliedCartels)
+          placeRackets = orgs_by_place[place.id] || []
           myRackets = []
-          myLeaders = []
           placeRackets.each{|racket|
-            racketHash = {}
-            if @alliedCartels.include? racket
-              racketHash[:name] = racket.name
-            end
+            racketHash = { name: racket.name }
             cartelIn = false
-            @checkedCoalitions.each{|coalition|              
+            @checkedCoalitions.each{|coalition|
               if racket.coalition == coalition["name"]
-                myLeaders.push(coalition["name"])
                 cartelIn = true
                 racketHash[:color] = coalition["dark_color"]
               end
             }
-            unless cartelIn
-              racketHash[:color] = '#454157'         
-            end
+            racketHash[:color] = '#454157' unless cartelIn
             myRackets.push(racketHash)
           }
-          myLeaders = placeRackets.pluck(:coalition).uniq
-          if myLeaders.include? "Cártel de Sinaloa"
-            if myLeaders.include? "Cártel Jalisco Nueva Generación"
-              placeCoalition = 0
-            else
-              placeCoalition = 1
-            end
+          myLeaders = placeRackets.map(&:coalition).uniq
+          placeCoalition = if myLeaders.include?("Cártel de Sinaloa")
+            myLeaders.include?("Cártel Jalisco Nueva Generación") ? 0 : 1
           else
-            if myLeaders.include? "Cártel Jalisco Nueva Generación"
-              placeCoalition = 2
-            else
-              placeCoalition = 3
-            end
+            myLeaders.include?("Cártel Jalisco Nueva Generación") ? 2 : 3
           end
           if @checkedStates.count == 1
-            placeHash = {:name=>place.name, :shortname=>place.shortname, :full_code=>place.full_code, :freq=>myRackets.count, :rackets=>myRackets, :coalition=>placeCoalition}
+            placeHash = { name: place.name, shortname: place.shortname, full_code: place.full_code, freq: myRackets.count, rackets: myRackets, coalition: placeCoalition }
           else
-            placeHash = {:name=>place.name, :shortname=>place.shortname, :code=>place.code, :freq=>myRackets.count, :rackets=>myRackets, :coalition=>placeCoalition}
+            placeHash = { name: place.name, shortname: place.shortname, code: place.code, freq: myRackets.count, rackets: myRackets, coalition: placeCoalition }
           end
-          unless placeHash[:freq] == 0
-            @placeArr.push(placeHash)
-          end
+          @placeArr.push(placeHash) unless placeHash[:freq] == 0
         }
       end
 
-      State.all.each{|state|
-        stateRackets = state.rackets.uniq
-        myRackets = []
-
-        stateRackets.each{|racket|
-          racketHash = {}
-          if @alliedCartels.include? racket
-            myRackets.push(racket)
-          end
-          cartelIn = false
-        }
-      }
 
       if @checkedCoalitions.count == 1
         @lightMapColor = @checkedCoalitions[0]["color"]
@@ -419,8 +399,15 @@ class OrganizationsController < ApplicationController
       @alliedCartels.each{|cartel|
         alliedArr.push(cartel.id)
       }
-      Cookie.create(:category=>"send_file", :data=>alliedArr) 
-      Cookie.create(:category=>"send_map_data", :data=>@checkedStates) 
+      Cookie.create(:category=>"send_file", :data=>alliedArr)
+      Cookie.create(:category=>"send_map_data", :data=>@checkedStates)
+
+      # VARIABLES FOR VIEW (avoid DB queries in ERB)
+      if @checkedStates.count == 1
+        @single_state = State.find(@checkedStates.last)
+      end
+      @sinaloa_id = Organization.where(name: "Cártel de Sinaloa").last&.id
+      @cjng_id    = Organization.where(name: "Cártel Jalisco Nueva Generación").last&.id
     end
 
     def api
