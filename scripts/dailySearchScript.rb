@@ -226,7 +226,7 @@ def search_results_for_query(browser, query)
   url = search_url_for(query)
 
   browser.goto(url)
-  sleep(rand(8..12))
+  sleep(rand(10..13))
 
   maybe_accept_google_consent(browser) if SEARCH_ENGINE == "google"
 

@@ -261,6 +261,62 @@
   <!-- Listado falta respaldo -->
   <div class="col l8 m12 s12">
 
+  <div class="card">
+    <div class="card-content">
+      <span class="card-title">Búsqueda diaria</span>
+
+      <form id="run-daily-search-form" action="/datasets/run_daily_search" method="post">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+        <div style="margin-top: 12px;">
+          <button id="run-daily-search-btn" type="submit" class="btn waves-effect waves-light">
+            Ejecutar búsqueda diaria
+          </button>
+        </div>
+
+        <div id="run-daily-search-loader" style="display:none; margin-top:18px;">
+          <div class="preloader-wrapper small active">
+            <div class="spinner-layer spinner-blue-only">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div>
+              <div class="gap-patch">
+                <div class="circle"></div>
+              </div>
+              <div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px; opacity:0.8;">
+            Ejecutando script, por favor espera...
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script nonce="<%= csp_nonce %>">
+    function bindRunDailySearch() {
+      const form = document.getElementById("run-daily-search-form");
+      const btn  = document.getElementById("run-daily-search-btn");
+      const loader = document.getElementById("run-daily-search-loader");
+
+      if (!form || !btn || !loader) return;
+
+      form.addEventListener("submit", function() {
+        btn.disabled = true;
+        btn.classList.add("grey");
+        loader.style.display = "block";
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", bindRunDailySearch);
+    document.addEventListener("turbo:load", bindRunDailySearch);
+    document.addEventListener("turbolinks:load", bindRunDailySearch);
+  </script>
+
     <div class="card">
       <div class="card-content">
         <span class="card-title">Buscar individuos</span>
@@ -832,4 +888,20 @@
     document.addEventListener("turbo:load", bindEasyPdfNames);
     document.addEventListener("turbolinks:load", bindEasyPdfNames);
   })();
+</script>
+
+<script nonce="<%= csp_nonce %>">
+  function showEasyHitsFlashToast() {
+    const notice = <%= flash[:notice].present? ? flash[:notice].to_json.html_safe : 'null' %>;
+    const alert  = <%= flash[:alert].present? ? flash[:alert].to_json.html_safe : 'null' %>;
+
+    if (window.M && M.toast) {
+      if (notice) M.toast({ html: notice });
+      if (alert)  M.toast({ html: alert });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", showEasyHitsFlashToast);
+  document.addEventListener("turbo:load", showEasyHitsFlashToast);
+  document.addEventListener("turbolinks:load", showEasyHitsFlashToast);
 </script>

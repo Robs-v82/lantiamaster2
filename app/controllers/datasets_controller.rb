@@ -2691,6 +2691,20 @@ end
     	}
     end
 
+		def run_daily_search
+		  begin
+		    Kernel.load Rails.root.join("scripts/dailySearchScript.rb").to_s
+		    flash[:notice] = "Búsqueda completada correctamente"
+		  rescue => e
+		    Rails.logger.error "DAILY SEARCH ERROR: #{e.class} - #{e.message}"
+		    Rails.logger.error e.backtrace.first(15).join("\n")
+
+		    flash[:alert] = "#{e.class}: #{e.message}"
+		  end
+
+		  redirect_to request.referer || easy_hits_datasets_path
+		end
+
 	def easy_hits
 	  @load_success = session[:load_success]
 	  @filename     = session[:filename] if session[:filename]

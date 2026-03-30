@@ -1,15 +1,5 @@
 module ApplicationHelper
 
-
-	def designated_ancestor_for(org)
-		current = org&.parent
-		while current.present?
-		  return current if current.designation
-		  current = current.parent
-		end
-		nil
-	end
-
 	def csp_nonce
 		content_security_policy_nonce
 	end

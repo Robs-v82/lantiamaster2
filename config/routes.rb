@@ -203,5 +203,6 @@ Rails.application.routes.draw do
 
     post '/datasets/:id/audit_member', to: 'datasets#audit_member', as: :audit_member
     get 'members/audit'
+    post 'datasets/run_daily_search', to: 'datasets#run_daily_search'
 
 end
