@@ -64,12 +64,13 @@ KEYWORDS = [
 
 def build_browser
   Ferrum::Browser.new(
-    headless: false,
-    timeout: 30,
-    process_timeout: 20,
+    headless: true,
+    timeout: 60,
+    process_timeout: 60,
     browser_options: {
       "no-sandbox" => nil,
-      "disable-dev-shm-usage" => nil
+      "disable-dev-shm-usage" => nil,
+      "disable-gpu" => nil
     }
   )
 end
