@@ -78,9 +78,13 @@ class QueriesController < ApplicationController
 		recipient = User.find(session[:user_id])
 		current_date = Date.today.strftime
 		if params[:catalogue] == "mails"
-		 	records = User.where.not(:membership_type=> 1)
+		 	records = User
+		 	  .where(membership_type: 4)
+		 	  .joins(:subscriptions)
+		 	  .where(subscriptions: { status: "active" })
+		 	  .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
 		 	file_name = "usuarios("+current_date+")."+params[:extension]
-		 	caption = "usuarios"			
+		 	caption = "usuarios"
 		 elsif params[:catalogue] == "towns"
 		 	records = Town.all.order(:full_code)
 		 	file_name = "localidades("+current_date+")."+params[:extension]

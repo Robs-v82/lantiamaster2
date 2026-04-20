@@ -43,9 +43,9 @@ class UsersController < ApplicationController
   def admin
     @users = User
       .where(membership_type: 4)
-      # .joins(member: :organization)
-      # .where(organizations: { name: "GNP Seguros" })
-      # .includes(member: :organization) # evita N+1 para nombre y organización
+      .joins(:subscriptions)
+      .where(subscriptions: { status: "active" })
+      .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
       .order(:id)
   end
 
