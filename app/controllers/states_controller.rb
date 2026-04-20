@@ -37,14 +37,15 @@ class StatesController < ApplicationController
             "vis"
         ]
         CSV.foreach(myFile, :headers => true) do |row|
+          row["code"] = row["code"].to_s.rjust(2, "0")
           row[:score] = row[myQuarter.name]
           row[:name] = State.where(:code=>row["code"]).last.name
           components.each{|component|
-            row[component+"-1"] =  row[component].to_f - row[component+"-1"].to_f 
+            row[component+"-1"] =  row[component].to_f - row[component+"-1"].to_f
             row[component+"-4"] =  row[component].to_f - row[component+"-4"].to_f
           }
           helpers.indexLevels.each{|level|
-              if row[:score].to_f > level[:floor] && row[:score].to_f < level[:ceiling] 
+              if row[:score].to_f > level[:floor] && row[:score].to_f < level[:ceiling]
                   row[:color] = level[:hex]
               end
           }
