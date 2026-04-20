@@ -326,18 +326,18 @@ class QuartersController < ApplicationController
   	end
 
   	def car_theft(quarter, state)
+  		months_es = %w[Enero Febrero Marzo Abril Mayo Junio Julio Agosto Septiembre Octubre Noviembre Diciembre]
   		car_count = 0
-  		floor = (state.code.to_i*98)-98
-  		quarter.months.each{|month|
-  			crime_victim_arr = []
-  			crime_victim_report = month.crime_victim_report.download
-			crime_victim_report = crime_victim_report.force_encoding("UTF-8")
-			crime_victim_report.each_line{|l| line = l.split(","); crime_victim_arr.push(line)}
-			crime_victim_arr.each{|x|x.each{|y|y.strip!}}
-			(41..45).each{|x|
-				car_count += crime_victim_arr[floor+x][7].to_i
-			}
-  		}
+  		quarter.months.each do |month|
+  			month_col = months_es[month.first_day.month - 1]
+  			csv_data = month.crime_victim_report.download
+  			                .encode("UTF-8", "ISO-8859-1", invalid: :replace, undef: :replace)
+  			CSV.parse(csv_data, headers: true).each do |row|
+  				next unless row["Clave_Ent"].to_s.rjust(2, "0") == state.code
+  				next unless row["Subtipo de delito"].to_s.include?("automotor")
+  				car_count += row[month_col].to_i
+  			end
+  		end
   		return car_count
   	end
 
