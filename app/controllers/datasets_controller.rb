@@ -3509,6 +3509,8 @@ def easy_members
 
   # 4) Organizaciones criminales (helper que ya tienes)
   @cartels = helpers.get_cartels
+  por_definir = Organization.find_by(name: "Por definir")
+  @cartels.push(por_definir) if por_definir
 
   @message = session[:message]
   @load_success = session[:load_success]
