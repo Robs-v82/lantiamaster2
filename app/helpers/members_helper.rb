@@ -40,14 +40,17 @@ module MembersHelper
 
     if (!s || !e) && appt.respond_to?(:period) && appt.period.present?
       rng = appt.period
-      s ||= rng.begin
-      e ||= (rng.exclude_end? ? (rng.end - 1) : rng.end) # Date - 1 día
+      s ||= rng.begin.infinite? ? nil : rng.begin rescue rng.begin
+      raw_end = rng.end
+      e ||= raw_end.nil? || (raw_end.respond_to?(:infinite?) && raw_end.infinite?) ? nil : (rng.exclude_end? ? raw_end - 1 : raw_end)
     end
     [s, e]
   end
 
   # Formatea el tramo de fechas en dd/mm/aaaa a dd/mm/aaaa
   def appt_span_label(s, e)
+    s = nil if s.respond_to?(:infinite?) && s.infinite?
+    e = nil if e.respond_to?(:infinite?) && e.infinite?
     return "Sin fechas" if s.blank? && e.blank?
     return s.strftime("%d/%m/%Y") if s.present? && e.blank?
     return e.strftime("%d/%m/%Y") if e.present? && s.blank?
