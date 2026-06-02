@@ -13,7 +13,9 @@ class AgentController < ApplicationController
 
   # ── Extraction filters ────────────────────────────────────────────────────
   EXCLUDED_TITLE_WORDS   = %w[opinión opinion analisis análisis columna editorial].freeze
-  REQUIRED_SNIPPET_WORDS = %w[deteni captur abati arrest operativo].freeze
+  REQUIRED_SNIPPET_WORDS = %w[deteni captur abati arrest operativo asegurado asegura
+                               aprehend imputad bloqueo narco cjng cartel cártel
+                               elementos seguridad militares sedena fuerzas].freeze
   THEFT_WORDS            = %w[ladrón ladron autopartes].freeze
   THEFT_PHRASES          = ["robo de vehículo", "robo de vehiculo"].freeze
   CRIMEN_WORDS           = ["crimen organizado", "cartel", "cártel"].freeze
@@ -24,6 +26,8 @@ class AgentController < ApplicationController
     Eres un agente especializado en extraer información estructurada de notas periodísticas sobre operativos de seguridad en México.
 
     Recibes el texto completo de una nota. Tu tarea es extraer los datos y devolverlos como UNA o VARIAS líneas CSV según las reglas siguientes.
+
+    AÑO EN CURSO: 2026 (dos dígitos: 26). Para el campo Año usa siempre los dos últimos dígitos del año real del evento: 2026 → 26, 2025 → 25. Si la nota no indica fecha exacta del operativo, usa la fecha de publicación de la nota. Nunca uses 25 para un evento que ocurrió en 2026.
 
     REGLA ANTI-DUPLICADOS INTRA-NOTA:
     Un operativo mencionado más de una vez dentro de la misma página (en el cuerpo, en tweets embebidos, en notas relacionadas o en cualquier otro bloque) cuenta como UNA SOLA fila. No generes filas adicionales por repeticiones del mismo evento.
