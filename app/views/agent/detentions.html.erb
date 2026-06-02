@@ -1,0 +1,187 @@
+<% content_for :head_tags do %>
+  <style>
+    .agent-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .agent-header h5 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      color: #33333C;
+      margin: 0;
+    }
+    #search-btn {
+      background-color: #EF4E50;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      border-radius: 4px;
+      padding: 0 24px;
+      height: 40px;
+      line-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    #search-btn:hover { background-color: #d43e40; }
+    #search-btn:disabled { background-color: #aaa; cursor: not-allowed; }
+
+    #status-msg {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 16px;
+      min-height: 20px;
+    }
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+    .news-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: box-shadow 0.2s;
+    }
+    .news-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.14); }
+    .news-card .card-source {
+      font-size: 11px;
+      font-weight: 600;
+      color: #EF4E50;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .news-card .card-date {
+      font-size: 11px;
+      color: #aaa;
+    }
+    .news-card .card-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #33333C;
+      line-height: 1.4;
+    }
+    .news-card .card-snippet {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+    .news-card .card-link {
+      font-size: 12px;
+      color: #EF4E50;
+      text-decoration: none;
+      margin-top: auto;
+      padding-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .news-card .card-link:hover { text-decoration: underline; }
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+<% end %>
+
+<div class="b-inner-container" style="max-width: 1100px; margin: 0 auto; padding: 16px 8px;">
+  <div class="agent-header">
+    <h5>Agente de captura — Detenciones</h5>
+    <button id="search-btn" onclick="buscarNoticias()">
+      <i class="material-icons" style="font-size:18px;">search</i>
+      Buscar noticias del día
+    </button>
+  </div>
+
+  <div id="status-msg"></div>
+  <div id="results-grid" class="news-grid"></div>
+</div>
+
+<script>
+  function buscarNoticias() {
+    const btn    = document.getElementById('search-btn');
+    const status = document.getElementById('status-msg');
+    const grid   = document.getElementById('results-grid');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Buscando…';
+    status.textContent = 'Lanzando 6 búsquedas en paralelo…';
+    grid.innerHTML = '';
+
+    fetch('<%= search_agent_detentions_path %>', {
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        status.textContent = 'Error: ' + data.error;
+        return;
+      }
+
+      const articles = data.articles || [];
+      status.textContent = articles.length
+        ? articles.length + ' noticias encontradas (duplicados eliminados)'
+        : 'No se encontraron noticias.';
+
+      articles.forEach(a => {
+        const domain = (() => {
+          try { return new URL(a.link).hostname.replace('www.', ''); }
+          catch { return a.source || ''; }
+        })();
+
+        const card = document.createElement('div');
+        card.className = 'news-card';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="card-source">${escHtml(domain)}</span>
+            <span class="card-date">${escHtml(a.date || '')}</span>
+          </div>
+          <div class="card-title">${escHtml(a.title || '')}</div>
+          <div class="card-snippet">${escHtml(a.snippet || '')}</div>
+          <a class="card-link" href="${escHtml(a.link)}" target="_blank" rel="noopener">
+            Ver nota <i class="material-icons" style="font-size:14px;">open_in_new</i>
+          </a>
+        `;
+        grid.appendChild(card);
+      });
+    })
+    .catch(err => {
+      status.textContent = 'Error de red: ' + err.message;
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="material-icons" style="font-size:18px;">search</i> Buscar noticias del día';
+    });
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>

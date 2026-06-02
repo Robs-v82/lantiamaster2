@@ -179,6 +179,9 @@ Rails.application.routes.draw do
       end
     end
 
+    get  "agent/detentions",        to: "agent#detentions", as: :agent_detentions
+    get  "agent/detentions/search", to: "agent#search",     as: :search_agent_detentions
+
     get  "organizations/admin", to: "organizations#admin"
     post "organizations/:id/set_search_level", to: "organizations#set_search_level", as: :set_org_search_level
     post "organizations/admin_create", to: "organizations#admin_create"
