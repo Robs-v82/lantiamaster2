@@ -52,12 +52,26 @@ function parseCSVRow(line) {
 }
 
 // ── Row validator ────────────────────────────────────────────────────────────
+function reserializeFields(fields) {
+  return fields.map(function(f) {
+    return (f.indexOf(',') !== -1 || f.indexOf('"') !== -1)
+      ? '"' + f.replace(/"/g, '""') + '"'
+      : f;
+  }).join(',');
+}
+
 function validateRow(rawLine, sourceUrl) {
   // Clean intra-field newlines
   var line = rawLine.replace(/[\r\n]+/g, ' ').trim();
   if (!line) return { ok: false, error: 'Línea vacía' };
 
   var fields = parseCSVRow(line);
+
+  // Auto-correct known Claude bug: extra empty field right before the URL
+  if (fields.length === 29 && fields[27] === '' && fields[28].startsWith('http')) {
+    fields.splice(27, 1);
+    line = reserializeFields(fields);
+  }
 
   if (fields.length !== 28) {
     return { ok: false, error: 'Campos: ' + fields.length + ' (esperado 28)' };

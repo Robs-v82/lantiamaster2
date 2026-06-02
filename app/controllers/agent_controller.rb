@@ -290,12 +290,12 @@ class AgentController < ApplicationController
       return { url: url, status: "discarded", reason: "claude_descartar", csv_rows: [] }
     end
 
-    # Parse CSV rows — keep only lines that look like data rows
+    # Parse CSV rows: must start with 1-2 digits (Día), have ≥27 commas, no markdown
     rows = claude_response.strip.split("\n")
                           .map(&:strip)
                           .reject(&:empty?)
-                          .reject { |r| r.start_with?("#") }
-                          .select { |r| r.count(",") >= 5 }
+                          .reject { |r| r.start_with?("#", "*", "-", " ") }
+                          .select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
 
     { url: url, status: "ok", reason: nil, csv_rows: rows }
   rescue => e
