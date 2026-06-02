@@ -12,15 +12,13 @@
       color: #33333C;
       margin: 0;
     }
-    #search-btn {
-      background-color: #EF4E50;
+    .agent-btn {
       font-family: 'Poppins', sans-serif;
       font-weight: 500;
       letter-spacing: 0.5px;
       border-radius: 4px;
-      padding: 0 24px;
+      padding: 0 20px;
       height: 40px;
-      line-height: 40px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -30,8 +28,14 @@
       font-size: 14px;
       transition: background 0.2s;
     }
+    #search-btn  { background-color: #EF4E50; }
     #search-btn:hover    { background-color: #d43e40; }
-    #search-btn:disabled { background-color: #aaa; cursor: not-allowed; }
+    #extract-btn { background-color: #33333C; }
+    #extract-btn:hover   { background-color: #555; }
+    #download-btn { background-color: #2e7d32; }
+    #download-btn:hover  { background-color: #1b5e20; }
+    .agent-btn:disabled  { background-color: #aaa !important; cursor: not-allowed; }
+
     #status-msg {
       font-family: 'Poppins', sans-serif;
       font-size: 13px;
@@ -82,10 +86,11 @@
       gap: 4px;
     }
     .news-card .card-link:hover { text-decoration: underline; }
+
     .agent-spinner {
       display: inline-block;
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border: 2px solid #fff;
       border-top-color: transparent;
       border-radius: 50%;
@@ -93,13 +98,59 @@
       vertical-align: middle;
     }
     @keyframes agent-spin { to { transform: rotate(360deg); } }
+
+    #extraction-section { margin-top: 28px; border-top: 1px solid #eee; padding-top: 20px; }
+
+    #progress-area { margin: 16px 0; }
+    #progress-msg  { font-family: 'Poppins', sans-serif; font-size: 13px; color: #555; margin-bottom: 8px; }
+    #progress-bar-wrap {
+      background: #eee;
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    #progress-bar {
+      background: #EF4E50;
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 4px;
+    }
+
+    #summary-area {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+    }
+    #summary-area h6 {
+      font-weight: 600;
+      color: #33333C;
+      margin: 0 0 12px 0;
+      font-size: 14px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { color: #555; }
+    .summary-value { font-weight: 600; color: #33333C; }
+    .summary-value.highlight { color: #EF4E50; }
   </style>
 <% end %>
 
 <div class="b-inner-container" style="max-width: 1100px; margin: 0 auto; padding: 16px 8px;">
+
+  <%# ── Etapa 1: Búsqueda ───────────────────────────────────────────────── %>
   <div class="agent-header">
     <h5>Agente de captura — Detenciones</h5>
-    <button id="search-btn" data-search-url="<%= search_agent_detentions_path %>">
+    <button id="search-btn" class="agent-btn" data-search-url="<%= search_agent_detentions_path %>">
       <i class="material-icons" style="font-size:18px;">search</i>
       Buscar noticias del día
     </button>
@@ -107,4 +158,33 @@
 
   <div id="status-msg"></div>
   <div id="results-grid" class="news-grid"></div>
+
+  <%# ── Etapa 2: Extracción (oculta hasta tener resultados) ─────────────── %>
+  <div id="extraction-section" style="display:none;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+      <span style="font-family:'Poppins',sans-serif; font-size:13px; color:#555;">
+        Etapa 2 — Extraer datos y generar CSV
+      </span>
+      <button id="extract-btn" class="agent-btn"
+              data-extract-url="<%= extract_batch_agent_detentions_path %>">
+        <i class="material-icons" style="font-size:18px;">table_chart</i>
+        Extraer datos
+      </button>
+    </div>
+
+    <div id="progress-area" style="display:none;">
+      <div id="progress-msg"></div>
+      <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+    </div>
+
+    <div id="summary-area" style="display:none;"></div>
+
+    <div id="download-area" style="display:none; margin-top:16px;">
+      <button id="download-btn" class="agent-btn">
+        <i class="material-icons" style="font-size:18px;">download</i>
+        Descargar CSV
+      </button>
+    </div>
+  </div>
+
 </div>
