@@ -14,6 +14,10 @@ class AgentController < ApplicationController
   # ── Extraction filters ────────────────────────────────────────────────────
   EXCLUDED_TITLE_WORDS   = %w[opinión opinion analisis análisis columna editorial].freeze
   REQUIRED_SNIPPET_WORDS = %w[deteni captur abati arrest operativo].freeze
+  THEFT_WORDS            = %w[ladrón ladron autopartes].freeze
+  THEFT_PHRASES          = ["robo de vehículo", "robo de vehiculo"].freeze
+  CRIMEN_WORDS           = ["crimen organizado", "cartel", "cártel"].freeze
+  EXCLUDED_DOMAINS       = %w[facebook.com].freeze
 
   # ── Claude system prompt ──────────────────────────────────────────────────
   EXTRACTION_SYSTEM_PROMPT = <<~PROMPT.strip.freeze
@@ -21,10 +25,18 @@ class AgentController < ApplicationController
 
     Recibes el texto completo de una nota. Tu tarea es extraer los datos y devolverlos como UNA o VARIAS líneas CSV según las reglas siguientes.
 
+    REGLA ANTI-DUPLICADOS INTRA-NOTA:
+    Un operativo mencionado más de una vez dentro de la misma página (en el cuerpo, en tweets embebidos, en notas relacionadas o en cualquier otro bloque) cuenta como UNA SOLA fila. No generes filas adicionales por repeticiones del mismo evento.
+
     REGLAS DE FILAS:
     - Una fila por cada persona detenida o abatida identificada por nombre
     - Si hay N personas sin nombre individual pero sí un total grupal, emite UNA sola fila con Detenidos=N y campos de nombre vacíos
     - Si hay mezcla (2 identificados + 3 anónimos): 2 filas individuales + 1 fila grupal con Detenidos=3
+
+    CRITERIO DE ALTO IMPACTO (obligatorio):
+    Descarta la nota y responde DESCARTAR si se cumplen las dos condiciones siguientes:
+    - La persona detenida no tiene un cargo de liderazgo identificado
+    - El número de detenidos es menor a 3
 
     COLUMNAS (en este orden exacto, separadas por coma):
     1. Día (entero, sin cero inicial)
@@ -44,7 +56,7 @@ class AgentController < ApplicationController
     15. Género (M o F, vacío si no se menciona)
     16. Edad (entero, vacío si no se menciona)
     17. Posición liderazgo (1 si es líder o jefe, vacío si no)
-    18. Jefe regional (rol exacto: Líder / Operador / Jefe regional / Jefe de plaza / Jefe de célula / Jefe de sicarios / Jefe operativo / Sicario / Extorsionador / Traficante o distribuidor / Narcomenudista / Autoridad cooptada / Sin definir — vacío si desconocido)
+    18. Rol (valor exacto del catálogo — ver abajo)
     19. SEDENA (1 si participó, vacío si no)
     20. SEMAR (1 si participó, vacío si no)
     21. GN (1 si participó, vacío si no)
@@ -56,15 +68,54 @@ class AgentController < ApplicationController
     27. Otro (1 si participó alguna fuerza no listada, vacío si no)
     28. Fuente (URL completa de la nota)
 
+    CAMPOS OBLIGATORIOS — nunca deben quedar vacíos:
+    - Detenidos: si no se menciona número exacto pero hay al menos una persona detenida, pon 1
+    - Fuente: siempre la URL completa de la nota
+    - Rol: siempre un valor exacto del catálogo. Si no se puede determinar, usa "Otro"
+
+    CATÁLOGO DE ROL — únicos valores permitidos, exactamente como aparecen aquí:
+    Extorsionador | Sicario | Líder | Autoridad cooptada | Jefe de célula | Jefe de plaza | Jefe de sicarios | Jefe operativo | Jefe regional | Narcomenudista | Traficante o distribuidor | Otro
+    Nunca uses un valor fuera de este catálogo. Si el rol no está claro, usa "Otro".
+
+    ORGANIZACIÓN Y GRUPO AFILIADO — interpretación activa:
+    Normaliza cualquier variante, sigla, apodo o nombre alternativo al valor exacto del catálogo. Ejemplos obligatorios:
+    - "CJNG", "Jalisco", "Mencho", "Fuerzas Especiales Mencho" → match en catálogo
+    - "Los Chapitos", "facción Guzmán", "Los Guzmán" → "Cártel de Sinaloa (Los Guzmán)"
+    - "Mayo Zambada", "Los Mayos", "facción Zambada" → "Cártel de Sinaloa (Los Zambada)"
+    - "CDN", "Noreste" → match en catálogo
+    Si después del intento de normalización no encuentras ningún match, escribe "No identificada" — nunca dejes estos campos vacíos.
+
+    INEGI — claves de municipios frecuentes para referencia:
+    - Ciudad de México: Álvaro Obregón=09010, Azcapotzalco=09002, Benito Juárez=09014, Coyoacán=09003, Cuauhtémoc=09006, Gustavo A. Madero=09007, Iztapalapa=09009, Miguel Hidalgo=09016, Tlalpan=09012, Venustiano Carranza=09017, Xochimilco=09013
+    - Jalisco: Guadalajara=14039, Zapopan=14120, Tlajomulco=14098, Tonalá=14101
+    - Sinaloa: Culiacán=25006, Mazatlán=25012, Guasave=25007, Ahome (Los Mochis)=25001
+    - Nuevo León: Monterrey=19039, San Nicolás=19046, Apodaca=19006, Escobedo=19021
+    - Michoacán: Morelia=16053, Uruapan=16102, Zamora=16108, Lázaro Cárdenas=16037, Zitácuaro=16112
+    - Chihuahua: Juárez=08037, Chihuahua=08019
+    - Tamaulipas: Reynosa=28032, Matamoros=28009, Nuevo Laredo=28022
+    - Guerrero: Acapulco=12001, Chilpancingo=12029, Iguala=12035
+    - Veracruz: Xalapa=30087, Veracruz=30193, Coatzacoalcos=30039
+    - Sonora: Hermosillo=26030, Cajeme (Cd. Obregón)=26018, Nogales=26040
+    - Baja California: Tijuana=02004, Mexicali=02002, Ensenada=02001
+    Si el municipio no aparece en esta lista, dedúcelo con el formato 2 dígitos de estado + 3 de municipio.
+
     REGLAS CRÍTICAS:
     - Si la nota NO describe una detención o abatimiento concreto y confirmado, responde únicamente con: DESCARTAR
     - No inventes datos. Si algo no está en la nota, deja la celda vacía
     - Usa la fecha del operativo, no la de publicación. Si no hay fecha exacta, usa la de publicación
-    - Para INEGI: 2 dígitos de estado + 3 de municipio (ej. Guadalajara = 14039). Si solo se menciona el estado, usa la clave de la capital
     - Nombres en Title Case
     - El alias usa punto y coma como separador interno
     - Para fuerzas: solo pon 1 si la nota las menciona explícitamente. Nunca inferir
     - Si la nota dice "elementos de seguridad" sin especificar fuerza, usa Otro=1
+
+    VERIFICACIÓN FINAL ANTES DE EMITIR EL CSV:
+    Antes de devolver tu respuesta, verifica que:
+    1. Cada fila tiene exactamente 28 campos separados por coma
+    2. Ningún campo numérico contiene texto
+    3. Todo campo de texto que contenga comas está entre comillas dobles
+    4. El campo Fuente en la posición 28 contiene una URL válida
+    5. El campo Rol no está vacío y su valor pertenece al catálogo
+    Si alguna fila no pasa esta verificación, corrígela. Si no puedes corregirla, omítela.
   PROMPT
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -195,6 +246,11 @@ class AgentController < ApplicationController
     title   = article["title"].to_s
     snippet = article["snippet"].to_s
 
+    # Filter 0: excluded domains
+    if EXCLUDED_DOMAINS.any? { |d| url.include?(d) }
+      return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [] }
+    end
+
     # Filter 1: excluded title keywords
     title_lower = I18n.transliterate(title.downcase)
     if EXCLUDED_TITLE_WORDS.any? { |w| title_lower.include?(w) }
@@ -204,6 +260,13 @@ class AgentController < ApplicationController
     # Filter 2: required snippet keywords
     snippet_lower = I18n.transliterate(snippet.downcase)
     unless REQUIRED_SNIPPET_WORDS.any? { |w| snippet_lower.include?(w) }
+      return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [] }
+    end
+
+    # Filter 3: theft content without organized-crime context
+    is_theft = THEFT_WORDS.any? { |w| snippet_lower.include?(w) } ||
+               THEFT_PHRASES.any? { |p| snippet_lower.include?(p) }
+    if is_theft && CRIMEN_WORDS.none? { |w| snippet_lower.include?(w) }
       return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [] }
     end
 

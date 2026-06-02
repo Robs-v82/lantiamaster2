@@ -16,11 +16,157 @@ function sleep(ms) {
   return new Promise(function(resolve) { setTimeout(resolve, ms); });
 }
 
-// ── CSV header ───────────────────────────────────────────────────────────────
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    String(d.getDate()).padStart(2, '0');
+}
+
+// ── CSV header (col 18 = Rol) ────────────────────────────────────────────────
 var CSV_HEADER = 'Día,Mes,Año,Estado,INEGI,Municipio,Abatido,Detenidos,Organización,' +
   'Grupo afiliado,Nombre,Apellido Paterno,Apellido Materno,Alias,Género,Edad,' +
-  'Posición liderazgo,Jefe regional,SEDENA,SEMAR,GN,SSCP,FGR,SSP-Estatal,' +
+  'Posición liderazgo,Rol,SEDENA,SEMAR,GN,SSCP,FGR,SSP-Estatal,' +
   'FGE/PGJ,Policía municipal,Otro,Fuente';
+
+// Indices (0-based) of numeric fields
+var NUMERIC_IDX = [0, 1, 2, 4, 6, 7, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26];
+
+// ── CSV row parser (handles quoted fields) ───────────────────────────────────
+function parseCSVRow(line) {
+  var fields = [], cur = '', inQ = false;
+  for (var i = 0; i < line.length; i++) {
+    var c = line[i];
+    if (c === '"') {
+      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+      else { inQ = !inQ; }
+    } else if (c === ',' && !inQ) {
+      fields.push(cur.trim());
+      cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  fields.push(cur.trim());
+  return fields;
+}
+
+// ── Row validator ────────────────────────────────────────────────────────────
+function validateRow(rawLine, sourceUrl) {
+  // Clean intra-field newlines
+  var line = rawLine.replace(/[\r\n]+/g, ' ').trim();
+  if (!line) return { ok: false, error: 'Línea vacía' };
+
+  var fields = parseCSVRow(line);
+
+  if (fields.length !== 28) {
+    return { ok: false, error: 'Campos: ' + fields.length + ' (esperado 28)' };
+  }
+
+  // Numeric fields must be empty or numeric
+  for (var i = 0; i < NUMERIC_IDX.length; i++) {
+    var idx = NUMERIC_IDX[i];
+    var val = fields[idx];
+    if (val !== '' && isNaN(Number(val))) {
+      return { ok: false, error: 'Campo numérico #' + (idx + 1) + ' tiene texto: "' + val + '"' };
+    }
+  }
+
+  // Rol (index 17) must not be empty
+  if (!fields[17]) {
+    return { ok: false, error: 'Campo Rol (col 18) está vacío' };
+  }
+
+  // Fuente (index 27) must look like a URL
+  if (!fields[27].startsWith('http')) {
+    return { ok: false, error: 'Fuente no parece URL: "' + fields[27] + '"' };
+  }
+
+  return { ok: true, cleaned: line };
+}
+
+// ── Build pure CSV (header + data rows only) ─────────────────────────────────
+function buildCSV(allRows) {
+  return [CSV_HEADER].concat(allRows).join('\n');
+}
+
+// ── Build log file ───────────────────────────────────────────────────────────
+function buildLog(stats, formatErrors) {
+  var now  = new Date().toLocaleString('es-MX');
+  var lines = [
+    '=== RESUMEN DE EJECUCIÓN: ' + now + ' ===',
+    '',
+    'Total de notas encontradas:              ' + stats.total,
+    'Notas procesadas exitosamente:           ' + stats.ok,
+    'Filas CSV generadas:                     ' + stats.csvRows,
+    '---',
+    'Descartadas – error de fetch:            ' + stats.fetchError,
+    'Descartadas – título excluido:           ' + stats.tituloExcluido,
+    'Descartadas – snippet / URL:             ' + stats.snippetIrrelev,
+    'Descartadas – Claude (no es detención):  ' + stats.claudeDescartar,
+    'Errores de formato en filas:             ' + stats.formatErrors,
+    'Errores inesperados:                     ' + stats.errorInesp
+  ];
+
+  if (formatErrors.length > 0) {
+    lines.push('');
+    lines.push('=== ERRORES DE FORMATO ===');
+    formatErrors.forEach(function(fe, i) {
+      lines.push('');
+      lines.push('[' + (i + 1) + '] URL: ' + fe.url);
+      lines.push('    Fila: ' + fe.row);
+      lines.push('    Motivo: ' + fe.error);
+    });
+  }
+
+  return lines.join('\n');
+}
+
+// ── Build summary HTML ───────────────────────────────────────────────────────
+function summaryRow(label, value, highlight) {
+  return '<div class="summary-row">' +
+    '<span class="summary-label">' + escHtml(label) + '</span>' +
+    '<span class="summary-value' + (highlight ? ' highlight' : '') + '">' + value + '</span>' +
+    '</div>';
+}
+
+function buildSummaryHTML(stats) {
+  return '<h6>Resumen de extracción</h6>' +
+    summaryRow('Total de notas encontradas',          stats.total,         false) +
+    summaryRow('Notas procesadas exitosamente',       stats.ok,            false) +
+    summaryRow('Filas CSV generadas',                 stats.csvRows,       stats.csvRows > 0) +
+    '<div style="margin-top:10px;font-weight:600;font-size:12px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;">Descartadas por causa</div>' +
+    summaryRow('Error de fetch o contenido vacío',   stats.fetchError,     false) +
+    summaryRow('Título con palabras excluidas',       stats.tituloExcluido, false) +
+    summaryRow('Snippet / URL sin términos relevantes', stats.snippetIrrelev, false) +
+    summaryRow('Claude: nota no es detención',        stats.claudeDescartar, false) +
+    summaryRow('Errores de formato en filas',         stats.formatErrors,  stats.formatErrors > 0) +
+    summaryRow('Error inesperado',                    stats.errorInesp,    false);
+}
+
+// ── Trigger file downloads ───────────────────────────────────────────────────
+function offerDownloads(csvContent, logContent) {
+  var today = todayStr();
+
+  function makeBtn(id, content, filename, mime) {
+    var blob = new Blob([content], { type: mime });
+    var url  = URL.createObjectURL(blob);
+    var btn  = document.getElementById(id);
+    if (!btn) return;
+    btn.onclick = function() {
+      var a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+    };
+  }
+
+  makeBtn('download-btn',     '﻿' + csvContent,
+          'detenciones_' + today + '.csv', 'text/csv;charset=utf-8;');
+  makeBtn('download-log-btn', logContent,
+          'detenciones_' + today + '.log', 'text/plain;charset=utf-8;');
+
+  var area = document.getElementById('download-area');
+  if (area) area.style.display = 'flex';
+}
 
 // ── Etapa 1: Búsqueda ────────────────────────────────────────────────────────
 function initSearch() {
@@ -32,10 +178,10 @@ function initSearch() {
     var grid   = document.getElementById('results-grid');
     var extSec = document.getElementById('extraction-section');
 
-    btn.disabled    = true;
-    btn.innerHTML   = '<span class="agent-spinner"></span> Buscando…';
+    btn.disabled       = true;
+    btn.innerHTML      = '<span class="agent-spinner"></span> Buscando…';
     status.textContent = 'Lanzando 6 búsquedas en paralelo…';
-    grid.innerHTML  = '';
+    grid.innerHTML     = '';
     if (extSec) extSec.style.display = 'none';
 
     fetch(btn.getAttribute('data-search-url'), {
@@ -70,15 +216,12 @@ function initSearch() {
         grid.appendChild(card);
       });
 
-      // Show extraction section if we have results
       if (articles.length > 0 && extSec) {
         extSec.style.display = 'block';
         resetExtractionUI();
       }
     })
-    .catch(function(err) {
-      status.textContent = 'Error de red: ' + err.message;
-    })
+    .catch(function(err) { status.textContent = 'Error de red: ' + err.message; })
     .finally(function() {
       btn.disabled  = false;
       btn.innerHTML = '<i class="material-icons" style="font-size:18px;">search</i> Buscar noticias del día';
@@ -88,91 +231,28 @@ function initSearch() {
 
 // ── Etapa 2: Extracción ──────────────────────────────────────────────────────
 function resetExtractionUI() {
-  var prog     = document.getElementById('progress-area');
-  var summary  = document.getElementById('summary-area');
-  var download = document.getElementById('download-area');
-  var extBtn   = document.getElementById('extract-btn');
-
-  if (prog)     prog.style.display     = 'none';
-  if (summary)  summary.style.display  = 'none';
-  if (download) download.style.display = 'none';
-  if (extBtn)   {
-    extBtn.disabled  = false;
-    extBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">table_chart</i> Extraer datos';
+  ['progress-area', 'summary-area', 'download-area'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  var btn = document.getElementById('extract-btn');
+  if (btn) {
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="material-icons" style="font-size:18px;">table_chart</i> Extraer datos';
   }
 }
 
 function getArticlesFromCards() {
-  var cards = document.querySelectorAll('.news-card');
-  return Array.from(cards).map(function(card) {
+  return Array.from(document.querySelectorAll('.news-card')).map(function(card) {
     var linkEl    = card.querySelector('.card-link');
     var titleEl   = card.querySelector('.card-title');
     var snippetEl = card.querySelector('.card-snippet');
     return {
-      url:     linkEl    ? linkEl.href                   : '',
-      title:   titleEl   ? titleEl.textContent.trim()    : '',
-      snippet: snippetEl ? snippetEl.textContent.trim()  : ''
+      url:     linkEl    ? linkEl.href                  : '',
+      title:   titleEl   ? titleEl.textContent.trim()   : '',
+      snippet: snippetEl ? snippetEl.textContent.trim() : ''
     };
   }).filter(function(a) { return a.url; });
-}
-
-function buildSummaryHTML(stats) {
-  return '<h6>Resumen de extracción</h6>' +
-    row('Total de notas encontradas',       stats.total,           false) +
-    row('Notas procesadas exitosamente',    stats.ok,              false) +
-    row('Filas CSV generadas',             stats.csvRows,          true)  +
-    '<div style="margin-top:10px;font-weight:600;font-size:12px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;">Descartadas por causa</div>' +
-    row('Error de fetch o contenido vacío', stats.fetchError,      false) +
-    row('Título con palabras excluidas',    stats.tituloExcluido,  false) +
-    row('Snippet sin términos relevantes',  stats.snippetIrrelev,  false) +
-    row('Claude: nota no es detención',     stats.claudeDescartar, false) +
-    row('Error inesperado',                stats.errorInesp,       false);
-}
-
-function row(label, value, highlight) {
-  return '<div class="summary-row">' +
-    '<span class="summary-label">' + escHtml(label) + '</span>' +
-    '<span class="summary-value' + (highlight ? ' highlight' : '') + '">' + value + '</span>' +
-    '</div>';
-}
-
-function buildCSVContent(allRows, stats) {
-  var lines = [CSV_HEADER].concat(allRows);
-  var now   = new Date().toLocaleString('es-MX');
-  lines.push('');
-  lines.push('# === RESUMEN DE EJECUCIÓN ===');
-  lines.push('# Total de notas encontradas: '                       + stats.total);
-  lines.push('# Notas procesadas exitosamente: '                    + stats.ok);
-  lines.push('# Filas CSV generadas: '                              + stats.csvRows);
-  lines.push('# Descartadas por error de fetch o contenido vacío: ' + stats.fetchError);
-  lines.push('# Descartadas por título excluido: '                  + stats.tituloExcluido);
-  lines.push('# Descartadas por snippet irrelevante: '              + stats.snippetIrrelev);
-  lines.push('# Descartadas por Claude (no es detención concreta): ' + stats.claudeDescartar);
-  lines.push('# Descartadas por error inesperado: '                 + stats.errorInesp);
-  lines.push('# Generado: ' + now);
-  return lines.join('\n');
-}
-
-function triggerDownload(csvContent) {
-  var today = new Date();
-  var y     = today.getFullYear();
-  var m     = String(today.getMonth() + 1).padStart(2, '0');
-  var d     = String(today.getDate()).padStart(2, '0');
-  var fname = 'detenciones_' + y + m + d + '.csv';
-
-  var blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
-  var url  = URL.createObjectURL(blob);
-
-  var btn  = document.getElementById('download-btn');
-  btn.onclick = function() {
-    var a      = document.createElement('a');
-    a.href     = url;
-    a.download = fname;
-    a.click();
-  };
-
-  var downloadArea = document.getElementById('download-area');
-  if (downloadArea) downloadArea.style.display = 'block';
 }
 
 function initExtraction() {
@@ -181,38 +261,40 @@ function initExtraction() {
 
   extBtn.addEventListener('click', async function() {
     var articles = getArticlesFromCards();
-    if (articles.length === 0) return;
+    if (!articles.length) return;
 
     var extractUrl = extBtn.getAttribute('data-extract-url');
-    var prog       = document.getElementById('progress-area');
+    var progArea   = document.getElementById('progress-area');
     var progMsg    = document.getElementById('progress-msg');
     var progBar    = document.getElementById('progress-bar');
     var summaryEl  = document.getElementById('summary-area');
     var downloadEl = document.getElementById('download-area');
 
-    // Reset UI
     extBtn.disabled  = true;
     extBtn.innerHTML = '<span class="agent-spinner"></span> Procesando…';
-    prog.style.display    = 'block';
+    progArea.style.display   = 'block';
     summaryEl.style.display  = 'none';
     downloadEl.style.display = 'none';
-    progBar.style.width = '0%';
+    progBar.style.width      = '0%';
 
-    var allRows = [];
-    var stats   = { total: articles.length, ok: 0, csvRows: 0,
-                    fetchError: 0, tituloExcluido: 0, snippetIrrelev: 0,
-                    claudeDescartar: 0, errorInesp: 0 };
+    var allRows    = [];
+    var fmtErrors  = [];
+    var stats = {
+      total: articles.length, ok: 0, csvRows: 0,
+      fetchError: 0, tituloExcluido: 0, snippetIrrelev: 0,
+      claudeDescartar: 0, formatErrors: 0, errorInesp: 0
+    };
 
     var batchSize    = 3;
     var totalBatches = Math.ceil(articles.length / batchSize);
 
     for (var i = 0; i < articles.length; i += batchSize) {
-      var batch      = articles.slice(i, i + batchSize);
-      var batchNum   = Math.floor(i / batchSize) + 1;
-      var processed  = Math.min(i + batchSize, articles.length);
+      var batch   = articles.slice(i, i + batchSize);
+      var batchNo = Math.floor(i / batchSize) + 1;
+      var done    = Math.min(i + batchSize, articles.length);
 
-      progMsg.textContent = 'Procesando nota ' + processed + ' de ' + articles.length +
-                            ' (lote ' + batchNum + ' de ' + totalBatches + ')…';
+      progMsg.textContent = 'Procesando nota ' + done + ' de ' + articles.length +
+                            ' (lote ' + batchNo + ' de ' + totalBatches + ')…';
       progBar.style.width = Math.round((i / articles.length) * 100) + '%';
 
       try {
@@ -223,62 +305,59 @@ function initExtraction() {
             'X-CSRF-Token': csrfToken(),
             'Accept':       'application/json'
           },
-          body: JSON.stringify({ articles: batch }),
-          signal: AbortSignal.timeout ? AbortSignal.timeout(120000) : undefined
+          body: JSON.stringify({ articles: batch })
         });
-
         var data = await resp.json();
+
         if (data.error) {
           progMsg.textContent = 'Error del servidor: ' + data.error;
           extBtn.disabled  = false;
           extBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">table_chart</i> Extraer datos';
           return;
         }
+
         (data.results || []).forEach(function(r) {
           switch (r.status) {
             case 'ok':
               stats.ok++;
-              (r.csv_rows || []).forEach(function(row) {
-                allRows.push(row);
-                stats.csvRows++;
+              (r.csv_rows || []).forEach(function(rawRow) {
+                var v = validateRow(rawRow, r.url);
+                if (v.ok) {
+                  allRows.push(v.cleaned);
+                  stats.csvRows++;
+                } else {
+                  fmtErrors.push({ url: r.url, row: rawRow.substring(0, 120), error: v.error });
+                  stats.formatErrors++;
+                }
               });
               break;
             case 'discarded':
-              if      (r.reason === 'fetch_error')          stats.fetchError++;
-              else if (r.reason === 'titulo_excluido')      stats.tituloExcluido++;
-              else if (r.reason === 'snippet_irrelevante')   stats.snippetIrrelev++;
-              else if (r.reason === 'claude_descartar')      stats.claudeDescartar++;
-              else                                           stats.errorInesp++;
+              if      (r.reason === 'fetch_error')         stats.fetchError++;
+              else if (r.reason === 'titulo_excluido')     stats.tituloExcluido++;
+              else if (r.reason === 'snippet_irrelevante') stats.snippetIrrelev++;
+              else if (r.reason === 'claude_descartar')    stats.claudeDescartar++;
+              else                                          stats.errorInesp++;
               break;
             default:
               stats.errorInesp++;
           }
         });
       } catch (err) {
-        // Batch error — count articles as errors
         batch.forEach(function() { stats.errorInesp++; });
         console.error('Batch error:', err);
       }
 
-      // Delay between batches (not after the last one)
-      if (i + batchSize < articles.length) {
-        await sleep(1200);
-      }
+      if (i + batchSize < articles.length) await sleep(1200);
     }
 
-    // Finalize progress
     progBar.style.width = '100%';
     progMsg.textContent = 'Extracción completada.';
 
-    // Show summary
-    summaryEl.innerHTML  = buildSummaryHTML(stats);
+    summaryEl.innerHTML = buildSummaryHTML(stats);
     summaryEl.style.display = 'block';
 
-    // Generate and offer CSV download
-    var csvContent = buildCSVContent(allRows, stats);
-    triggerDownload(csvContent);
+    offerDownloads(buildCSV(allRows), buildLog(stats, fmtErrors));
 
-    // Restore button
     extBtn.disabled  = false;
     extBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">table_chart</i> Extraer datos';
   });
