@@ -14,8 +14,10 @@ class AgentController < ApplicationController
   end
 
   def search
-    api_key = ENV["SERPER_API_KEY"].presence ||
-              Rails.application.credentials.dig(:serper, :api_key)
+    key_file = Rails.root.join("..", "shared", "config", "serper_api_key").expand_path
+    api_key  = ENV["SERPER_API_KEY"].presence ||
+               Rails.application.credentials.dig(:serper, :api_key) ||
+               (File.read(key_file).strip if File.exist?(key_file))
 
     if api_key.blank?
       return render json: { error: "SERPER_API_KEY no configurada." }, status: :service_unavailable
