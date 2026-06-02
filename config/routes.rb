@@ -174,7 +174,8 @@ Rails.application.routes.draw do
 
     namespace :api, defaults: { format: :json } do
       namespace :v1 do
-        post "members/search", to: "members#search"
+        post "members/search",            to: "members#search"
+        get  "organizations/criminal",    to: "organizations#criminal"
       end
     end
 
