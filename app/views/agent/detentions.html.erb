@@ -107,7 +107,7 @@
 <div class="b-inner-container" style="max-width: 1100px; margin: 0 auto; padding: 16px 8px;">
   <div class="agent-header">
     <h5>Agente de captura — Detenciones</h5>
-    <button id="search-btn" onclick="buscarNoticias()">
+    <button id="search-btn">
       <i class="material-icons" style="font-size:18px;">search</i>
       Buscar noticias del día
     </button>
@@ -117,71 +117,86 @@
   <div id="results-grid" class="news-grid"></div>
 </div>
 
-<script>
-  function buscarNoticias() {
-    const btn    = document.getElementById('search-btn');
-    const status = document.getElementById('status-msg');
-    const grid   = document.getElementById('results-grid');
+<script nonce="<%= content_security_policy_nonce %>">
+  (function () {
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
 
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Buscando…';
-    status.textContent = 'Lanzando 6 búsquedas en paralelo…';
-    grid.innerHTML = '';
+    function buscarNoticias() {
+      var btn    = document.getElementById('search-btn');
+      var status = document.getElementById('status-msg');
+      var grid   = document.getElementById('results-grid');
+      if (!btn || !status || !grid) return;
 
-    fetch('<%= search_agent_detentions_path %>', {
-      headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'application/json'
-      }
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.error) {
-        status.textContent = 'Error: ' + data.error;
-        return;
-      }
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Buscando…';
+      status.textContent = 'Lanzando 6 búsquedas en paralelo…';
+      grid.innerHTML = '';
 
-      const articles = data.articles || [];
-      status.textContent = articles.length
-        ? articles.length + ' noticias encontradas (duplicados eliminados)'
-        : 'No se encontraron noticias.';
+      var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+      var csrfToken = csrfMeta ? csrfMeta.content : '';
 
-      articles.forEach(a => {
-        const domain = (() => {
-          try { return new URL(a.link).hostname.replace('www.', ''); }
-          catch { return a.source || ''; }
-        })();
+      fetch('<%= search_agent_detentions_path %>', {
+        headers: {
+          'X-CSRF-Token': csrfToken,
+          'Accept': 'application/json'
+        }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.error) {
+          status.textContent = 'Error: ' + data.error;
+          return;
+        }
+        var articles = data.articles || [];
+        status.textContent = articles.length
+          ? articles.length + ' noticias encontradas (duplicados eliminados)'
+          : 'No se encontraron noticias.';
 
-        const card = document.createElement('div');
-        card.className = 'news-card';
-        card.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="card-source">${escHtml(domain)}</span>
-            <span class="card-date">${escHtml(a.date || '')}</span>
-          </div>
-          <div class="card-title">${escHtml(a.title || '')}</div>
-          <div class="card-snippet">${escHtml(a.snippet || '')}</div>
-          <a class="card-link" href="${escHtml(a.link)}" target="_blank" rel="noopener">
-            Ver nota <i class="material-icons" style="font-size:14px;">open_in_new</i>
-          </a>
-        `;
-        grid.appendChild(card);
+        articles.forEach(function(a) {
+          var domain;
+          try { domain = new URL(a.link).hostname.replace('www.', ''); }
+          catch(e) { domain = a.source || ''; }
+
+          var card = document.createElement('div');
+          card.className = 'news-card';
+          card.innerHTML =
+            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+              '<span class="card-source">' + escHtml(domain) + '</span>' +
+              '<span class="card-date">'   + escHtml(a.date  || '') + '</span>' +
+            '</div>' +
+            '<div class="card-title">'   + escHtml(a.title   || '') + '</div>' +
+            '<div class="card-snippet">' + escHtml(a.snippet || '') + '</div>' +
+            '<a class="card-link" href="' + escHtml(a.link) + '" target="_blank" rel="noopener">' +
+              'Ver nota <i class="material-icons" style="font-size:14px;">open_in_new</i>' +
+            '</a>';
+          grid.appendChild(card);
+        });
+      })
+      .catch(function(err) {
+        status.textContent = 'Error: ' + err.message;
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="material-icons" style="font-size:18px;">search</i> Buscar noticias del día';
       });
-    })
-    .catch(err => {
-      status.textContent = 'Error de red: ' + err.message;
-    })
-    .finally(() => {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="material-icons" style="font-size:18px;">search</i> Buscar noticias del día';
-    });
-  }
+    }
 
-  function escHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+    function init() {
+      var btn = document.getElementById('search-btn');
+      if (btn) btn.addEventListener('click', buscarNoticias);
+    }
+
+    document.addEventListener('turbolinks:load', init);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
 </script>
