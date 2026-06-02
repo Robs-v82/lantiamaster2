@@ -111,6 +111,54 @@ class AgentController < ApplicationController
     render json: { articles: unique }
   end
 
+  def diagnose
+    report = {}
+
+    # 1. Anthropic key
+    key = anthropic_api_key
+    report[:anthropic_key_found] = key.present?
+    report[:anthropic_key_source] =
+      if ENV["ANTHROPIC_API_KEY"].present? then "ENV"
+      elsif Rails.application.credentials.dig(:anthropic, :api_key).present? then "credentials"
+      else
+        kf = Rails.root.join("..", "..", "shared", "config", "anthropic_api_key").expand_path
+        File.exist?(kf) ? "file (#{kf})" : "NOT FOUND"
+      end
+
+    if key.present?
+      # 2. Test call to Claude
+      begin
+        uri  = URI("https://api.anthropic.com/v1/messages")
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        http.read_timeout = 20
+        http.open_timeout = 10
+
+        req = Net::HTTP::Post.new(uri)
+        req["x-api-key"]         = key
+        req["anthropic-version"] = "2023-06-01"
+        req["content-type"]      = "application/json"
+        req.body = {
+          model:      "claude-sonnet-4-20250514",
+          max_tokens: 16,
+          messages:   [{ role: "user", content: "Responde solo: OK" }]
+        }.to_json
+
+        res  = http.request(req)
+        body = JSON.parse(res.body)
+
+        report[:claude_http_status]  = res.code.to_i
+        report[:claude_response_ok]  = body.dig("content", 0, "text").present?
+        report[:claude_text]         = body.dig("content", 0, "text")
+        report[:claude_error]        = body["error"]
+      rescue => e
+        report[:claude_exception] = "#{e.class}: #{e.message}"
+      end
+    end
+
+    render json: report
+  end
+
   def extract_batch
     body          = JSON.parse(request.raw_post)
     articles      = (body["articles"] || []).map(&:to_h)
