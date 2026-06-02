@@ -370,6 +370,11 @@ function initExtraction() {
     summaryEl.innerHTML = buildSummaryHTML(stats);
     summaryEl.style.display = 'block';
 
+    // Persist for manual URL additions
+    window._csvAllRows    = allRows;
+    window._logStats      = stats;
+    window._logFmtErrors  = fmtErrors;
+
     offerDownloads(buildCSV(allRows), buildLog(stats, fmtErrors));
 
     extBtn.disabled  = false;
@@ -377,10 +382,94 @@ function initExtraction() {
   });
 }
 
+// ── URL manual ───────────────────────────────────────────────────────────────
+function initManualUrl() {
+  var btn    = document.getElementById('manual-url-btn');
+  var input  = document.getElementById('manual-url-input');
+  var status = document.getElementById('manual-url-status');
+  if (!btn || !input) return;
+
+  btn.addEventListener('click', async function() {
+    var url = input.value.trim();
+    if (!url.startsWith('http')) {
+      status.textContent = 'Introduce una URL válida.';
+      return;
+    }
+
+    var extractUrl = input.getAttribute('data-extract-url');
+    btn.disabled       = true;
+    btn.innerHTML      = '<span class="agent-spinner"></span>';
+    status.textContent = 'Procesando…';
+
+    try {
+      var resp = await fetch(extractUrl, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken(), 'Accept': 'application/json' },
+        body:    JSON.stringify({ url: url })
+      });
+      var data = await resp.json();
+      if (data.error) { status.textContent = 'Error: ' + data.error; return; }
+
+      var result = (data.results || [])[0];
+      if (!result) { status.textContent = 'Sin respuesta del servidor.'; return; }
+
+      if (result.status === 'discarded') {
+        status.textContent = 'Descartada (' + result.reason + '). No es una detención concreta.';
+        return;
+      }
+      if (result.status === 'error') {
+        status.textContent = 'Error al procesar: ' + result.reason;
+        return;
+      }
+
+      var added = 0;
+      var fmtErrs = [];
+      (result.csv_rows || []).forEach(function(rawRow) {
+        var v = validateRow(rawRow, url);
+        if (v.ok) {
+          // Append to active CSV rows — expose via a global accumulator
+          window._manualRows = window._manualRows || [];
+          window._manualRows.push(v.cleaned);
+          added++;
+        } else {
+          fmtErrs.push(v.error);
+        }
+      });
+
+      if (added > 0) {
+        status.style.color = '#2e7d32';
+        status.textContent = '✓ ' + added + ' fila(s) añadida(s). Descarga el CSV actualizado abajo.';
+
+        // Regenerate downloads with the new rows
+        var existingRows = window._csvAllRows || [];
+        window._csvAllRows = existingRows.concat(window._manualRows);
+        window._manualRows = [];
+        offerDownloads(
+          buildCSV(window._csvAllRows),
+          buildLog(window._logStats || {}, window._logFmtErrors || [])
+        );
+        var downloadEl = document.getElementById('download-area');
+        if (downloadEl) downloadEl.style.display = 'flex';
+        input.value = '';
+      } else {
+        status.textContent = fmtErrs.length
+          ? 'Filas rechazadas por formato: ' + fmtErrs.join('; ')
+          : 'Claude no generó filas para esta URL.';
+      }
+    } catch (err) {
+      status.textContent = 'Error de red: ' + err.message;
+    } finally {
+      btn.disabled  = false;
+      btn.innerHTML = '<i class="material-icons" style="font-size:16px;">add_link</i> Agregar y extraer';
+    }
+  });
+}
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 function initAgentDetentions() {
   initSearch();
   initExtraction();
+  initManualUrl();
 }
 
 document.addEventListener('DOMContentLoaded', initAgentDetentions);

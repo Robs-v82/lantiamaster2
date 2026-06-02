@@ -106,6 +106,7 @@ class AgentController < ApplicationController
     REGLAS CRÍTICAS:
     - Si la nota NO describe una detención o abatimiento concreto y confirmado, responde únicamente con: DESCARTAR
     - No inventes datos. Si algo no está en la nota, deja la celda vacía
+    - Edad: SOLO completa este campo si el texto menciona explícitamente un número de años de la persona detenida o abatida (ej. "de 34 años", "tiene 28 años"). Descripción física, apariencia o contexto NO son fuente válida para inferir edad. Si no hay número explícito, deja vacío.
     - Usa la fecha del operativo, no la de publicación. Si no hay fecha exacta, usa la de publicación
     - Nombres en Title Case
     - El alias usa punto y coma como separador interno
@@ -164,6 +165,23 @@ class AgentController < ApplicationController
     seen   = {}
     unique = results.select { |a| a["link"] && seen[a["link"]] ? false : (seen[a["link"]] = true) }
     render json: { articles: unique }
+  end
+
+  def extract_url
+    body  = JSON.parse(request.raw_post)
+    url   = body["url"].to_s.strip
+    return render json: { error: "URL vacía" }, status: :bad_request if url.blank?
+
+    claude_key = anthropic_api_key
+    return render json: { error: "ANTHROPIC_API_KEY no configurada." }, status: :service_unavailable if claude_key.blank?
+
+    organizations = criminal_organizations
+    result = process_single_article(
+      { "url" => url, "title" => "", "snippet" => "operativo captura detención" },
+      organizations,
+      claude_key
+    )
+    render json: { results: [result] }
   end
 
   def diagnose

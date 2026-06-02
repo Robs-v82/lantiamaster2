@@ -179,6 +179,23 @@
 
     <div id="summary-area" style="display:none;"></div>
 
+    <%# ── Procesar URL específica ────────────────────────────────────────── %>
+    <div id="manual-url-section" style="margin-top:20px; padding-top:16px; border-top:1px dashed #ddd;">
+      <div style="font-family:'Poppins',sans-serif; font-size:12px; color:#888; margin-bottom:8px; text-transform:uppercase; letter-spacing:.5px;">
+        Procesar URL específica
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input id="manual-url-input" type="url" placeholder="https://…"
+               style="flex:1; min-width:240px; height:38px; border:1px solid #ddd; border-radius:4px; padding:0 12px; font-family:'Poppins',sans-serif; font-size:13px;"
+               data-extract-url="<%= extract_url_agent_detentions_path %>">
+        <button id="manual-url-btn" class="agent-btn" style="background-color:#555; height:38px;">
+          <i class="material-icons" style="font-size:16px;">add_link</i>
+          Agregar y extraer
+        </button>
+      </div>
+      <div id="manual-url-status" style="font-family:'Poppins',sans-serif; font-size:12px; color:#888; margin-top:6px; min-height:18px;"></div>
+    </div>
+
     <div id="download-area" style="display:none; margin-top:16px; gap:12px; flex-wrap:wrap;">
       <button id="download-btn" class="agent-btn" style="background-color:#2e7d32;">
         <i class="material-icons" style="font-size:18px;">download</i>
