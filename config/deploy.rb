@@ -18,6 +18,8 @@ set :keep_releases, 5
 set :db_local_clean, true
 set :db_remote_clean, true
 
+set :yarn_flags, "--ignore-engines"
+
 # set :linked_files, %w{config/master.key}
 
 set :deploy_via, :remote_cache
