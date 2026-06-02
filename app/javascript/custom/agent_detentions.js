@@ -228,6 +228,12 @@ function initExtraction() {
         });
 
         var data = await resp.json();
+        if (data.error) {
+          progMsg.textContent = 'Error del servidor: ' + data.error;
+          extBtn.disabled  = false;
+          extBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">table_chart</i> Extraer datos';
+          return;
+        }
         (data.results || []).forEach(function(r) {
           switch (r.status) {
             case 'ok':

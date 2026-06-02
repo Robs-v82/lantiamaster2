@@ -112,7 +112,8 @@ class AgentController < ApplicationController
   end
 
   def extract_batch
-    articles      = (params[:articles] || []).map(&:to_h)
+    body          = JSON.parse(request.raw_post)
+    articles      = (body["articles"] || []).map(&:to_h)
     organizations = criminal_organizations
 
     claude_key = anthropic_api_key
