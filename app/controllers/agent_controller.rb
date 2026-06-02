@@ -14,7 +14,7 @@ class AgentController < ApplicationController
   end
 
   def search
-    key_file = Rails.root.join("..", "shared", "config", "serper_api_key").expand_path
+    key_file = Rails.root.join("..", "..", "shared", "config", "serper_api_key").expand_path
     api_key  = ENV["SERPER_API_KEY"].presence ||
                Rails.application.credentials.dig(:serper, :api_key) ||
                (File.read(key_file).strip if File.exist?(key_file))
