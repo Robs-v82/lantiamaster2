@@ -449,7 +449,7 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
         continue;
       }
 
-      await sleep(500); // Small delay between fallback attempts
+      await sleep(2000); // Delay between fallback attempts (2 seconds)
     }
 
     // Finalize group status
@@ -462,7 +462,7 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
     }
 
     groupLog.push(groupResult);
-    await sleep(1000); // Delay between groups
+    await sleep(5000); // Large delay between groups to rule out Claude saturation (5 seconds)
   }
 
   // Deduplicar por contenido exacto
