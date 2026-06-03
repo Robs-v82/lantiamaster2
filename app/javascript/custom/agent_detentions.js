@@ -168,6 +168,11 @@ function buildLog(stats, formatErrors, articleLog, groupLog) {
       lines.push('     Tema: ' + (g.theme || 'desconocido'));
       lines.push('     Artículos: ' + (g.articleCount || 0));
       if (detail) lines.push('     → ' + detail);
+      if (g.fallbackLog && g.fallbackLog.length > 0) {
+        g.fallbackLog.forEach(function(log) {
+          lines.push('       ' + log);
+        });
+      }
     });
   }
 
@@ -405,6 +410,7 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
     };
 
     // Try each article in the group with fallback
+    var fallbackLog = [];
     for (var ai = 0; ai < groupArticles.length; ai++) {
       var article = groupArticles[ai];
       groupResult.attempts++;
@@ -421,10 +427,16 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
         });
         var data = await resp.json();
 
-        if (data.error) continue; // Try next article
+        if (data.error) {
+          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + data.error);
+          continue;
+        }
 
         var result = (data.results || [])[0];
-        if (!result) continue;
+        if (!result) {
+          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': sin resultado');
+          continue;
+        }
 
         if (result.status === 'ok' && result.csv_rows && result.csv_rows.length > 0) {
           // Success with this article
@@ -441,16 +453,25 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
             }
           });
           groupResult.status = 'ok';
-          break; // Stop trying other articles in this group
+          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': ÉXITO');
+          break;
         }
-        // If status ok but no rows, try next article
+
+        if (result.status === 'discarded') {
+          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': descartada (' + result.reason + ')');
+        } else if (result.status === 'error') {
+          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': error (' + result.reason + ')');
+        } else {
+          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + result.status);
+        }
       } catch (err) {
-        // Try next article
+        fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + err.message);
         continue;
       }
 
-      await sleep(2000); // Delay between fallback attempts (2 seconds)
+      if (ai < groupArticles.length - 1) await sleep(2000); // Delay between fallback attempts
     }
+    groupResult.fallbackLog = fallbackLog;
 
     // Finalize group status
     if (groupResult.status === 'ok' && groupResult.csvRows === 0) {
