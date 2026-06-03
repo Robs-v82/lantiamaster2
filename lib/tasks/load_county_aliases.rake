@@ -2,47 +2,48 @@ namespace :county do
   desc "Load common county aliases (Cancún→Benito Juárez, etc.)"
   task load_aliases: :environment do
     aliases = [
-      # Quintana Roo
-      { county_code: '23004', alias: 'Cancún', type: 'common_name' },
-      { county_code: '23004', alias: 'Cancun', type: 'alternative' },
+      # Quintana Roo - Benito Juárez (Cancún)
+      { county_code: '014', alias: 'Cancún', type: 'common_name', state: 'Quintana Roo' },
+      { county_code: '014', alias: 'Cancun', type: 'alternative', state: 'Quintana Roo' },
 
-      # Sinaloa
-      { county_code: '25002', alias: 'Los Mochis', type: 'common_name' },
-      { county_code: '25002', alias: 'Los mochis', type: 'alternative' },
+      # Sinaloa - Ahome (Los Mochis)
+      { county_code: '001', alias: 'Los Mochis', type: 'common_name', state: 'Sinaloa' },
+      { county_code: '001', alias: 'Los mochis', type: 'alternative', state: 'Sinaloa' },
 
-      # Coahuila
-      { county_code: '05002', alias: 'Saltillo', type: 'common_name' },
+      # CDMX - Iztapalapa
+      { county_code: '007', alias: 'Iztapalapa', type: 'common_name', state: 'Ciudad de México' },
 
-      # Jalisco
-      { county_code: '14039', alias: 'Guadalajara', type: 'common_name' },
+      # Baja California - Tijuana
+      { county_code: '004', alias: 'Tijuana', type: 'common_name', state: 'Baja California' },
 
-      # Baja California
-      { county_code: '02004', alias: 'Tijuana', type: 'common_name' },
+      # Jalisco - Guadalajara
+      { county_code: '039', alias: 'Guadalajara', type: 'common_name', state: 'Jalisco' },
 
-      # Estado de México
-      { county_code: '15002', alias: 'Ecatepec', type: 'alternative' },
+      # Nuevo León - Monterrey
+      { county_code: '039', alias: 'Monterrey', type: 'common_name', state: 'Nuevo León' },
 
-      # Durango
-      { county_code: '10010', alias: 'Gómez Palacio', type: 'common_name' },
-      { county_code: '10010', alias: 'Gomez Palacio', type: 'alternative' },
+      # Veracruz - Xalapa
+      { county_code: '103', alias: 'Xalapa', type: 'common_name', state: 'Veracruz' },
 
-      # CDMX
-      { county_code: '09009', alias: 'Iztapalapa', type: 'common_name' },
-
-      # Michoacán
-      { county_code: '16053', alias: 'Morelia', type: 'common_name' },
+      # Querétaro - Santiago de Querétaro
+      { county_code: '011', alias: 'Querétaro', type: 'alternative', state: 'Querétaro' },
     ]
 
     count = 0
     aliases.each do |alias_data|
-      county = County.find_by(code: alias_data[:county_code])
+      # Buscar estado primero
+      state = State.where("name LIKE ?", "%#{alias_data[:state]}%").first
+      next unless state
+
+      # Buscar county por estado + código
+      county = state.counties.find_by(code: alias_data[:county_code])
       next unless county
 
       alias_record = county.county_aliases.find_or_initialize_by(alias_name: alias_data[:alias])
       if alias_record.new_record?
         alias_record.alias_type = alias_data[:type]
         if alias_record.save
-          puts "✓ Agregado: #{alias_data[:alias]} → #{county.name} (#{alias_data[:type]})"
+          puts "✓ Agregado: #{alias_data[:alias].ljust(20)} → #{county.name.ljust(30)} (#{alias_data[:type]})"
           count += 1
         else
           puts "✗ Error: #{alias_record.errors.full_messages.join(', ')}"
