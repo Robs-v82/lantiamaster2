@@ -1675,7 +1675,12 @@ def upload_members
 		if datos_completos && organizacion_valida && legacy_id_valida
 			validos << row.to_h
 			rol = Role.find_or_create_by!(name: role)
-			valor_involved = ["Líder", "Operador", "Autoridad cooptada", "Socio"].include?(role)
+			valor_involved = [
+			  "Líder", "Operador", "Autoridad cooptada", "Socio",
+			  "Sicario", "Narcomenudista", "Jefe de sicarios", "Jefe operativo",
+			  "Jefe de plaza", "Jefe de célula", "Jefe regional",
+			  "Extorsionador", "Traficante o distribuidor"
+			].include?(role)
 			
 		# Ruta del archivo de géneros
 		if Rails.env.production?
@@ -3608,6 +3613,15 @@ def create_easy_member
   # Helpers “mini” para criminal_role (misma idea que en upload_members)
   lookup_true = {
     "Líder" => "Líder",
+    "Sicario" => "Miembro",
+    "Narcomenudista" => "Miembro",
+    "Jefe de sicarios" => "Miembro",
+    "Jefe operativo" => "Miembro",
+    "Jefe de plaza" => "Miembro",
+    "Jefe de célula" => "Miembro",
+    "Jefe regional" => "Miembro",
+    "Extorsionador" => "Miembro",
+    "Traficante o distribuidor" => "Miembro",
     "Operador" => "Miembro",
     "Socio" => "Socio",
     "Abogado" => "Socio",
@@ -3685,7 +3699,12 @@ def create_easy_member
 
   # ====== NUEVO: crear member + sumar hit ======
 
-  involved_value = ["Líder", "Operador", "Autoridad cooptada", "Socio"].include?(role_name)
+  involved_value = [
+    "Líder", "Operador", "Autoridad cooptada", "Socio",
+    "Sicario", "Narcomenudista", "Jefe de sicarios", "Jefe operativo",
+    "Jefe de plaza", "Jefe de célula", "Jefe regional",
+    "Extorsionador", "Traficante o distribuidor"
+  ].include?(role_name)
   criminal_role_value = compute_criminal_role.call(involved_value, role_name)
 
   # Estimar género (si se puede; si falla, nil)

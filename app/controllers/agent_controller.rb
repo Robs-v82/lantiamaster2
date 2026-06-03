@@ -345,13 +345,13 @@ class AgentController < ApplicationController
 
     # Filter 0: excluded domains
     if EXCLUDED_DOMAINS.any? { |d| url.include?(d) }
-      return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [] }
+      return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [], content_length: 0 }
     end
 
     # Filter 1: excluded title keywords
     title_lower = I18n.transliterate(title.downcase)
     if EXCLUDED_TITLE_WORDS.any? { |w| title_lower.include?(w) }
-      return { url: url, status: "discarded", reason: "titulo_excluido", csv_rows: [] }
+      return { url: url, status: "discarded", reason: "titulo_excluido", csv_rows: [], content_length: 0 }
     end
 
     # Filter 2 (snippet keywords requeridas): ELIMINADO — demasiadas notas válidas excluidas
@@ -361,29 +361,31 @@ class AgentController < ApplicationController
     is_theft = THEFT_WORDS.any? { |w| snippet_lower.include?(w) } ||
                THEFT_PHRASES.any? { |p| snippet_lower.include?(p) }
     if is_theft && CRIMEN_WORDS.none? { |w| snippet_lower.include?(w) }
-      return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [] }
+      return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [], content_length: 0 }
     end
 
     # Fetch article content
     content = fetch_article_content(url)
     if content.blank?
-      return { url: url, status: "discarded", reason: "fetch_error", csv_rows: [] }
+      return { url: url, status: "discarded", reason: "fetch_error", csv_rows: [], content_length: 0, fetch_error_detail: "Empty content" }
     end
+
+    content_length = content.length
 
     # Call Claude
     claude_response = call_claude_api(content, url, organizations, claude_key)
 
     # Handle error response from Claude API
     if claude_response.is_a?(Hash) && claude_response[:error]
-      return { url: url, status: "error", reason: "claude_error", csv_rows: [], error_detail: claude_response[:error] }
+      return { url: url, status: "error", reason: "claude_error", csv_rows: [], error_detail: claude_response[:error], content_length: content_length }
     end
 
     if claude_response.nil?
-      return { url: url, status: "error", reason: "claude_error", csv_rows: [] }
+      return { url: url, status: "error", reason: "claude_error", csv_rows: [], content_length: content_length }
     end
 
     if claude_response.strip =~ /\ADESCARTAR\b/i
-      return { url: url, status: "discarded", reason: "claude_descartar", csv_rows: [] }
+      return { url: url, status: "discarded", reason: "claude_descartar", csv_rows: [], content_length: content_length }
     end
 
     # Parse CSV rows: must start with 1-2 digits (Día), have ≥27 commas, no markdown
@@ -393,9 +395,38 @@ class AgentController < ApplicationController
                           .reject { |r| r.start_with?("#", "*", "-", " ") }
                           .select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
 
+    # Validate INEGI codes in rows
+    rows_with_validation = rows.map do |row|
+      fields = row.split(",")
+      estado = fields[3] if fields.length > 3
+      inegi_code = fields[4] if fields.length > 4
+
+      validation_ok = true
+      validation_msg = nil
+
+      if estado && inegi_code
+        county = County.where(code: inegi_code).first
+        if county.nil?
+          validation_ok = false
+          validation_msg = "INEGI_INVALID:#{inegi_code}"
+        end
+      end
+
+      { row: row, validation_ok: validation_ok, validation_msg: validation_msg }
+    end
+
     # When no rows parsed, include a truncated Claude response for diagnosis
-    debug = rows.empty? ? claude_response.strip.first(400) : nil
-    { url: url, status: "ok", reason: nil, csv_rows: rows, debug: debug }
+    debug = rows.empty? ? claude_response.strip.first(1000) : nil
+    {
+      url: url,
+      status: "ok",
+      reason: nil,
+      csv_rows: rows_with_validation.select { |r| r[:validation_ok] }.map { |r| r[:row] },
+      invalid_inegi_rows: rows_with_validation.reject { |r| r[:validation_ok] },
+      debug: debug,
+      content_length: content_length,
+      claude_response_length: claude_response.length
+    }
   rescue => e
     Rails.logger.error("[Agent#extract_batch] #{url}: #{e.class}: #{e.message}")
     { url: url, status: "error", reason: "unexpected_error", csv_rows: [] }
