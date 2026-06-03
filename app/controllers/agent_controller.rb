@@ -372,6 +372,12 @@ class AgentController < ApplicationController
 
     # Call Claude
     claude_response = call_claude_api(content, url, organizations, claude_key)
+
+    # Handle error response from Claude API
+    if claude_response.is_a?(Hash) && claude_response[:error]
+      return { url: url, status: "error", reason: "claude_error", csv_rows: [], error_detail: claude_response[:error] }
+    end
+
     if claude_response.nil?
       return { url: url, status: "error", reason: "claude_error", csv_rows: [] }
     end
@@ -464,10 +470,20 @@ class AgentController < ApplicationController
 
     res  = http.request(req)
     data = JSON.parse(res.body)
-    data.dig("content", 0, "text")
+
+    # Check for API errors in response
+    if data["error"]
+      error_msg = "#{data['error']['type']}: #{data['error']['message']}"
+      Rails.logger.error("[Agent#claude_api] #{url}: API Error: #{error_msg}")
+      return { error: error_msg }
+    end
+
+    text = data.dig("content", 0, "text")
+    return { error: "Empty response from Claude" } if text.blank?
+    text
   rescue => e
     Rails.logger.error("[Agent#claude_api] #{url}: #{e.class}: #{e.message}")
-    nil
+    { error: "#{e.class}: #{e.message}" }
   end
 
   def criminal_organizations

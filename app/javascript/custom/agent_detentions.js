@@ -123,6 +123,7 @@ function buildLog(stats, formatErrors, articleLog, groupLog) {
     '=== RESUMEN DE EJECUCIÓN ===',
     'ID de corrida: ' + runId,
     'Fecha y hora:  ' + now,
+    'Tiempo total de procesamiento:           ' + (stats.totalProcessingTime || 'N/A'),
     '',
     'Total de artículos encontrados:          ' + (stats.total || 0),
     'Grupos únicos identificados:             ' + (groupLog ? groupLog.length : 0),
@@ -168,6 +169,13 @@ function buildLog(stats, formatErrors, articleLog, groupLog) {
       lines.push('     Tema: ' + (g.theme || 'desconocido'));
       lines.push('     Artículos: ' + (g.articleCount || 0));
       if (detail) lines.push('     → ' + detail);
+
+      // Add timing information
+      if (g.startTime && g.endTime && g.durationMs) {
+        var durSec = (g.durationMs / 1000).toFixed(1);
+        lines.push('     Tiempo: ' + g.startTime + ' → ' + g.endTime + ' (' + durSec + 's)');
+      }
+
       if (g.fallbackLog && g.fallbackLog.length > 0) {
         g.fallbackLog.forEach(function(log) {
           lines.push('       ' + log);
@@ -393,9 +401,13 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
     duplicatesRemoved: 0
   };
 
+  var processingStartTime = Date.now();
+
   for (var gi = 0; gi < groups.length; gi++) {
     var group = groups[gi];
     var groupArticles = group.articles || [];
+    var groupStartTime = Date.now();
+    var groupStartTimeStr = new Date().toLocaleTimeString('es-MX');
 
     progMsg.textContent = 'Procesando grupo ' + (gi + 1) + ' de ' + groups.length +
                           ' (' + group.theme + ', ' + groupArticles.length + ' artículo' + (groupArticles.length > 1 ? 's' : '') + ')…';
@@ -406,13 +418,16 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
       articleCount: groupArticles.length,
       attempts: 0,
       csvRows: 0,
-      status: 'fallback_failed'
+      status: 'fallback_failed',
+      startTime: groupStartTimeStr,
+      startMs: groupStartTime
     };
 
     // Try each article in the group with fallback
     var fallbackLog = [];
     for (var ai = 0; ai < groupArticles.length; ai++) {
       var article = groupArticles[ai];
+      var attemptStartTime = Date.now();
       groupResult.attempts++;
 
       try {
@@ -426,15 +441,16 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
           body: JSON.stringify({ articles: [article] })
         });
         var data = await resp.json();
+        var attemptDuration = Date.now() - attemptStartTime;
 
         if (data.error) {
-          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + data.error);
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + data.error);
           continue;
         }
 
         var result = (data.results || [])[0];
         if (!result) {
-          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': sin resultado');
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': sin resultado');
           continue;
         }
 
@@ -453,19 +469,22 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
             }
           });
           groupResult.status = 'ok';
-          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': ÉXITO');
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ÉXITO (' + result.csv_rows.length + ' filas)');
           break;
         }
 
         if (result.status === 'discarded') {
-          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': descartada (' + result.reason + ')');
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': descartada (' + result.reason + ')');
         } else if (result.status === 'error') {
-          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': error (' + result.reason + ')');
+          var errorMsg = result.reason;
+          if (result.error_detail) errorMsg += ' — ' + result.error_detail;
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': error (' + errorMsg + ')');
         } else {
-          fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + result.status);
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + result.status);
         }
       } catch (err) {
-        fallbackLog.push('Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + err.message);
+        var attemptDuration = Date.now() - attemptStartTime;
+        fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + err.message);
         continue;
       }
 
@@ -482,6 +501,11 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
       groupResult.status = 'fallback_failed';
     }
 
+    var groupDuration = Date.now() - groupStartTime;
+    var groupEndTimeStr = new Date().toLocaleTimeString('es-MX');
+    groupResult.endTime = groupEndTimeStr;
+    groupResult.durationMs = groupDuration;
+
     groupLog.push(groupResult);
     await sleep(5000); // Large delay between groups to rule out Claude saturation (5 seconds)
   }
@@ -497,8 +521,11 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
   stats.duplicatesRemoved = beforeDedup - allRows.length;
   stats.csvRows = allRows.length;
 
+  var totalProcessingTime = Date.now() - processingStartTime;
+  stats.totalProcessingTime = (totalProcessingTime / 1000).toFixed(1) + 's';
+
   progBar.style.width = '100%';
-  progMsg.textContent = 'Extracción completada.';
+  progMsg.textContent = 'Extracción completada en ' + stats.totalProcessingTime + '.';
 
   summaryEl.innerHTML = buildSummaryHTML(stats);
   summaryEl.style.display = 'block';
