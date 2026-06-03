@@ -494,7 +494,20 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
         if (result.status === 'ok') {
           var contentInfo = result.content_length ? ' [contenido: ' + result.content_length + ' chars]' : '';
           var claudeRespInfo = result.claude_response_length ? ' [respuesta Claude: ' + result.claude_response_length + ' chars]' : '';
-          var inegiWarnings = result.inegi_warnings && result.inegi_warnings.length > 0 ? ' [⚠️ ' + result.inegi_warnings.length + ' INEGI warnings]' : '';
+
+          // INEGI validation summary
+          var inegiInfo = '';
+          if (result.inegi_validations && result.inegi_validations.length > 0) {
+            var validationSummary = {};
+            result.inegi_validations.forEach(function(v) {
+              var confidence = v.validation.confidence || 'unknown';
+              validationSummary[confidence] = (validationSummary[confidence] || 0) + 1;
+            });
+            var inegiStats = Object.keys(validationSummary).map(function(k) {
+              return k + ':' + validationSummary[k];
+            }).join(',');
+            inegiInfo = ' [INEGI: ' + inegiStats + ']';
+          }
 
           var debugMsg = '';
           if (result.debug && (!result.csv_rows || result.csv_rows.length === 0)) {
@@ -502,7 +515,7 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
           }
 
           var status = result.csv_rows && result.csv_rows.length > 0 ? 'ÉXITO (' + result.csv_rows.length + ' filas)' : 'ok (sin filas)';
-          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + status + contentInfo + claudeRespInfo + inegiWarnings + debugMsg);
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + status + contentInfo + claudeRespInfo + inegiInfo + debugMsg);
         }
 
         if (result.status === 'discarded') {
