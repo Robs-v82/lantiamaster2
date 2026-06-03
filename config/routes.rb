@@ -179,11 +179,12 @@ Rails.application.routes.draw do
       end
     end
 
-    get  "agent/detentions",               to: "agent#detentions",    as: :agent_detentions
-    get  "agent/detentions/search",        to: "agent#search",        as: :search_agent_detentions
-    get  "agent/detentions/diagnose",      to: "agent#diagnose",      as: :diagnose_agent_detentions
-    post "agent/detentions/extract_batch", to: "agent#extract_batch", as: :extract_batch_agent_detentions
-    post "agent/detentions/extract_url",   to: "agent#extract_url",   as: :extract_url_agent_detentions
+    get  "agent/detentions",                  to: "agent#detentions",       as: :agent_detentions
+    get  "agent/detentions/search",           to: "agent#search",           as: :search_agent_detentions
+    get  "agent/detentions/diagnose",         to: "agent#diagnose",         as: :diagnose_agent_detentions
+    post "agent/detentions/deduplicate",      to: "agent#deduplicate",      as: :deduplicate_agent_detentions
+    post "agent/detentions/extract_batch",    to: "agent#extract_batch",    as: :extract_batch_agent_detentions
+    post "agent/detentions/extract_url",      to: "agent#extract_url",      as: :extract_url_agent_detentions
 
     get  "organizations/admin", to: "organizations#admin"
     post "organizations/:id/set_search_level", to: "organizations#set_search_level", as: :set_org_search_level

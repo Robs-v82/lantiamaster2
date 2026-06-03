@@ -22,6 +22,36 @@ class AgentController < ApplicationController
   EXCLUDED_DOMAINS       = %w[facebook.com].freeze
 
   # ── Claude system prompt ──────────────────────────────────────────────────
+  # ── Deduplication prompt ──────────────────────────────────────────────
+  DEDUPLICATION_PROMPT = <<~PROMPT.strip.freeze
+    Tu tarea es agrupar artículos de noticias por tema/evento.
+
+    Recibes una lista de títulos de artículos. Debes identificar cuáles hablan del MISMO evento
+    y agruparlos juntos. Devuelve un JSON con esta estructura EXACTA:
+
+    {
+      "groups": [
+        {
+          "theme": "Nombre corto del tema/evento",
+          "count": número de artículos en el grupo,
+          "indices": [lista de índices, ej. [0, 1, 5, 12]]
+        },
+        ...
+      ]
+    }
+
+    REGLAS:
+    - Agrupa por evento/tema, no por medio
+    - "El Gabito capturado en Mazatlán" es UN SOLO evento (aunque hay 20 medios cubriéndolo)
+    - "5 CJNG en túnel fronterizo" es UN evento diferente
+    - "Investigación de transportistas" es otro evento diferente
+    - Maximiza la agrupación: si dos títulos podrían ser el mismo evento, agrúpalos
+    - Los índices refieren a la posición 0-based en la lista que recibiste
+
+    Responde SOLO con el JSON, sin explicaciones.
+  PROMPT
+
+  # ── Claude system prompt ──────────────────────────────────────────────
   EXTRACTION_SYSTEM_PROMPT = <<~PROMPT.strip.freeze
     Eres un agente especializado en extraer información estructurada de notas periodísticas sobre operativos de seguridad en México.
 
@@ -167,6 +197,60 @@ class AgentController < ApplicationController
     seen   = {}
     unique = results.select { |a| a["link"] && seen[a["link"]] ? false : (seen[a["link"]] = true) }
     render json: { articles: unique }
+  end
+
+  def deduplicate
+    body     = JSON.parse(request.raw_post)
+    articles = (body["articles"] || []).map(&:to_h)
+    return render json: { error: "No articles provided" }, status: :bad_request if articles.blank?
+
+    claude_key = anthropic_api_key
+    return render json: { error: "ANTHROPIC_API_KEY no configurada." }, status: :service_unavailable if claude_key.blank?
+
+    # Build list of titles for Claude
+    titles_list = articles.map.with_index { |a, i| "#{i}: #{a['title']}" }.join("\n")
+    user_message = "Agrupa estos #{articles.length} artículos por tema/evento:\n\n#{titles_list}"
+
+    # Call Claude to group articles
+    uri  = URI("https://api.anthropic.com/v1/messages")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl     = true
+    http.read_timeout = 30
+    http.open_timeout = 10
+
+    req = Net::HTTP::Post.new(uri)
+    req["x-api-key"]         = claude_key
+    req["anthropic-version"] = "2023-06-01"
+    req["content-type"]      = "application/json"
+    req.body = {
+      model:      "claude-sonnet-4-6",
+      max_tokens: 1024,
+      system:     DEDUPLICATION_PROMPT,
+      messages:   [{ role: "user", content: user_message }]
+    }.to_json
+
+    res  = http.request(req)
+    body = JSON.parse(res.body)
+    response_text = body.dig("content", 0, "text")
+
+    if response_text.blank?
+      return render json: { error: "Claude did not respond" }, status: :service_unavailable
+    end
+
+    # Parse JSON from Claude
+    begin
+      grouping = JSON.parse(response_text)
+      groups = (grouping["groups"] || []).map do |g|
+        {
+          theme: g["theme"],
+          articles: (g["indices"] || []).map { |idx| articles[idx] }
+        }
+      end
+      render json: { groups: groups }
+    rescue JSON::ParserError => e
+      Rails.logger.error("[Agent#deduplicate] JSON parse error: #{e.message}")
+      render json: { error: "Failed to parse grouping response" }, status: :service_unavailable
+    end
   end
 
   def extract_url
