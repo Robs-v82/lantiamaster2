@@ -113,9 +113,19 @@ function buildCSV(allRows) {
 }
 
 // ── Build log file ───────────────────────────────────────────────────────────
-function buildLog(stats, formatErrors, debugEntries) {
-  var now  = new Date().toLocaleString('es-MX');
+var REASON_LABEL = {
+  'fetch_error':         'Error de fetch o contenido vacío',
+  'titulo_excluido':     'Título con palabras excluidas (opinión/análisis/columna/editorial)',
+  'snippet_irrelevante': 'Snippet/URL sin términos relevantes',
+  'claude_descartar':    'Claude: nota no describe detención concreta',
+  'claude_error':        'Error al llamar a Claude (timeout / respuesta nula)',
+  'unexpected_error':    'Error inesperado en el servidor'
+};
+
+function buildLog(stats, formatErrors, articleLog) {
+  var now   = new Date().toLocaleString('es-MX');
   var runId = window._runId || todayStr();
+
   var lines = [
     '=== RESUMEN DE EJECUCIÓN ===',
     'ID de corrida: ' + runId,
@@ -133,26 +143,48 @@ function buildLog(stats, formatErrors, debugEntries) {
     'Errores inesperados:                     ' + (stats.errorInesp || 0)
   ];
 
+  // ── Per-article detail ─────────────────────────────────────────────────────
+  if (articleLog && articleLog.length > 0) {
+    lines.push('');
+    lines.push('=== DETALLE POR NOTA (' + articleLog.length + ' notas) ===');
+
+    articleLog.forEach(function(a, i) {
+      var idx    = String(i + 1).padStart(2, '0');
+      var marker, detail;
+
+      if (a.status === 'ok' && a.csvRows > 0) {
+        marker = '✓ INCLUIDA (' + a.csvRows + ' fila' + (a.csvRows > 1 ? 's' : '') + ')';
+        detail = null;
+      } else if (a.status === 'ok' && a.csvRows === 0) {
+        marker = '~ PROCESADA / SIN FILAS';
+        detail = a.debug
+          ? 'Respuesta de Claude: ' + a.debug.replace(/\n/g, ' ').substring(0, 300)
+          : 'Claude respondió pero no generó filas con formato válido';
+      } else if (a.status === 'discarded') {
+        marker = '✗ DESCARTADA';
+        detail = REASON_LABEL[a.reason] || a.reason;
+      } else {
+        marker = '! ERROR';
+        detail = REASON_LABEL[a.reason] || a.reason;
+      }
+
+      lines.push('');
+      lines.push('[' + idx + '] ' + marker);
+      lines.push('     ' + (a.title || '(sin título)').substring(0, 100));
+      lines.push('     ' + a.url);
+      if (detail) lines.push('     → ' + detail);
+    });
+  }
+
+  // ── Format errors ──────────────────────────────────────────────────────────
   if (formatErrors && formatErrors.length > 0) {
     lines.push('');
-    lines.push('=== ERRORES DE FORMATO ===');
+    lines.push('=== ERRORES DE FORMATO EN FILAS ===');
     formatErrors.forEach(function(fe, i) {
       lines.push('');
       lines.push('[' + (i + 1) + '] URL: ' + fe.url);
       lines.push('    Fila: ' + fe.row);
       lines.push('    Motivo: ' + fe.error);
-    });
-  }
-
-  if (debugEntries && debugEntries.length > 0) {
-    lines.push('');
-    lines.push('=== NOTAS PROCESADAS SIN FILAS EXTRAÍDAS ===');
-    lines.push('(Claude respondió pero ninguna línea pasó el filtro de formato)');
-    debugEntries.forEach(function(de, i) {
-      lines.push('');
-      lines.push('[' + (i + 1) + '] URL: ' + de.url);
-      lines.push('    Respuesta de Claude (primeros 400 chars):');
-      lines.push('    ' + de.debug.replace(/\n/g, '\n    '));
     });
   }
 
@@ -315,9 +347,9 @@ function initExtraction() {
     downloadEl.style.display = 'none';
     progBar.style.width      = '0%';
 
-    var allRows      = [];
-    var fmtErrors    = [];
-    var debugEntries = [];
+    var allRows     = [];
+    var fmtErrors   = [];
+    var articleLog  = [];
     var stats = {
       total: articles.length, ok: 0, csvRows: 0,
       fetchError: 0, tituloExcluido: 0, snippetIrrelev: 0,
@@ -356,15 +388,18 @@ function initExtraction() {
         }
 
         (data.results || []).forEach(function(r) {
+          var batchArticle = batch.find(function(a) { return a.url === r.url; }) || {};
+          var rowsAdded = 0;
+
           switch (r.status) {
             case 'ok':
               stats.ok++;
-              if (r.debug) debugEntries.push({ url: r.url, debug: r.debug });
               (r.csv_rows || []).forEach(function(rawRow) {
                 var v = validateRow(rawRow, r.url);
                 if (v.ok) {
                   allRows.push(v.cleaned);
                   stats.csvRows++;
+                  rowsAdded++;
                 } else {
                   fmtErrors.push({ url: r.url, row: rawRow.substring(0, 120), error: v.error });
                   stats.formatErrors++;
@@ -381,6 +416,15 @@ function initExtraction() {
             default:
               stats.errorInesp++;
           }
+
+          articleLog.push({
+            url:     r.url,
+            title:   batchArticle.title || '',
+            status:  r.status,
+            reason:  r.reason || null,
+            csvRows: rowsAdded,
+            debug:   r.debug || null
+          });
         });
       } catch (err) {
         batch.forEach(function() { stats.errorInesp++; });
@@ -397,12 +441,12 @@ function initExtraction() {
     summaryEl.style.display = 'block';
 
     // Persist for manual URL additions
-    window._csvAllRows    = allRows;
-    window._logStats      = stats;
-    window._logFmtErrors  = fmtErrors;
-    window._debugEntries  = debugEntries;
+    window._csvAllRows   = allRows;
+    window._logStats     = stats;
+    window._logFmtErrors = fmtErrors;
+    window._articleLog   = articleLog;
 
-    offerDownloads(buildCSV(allRows), buildLog(stats, fmtErrors, debugEntries));
+    offerDownloads(buildCSV(allRows), buildLog(stats, fmtErrors, articleLog));
 
     extBtn.disabled  = false;
     extBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">table_chart</i> Extraer datos';
@@ -473,7 +517,7 @@ function initManualUrl() {
         window._manualRows = [];
         offerDownloads(
           buildCSV(window._csvAllRows),
-          buildLog(window._logStats || {}, window._logFmtErrors || [])
+          buildLog(window._logStats || {}, window._logFmtErrors || [], window._articleLog || [])
         );
         var downloadEl = document.getElementById('download-area');
         if (downloadEl) downloadEl.style.display = 'flex';
