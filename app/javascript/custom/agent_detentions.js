@@ -140,6 +140,7 @@ function buildLog(stats, formatErrors, articleLog) {
     'Descartadas – snippet / URL:             ' + (stats.snippetIrrelev || 0),
     'Descartadas – Claude (no es detención):  ' + (stats.claudeDescartar || 0),
     'Errores de formato en filas:             ' + (stats.formatErrors || 0),
+    'Duplicados eliminados:                   ' + (stats.duplicatesRemoved || 0),
     'Errores inesperados:                     ' + (stats.errorInesp || 0)
   ];
 
@@ -209,8 +210,9 @@ function buildSummaryHTML(stats) {
     summaryRow('Título con palabras excluidas',       stats.tituloExcluido, false) +
     summaryRow('Snippet / URL sin términos relevantes', stats.snippetIrrelev, false) +
     summaryRow('Claude: nota no es detención',        stats.claudeDescartar, false) +
-    summaryRow('Errores de formato en filas',         stats.formatErrors,  stats.formatErrors > 0) +
-    summaryRow('Error inesperado',                    stats.errorInesp,    false);
+    summaryRow('Errores de formato en filas',         stats.formatErrors,    stats.formatErrors > 0) +
+    summaryRow('Duplicados eliminados',               stats.duplicatesRemoved || 0, (stats.duplicatesRemoved || 0) > 0) +
+    summaryRow('Error inesperado',                    stats.errorInesp,      false);
 }
 
 // ── Trigger file downloads ───────────────────────────────────────────────────
@@ -356,16 +358,15 @@ function initExtraction() {
       claudeDescartar: 0, formatErrors: 0, errorInesp: 0
     };
 
-    var batchSize    = 3;
-    var totalBatches = Math.ceil(articles.length / batchSize);
+    var batchSize    = 1;
+    var totalBatches = articles.length;
 
     for (var i = 0; i < articles.length; i += batchSize) {
       var batch   = articles.slice(i, i + batchSize);
       var batchNo = Math.floor(i / batchSize) + 1;
-      var done    = Math.min(i + batchSize, articles.length);
+      var done    = i + 1;
 
-      progMsg.textContent = 'Procesando nota ' + done + ' de ' + articles.length +
-                            ' (lote ' + batchNo + ' de ' + totalBatches + ')…';
+      progMsg.textContent = 'Procesando nota ' + done + ' de ' + articles.length + '…';
       progBar.style.width = Math.round((i / articles.length) * 100) + '%';
 
       try {
@@ -431,8 +432,19 @@ function initExtraction() {
         console.error('Batch error:', err);
       }
 
-      if (i + batchSize < articles.length) await sleep(1200);
+      if (i + batchSize < articles.length) await sleep(2000);
     }
+
+    // Deduplicar por contenido exacto de fila
+    var seenRows = new Set();
+    var beforeDedup = allRows.length;
+    allRows = allRows.filter(function(row) {
+      if (seenRows.has(row)) return false;
+      seenRows.add(row);
+      return true;
+    });
+    stats.duplicatesRemoved = beforeDedup - allRows.length;
+    stats.csvRows = allRows.length;
 
     progBar.style.width = '100%';
     progMsg.textContent = 'Extracción completada.';

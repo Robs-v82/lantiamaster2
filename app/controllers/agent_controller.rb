@@ -177,7 +177,7 @@ class AgentController < ApplicationController
 
     organizations = criminal_organizations
     result = process_single_article(
-      { "url" => url, "title" => "", "snippet" => "operativo captura detención" },
+      { "url" => url, "title" => "", "snippet" => "" },
       organizations,
       claude_key
     )
@@ -240,22 +240,8 @@ class AgentController < ApplicationController
     claude_key = anthropic_api_key
     return render json: { error: "ANTHROPIC_API_KEY no configurada." }, status: :service_unavailable if claude_key.blank?
 
-    results = []
-    mutex   = Mutex.new
-
-    threads = articles.map do |article|
-      Thread.new do
-        r = process_single_article(article, organizations, claude_key)
-        mutex.synchronize { results << r }
-      end
-    end
-    threads.each(&:join)
-
-    # Preserve input order
-    url_order = articles.map { |a| a["url"].to_s }
-    sorted    = url_order.map { |url| results.find { |r| r[:url] == url } }.compact
-
-    render json: { results: sorted }
+    results = articles.map { |article| process_single_article(article, organizations, claude_key) }
+    render json: { results: results }
   end
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -279,13 +265,10 @@ class AgentController < ApplicationController
       return { url: url, status: "discarded", reason: "titulo_excluido", csv_rows: [] }
     end
 
-    # Filter 2: required snippet keywords
-    snippet_lower = I18n.transliterate(snippet.downcase)
-    unless REQUIRED_SNIPPET_WORDS.any? { |w| snippet_lower.include?(w) }
-      return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [] }
-    end
+    # Filter 2 (snippet keywords requeridas): ELIMINADO — demasiadas notas válidas excluidas
 
     # Filter 3: theft content without organized-crime context
+    snippet_lower = I18n.transliterate(snippet.downcase)
     is_theft = THEFT_WORDS.any? { |w| snippet_lower.include?(w) } ||
                THEFT_PHRASES.any? { |p| snippet_lower.include?(p) }
     if is_theft && CRIMEN_WORDS.none? { |w| snippet_lower.include?(w) }
@@ -376,7 +359,7 @@ class AgentController < ApplicationController
     uri              = URI("https://api.anthropic.com/v1/messages")
     http             = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl     = true
-    http.read_timeout = 45
+    http.read_timeout = 60
     http.open_timeout = 10
 
     req = Net::HTTP::Post.new(uri)
