@@ -495,6 +495,17 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
         } else if (result.status === 'error') {
           var errorMsg = result.reason;
           if (result.error_detail) errorMsg += ' — ' + result.error_detail;
+
+          // Smart throttling: si es rate_limit_error, esperar 60 segundos y reintentar
+          if (result.reason === 'claude_error' && result.error_detail && result.error_detail.includes('rate_limit')) {
+            fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] ⚠️ RATE LIMIT DETECTADO - Esperando 60 segundos antes de reintentar...');
+            progMsg.textContent = 'Rate limit de Claude detectado. Esperando 60s antes de reintentar...';
+            await sleep(60000);
+            // Reintentar el mismo artículo
+            ai--;
+            continue;
+          }
+
           fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': error (' + errorMsg + ')');
         } else {
           fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + result.status);
