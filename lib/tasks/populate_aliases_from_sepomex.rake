@@ -73,49 +73,65 @@ namespace :sepomex do
     puts "  Skipped #{skipped_rows} rows (missing data or duplicate names)\n"
 
     # Populate counties with aliases
-    puts "🔗 Linking aliases to County records..."
+    puts "🔗 Building County lookup index (this is fast)..."
+    start_index = Time.now
+
+    # Pre-load all counties with state codes into memory for O(1) lookup
+    county_lookup = {}
+    County.joins(:state).pluck(:code, 'states.code', :id).each do |(county_code, state_code, county_id)|
+      key = "#{state_code}|#{county_code}"
+      county_lookup[key] = county_id
+    end
+    puts "  ✓ Indexed #{county_lookup.size} counties in #{(Time.now - start_index).round(1)}s"
+
+    # Also pre-load all existing aliases to avoid duplicates
+    existing_aliases = Set.new
+    CountyAlias.pluck(:county_id, :alias_name).each do |(county_id, alias_name)|
+      existing_aliases.add("#{county_id}|#{alias_name}")
+    end
+    puts "  ✓ Found #{existing_aliases.size} existing aliases"
+
+    puts "\n🔗 Linking aliases to County records..."
     created_count = 0
-    updated_count = 0
     not_found_count = 0
     skipped_existing = 0
 
     aliases_map.each_with_index do |(key, data), index|
-      # Find County by state code and municipality code
-      # Note: County.code is the 3-digit municipality code
       state_code = data[:c_estado]
       mun_code = data[:c_mnpio]
-      state = State.where("code = ? OR LPAD(code::text, 2, '0') = ?", state_code, state_code).first
+      alias_name = data[:d_ciudad]
 
-      unless state
+      # Lookup county ID using pre-built index
+      lookup_key = "#{state_code}|#{mun_code}"
+      county_id = county_lookup[lookup_key]
+
+      unless county_id
         not_found_count += 1
         next
       end
 
-      county = state.counties.where(code: mun_code).first
-      unless county
-        not_found_count += 1
-        next
-      end
-
-      # Create or skip CountyAlias
-      alias_record = county.county_aliases.find_by(alias_name: data[:d_ciudad])
-      if alias_record
+      # Check if alias already exists
+      alias_key = "#{county_id}|#{alias_name}"
+      if existing_aliases.include?(alias_key)
         skipped_existing += 1
-      else
-        alias_record = county.county_aliases.build(
-          alias_name: data[:d_ciudad],
-          alias_type: 'common_name'
-        )
+        next
+      end
 
-        if alias_record.save
-          created_count += 1
-        else
-          puts "  ⚠️  Failed to save alias for #{county.name}: #{alias_record.errors.full_messages.join(', ')}"
-        end
+      # Create alias
+      alias_record = CountyAlias.new(
+        county_id: county_id,
+        alias_name: alias_name,
+        alias_type: 'common_name'
+      )
+
+      if alias_record.save
+        created_count += 1
+      else
+        puts "  ⚠️  Failed to save alias for county #{county_id}: #{alias_record.errors.full_messages.join(', ')}"
       end
 
       # Progress indicator
-      if (index + 1) % 2000 == 0
+      if (index + 1) % 5000 == 0
         puts "\r⏳ Processing: #{index + 1}/#{aliases_map.size}"
       end
     end
