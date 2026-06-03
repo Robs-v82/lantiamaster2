@@ -304,7 +304,7 @@ class AgentController < ApplicationController
       return { url: url, status: "error", reason: "claude_error", csv_rows: [] }
     end
 
-    if claude_response.strip.upcase == "DESCARTAR"
+    if claude_response.strip =~ /\ADESCARTAR\b/i
       return { url: url, status: "discarded", reason: "claude_descartar", csv_rows: [] }
     end
 
@@ -315,7 +315,9 @@ class AgentController < ApplicationController
                           .reject { |r| r.start_with?("#", "*", "-", " ") }
                           .select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
 
-    { url: url, status: "ok", reason: nil, csv_rows: rows }
+    # When no rows parsed, include a truncated Claude response for diagnosis
+    debug = rows.empty? ? claude_response.strip.first(400) : nil
+    { url: url, status: "ok", reason: nil, csv_rows: rows, debug: debug }
   rescue => e
     Rails.logger.error("[Agent#extract_batch] #{url}: #{e.class}: #{e.message}")
     { url: url, status: "error", reason: "unexpected_error", csv_rows: [] }

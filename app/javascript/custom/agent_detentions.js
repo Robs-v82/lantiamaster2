@@ -23,6 +23,14 @@ function todayStr() {
     String(d.getDate()).padStart(2, '0');
 }
 
+function generateRunId() {
+  var d = new Date();
+  return todayStr() + '_' +
+    String(d.getHours()).padStart(2, '0') +
+    String(d.getMinutes()).padStart(2, '0') +
+    String(d.getSeconds()).padStart(2, '0');
+}
+
 // ── CSV header (col 18 = Rol) ────────────────────────────────────────────────
 var CSV_HEADER = 'Día,Mes,Año,Estado,INEGI,Municipio,Abatido,Detenidos,Organización,' +
   'Grupo afiliado,Nombre,Apellido Paterno,Apellido Materno,Alias,Género,Edad,' +
@@ -105,24 +113,27 @@ function buildCSV(allRows) {
 }
 
 // ── Build log file ───────────────────────────────────────────────────────────
-function buildLog(stats, formatErrors) {
+function buildLog(stats, formatErrors, debugEntries) {
   var now  = new Date().toLocaleString('es-MX');
+  var runId = window._runId || todayStr();
   var lines = [
-    '=== RESUMEN DE EJECUCIÓN: ' + now + ' ===',
+    '=== RESUMEN DE EJECUCIÓN ===',
+    'ID de corrida: ' + runId,
+    'Fecha y hora:  ' + now,
     '',
-    'Total de notas encontradas:              ' + stats.total,
-    'Notas procesadas exitosamente:           ' + stats.ok,
-    'Filas CSV generadas:                     ' + stats.csvRows,
+    'Total de notas encontradas:              ' + (stats.total || 0),
+    'Notas procesadas exitosamente:           ' + (stats.ok || 0),
+    'Filas CSV generadas:                     ' + (stats.csvRows || 0),
     '---',
-    'Descartadas – error de fetch:            ' + stats.fetchError,
-    'Descartadas – título excluido:           ' + stats.tituloExcluido,
-    'Descartadas – snippet / URL:             ' + stats.snippetIrrelev,
-    'Descartadas – Claude (no es detención):  ' + stats.claudeDescartar,
-    'Errores de formato en filas:             ' + stats.formatErrors,
-    'Errores inesperados:                     ' + stats.errorInesp
+    'Descartadas – error de fetch:            ' + (stats.fetchError || 0),
+    'Descartadas – título excluido:           ' + (stats.tituloExcluido || 0),
+    'Descartadas – snippet / URL:             ' + (stats.snippetIrrelev || 0),
+    'Descartadas – Claude (no es detención):  ' + (stats.claudeDescartar || 0),
+    'Errores de formato en filas:             ' + (stats.formatErrors || 0),
+    'Errores inesperados:                     ' + (stats.errorInesp || 0)
   ];
 
-  if (formatErrors.length > 0) {
+  if (formatErrors && formatErrors.length > 0) {
     lines.push('');
     lines.push('=== ERRORES DE FORMATO ===');
     formatErrors.forEach(function(fe, i) {
@@ -130,6 +141,18 @@ function buildLog(stats, formatErrors) {
       lines.push('[' + (i + 1) + '] URL: ' + fe.url);
       lines.push('    Fila: ' + fe.row);
       lines.push('    Motivo: ' + fe.error);
+    });
+  }
+
+  if (debugEntries && debugEntries.length > 0) {
+    lines.push('');
+    lines.push('=== NOTAS PROCESADAS SIN FILAS EXTRAÍDAS ===');
+    lines.push('(Claude respondió pero ninguna línea pasó el filtro de formato)');
+    debugEntries.forEach(function(de, i) {
+      lines.push('');
+      lines.push('[' + (i + 1) + '] URL: ' + de.url);
+      lines.push('    Respuesta de Claude (primeros 400 chars):');
+      lines.push('    ' + de.debug.replace(/\n/g, '\n    '));
     });
   }
 
@@ -160,7 +183,7 @@ function buildSummaryHTML(stats) {
 
 // ── Trigger file downloads ───────────────────────────────────────────────────
 function offerDownloads(csvContent, logContent) {
-  var today = todayStr();
+  var today = window._runId || todayStr();
 
   function makeBtn(id, content, filename, mime) {
     var blob = new Blob([content], { type: mime });
@@ -192,6 +215,7 @@ function initSearch() {
     var grid   = document.getElementById('results-grid');
     var extSec = document.getElementById('extraction-section');
 
+    window._runId      = generateRunId();
     btn.disabled       = true;
     btn.innerHTML      = '<span class="agent-spinner"></span> Buscando…';
     status.textContent = 'Lanzando 6 búsquedas en paralelo…';
@@ -291,8 +315,9 @@ function initExtraction() {
     downloadEl.style.display = 'none';
     progBar.style.width      = '0%';
 
-    var allRows    = [];
-    var fmtErrors  = [];
+    var allRows      = [];
+    var fmtErrors    = [];
+    var debugEntries = [];
     var stats = {
       total: articles.length, ok: 0, csvRows: 0,
       fetchError: 0, tituloExcluido: 0, snippetIrrelev: 0,
@@ -334,6 +359,7 @@ function initExtraction() {
           switch (r.status) {
             case 'ok':
               stats.ok++;
+              if (r.debug) debugEntries.push({ url: r.url, debug: r.debug });
               (r.csv_rows || []).forEach(function(rawRow) {
                 var v = validateRow(rawRow, r.url);
                 if (v.ok) {
@@ -374,8 +400,9 @@ function initExtraction() {
     window._csvAllRows    = allRows;
     window._logStats      = stats;
     window._logFmtErrors  = fmtErrors;
+    window._debugEntries  = debugEntries;
 
-    offerDownloads(buildCSV(allRows), buildLog(stats, fmtErrors));
+    offerDownloads(buildCSV(allRows), buildLog(stats, fmtErrors, debugEntries));
 
     extBtn.disabled  = false;
     extBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">table_chart</i> Extraer datos';
