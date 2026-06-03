@@ -401,6 +401,23 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
     duplicatesRemoved: 0
   };
 
+  // DIAGNÓSTICO: Reordenar grupos para procesar La Razón primero
+  // Buscar el grupo que contiene "colusión" o "transportista" (La Razón)
+  var laRazonIndex = -1;
+  for (var i = 0; i < groups.length; i++) {
+    var theme = (groups[i].theme || '').toLowerCase();
+    if (theme.includes('colusión') || theme.includes('transportista')) {
+      laRazonIndex = i;
+      break;
+    }
+  }
+  if (laRazonIndex > 0) {
+    // Mover La Razón al principio
+    var laRazonGroup = groups.splice(laRazonIndex, 1)[0];
+    groups.unshift(laRazonGroup);
+    progMsg.textContent = '⚡ DIAGNÓSTICO: Procesando La Razón primero para verificar si es saturación...';
+  }
+
   var processingStartTime = Date.now();
 
   for (var gi = 0; gi < groups.length; gi++) {
