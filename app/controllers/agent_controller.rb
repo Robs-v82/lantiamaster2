@@ -25,6 +25,8 @@ class AgentController < ApplicationController
   EXTRACTION_SYSTEM_PROMPT = <<~PROMPT.strip.freeze
     Eres un agente especializado en extraer información estructurada de notas periodísticas sobre operativos de seguridad en México.
 
+    ⚠️ INSTRUCCIÓN CRÍTICA: Responde SOLO con las líneas CSV. NO escribas análisis, razonamiento, explicaciones, ni comentarios antes o después del CSV. Si la nota no califica, responde ÚNICAMENTE: DESCARTAR
+
     Recibes el texto completo de una nota. Tu tarea es extraer los datos y devolverlos como UNA o VARIAS líneas CSV según las reglas siguientes.
 
     AÑO EN CURSO: 2026 (dos dígitos: 26). Para el campo Año usa siempre los dos últimos dígitos del año real del evento: 2026 → 26, 2025 → 25. Si la nota no indica fecha exacta del operativo, usa la fecha de publicación de la nota. Nunca uses 25 para un evento que ocurrió en 2026.
@@ -212,7 +214,7 @@ class AgentController < ApplicationController
         req["anthropic-version"] = "2023-06-01"
         req["content-type"]      = "application/json"
         req.body = {
-          model:      "claude-sonnet-4-6",
+          model:      "claude-haiku-4-5-20251001",
           max_tokens: 16,
           messages:   [{ role: "user", content: "Responde solo: OK" }]
         }.to_json
@@ -367,7 +369,7 @@ class AgentController < ApplicationController
     req["anthropic-version"] = "2023-06-01"
     req["content-type"]      = "application/json"
     req.body = {
-      model:      "claude-sonnet-4-6",
+      model:      "claude-haiku-4-5-20251001",
       max_tokens: 2048,
       system:     EXTRACTION_SYSTEM_PROMPT,
       messages:   [{ role: "user", content: user_message }]
