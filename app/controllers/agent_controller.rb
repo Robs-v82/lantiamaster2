@@ -395,34 +395,33 @@ class AgentController < ApplicationController
                           .reject { |r| r.start_with?("#", "*", "-", " ") }
                           .select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
 
-    # Validate INEGI codes in rows
+    # Check INEGI codes in rows (for logging/warning, not rejection)
     rows_with_validation = rows.map do |row|
       fields = row.split(",")
-      estado = fields[3] if fields.length > 3
       inegi_code = fields[4] if fields.length > 4
 
-      validation_ok = true
-      validation_msg = nil
+      validation_warning = nil
 
-      if estado && inegi_code
+      if inegi_code && inegi_code.match?(/^\d+$/)
         county = County.where(code: inegi_code).first
         if county.nil?
-          validation_ok = false
-          validation_msg = "INEGI_INVALID:#{inegi_code}"
+          validation_warning = "INEGI_NOT_FOUND:#{inegi_code}"
         end
       end
 
-      { row: row, validation_ok: validation_ok, validation_msg: validation_msg }
+      { row: row, validation_warning: validation_warning }
     end
 
     # When no rows parsed, include a truncated Claude response for diagnosis
     debug = rows.empty? ? claude_response.strip.first(1000) : nil
+    invalid_inegi_count = rows_with_validation.count { |r| r[:validation_warning] }
+
     {
       url: url,
       status: "ok",
       reason: nil,
-      csv_rows: rows_with_validation.select { |r| r[:validation_ok] }.map { |r| r[:row] },
-      invalid_inegi_rows: rows_with_validation.reject { |r| r[:validation_ok] },
+      csv_rows: rows_with_validation.map { |r| r[:row] },
+      inegi_warnings: invalid_inegi_count > 0 ? rows_with_validation.select { |r| r[:validation_warning] } : [],
       debug: debug,
       content_length: content_length,
       claude_response_length: claude_response.length

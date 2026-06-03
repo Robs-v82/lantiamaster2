@@ -490,18 +490,19 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
           break;
         }
 
-        // Log detailed info for "ok" without rows
-        if (result.status === 'ok' && (!result.csv_rows || result.csv_rows.length === 0)) {
+        // Log detailed info for "ok" cases
+        if (result.status === 'ok') {
           var contentInfo = result.content_length ? ' [contenido: ' + result.content_length + ' chars]' : '';
           var claudeRespInfo = result.claude_response_length ? ' [respuesta Claude: ' + result.claude_response_length + ' chars]' : '';
-          var invalidINEGI = result.invalid_inegi_rows ? ' [' + result.invalid_inegi_rows.length + ' filas con INEGI inválido]' : '';
+          var inegiWarnings = result.inegi_warnings && result.inegi_warnings.length > 0 ? ' [⚠️ ' + result.inegi_warnings.length + ' INEGI warnings]' : '';
 
           var debugMsg = '';
-          if (result.debug) {
+          if (result.debug && (!result.csv_rows || result.csv_rows.length === 0)) {
             debugMsg = '\n    DEBUG: ' + result.debug.substring(0, 200).replace(/\n/g, ' ');
           }
 
-          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ok (sin filas)' + contentInfo + claudeRespInfo + invalidINEGI + debugMsg);
+          var status = result.csv_rows && result.csv_rows.length > 0 ? 'ÉXITO (' + result.csv_rows.length + ' filas)' : 'ok (sin filas)';
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + status + contentInfo + claudeRespInfo + inegiWarnings + debugMsg);
         }
 
         if (result.status === 'discarded') {
