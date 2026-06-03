@@ -24,31 +24,30 @@ class AgentController < ApplicationController
   # ── Claude system prompt ──────────────────────────────────────────────────
   # ── Deduplication prompt ──────────────────────────────────────────────
   DEDUPLICATION_PROMPT = <<~PROMPT.strip.freeze
-    Tu tarea es agrupar artículos de noticias por tema/evento.
+    ⚠️ RESPONDE ÚNICAMENTE CON JSON. NADA MÁS. SIN ANÁLISIS, SIN EXPLICACIONES.
 
-    Recibes una lista de títulos de artículos. Debes identificar cuáles hablan del MISMO evento
-    y agruparlos juntos. Devuelve un JSON con esta estructura EXACTA:
+    Tu tarea: agrupar artículos por tema/evento.
 
+    Entrada: lista numerada de títulos.
+    Salida: JSON válido.
+
+    Estructura exacta del JSON:
     {
       "groups": [
         {
-          "theme": "Nombre corto del tema/evento",
-          "count": número de artículos en el grupo,
-          "indices": [lista de índices, ej. [0, 1, 5, 12]]
-        },
-        ...
+          "theme": "Nombre corto del tema",
+          "indices": [0, 1, 5, 12]
+        }
       ]
     }
 
-    REGLAS:
-    - Agrupa por evento/tema, no por medio
-    - "El Gabito capturado en Mazatlán" es UN SOLO evento (aunque hay 20 medios cubriéndolo)
-    - "5 CJNG en túnel fronterizo" es UN evento diferente
-    - "Investigación de transportistas" es otro evento diferente
-    - Maximiza la agrupación: si dos títulos podrían ser el mismo evento, agrúpalos
-    - Los índices refieren a la posición 0-based en la lista que recibiste
+    Reglas de agrupación:
+    - "El Gabito Mazatlán" = UN evento (aunque 20 medios lo cubran)
+    - "CJNG túnel fronterizo" = OTRO evento diferente
+    - "Investigación transportistas" = OTRO evento diferente
+    - Los índices son posición 0-based de la lista original
 
-    Responde SOLO con el JSON, sin explicaciones.
+    CRÍTICO: Devuelve SOLO el JSON válido. Nada antes, nada después.
   PROMPT
 
   # ── Claude system prompt ──────────────────────────────────────────────
@@ -239,7 +238,10 @@ class AgentController < ApplicationController
 
     # Parse JSON from Claude
     begin
-      grouping = JSON.parse(response_text)
+      # Clean up response: remove markdown code blocks if present
+      cleaned_response = response_text.gsub(/^```json\n?/, '').gsub(/\n?```$/, '').strip
+
+      grouping = JSON.parse(cleaned_response)
       groups = (grouping["groups"] || []).map do |g|
         {
           theme: g["theme"],
@@ -249,7 +251,8 @@ class AgentController < ApplicationController
       render json: { groups: groups }
     rescue JSON::ParserError => e
       Rails.logger.error("[Agent#deduplicate] JSON parse error: #{e.message}")
-      render json: { error: "Failed to parse grouping response" }, status: :service_unavailable
+      Rails.logger.error("[Agent#deduplicate] Claude response (first 500 chars): #{response_text.first(500)}")
+      render json: { error: "Failed to parse grouping: #{e.message}" }, status: :service_unavailable
     end
   end
 
