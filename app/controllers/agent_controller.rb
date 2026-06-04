@@ -81,6 +81,37 @@ class AgentController < ApplicationController
 
     ⚠️ INSTRUCCIÓN CRÍTICA: Responde SOLO con las líneas CSV. NO escribas análisis, razonamiento, explicaciones, ni comentarios antes o después del CSV. Si la nota no califica, responde ÚNICAMENTE: DESCARTAR
 
+    ⚠️ EXTRACCIÓN TEXTUAL PURA — SIN INFERENCIAS NI SUPOSICIONES:
+
+    Regla fundamental: SOLO extrae información que aparece EXPLÍCITAMENTE en el texto.
+
+    PROHIBICIONES ABSOLUTAS (si haces cualquiera de estas, cometes un ERROR):
+      ❌ NO INFERIR: "Como es narcotraficante, probablemente..."
+      ❌ NO COMPLETAR: "Aunque no menciona edad, parece tener unos 35..."
+      ❌ NO DEDUCIR: "El municipio no está claro, pero debe ser..."
+      ❌ NO USAR CONOCIMIENTO GENERAL: "Tijuana es famosa por drogas, así que..."
+      ❌ NO INTERPRETAR: "La nota sugiere que podría ser..."
+      ❌ NO ASUMIR: "Basándome en el contexto, probablemente..."
+      ❌ NO INVENTAR: "Parece de mediana edad, así que edad=45"
+
+    MÉTODO OBLIGATORIO — EXTRACCIÓN CON CITAS:
+    Para CADA CAMPO de datos, aplicar este flujo:
+      1. BUSCA la información en el artículo original
+      2. Si ENCONTRADA: cítala textualmente (el valor exacto que está en el texto)
+      3. Si NO ENCONTRADA: deja el campo VACÍO
+      4. NUNCA completes, deduzcas o inventes información
+
+    EJEMPLOS DE EXTRACCIÓN CORRECTA:
+      ✓ EDAD: 37 [porque el texto dice explícitamente "de 37 años"]
+      ✓ EDAD: [VACÍO] [porque el texto NO menciona edad]
+      ✓ MUNICIPIO: Tijuana [porque aparece en el texto]
+      ✓ MUNICIPIO: [VACÍO] [si el texto es ambiguo o no menciona ubicación clara]
+
+    EJEMPLOS DE ERRORES (NO HACER):
+      ❌ EDAD: 37 [cuando el texto NO menciona edad, pero "parece joven"]
+      ❌ MUNICIPIO: Hermosillo [cuando el texto dice que ocurrió en Tijuana pero menciona Hermosillo en otro contexto]
+      ❌ DETENIDOS: 5 [cuando el texto solo menciona "varios" sin número específico]
+
     Recibes el texto completo de una nota. Tu tarea es extraer los datos y devolverlos como UNA o VARIAS líneas CSV según las reglas siguientes.
 
     AÑO EN CURSO: 2026 (dos dígitos: 26). Para el campo Año usa siempre los dos últimos dígitos del año real del evento: 2026 → 26, 2025 → 25. Si la nota no indica fecha exacta del operativo, usa la fecha de publicación de la nota. Nunca uses 25 para un evento que ocurrió en 2026.
@@ -253,10 +284,11 @@ class AgentController < ApplicationController
     req["anthropic-version"] = "2023-06-01"
     req["content-type"]      = "application/json"
     req.body = {
-      model:      "claude-sonnet-4-6",
-      max_tokens: 1024,
-      system:     DEDUPLICATION_PROMPT,
-      messages:   [{ role: "user", content: user_message }]
+      model:       "claude-sonnet-4-6",
+      max_tokens:  1024,
+      temperature: 0.0,
+      system:      DEDUPLICATION_PROMPT,
+      messages:    [{ role: "user", content: user_message }]
     }.to_json
 
     res  = http.request(req)
@@ -523,10 +555,11 @@ class AgentController < ApplicationController
     req["anthropic-version"] = "2023-06-01"
     req["content-type"]      = "application/json"
     req.body = {
-      model:      "claude-sonnet-4-6",
-      max_tokens: 2048,
-      system:     EXTRACTION_SYSTEM_PROMPT,
-      messages:   [{ role: "user", content: user_message }]
+      model:       "claude-sonnet-4-6",
+      max_tokens:  2048,
+      temperature: 0.0,
+      system:      EXTRACTION_SYSTEM_PROMPT,
+      messages:    [{ role: "user", content: user_message }]
     }.to_json
 
     res  = http.request(req)
