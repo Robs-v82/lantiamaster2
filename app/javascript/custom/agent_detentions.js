@@ -32,7 +32,7 @@ function generateRunId() {
 }
 
 // ── CSV header (col 18 = Rol) ────────────────────────────────────────────────
-var CSV_HEADER = 'Día,Mes,Año,Estado,INEGI,Municipio,Abatido,Detenidos,Organización,' +
+var CSV_HEADER = 'Día,Mes,Año,Estado,full_code,Municipio,Abatido,Detenidos,Organización,' +
   'Grupo afiliado,Nombre,Apellido Paterno,Apellido Materno,Alias,Género,Edad,' +
   'Posición liderazgo,Rol,SEDENA,SEMAR,GN,SSCP,FGR,SSP-Estatal,' +
   'FGE/PGJ,Policía municipal,Otro,Fuente';
@@ -495,18 +495,18 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
           var contentInfo = result.content_length ? ' [contenido: ' + result.content_length + ' chars]' : '';
           var claudeRespInfo = result.claude_response_length ? ' [respuesta Claude: ' + result.claude_response_length + ' chars]' : '';
 
-          // INEGI validation summary
-          var inegiInfo = '';
-          if (result.inegi_validations && result.inegi_validations.length > 0) {
-            var validationSummary = {};
-            result.inegi_validations.forEach(function(v) {
-              var confidence = v.validation.confidence || 'unknown';
-              validationSummary[confidence] = (validationSummary[confidence] || 0) + 1;
+          // full_code lookup summary
+          var fullCodeInfo = '';
+          if (result.full_code_lookups && result.full_code_lookups.length > 0) {
+            var lookupMethods = {};
+            result.full_code_lookups.forEach(function(lookup) {
+              var method = (lookup.lookup && lookup.lookup.method) || 'unknown';
+              lookupMethods[method] = (lookupMethods[method] || 0) + 1;
             });
-            var inegiStats = Object.keys(validationSummary).map(function(k) {
-              return k + ':' + validationSummary[k];
+            var methodStats = Object.keys(lookupMethods).map(function(k) {
+              return k + ':' + lookupMethods[k];
             }).join(',');
-            inegiInfo = ' [INEGI: ' + inegiStats + ']';
+            fullCodeInfo = ' [full_code: ' + methodStats + ']';
           }
 
           var debugMsg = '';
@@ -515,7 +515,7 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
           }
 
           var status = result.csv_rows && result.csv_rows.length > 0 ? 'ÉXITO (' + result.csv_rows.length + ' filas)' : 'ok (sin filas)';
-          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + status + contentInfo + claudeRespInfo + inegiInfo + debugMsg);
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + status + contentInfo + claudeRespInfo + fullCodeInfo + debugMsg);
         }
 
         if (result.status === 'discarded') {

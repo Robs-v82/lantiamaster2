@@ -149,7 +149,7 @@ class AgentController < ApplicationController
     2. Mes (entero con cero inicial si <10)
     3. Año (2 dígitos)
     4. Estado (nombre completo de la entidad federativa)
-    5. INEGI (clave municipal de 5 dígitos: 2 dígitos estado + 3 dígitos municipio)
+    5. full_code (código municipal de la base de datos — NO lo generes, dejar VACÍO si no se identifica municipio)
     6. Municipio (nombre)
     7. Abatido (1 si hubo abatido, vacío si no)
     8. Detenidos (entero >= 1; si solo hubo abatimientos sin detenidos, pon 0)
@@ -191,25 +191,27 @@ class AgentController < ApplicationController
     - "CDN", "Noreste" → match en catálogo
     Si después del intento de normalización no encuentras ningún match, escribe "No identificada" — nunca dejes estos campos vacíos.
 
-    MUNICIPIO E INEGI — clave municipal de 5 dígitos:
+    MUNICIPIO Y FULL_CODE — búsqueda en base de datos:
 
-    Columna 5. INEGI (clave municipal: 2 dígitos estado + 3 dígitos municipio)
+    Columna 5. full_code (código municipal completo de la BD — NUNCA lo generes ni adivines)
     Columna 6. Municipio (nombre del municipio mencionado en la nota)
 
-    INSTRUCCIONES CRÍTICAS PARA INEGI:
+    INSTRUCCIONES CRÍTICAS:
     - Extrae del texto el NOMBRE del municipio y estado con máxima precisión
-    - NO intentes NUNCA generar o adivinar el código INEGI
-    - Si NO puedes identificar el municipio con certeza desde el texto de la nota, deja AMBOS campos (INEGI y Municipio) VACÍOS
-    - El sistema backend validará el municipio contra la base de datos INEGI y completará el código automáticamente usando: estado + nombre del municipio
+    - NUNCA intentes generar, calcular o adivinar el full_code
+    - Si NO puedes identificar el municipio con certeza desde el texto de la nota, deja el campo municipio VACÍO (el full_code será vacío también)
     - Si el municipio usa un alias común (ej: "Los Mochis" en lugar de "Ahome", "Cancún" en lugar de "Benito Juárez"), extrae el nombre que aparece en la nota tal cual está escrito
     - Si la nota menciona múltiples ubicaciones, extrae la ciudad/municipio donde ocurrió el operativo de detención, no donde fue publicada la nota
 
-    VALIDACIÓN EN BACKEND:
-    El código INEGI se calcula automáticamente por estos pasos:
+    BÚSQUEDA EN BACKEND (NO ES TU RESPONSABILIDAD):
+    El sistema backend buscará automáticamente en la base de datos por estos pasos:
     1. Busca por estado + nombre exacto del municipio
     2. Busca por estado + nombre normalizado (sin acentos, minúsculas)
-    3. Busca por estado + alias del municipio (usando tabla county_aliases)
-    4. Si no encuentra match confiable, deja el campo INEGI vacío
+    3. Busca por estado + alias del municipio (tabla county_aliases)
+    4. Si encuentra match: captura el full_code
+    5. Si NO encuentra match: full_code queda vacío
+
+    El backend registrará en el log exactamente QUÉ query hizo y QUÉ resultado obtuvo.
 
     REGLAS CRÍTICAS:
     - Si la nota NO describe una detención o abatimiento concreto y confirmado, responde únicamente con: DESCARTAR
@@ -500,21 +502,31 @@ class AgentController < ApplicationController
                           .reject { |r| r.start_with?("###CITA") }
                           .select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
 
-    # Validate INEGI codes in rows using robust method
-    rows_with_validation = rows.map do |row|
-      fields = row.split(",")
+    # Lookup full_code in database for each row
+    rows_with_lookups = rows.map do |row|
+      fields = row.split(",").map { |f| f.gsub(/^"(.*)"$/, '\1') }
       estado = fields[3] if fields.length > 3
-      inegi_code = fields[4] if fields.length > 4
+      full_code_from_claude = fields[4] if fields.length > 4
       municipio = fields[5] if fields.length > 5
 
-      validation_result = County.validate_inegi(inegi_code, municipio, estado)
+      # Try to find full_code via database lookup
+      lookup_result = lookup_full_code(municipio, estado)
+
+      # Replace field[4] with actual full_code from DB (or keep empty if not found)
+      if lookup_result && lookup_result[:full_code]
+        fields[4] = lookup_result[:full_code]
+      else
+        fields[4] = ""  # Leave empty if DB lookup fails
+      end
+
+      new_row = fields.map { |f| f.to_s.include?(",") ? "\"#{f}\"" : f }.join(",")
 
       {
-        row: row,
-        inegi_code: inegi_code,
+        row: new_row,
+        original_full_code: full_code_from_claude,
         municipio: municipio,
         estado: estado,
-        validation: validation_result
+        lookup: lookup_result
       }
     end
 
@@ -525,8 +537,8 @@ class AgentController < ApplicationController
       url: url,
       status: "ok",
       reason: nil,
-      csv_rows: rows_with_validation.map { |r| r[:row] },
-      inegi_validations: rows_with_validation,
+      csv_rows: rows_with_lookups.map { |r| r[:row] },
+      full_code_lookups: rows_with_lookups,
       citation_validations: citation_validations,
       debug: debug,
       content_length: content_length,
@@ -621,6 +633,139 @@ class AgentController < ApplicationController
   rescue => e
     Rails.logger.error("[Agent#claude_api] #{url}: #{e.class}: #{e.message}")
     { error: "#{e.class}: #{e.message}" }
+  end
+
+  def lookup_full_code(municipio_name, estado_name)
+    return nil if municipio_name.blank? || estado_name.blank?
+
+    search_log = []
+    search_log << "Query: municipio=#{municipio_name.inspect}, estado=#{estado_name.inspect}"
+
+    # Step 1: Find state by name
+    state = find_state(estado_name, search_log)
+    return { full_code: nil, method: "estado_not_found", search_log: search_log } if state.blank?
+
+    # Step 2: Try exact match
+    county = find_county_by_exact_name(municipio_name, state, search_log)
+    if county
+      return { full_code: county.full_code, method: "exact_match", search_log: search_log }
+    end
+
+    # Step 3: Try normalized match (remove accents, lowercase)
+    county = find_county_by_normalized_name(municipio_name, state, search_log)
+    if county
+      return { full_code: county.full_code, method: "normalized_match", search_log: search_log }
+    end
+
+    # Step 4: Try alias match
+    county = find_county_by_alias(municipio_name, state, search_log)
+    if county
+      return { full_code: county.full_code, method: "alias_match", search_log: search_log }
+    end
+
+    # Step 5: Try fuzzy/partial match
+    county = find_county_fuzzy(municipio_name, state, search_log)
+    if county
+      return { full_code: county.full_code, method: "fuzzy_match", search_log: search_log }
+    end
+
+    { full_code: nil, method: "not_found", search_log: search_log }
+  rescue => e
+    Rails.logger.error("[Agent#lookup_full_code] #{e.class}: #{e.message}")
+    { full_code: nil, method: "error", search_log: ["Error: #{e.message}"] }
+  end
+
+  def find_state(estado_name, search_log)
+    # Try exact match
+    state = County.where(state_name: estado_name).select("DISTINCT state_name").first
+    if state
+      search_log << "✓ Estado encontrado: #{estado_name}"
+      return estado_name
+    end
+
+    # Try normalized match
+    normalized = I18n.transliterate(estado_name.downcase)
+    states = County.pluck("DISTINCT state_name")
+    found_state = states.find do |s|
+      I18n.transliterate(s.downcase) == normalized
+    end
+
+    if found_state
+      search_log << "✓ Estado encontrado (normalizado): #{found_state}"
+      return found_state
+    end
+
+    search_log << "✗ Estado no encontrado: #{estado_name}"
+    nil
+  end
+
+  def find_county_by_exact_name(municipio_name, state, search_log)
+    search_log << "Búsqueda 1: nombre exacto en #{state}"
+    County.where(state_name: state, county_name: municipio_name).first.tap do |result|
+      if result
+        search_log << "  ✓ Encontrado: #{result.county_name} (#{result.full_code})"
+      else
+        search_log << "  ✗ No encontrado"
+      end
+    end
+  end
+
+  def find_county_by_normalized_name(municipio_name, state, search_log)
+    search_log << "Búsqueda 2: nombre normalizado (sin acentos) en #{state}"
+    normalized = I18n.transliterate(municipio_name.downcase)
+
+    counties = County.where(state_name: state).all
+    result = counties.find do |c|
+      I18n.transliterate(c.county_name.downcase) == normalized
+    end
+
+    if result
+      search_log << "  ✓ Encontrado: #{result.county_name} (#{result.full_code})"
+    else
+      search_log << "  ✗ No encontrado"
+    end
+
+    result
+  end
+
+  def find_county_by_alias(municipio_name, state, search_log)
+    search_log << "Búsqueda 3: tabla de aliases (county_aliases) en #{state}"
+    state_counties = County.where(state_name: state).pluck(:id)
+    if state_counties.empty?
+      search_log << "  ✗ No hay municipios para este estado"
+      return nil
+    end
+
+    county = CountyAlias.where(county_id: state_counties, alias_name: municipio_name)
+                         .first&.county
+    if county
+      search_log << "  ✓ Encontrado por alias: #{county.county_name} (#{county.full_code})"
+    else
+      search_log << "  ✗ No encontrado"
+    end
+
+    county
+  end
+
+  def find_county_fuzzy(municipio_name, state, search_log)
+    search_log << "Búsqueda 4: búsqueda parcial/fuzzy en #{state}"
+
+    normalized_query = I18n.transliterate(municipio_name.downcase).gsub(/[^a-z0-9\s]/, "")
+    counties = County.where(state_name: state).all
+
+    # Try partial word match
+    matching_county = counties.find do |c|
+      normalized_name = I18n.transliterate(c.county_name.downcase).gsub(/[^a-z0-9\s]/, "")
+      normalized_name.include?(normalized_query) || normalized_query.include?(normalized_name)
+    end
+
+    if matching_county
+      search_log << "  ✓ Encontrado (fuzzy): #{matching_county.county_name} (#{matching_county.full_code})"
+    else
+      search_log << "  ✗ No encontrado"
+    end
+
+    matching_county
   end
 
   def criminal_organizations
