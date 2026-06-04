@@ -642,7 +642,7 @@ $('.query-field').on('input', function() {
 					$(this).serialize(),
 					function(data) {
 						var countyCheckboxes = ""
-						for(i=0; i<data.counties.length; i++) {
+						for(var i=0; i<data.counties.length; i++) {
 							countyCheckboxes += "<div class='col s12'><label><input type='checkbox' name='query[freq_counties][]' value='"+data.counties[i].id+"' checked/><span class='white-text'>"+data.counties[i].name+"</span></label></p></div>"
 						}
 					$('#county_checkboxes_box').append(countyCheckboxes);
@@ -722,14 +722,14 @@ $('.query-field').on('input', function() {
 	// GET INDEX COUNTIES
 	$('#index-state-selector').change(function() {
 		var mydata = $('#index-state-selector').serialize();
-		newArr = mydata.split('=');
+		var newArr = mydata.split('=');
 		window.location = '/counties/set_index_county/'+newArr[1]
 	})
 
 	// GET ORGANIZATIONS
 	$('#operation-organization-selector').change(function() {
 		var mydata = $("#operation-organization-selector").serialize();
-    	newArr = mydata.split("=");
+    	var newArr = mydata.split("=");
     	window.location = '/organizations/show/'+newArr[1];	
 	})
 
@@ -742,7 +742,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var countyOptions = "<option value='' selected>Todos</option>"
-				for(i=0; i<data.counties.length; i++) {
+				for(var i=0; i<data.counties.length; i++) {
 					countyOptions += "<option value='"+data.counties[i].id+"'>"+data.counties[i].name+"</option>"
 				}
 			$('#operation-county-selector').append(countyOptions);				
@@ -754,7 +754,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var cityOptions = "<option value='' selected>Todas</option>"
-				for(i=0; i<data.cities.length; i++) {
+				for(var i=0; i<data.cities.length; i++) {
 					cityOptions += "<option value='"+data.cities[i].id+"'>"+data.cities[i].name+"</option>"
 				}
 			$('#operation-city-selector').append(cityOptions)
@@ -772,7 +772,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var townOptions = "<option value='' selected>Todos</option>"
-				for(i=0; i<data.towns.length; i++) {
+				for(var i=0; i<data.towns.length; i++) {
 					townOptions += "<option name='<%= @town_focus_model %>[town_id]' value='"+data.towns[i].id+"'>"+data.towns[i].zip_code+" "+"-"+" "+data.towns[i].name+"</option>"
 				}
 			$('#operation-town-selector').append(townOptions)
@@ -790,7 +790,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var stateOptions = "<option value='' selected>Todos</option>"
-				for(i=0; i<data.states.length; i++) {
+				for(var i=0; i<data.states.length; i++) {
 					stateOptions += "<option value='"+data.states[i].id+"'>"+data.states[i].name+"</option>"
 				}
 			$('#operation-state-selector').append(stateOptions)
@@ -856,7 +856,7 @@ $('.query-field').on('input', function() {
 	$('#operation-organization1-selector').change(function() {
 
 		var mydata = $("#operation-organization1-selector").serialize();
-    	newArr = mydata.split("=")
+    	var newArr = mydata.split("=")
 		$('#operation-member1-selector').removeAttr('disabled')
 		$('#operation-member1-selector').html('')
 		$.post(
@@ -864,7 +864,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var memberOptions = "<option value='' selected></option>"
-				for(i=0; i<data.members.length; i++) {
+				for(var i=0; i<data.members.length; i++) {
 					memberOptions += "<option value='"+data.members[i].id+"'>"+data.members[i].firstname+" "+data.members[i].lastname1+"</option>"
 				}
 			$('#operation-member1-selector').append(memberOptions)				
@@ -877,7 +877,7 @@ $('.query-field').on('input', function() {
 	$('#operation-organization2-selector').change(function() {
 
 		var mydata = $("#operation-organization2-selector").serialize();
-    	newArr = mydata.split("=")
+    	var newArr = mydata.split("=")
 		$('#operation-member2-selector').removeAttr('disabled')
 		$('#operation-member2-selector').html('')
 		$.post(
@@ -885,7 +885,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var memberOptions = "<option value='' selected></option>"
-				for(i=0; i<data.members.length; i++) {
+				for(var i=0; i<data.members.length; i++) {
 					memberOptions += "<option value='"+data.members[i].id+"'>"+data.members[i].firstname+" "+data.members[i].lastname1+"</option>"
 				}
 			$('#operation-member2-selector').append(memberOptions)				
@@ -902,7 +902,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var divisionOptions = ""
-				for(i=0; i<data.divisions.length; i++) {
+				for(var i=0; i<data.divisions.length; i++) {
 					divisionOptions += "<div class='col s12 label-row'><label><input class='white' name='organization[division_id]' value='"+data.divisions[i].id+"' type='checkbox'><span class='mini-label white-text'>"+data.divisions[i].name.toUpperCase()+"</span></label></div>"
 					}
 			$('#division-checkbox-container').append(divisionOptions)				
