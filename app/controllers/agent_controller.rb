@@ -620,11 +620,12 @@ class AgentController < ApplicationController
     req["anthropic-version"] = "2023-06-01"
     req["content-type"]      = "application/json"
     req.body = {
-      model:       "claude-sonnet-4-6",
-      max_tokens:  2048,
-      temperature: 0.0,
-      system:      EXTRACTION_SYSTEM_PROMPT,
-      messages:    [{ role: "user", content: user_message }]
+      model:            "claude-sonnet-4-6",
+      max_tokens:       2048,
+      temperature:      0.0,
+      cache_control:    { type: "ephemeral" },
+      system:           EXTRACTION_SYSTEM_PROMPT,
+      messages:         [{ role: "user", content: user_message }]
     }.to_json
 
     res  = http.request(req)
