@@ -223,14 +223,24 @@ class AgentController < ApplicationController
     - Para fuerzas: solo pon 1 si la nota las menciona explícitamente. Nunca inferir
     - Si la nota dice "elementos de seguridad" sin especificar fuerza, usa Otro=1
 
-    VERIFICACIÓN FINAL ANTES DE EMITIR EL CSV:
-    Antes de devolver tu respuesta, verifica que:
-    1. Cada fila tiene exactamente 28 campos separados por coma
-    2. Ningún campo numérico contiene texto
-    3. Todo campo de texto que contenga comas está entre comillas dobles
-    4. El campo Fuente en la posición 28 contiene una URL válida
-    5. El campo Rol no está vacío y su valor pertenece al catálogo
-    Si alguna fila no pasa esta verificación, corrígela. Si no puedes corregirla, omítela.
+    VALIDACIÓN Y AUTO-CORRECCIÓN OBLIGATORIA:
+    Antes de emitir cada fila CSV, VALIDA que cumpla EXACTAMENTE:
+    1. Exactamente 28 campos (separados por coma)
+    2. Campos numéricos [0,1,2,4,6,7,15,16,17,18,19,20,21,22,23,24,25,26] contienen SOLO números o están VACÍOS
+       (nunca deben contener texto)
+    3. Campo Rol (posición 18) NUNCA está vacío - si no identificas rol claro, usa "Otro"
+    4. Campo Fuente (posición 28) es una URL válida
+    5. Todo campo de texto que contenga comas está entre comillas dobles
+
+    PROCEDIMIENTO SI LA VALIDACIÓN FALLA:
+    - NO omitas la fila
+    - Reescribe la fila COMPLETA corrigiendo todos los errores
+    - Valida nuevamente
+    - REPITE hasta que la fila cumpla TODOS los criterios anteriores
+    - Solo entonces continúa con el siguiente artículo
+
+    Ejemplo: Si generaste "Sicario" en el campo SEDENA (col 19), reescribe la fila entera
+    moviendo "Sicario" al campo Rol (col 18) y dejando SEDENA vacío.
   PROMPT
 
   # ═══════════════════════════════════════════════════════════════════════════
