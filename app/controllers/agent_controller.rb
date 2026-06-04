@@ -145,19 +145,25 @@ class AgentController < ApplicationController
     - "CDN", "Noreste" → match en catálogo
     Si después del intento de normalización no encuentras ningún match, escribe "No identificada" — nunca dejes estos campos vacíos.
 
-    INEGI — claves de municipios frecuentes para referencia:
-    - Ciudad de México: Álvaro Obregón=09010, Azcapotzalco=09002, Benito Juárez=09014, Coyoacán=09003, Cuauhtémoc=09006, Gustavo A. Madero=09007, Iztapalapa=09009, Miguel Hidalgo=09016, Tlalpan=09012, Venustiano Carranza=09017, Xochimilco=09013
-    - Jalisco: Guadalajara=14039, Zapopan=14120, Tlajomulco=14098, Tonalá=14101
-    - Sinaloa: Culiacán=25006, Mazatlán=25012, Guasave=25007, Ahome (Los Mochis)=25001
-    - Nuevo León: Monterrey=19039, San Nicolás=19046, Apodaca=19006, Escobedo=19021
-    - Michoacán: Morelia=16053, Uruapan=16102, Zamora=16108, Lázaro Cárdenas=16037, Zitácuaro=16112
-    - Chihuahua: Juárez=08037, Chihuahua=08019
-    - Tamaulipas: Reynosa=28032, Matamoros=28009, Nuevo Laredo=28022
-    - Guerrero: Acapulco=12001, Chilpancingo=12029, Iguala=12035
-    - Veracruz: Xalapa=30087, Veracruz=30193, Coatzacoalcos=30039
-    - Sonora: Hermosillo=26030, Cajeme (Cd. Obregón)=26018, Nogales=26040
-    - Baja California: Tijuana=02004, Mexicali=02002, Ensenada=02001
-    Si el municipio no aparece en esta lista, dedúcelo con el formato 2 dígitos de estado + 3 de municipio.
+    MUNICIPIO E INEGI — clave municipal de 5 dígitos:
+
+    Columna 5. INEGI (clave municipal: 2 dígitos estado + 3 dígitos municipio)
+    Columna 6. Municipio (nombre del municipio mencionado en la nota)
+
+    INSTRUCCIONES CRÍTICAS PARA INEGI:
+    - Extrae del texto el NOMBRE del municipio y estado con máxima precisión
+    - NO intentes NUNCA generar o adivinar el código INEGI
+    - Si NO puedes identificar el municipio con certeza desde el texto de la nota, deja AMBOS campos (INEGI y Municipio) VACÍOS
+    - El sistema backend validará el municipio contra la base de datos INEGI y completará el código automáticamente usando: estado + nombre del municipio
+    - Si el municipio usa un alias común (ej: "Los Mochis" en lugar de "Ahome", "Cancún" en lugar de "Benito Juárez"), extrae el nombre que aparece en la nota tal cual está escrito
+    - Si la nota menciona múltiples ubicaciones, extrae la ciudad/municipio donde ocurrió el operativo de detención, no donde fue publicada la nota
+
+    VALIDACIÓN EN BACKEND:
+    El código INEGI se calcula automáticamente por estos pasos:
+    1. Busca por estado + nombre exacto del municipio
+    2. Busca por estado + nombre normalizado (sin acentos, minúsculas)
+    3. Busca por estado + alias del municipio (usando tabla county_aliases)
+    4. Si no encuentra match confiable, deja el campo INEGI vacío
 
     REGLAS CRÍTICAS:
     - Si la nota NO describe una detención o abatimiento concreto y confirmado, responde únicamente con: DESCARTAR
