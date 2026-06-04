@@ -40,26 +40,26 @@ function vanish() {
 	}
 	slideVanish()
 
-	// AUTOCOMPLETE
-	function myFunction() {
-		var myString = $('#autocomplete-input').val();
-		if (myString) {
-			myString = myString;
-		} else {
-			myString = 'Xp987jy';
-		};
+	// AUTOCOMPLETE - Search organizations
+	function searchOrganizations() {
+		var searchTerm = $('#autocomplete-input').val().trim();
+		if (!searchTerm || searchTerm.length === 0) {
+			searchTerm = 'Xp987jy';
+		}
+
 		$.ajax({
 			type: 'GET',
 			dataType: 'json',
-			url: '/organizations/get_cartels/'+myString,
+			url: '/organizations/get_cartels/' + encodeURIComponent(searchTerm),
 			data: $(this).serialize(),
 			success: function(response) {
-				if (response !== undefined) {
+				if (response && Array.isArray(response) && response.length > 0) {
 					$('#org-entry-list').hide();
 					var startHTML = '<div id="org-entry-list" class="org-entry-display"><table id="org-table" class="highlight"><tbody>';
 					var myRows = '';
-					for (i = 0; i < response.length; i++) {
-						myRows += '<tr><td><a class="preloader-trigger" href="/organizations/show/'+response[i].id+'">'+response[i].name+'</a></td><tr>'
+					for (var i = 0; i < response.length; i++) {
+						var org = response[i];
+						myRows += '<tr><td><a class="preloader-trigger" href="/organizations/show/' + org.id + '">' + org.name + '</a></td></tr>';
 					}
 					var endHTML = '</tbody></table></div>';
 					var newHTML = startHTML + myRows + endHTML;
@@ -68,6 +68,10 @@ function vanish() {
 					$('#new-entry-list').html('');
 					$('#org-entry-list').show();
 				}
+			},
+			error: function(xhr, status, error) {
+				console.error('Error searching organizations:', error);
+				$('#new-entry-list').html('<p class="error-message">Error al buscar organizaciones</p>');
 			}
 		});
 	}	
@@ -272,10 +276,10 @@ function vanish() {
 		tabInit()
 	});
 
-	// ORGANIZATION AUTOCOMPLETE
-	$('#autocomplete-input').keyup(function() {
-		myFunction();
-	})
+	// ORGANIZATION AUTOCOMPLETE - Search on keyup
+	$('#autocomplete-input').on('keyup', function() {
+		searchOrganizations();
+	});
 
 	// PAGES
 	var movePage = function(data) {
