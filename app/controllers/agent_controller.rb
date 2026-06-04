@@ -510,7 +510,7 @@ class AgentController < ApplicationController
       municipio = fields[5] if fields.length > 5
 
       # Try to find full_code via database lookup
-      lookup_result = lookup_full_code(municipio, estado)
+      lookup_result = lookup_full_code(municipio, estado, url)
 
       # Replace field[4] with actual full_code from DB (or keep empty if not found)
       if lookup_result && lookup_result[:full_code]
@@ -635,63 +635,71 @@ class AgentController < ApplicationController
     { error: "#{e.class}: #{e.message}" }
   end
 
-  def lookup_full_code(municipio_name, estado_name)
+  def lookup_full_code(municipio_name, estado_name, url = nil)
     return nil if municipio_name.blank? || estado_name.blank?
 
     search_log = []
-    search_log << "Query: municipio=#{municipio_name.inspect}, estado=#{estado_name.inspect}"
+    search_log << "FULL_CODE LOOKUP: municipio=#{municipio_name.inspect}, estado=#{estado_name.inspect}"
 
     # Step 1: Find state by name
     state = find_state(estado_name, search_log)
-    return { full_code: nil, method: "estado_not_found", search_log: search_log } if state.blank?
+    if state.blank?
+      Rails.logger.warn("[Agent#lookup] #{url || 'unknown'} | Estado NO encontrado: #{estado_name.inspect}")
+      return { full_code: nil, method: "estado_not_found", search_log: search_log }
+    end
 
     # Step 2: Try exact match
     county = find_county_by_exact_name(municipio_name, state, search_log)
     if county
+      Rails.logger.info("[Agent#lookup] #{url || 'unknown'} | ✓ EXACT MATCH: #{municipio_name.inspect} → #{county.full_code}")
       return { full_code: county.full_code, method: "exact_match", search_log: search_log }
     end
 
     # Step 3: Try normalized match (remove accents, lowercase)
     county = find_county_by_normalized_name(municipio_name, state, search_log)
     if county
+      Rails.logger.info("[Agent#lookup] #{url || 'unknown'} | ✓ NORMALIZED MATCH: #{municipio_name.inspect} → #{county.full_code}")
       return { full_code: county.full_code, method: "normalized_match", search_log: search_log }
     end
 
     # Step 4: Try alias match
     county = find_county_by_alias(municipio_name, state, search_log)
     if county
+      Rails.logger.info("[Agent#lookup] #{url || 'unknown'} | ✓ ALIAS MATCH: #{municipio_name.inspect} → #{county.full_code}")
       return { full_code: county.full_code, method: "alias_match", search_log: search_log }
     end
 
     # Step 5: Try fuzzy/partial match
     county = find_county_fuzzy(municipio_name, state, search_log)
     if county
+      Rails.logger.info("[Agent#lookup] #{url || 'unknown'} | ✓ FUZZY MATCH: #{municipio_name.inspect} → #{county.full_code}")
       return { full_code: county.full_code, method: "fuzzy_match", search_log: search_log }
     end
 
+    Rails.logger.warn("[Agent#lookup] #{url || 'unknown'} | ✗ NOT FOUND: #{municipio_name.inspect} en #{estado_name.inspect}")
     { full_code: nil, method: "not_found", search_log: search_log }
   rescue => e
-    Rails.logger.error("[Agent#lookup_full_code] #{e.class}: #{e.message}")
+    Rails.logger.error("[Agent#lookup_full_code] #{url || 'unknown'} | #{e.class}: #{e.message}")
     { full_code: nil, method: "error", search_log: ["Error: #{e.message}"] }
   end
 
   def find_state(estado_name, search_log)
-    # Try exact match
-    state = County.where(state_name: estado_name).select("DISTINCT state_name").first
+    # Try exact match on State.name
+    state = State.where("LOWER(name) = ?", estado_name.downcase).first
     if state
-      search_log << "✓ Estado encontrado: #{estado_name}"
-      return estado_name
+      search_log << "✓ Estado encontrado: #{estado_name} (ID: #{state.id})"
+      return state
     end
 
     # Try normalized match
     normalized = I18n.transliterate(estado_name.downcase)
-    states = County.pluck("DISTINCT state_name")
+    states = State.all
     found_state = states.find do |s|
-      I18n.transliterate(s.downcase) == normalized
+      I18n.transliterate(s.name.downcase) == normalized
     end
 
     if found_state
-      search_log << "✓ Estado encontrado (normalizado): #{found_state}"
+      search_log << "✓ Estado encontrado (normalizado): #{found_state.name}"
       return found_state
     end
 
@@ -700,27 +708,27 @@ class AgentController < ApplicationController
   end
 
   def find_county_by_exact_name(municipio_name, state, search_log)
-    search_log << "Búsqueda 1: nombre exacto en #{state}"
-    County.where(state_name: state, county_name: municipio_name).first.tap do |result|
-      if result
-        search_log << "  ✓ Encontrado: #{result.county_name} (#{result.full_code})"
-      else
-        search_log << "  ✗ No encontrado"
-      end
+    search_log << "Búsqueda 1: nombre exacto en #{state.name}"
+    county = state.counties.where("LOWER(name) = ?", municipio_name.downcase).first
+    if county
+      search_log << "  ✓ Encontrado: #{county.name} (#{county.full_code})"
+    else
+      search_log << "  ✗ No encontrado"
     end
+    county
   end
 
   def find_county_by_normalized_name(municipio_name, state, search_log)
-    search_log << "Búsqueda 2: nombre normalizado (sin acentos) en #{state}"
+    search_log << "Búsqueda 2: nombre normalizado (sin acentos) en #{state.name}"
     normalized = I18n.transliterate(municipio_name.downcase)
 
-    counties = County.where(state_name: state).all
+    counties = state.counties.all
     result = counties.find do |c|
-      I18n.transliterate(c.county_name.downcase) == normalized
+      I18n.transliterate(c.name.downcase) == normalized
     end
 
     if result
-      search_log << "  ✓ Encontrado: #{result.county_name} (#{result.full_code})"
+      search_log << "  ✓ Encontrado: #{result.name} (#{result.full_code})"
     else
       search_log << "  ✗ No encontrado"
     end
@@ -729,17 +737,17 @@ class AgentController < ApplicationController
   end
 
   def find_county_by_alias(municipio_name, state, search_log)
-    search_log << "Búsqueda 3: tabla de aliases (county_aliases) en #{state}"
-    state_counties = County.where(state_name: state).pluck(:id)
-    if state_counties.empty?
+    search_log << "Búsqueda 3: tabla de aliases (county_aliases) en #{state.name}"
+    state_county_ids = state.counties.pluck(:id)
+    if state_county_ids.empty?
       search_log << "  ✗ No hay municipios para este estado"
       return nil
     end
 
-    county = CountyAlias.where(county_id: state_counties, alias_name: municipio_name)
+    county = CountyAlias.where(county_id: state_county_ids, alias_name: municipio_name)
                          .first&.county
     if county
-      search_log << "  ✓ Encontrado por alias: #{county.county_name} (#{county.full_code})"
+      search_log << "  ✓ Encontrado por alias: #{county.name} (#{county.full_code})"
     else
       search_log << "  ✗ No encontrado"
     end
@@ -748,19 +756,19 @@ class AgentController < ApplicationController
   end
 
   def find_county_fuzzy(municipio_name, state, search_log)
-    search_log << "Búsqueda 4: búsqueda parcial/fuzzy en #{state}"
+    search_log << "Búsqueda 4: búsqueda parcial/fuzzy en #{state.name}"
 
     normalized_query = I18n.transliterate(municipio_name.downcase).gsub(/[^a-z0-9\s]/, "")
-    counties = County.where(state_name: state).all
+    counties = state.counties.all
 
     # Try partial word match
     matching_county = counties.find do |c|
-      normalized_name = I18n.transliterate(c.county_name.downcase).gsub(/[^a-z0-9\s]/, "")
+      normalized_name = I18n.transliterate(c.name.downcase).gsub(/[^a-z0-9\s]/, "")
       normalized_name.include?(normalized_query) || normalized_query.include?(normalized_name)
     end
 
     if matching_county
-      search_log << "  ✓ Encontrado (fuzzy): #{matching_county.county_name} (#{matching_county.full_code})"
+      search_log << "  ✓ Encontrado (fuzzy): #{matching_county.name} (#{matching_county.full_code})"
     else
       search_log << "  ✗ No encontrado"
     end
