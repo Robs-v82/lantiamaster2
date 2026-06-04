@@ -81,36 +81,51 @@ class AgentController < ApplicationController
 
     ⚠️ INSTRUCCIÓN CRÍTICA: Responde SOLO con las líneas CSV. NO escribas análisis, razonamiento, explicaciones, ni comentarios antes o después del CSV. Si la nota no califica, responde ÚNICAMENTE: DESCARTAR
 
-    ⚠️ EXTRACCIÓN TEXTUAL PURA — SIN INFERENCIAS NI SUPOSICIONES:
+    ⚠️ ⚠️ ⚠️ FORMATO OBLIGATORIO CON CITAS TEXTUALES ⚠️ ⚠️ ⚠️
 
-    Regla fundamental: SOLO extrae información que aparece EXPLÍCITAMENTE en el texto.
+    ESTO NO ES NEGOCIABLE. SIGUE ESTO AL PIE DE LA LETRA O TU RESPUESTA SERÁ RECHAZADA.
 
-    PROHIBICIONES ABSOLUTAS (si haces cualquiera de estas, cometes un ERROR):
-      ❌ NO INFERIR: "Como es narcotraficante, probablemente..."
-      ❌ NO COMPLETAR: "Aunque no menciona edad, parece tener unos 35..."
-      ❌ NO DEDUCIR: "El municipio no está claro, pero debe ser..."
-      ❌ NO USAR CONOCIMIENTO GENERAL: "Tijuana es famosa por drogas, así que..."
-      ❌ NO INTERPRETAR: "La nota sugiere que podría ser..."
-      ❌ NO ASUMIR: "Basándome en el contexto, probablemente..."
-      ❌ NO INVENTAR: "Parece de mediana edad, así que edad=45"
+    FORMATO DE RESPUESTA OBLIGATORIO - CITAS SEPARADAS:
 
-    MÉTODO OBLIGATORIO — EXTRACCIÓN CON CITAS:
-    Para CADA CAMPO de datos, aplicar este flujo:
-      1. BUSCA la información en el artículo original
-      2. Si ENCONTRADA: cítala textualmente (el valor exacto que está en el texto)
-      3. Si NO ENCONTRADA: deja el campo VACÍO
-      4. NUNCA completes, deduzcas o inventes información
+    Primero: BLOQUE DE CITAS (líneas que comienzan con ###CITA)
+    Luego: LÍNEAS CSV NORMALES (sin citas incrustadas)
 
-    EJEMPLOS DE EXTRACCIÓN CORRECTA:
-      ✓ EDAD: 37 [porque el texto dice explícitamente "de 37 años"]
-      ✓ EDAD: [VACÍO] [porque el texto NO menciona edad]
-      ✓ MUNICIPIO: Tijuana [porque aparece en el texto]
-      ✓ MUNICIPIO: [VACÍO] [si el texto es ambiguo o no menciona ubicación clara]
+    ESTRUCTURA EXACTA REQUERIDA:
+    ###CITA campo_número "cita textual extraída directamente del artículo"
+    ###CITA campo_número "otra cita textual"
+    ... más citas ...
+    1,06,26,Sinaloa,25006,Culiacán,,...,URL
 
-    EJEMPLOS DE ERRORES (NO HACER):
-      ❌ EDAD: 37 [cuando el texto NO menciona edad, pero "parece joven"]
-      ❌ MUNICIPIO: Hermosillo [cuando el texto dice que ocurrió en Tijuana pero menciona Hermosillo en otro contexto]
-      ❌ DETENIDOS: 5 [cuando el texto solo menciona "varios" sin número específico]
+    EJEMPLO CORRECTO (ESTE ES EL ÚNICO FORMATO ACEPTADO):
+    ###CITA 3 "1 de junio de 2026"
+    ###CITA 5 "estado de Sinaloa"
+    ###CITA 6 "municipio de Culiacán"
+    ###CITA 11 "Gabriel Martínez fue detenido"
+    ###CITA 16 "de 37 años"
+    1,06,26,Sinaloa,25006,Culiacán,,,,,Gabriel,Martínez,,,M,37,,...,URL
+
+    SI NO EXISTE CITA TEXTUAL PARA UN CAMPO:
+    ✓ NO ESCRIBAS ###CITA para ese campo
+    ✓ DEJA ESE CAMPO VACÍO en el CSV
+    ✓ Ejemplo: Si no aparece edad → no escribas ###CITA 16 y deja campo 16 vacío
+
+    VALIDACIÓN BACKEND - SE EJECUTARÁ AUTOMÁTICAMENTE:
+    El sistema buscará CADA cita (###CITA) dentro del texto original del artículo.
+    • CITA ENCONTRADA → Campo se acepta con su valor
+    • CITA NO ENCONTRADA → Campo se marca VACÍO, se registra en log
+    • SIN ###CITA PARA VALOR → Campo se marca VACÍO, se registra en log
+
+    LOG INCLUIRÁ LÍNEAS COMO:
+    [CITA_VALIDADA] Campo 3 "1 de junio de 2026" → ACEPTADA
+    [CITA_FALLIDA] Campo 16 - No se encontró cita en el texto → Campo = VACÍO
+    [CITA_FALTANTE] Campo 11 - Sin ###CITA pero hay valor → Campo = VACÍO
+
+    CUALQUIER VIOLACIÓN RECHAZA LA RESPUESTA:
+    ❌ Responder CSV sin bloque ###CITA
+    ❌ Incluir ###CITA con texto que NO aparece en el artículo
+    ❌ Tener valor en CSV pero NO incluir ###CITA correspondiente
+    ❌ Escribir análisis, explicaciones, narrativa o razonamiento
+    ❌ "Probablemente", "parece que", "basándome en"
 
     Recibes el texto completo de una nota. Tu tarea es extraer los datos y devolverlos como UNA o VARIAS líneas CSV según las reglas siguientes.
 
@@ -451,11 +466,38 @@ class AgentController < ApplicationController
       return { url: url, status: "discarded", reason: "claude_descartar", csv_rows: [], content_length: content_length }
     end
 
+    # Extract and validate citations (###CITA lines)
+    citation_lines = claude_response.strip.split("\n").select { |l| l.match?(/^###CITA\s+\d+\s+/) }
+    citations = {}
+    citation_validations = []
+
+    citation_lines.each do |line|
+      if line.match(/^###CITA\s+(\d+)\s+"(.+)"$/)
+        field_num = $1.to_i
+        citation_text = $2
+
+        # Validate citation exists in article content
+        citation_found = content.include?(citation_text)
+        citations[field_num] = {
+          text: citation_text,
+          found: citation_found
+        }
+
+        status = citation_found ? "VÁLIDA" : "NO_ENCONTRADA"
+        citation_validations << {
+          field: field_num,
+          citation: citation_text,
+          status: status
+        }
+      end
+    end
+
     # Parse CSV rows: must start with 1-2 digits (Día), have ≥27 commas, no markdown
     rows = claude_response.strip.split("\n")
                           .map(&:strip)
                           .reject(&:empty?)
                           .reject { |r| r.start_with?("#", "*", "-", " ") }
+                          .reject { |r| r.start_with?("###CITA") }
                           .select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
 
     # Validate INEGI codes in rows using robust method
@@ -485,6 +527,7 @@ class AgentController < ApplicationController
       reason: nil,
       csv_rows: rows_with_validation.map { |r| r[:row] },
       inegi_validations: rows_with_validation,
+      citation_validations: citation_validations,
       debug: debug,
       content_length: content_length,
       claude_response_length: claude_response.length
