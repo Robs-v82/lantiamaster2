@@ -932,7 +932,7 @@ $('.query-field').on('input', function() {
 	$('.freq_filer_form input').change(function() {
 		var lenghtOfUnchecked = $('#state_filter_box').find('input:checkbox:not(:checked)').length
 		var mydata = $(this).serialize()
-		newArr = mydata.split("=")
+		var newArr = mydata.split("=")
 		$('.send_button').removeClass('disabled').addClass('white pulse')
 		$('.send_button i').addClass('text-darken-3')
 		if ($("#county_query_box").is(':checked') && lenghtOfUnchecked == 32) {
