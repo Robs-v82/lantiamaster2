@@ -765,4 +765,116 @@ class AgentController < ApplicationController
       Rails.application.credentials.dig(:anthropic, :api_key) ||
       (File.read(key_file).strip if File.exist?(key_file))
   end
+
+  # ── Monthly captures management ────────────────────────────────────────────
+  def monthly_captures
+    @year = params[:year] || Date.today.year
+    @month = params[:month] || Date.today.month
+
+    @monthly_export = DetentionsMonthlyExport.find_or_create_current_month
+    @captures = DetentionCapture
+      .where(deleted_at: nil)
+      .where(capture_date: Date.new(@year, @month, 1)..Date.new(@year, @month, -1))
+      .where(status: ['captured', 'validated', 'pending_review'])
+      .order(incident_date: :desc)
+
+    @summary = DetentionCapture.monthly_summary(@year, @month)
+  end
+
+  def update_capture
+    @capture = DetentionCapture.find(params[:id])
+
+    if @capture.update(capture_params)
+      render json: { success: true, message: "Captura actualizada exitosamente" }
+    else
+      render json: { success: false, errors: @capture.errors.full_messages }
+    end
+  end
+
+  def delete_capture
+    @capture = DetentionCapture.find(params[:id])
+
+    if @capture.soft_delete
+      render json: { success: true, message: "Captura eliminada exitosamente" }
+    else
+      render json: { success: false, errors: @capture.errors.full_messages }
+    end
+  end
+
+  def save_csv_row_to_db(csv_row, url, estado, municipio, full_code)
+    return nil if csv_row.blank?
+
+    fields = CSV.parse_line(csv_row, col_sep: ",")
+    return nil if fields.blank? || fields.length < 28
+
+    begin
+      capture_date = Date.today
+      incident_date = Date.new(
+        2000 + fields[2].to_i,
+        fields[1].to_i,
+        fields[0].to_i
+      ) rescue capture_date
+
+      capture_hash = DetentionCapture.generate_hash(
+        estado: fields[3],
+        municipio: fields[5],
+        incident_date: incident_date,
+        detenidos: fields[7].to_i,
+        organizacion: fields[8],
+        nombres: [fields[10], fields[11], fields[12]].compact
+      )
+
+      # Check if duplicate already exists
+      existing = DetentionCapture.where(capture_hash: capture_hash).first
+      return { status: 'duplicate', id: existing.id, hash: capture_hash } if existing
+
+      capture = DetentionCapture.create!(
+        source_url: url,
+        capture_date: capture_date,
+        incident_date: incident_date,
+        estado: fields[3],
+        municipio: fields[5],
+        full_code: fields[4],
+        detenidos: fields[7].to_i,
+        organizacion: fields[8],
+        grupo_afiliado: fields[9],
+        nombre: fields[10],
+        apellido_paterno: fields[11],
+        apellido_materno: fields[12],
+        alias: fields[13],
+        genero: fields[14],
+        edad: fields[15].present? ? fields[15].to_i : nil,
+        posicion_liderazgo: fields[16],
+        rol: fields[17],
+        sedena: fields[18] == '1',
+        semar: fields[19] == '1',
+        gn: fields[20] == '1',
+        sscp: fields[21] == '1',
+        fgr: fields[22] == '1',
+        ssp_estatal: fields[23] == '1',
+        fge_pgj: fields[24] == '1',
+        policia_municipal: fields[25] == '1',
+        otro: fields[26] == '1',
+        capture_hash: capture_hash,
+        status: 'captured'
+      )
+
+      { status: 'saved', id: capture.id, hash: capture_hash }
+    rescue StandardError => e
+      Rails.logger.error("[DetentionCapture] Error saving: #{e.message}")
+      { status: 'error', error: e.message }
+    end
+  end
+
+  private
+
+  def capture_params
+    params.require(:detention_capture).permit(
+      :incident_date, :estado, :municipio, :organizacion, :grupo_afiliado,
+      :detenidos, :nombre, :apellido_paterno, :apellido_materno, :alias,
+      :genero, :edad, :posicion_liderazgo, :rol, :validation_notes,
+      :sedena, :semar, :gn, :sscp, :fgr, :ssp_estatal, :fge_pgj,
+      :policia_municipal, :otro
+    )
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_03_15_231658) do
+ActiveRecord::Schema.define(version: 2026_06_08_174523) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -136,12 +136,84 @@ ActiveRecord::Schema.define(version: 2026_03_15_231658) do
     t.index ["state_id"], name: "index_counties_on_state_id"
   end
 
+  create_table "county_aliases", force: :cascade do |t|
+    t.bigint "county_id", null: false
+    t.string "alias_name", null: false
+    t.string "alias_type", default: "common_name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["alias_name"], name: "index_county_aliases_on_alias_name"
+    t.index ["county_id", "alias_name"], name: "index_county_aliases_on_county_id_and_alias_name", unique: true
+    t.index ["county_id"], name: "index_county_aliases_on_county_id"
+  end
+
+  create_table "detention_captures", force: :cascade do |t|
+    t.string "source_url"
+    t.date "capture_date"
+    t.date "incident_date"
+    t.string "estado"
+    t.string "municipio"
+    t.string "full_code"
+    t.string "capture_hash"
+    t.string "status", default: "captured"
+    t.text "validation_notes"
+    t.integer "detenidos"
+    t.string "organizacion"
+    t.string "grupo_afiliado"
+    t.string "nombre"
+    t.string "apellido_paterno"
+    t.string "apellido_materno"
+    t.string "alias"
+    t.string "genero"
+    t.integer "edad"
+    t.string "posicion_liderazgo"
+    t.string "rol"
+    t.boolean "sedena", default: false
+    t.boolean "semar", default: false
+    t.boolean "gn", default: false
+    t.boolean "sscp", default: false
+    t.boolean "fgr", default: false
+    t.boolean "ssp_estatal", default: false
+    t.boolean "fge_pgj", default: false
+    t.boolean "policia_municipal", default: false
+    t.boolean "otro", default: false
+    t.datetime "deleted_at"
+    t.bigint "monthly_export_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["capture_date"], name: "index_detention_captures_on_capture_date"
+    t.index ["capture_hash"], name: "index_detention_captures_on_capture_hash"
+    t.index ["estado", "municipio", "incident_date"], name: "idx_dc_estado_municipio_date"
+    t.index ["incident_date"], name: "index_detention_captures_on_incident_date"
+    t.index ["monthly_export_id"], name: "index_detention_captures_on_monthly_export_id"
+    t.index ["status"], name: "index_detention_captures_on_status"
+  end
+
   create_table "detentions", force: :cascade do |t|
     t.integer "event_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "legacy_id"
     t.index ["event_id"], name: "index_detentions_on_event_id"
+  end
+
+  create_table "detentions_monthly_exports", force: :cascade do |t|
+    t.integer "year", null: false
+    t.integer "month", null: false
+    t.date "capture_start_date"
+    t.date "capture_end_date"
+    t.integer "total_captures", default: 0
+    t.integer "duplicates_removed", default: 0
+    t.integer "final_unique_incidents", default: 0
+    t.datetime "validation_completed_at"
+    t.string "csv_file_path"
+    t.string "status", default: "pending_validation"
+    t.datetime "uploaded_to_final_system_at"
+    t.text "validation_notes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["status"], name: "index_detentions_monthly_exports_on_status"
+    t.index ["year", "month"], name: "index_detentions_monthly_exports_on_year_and_month", unique: true
   end
 
   create_table "detentions_organizations", force: :cascade do |t|
@@ -842,6 +914,7 @@ ActiveRecord::Schema.define(version: 2026_03_15_231658) do
   add_foreign_key "cookies", "years"
   add_foreign_key "counties", "cities"
   add_foreign_key "counties", "states"
+  add_foreign_key "county_aliases", "counties"
   add_foreign_key "detentions", "events"
   add_foreign_key "divisions", "sectors"
   add_foreign_key "events", "months"

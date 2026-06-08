@@ -1,0 +1,408 @@
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h2>Capturas Mensuales - <%= Date.new(@year, @month).strftime('%B %Y') %></h2>
+    </div>
+    <div class="col-md-6 text-right">
+      <a href="<%= agent_detentions_path %>" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver al Agente
+      </a>
+    </div>
+  </div>
+
+  <!-- Summary Statistics -->
+  <div class="row mb-4">
+    <div class="col-md-2">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h6 class="card-title">Total Capturas</h6>
+          <h3 class="text-primary"><%= @summary[:total_captures] %></h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h6 class="card-title">Validadas</h6>
+          <h3 class="text-success"><%= @summary[:validated] %></h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h6 class="card-title">En Revisión</h6>
+          <h3 class="text-warning"><%= @summary[:pending_review] %></h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h6 class="card-title">Duplicados</h6>
+          <h3 class="text-info"><%= @summary[:duplicates] %></h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h6 class="card-title">Rechazados</h6>
+          <h3 class="text-danger"><%= @summary[:rejected] %></h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#exportModal">
+        <i class="fas fa-download"></i> Exportar CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Captures Table -->
+  <div class="card">
+    <div class="card-header">
+      <h5>Listado de Capturas</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover" id="capturesTable">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Municipio</th>
+            <th>Código</th>
+            <th>Organización</th>
+            <th>Detenidos</th>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @captures.each do |capture| %>
+            <tr data-capture-id="<%= capture.id %>">
+              <td><%= capture.id %></td>
+              <td><%= capture.incident_date.strftime('%d/%m/%Y') %></td>
+              <td><%= capture.estado %></td>
+              <td><%= capture.municipio %></td>
+              <td><code><%= capture.full_code %></code></td>
+              <td><%= capture.organizacion %></td>
+              <td><%= capture.detenidos %></td>
+              <td><%= capture.nombre %></td>
+              <td>
+                <span class="badge badge-<%= capture.status == 'validated' ? 'success' : (capture.status == 'captured' ? 'info' : 'warning') %>">
+                  <%= capture.status %>
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-info edit-btn" data-id="<%= capture.id %>" title="Editar">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger delete-btn" data-id="<%= capture.id %>" title="Eliminar">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <% if @captures.empty? %>
+        <div class="alert alert-info">
+          No hay capturas registradas para este mes.
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Captura</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <input type="hidden" id="captureId" name="id">
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Fecha del Incidente</label>
+              <input type="date" class="form-control" id="incident_date" name="detention_capture[incident_date]">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Estado</label>
+              <input type="text" class="form-control" id="estado" name="detention_capture[estado]" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Municipio</label>
+              <input type="text" class="form-control" id="municipio" name="detention_capture[municipio]" readonly>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Organización</label>
+              <input type="text" class="form-control" id="organizacion" name="detention_capture[organizacion]">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Grupo Afiliado</label>
+              <input type="text" class="form-control" id="grupo_afiliado" name="detention_capture[grupo_afiliado]">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Número de Detenidos</label>
+              <input type="number" class="form-control" id="detenidos" name="detention_capture[detenidos]">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Nombre</label>
+              <input type="text" class="form-control" id="nombre" name="detention_capture[nombre]">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Apellido Paterno</label>
+              <input type="text" class="form-control" id="apellido_paterno" name="detention_capture[apellido_paterno]">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Apellido Materno</label>
+              <input type="text" class="form-control" id="apellido_materno" name="detention_capture[apellido_materno]">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Alias</label>
+              <input type="text" class="form-control" id="alias" name="detention_capture[alias]">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Género</label>
+              <select class="form-control" id="genero" name="detention_capture[genero]">
+                <option value="">Seleccionar</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+                <option value="X">Otro</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Edad</label>
+              <input type="number" class="form-control" id="edad" name="detention_capture[edad]">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Posición de Liderazgo</label>
+              <input type="text" class="form-control" id="posicion_liderazgo" name="detention_capture[posicion_liderazgo]">
+            </div>
+            <div class="form-group col-md-6">
+              <label>Rol</label>
+              <input type="text" class="form-control" id="rol" name="detention_capture[rol]">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Notas de Validación</label>
+            <textarea class="form-control" id="validation_notes" name="detention_capture[validation_notes]" rows="3"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="sedena" name="detention_capture[sedena]">
+                <label class="custom-control-label" for="sedena">SEDENA</label>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="semar" name="detention_capture[semar]">
+                <label class="custom-control-label" for="semar">SEMAR</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="gn" name="detention_capture[gn]">
+                <label class="custom-control-label" for="gn">Guardia Nacional</label>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="fgr" name="detention_capture[fgr]">
+                <label class="custom-control-label" for="fgr">FGR</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="saveBtn">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Confirmar Eliminación</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>¿Está seguro de que desea eliminar esta captura?</p>
+        <div id="deleteInfo"></div>
+        <p class="text-muted mt-3">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sí, Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Exportar Capturas</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Se exportarán todas las capturas validadas del mes actual en formato CSV.</p>
+        <p>El archivo será compatible con el sistema de carga de "Datasets".</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="confirmExportBtn">Exportar Ahora</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .table-hover tbody tr:hover {
+    background-color: #f5f5f5;
+  }
+  .badge {
+    padding: 0.5rem 0.75rem;
+  }
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+  }
+  .card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+</style>
+
+<script>
+  $(document).ready(function() {
+    // Edit button handler
+    $('.edit-btn').on('click', function() {
+      const captureId = $(this).data('id');
+      const row = $(`tr[data-capture-id="${captureId}"]`);
+
+      // Populate form with row data
+      const cells = row.find('td');
+      $('#captureId').val(captureId);
+      $('#incident_date').val(cells.eq(1).text().split('/').reverse().join('-')); // Convert DD/MM/YYYY to YYYY-MM-DD
+      $('#estado').val(cells.eq(2).text());
+      $('#municipio').val(cells.eq(3).text());
+      $('#organizacion').val(cells.eq(5).text());
+      $('#detenidos').val(cells.eq(6).text());
+      $('#nombre').val(cells.eq(7).text());
+
+      $('#editModal').modal('show');
+    });
+
+    // Delete button handler
+    $('.delete-btn').on('click', function() {
+      const captureId = $(this).data('id');
+      const row = $(`tr[data-capture-id="${captureId}"]`);
+      const cells = row.find('td');
+
+      const deleteInfo = `
+        <div class="alert alert-info">
+          <strong>Información a eliminar:</strong><br>
+          Estado: ${cells.eq(2).text()}<br>
+          Municipio: ${cells.eq(3).text()}<br>
+          Organización: ${cells.eq(5).text()}<br>
+          Nombre: ${cells.eq(7).text()}
+        </div>
+      `;
+
+      $('#deleteInfo').html(deleteInfo);
+      $('#confirmDeleteBtn').data('capture-id', captureId);
+      $('#deleteModal').modal('show');
+    });
+
+    // Save changes
+    $('#saveBtn').on('click', function() {
+      const captureId = $('#captureId').val();
+      const formData = new FormData($('#editForm')[0]);
+
+      $.ajax({
+        url: `/agent/detention_captures/${captureId}`,
+        type: 'PATCH',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          if (response.success) {
+            alert('Captura actualizada exitosamente');
+            location.reload();
+          } else {
+            alert('Error: ' + response.errors.join(', '));
+          }
+        },
+        error: function(xhr) {
+          alert('Error al actualizar la captura');
+        }
+      });
+    });
+
+    // Confirm delete
+    $('#confirmDeleteBtn').on('click', function() {
+      const captureId = $(this).data('capture-id');
+
+      $.ajax({
+        url: `/agent/detention_captures/${captureId}`,
+        type: 'DELETE',
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            alert('Captura eliminada exitosamente');
+            location.reload();
+          } else {
+            alert('Error: ' + response.errors.join(', '));
+          }
+        },
+        error: function(xhr) {
+          alert('Error al eliminar la captura');
+        }
+      });
+    });
+
+    // Export button
+    $('#confirmExportBtn').on('click', function() {
+      // This would trigger the CSV generation
+      alert('Exportación no disponible aún');
+    });
+  });
+</script>

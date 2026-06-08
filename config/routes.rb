@@ -185,6 +185,9 @@ Rails.application.routes.draw do
     post "agent/detentions/deduplicate",      to: "agent#deduplicate",      as: :deduplicate_agent_detentions
     post "agent/detentions/extract_batch",    to: "agent#extract_batch",    as: :extract_batch_agent_detentions
     post "agent/detentions/extract_url",      to: "agent#extract_url",      as: :extract_url_agent_detentions
+    get  "agent/monthly_captures",            to: "agent#monthly_captures", as: :agent_monthly_captures
+    patch "agent/detention_captures/:id",     to: "agent#update_capture",   as: :update_agent_detention
+    delete "agent/detention_captures/:id",    to: "agent#delete_capture",   as: :delete_agent_detention
 
     get  "organizations/admin", to: "organizations#admin"
     post "organizations/:id/set_search_level", to: "organizations#set_search_level", as: :set_org_search_level
