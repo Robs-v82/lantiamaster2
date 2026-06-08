@@ -773,11 +773,15 @@ class AgentController < ApplicationController
     @year = (params[:year] || Date.today.year).to_i
     @month = (params[:month] || Date.today.month).to_i
 
+    Rails.logger.info("[Agent#monthly_captures] Iniciando con year=#{@year}, month=#{@month}")
+
     @monthly_export = DetentionsMonthlyExport.find_or_create_current_month
+    Rails.logger.info("[Agent#monthly_captures] @monthly_export creado: #{@monthly_export.inspect}")
 
     begin
       month_start = Date.new(@year, @month, 1)
       month_end = month_start.end_of_month
+      Rails.logger.info("[Agent#monthly_captures] month_start=#{month_start}, month_end=#{month_end}")
 
       @captures = DetentionCapture
         .where(deleted_at: nil)
@@ -785,12 +789,17 @@ class AgentController < ApplicationController
         .where(status: ['captured', 'validated', 'pending_review'])
         .order(incident_date: :desc)
 
+      Rails.logger.info("[Agent#monthly_captures] @captures count: #{@captures.count}")
+
       @summary = DetentionCapture.monthly_summary(@year, @month)
+      Rails.logger.info("[Agent#monthly_captures] @summary asignado: #{@summary.inspect}")
     rescue => e
-      Rails.logger.error("[Agent#monthly_captures] Error: #{e.class}: #{e.message}")
+      Rails.logger.error("[Agent#monthly_captures] Error: #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}")
       @captures = []
       @summary = { total_captures: 0, validated: 0, pending_review: 0, duplicates: 0, rejected: 0 }
     end
+
+    Rails.logger.info("[Agent#monthly_captures] FIN - @summary final: #{@summary.inspect}")
   end
 
   def update_capture
