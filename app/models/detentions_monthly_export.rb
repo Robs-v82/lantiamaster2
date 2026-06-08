@@ -2,7 +2,7 @@ class DetentionsMonthlyExport < ApplicationRecord
   has_many :detention_captures, dependent: :nullify
 
   validates :year, :month, presence: true
-  validates :year, :month, uniqueness: { scope: [:year, :month], message: 'Export already exists for this month' }
+  validates :year, uniqueness: { scope: :month, message: 'Export already exists for this month' }
 
   scope :recent, -> { order(year: :desc, month: :desc) }
   scope :pending, -> { where(status: 'pending_validation') }
