@@ -770,8 +770,8 @@ class AgentController < ApplicationController
 
   # ── Monthly captures management ────────────────────────────────────────────
   def monthly_captures
-    @year = params[:year] || Date.today.year
-    @month = params[:month] || Date.today.month
+    @year = (params[:year] || Date.today.year).to_i
+    @month = (params[:month] || Date.today.month).to_i
 
     @monthly_export = DetentionsMonthlyExport.find_or_create_current_month
     month_start = Date.new(@year, @month, 1)
