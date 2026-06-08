@@ -770,6 +770,8 @@ class AgentController < ApplicationController
 
   # ── Monthly captures management ────────────────────────────────────────────
   def monthly_captures
+    raise "TEST_ERROR_DIAGNOSTICO_MONTHLY_CAPTURES"
+
     @year = (params[:year] || Date.today.year).to_i
     @month = (params[:month] || Date.today.month).to_i
 
