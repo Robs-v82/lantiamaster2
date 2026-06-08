@@ -1,3 +1,5 @@
+require 'csv'
+
 class AgentController < ApplicationController
   before_action :authenticate_terrorist_access
 
@@ -772,9 +774,12 @@ class AgentController < ApplicationController
     @month = params[:month] || Date.today.month
 
     @monthly_export = DetentionsMonthlyExport.find_or_create_current_month
+    month_start = Date.new(@year, @month, 1)
+    month_end = month_start.end_of_month
+
     @captures = DetentionCapture
       .where(deleted_at: nil)
-      .where(capture_date: Date.new(@year, @month, 1)..Date.new(@year, @month, -1))
+      .where(capture_date: month_start..month_end)
       .where(status: ['captured', 'validated', 'pending_review'])
       .order(incident_date: :desc)
 

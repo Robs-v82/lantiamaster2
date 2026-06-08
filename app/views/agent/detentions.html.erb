@@ -150,10 +150,16 @@
   <%# ── Etapa 1: Búsqueda ───────────────────────────────────────────────── %>
   <div class="agent-header">
     <h5>Agente de captura — Detenciones</h5>
-    <button id="search-btn" class="agent-btn" data-search-url="<%= search_agent_detentions_path %>">
-      <i class="material-icons" style="font-size:18px;">search</i>
-      Buscar noticias del día
-    </button>
+    <div style="display:flex; gap:8px;">
+      <a href="<%= agent_monthly_captures_path %>" class="agent-btn" style="background-color:#6366f1; text-decoration:none;">
+        <i class="material-icons" style="font-size:18px;">table_chart</i>
+        Tabla provisional
+      </a>
+      <button id="search-btn" class="agent-btn" data-search-url="<%= search_agent_detentions_path %>">
+        <i class="material-icons" style="font-size:18px;">search</i>
+        Buscar noticias del día
+      </button>
+    </div>
   </div>
 
   <div id="status-msg"></div>
@@ -205,6 +211,10 @@
         <i class="material-icons" style="font-size:18px;">description</i>
         Descargar log
       </button>
+      <a href="<%= agent_monthly_captures_path %>" class="agent-btn" style="background-color:#6366f1; text-decoration:none;">
+        <i class="material-icons" style="font-size:18px;">table_chart</i>
+        Ver tabla provisional
+      </a>
     </div>
   </div>
 
