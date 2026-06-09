@@ -765,6 +765,23 @@ class AgentController < ApplicationController
     []
   end
 
+  def get_organizations
+    orgs = criminal_organizations
+    render json: { organizations: orgs }
+  end
+
+  def get_states
+    states = State.pluck(:name).sort
+    render json: { states: states }
+  end
+
+  def get_counties
+    state_name = params[:state]
+    state = State.find_by(name: state_name)
+    counties = state ? state.counties.pluck(:name).sort : []
+    render json: { counties: counties }
+  end
+
   def serper_api_key
     key_file = Rails.root.join("..", "..", "shared", "config", "serper_api_key").expand_path
     ENV["SERPER_API_KEY"].presence ||

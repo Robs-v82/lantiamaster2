@@ -17,6 +17,53 @@ $(document).ready(function() {
     }
   });
 
+  // Load form data (states, organizations)
+  function loadFormData() {
+    $.ajax({
+      url: '/agent/get_states',
+      type: 'GET',
+      success: function(data) {
+        const stateSelect = $('#estado');
+        stateSelect.find('option:not(:first)').remove();
+        data.states.forEach(state => {
+          stateSelect.append(`<option value="${state}">${state}</option>`);
+        });
+      }
+    });
+
+    $.ajax({
+      url: '/agent/get_organizations',
+      type: 'GET',
+      success: function(data) {
+        const orgSelect = $('#organizacion');
+        orgSelect.find('option:not(:first)').remove();
+        data.organizations.forEach(org => {
+          orgSelect.append(`<option value="${org}">${org}</option>`);
+        });
+      }
+    });
+  }
+
+  // Update municipalities when state changes
+  $(document).on('change', '#estado', function() {
+    const state = $(this).val();
+    const municipioSelect = $('#municipio');
+    municipioSelect.find('option:not(:first)').remove();
+
+    if (state) {
+      $.ajax({
+        url: '/agent/get_counties',
+        type: 'GET',
+        data: { state: state },
+        success: function(data) {
+          data.counties.forEach(county => {
+            municipioSelect.append(`<option value="${county}">${county}</option>`);
+          });
+        }
+      });
+    }
+  });
+
   // Edit button handler
   $(document).on('click', '.edit-btn', function() {
     console.log('Edit button clicked');
@@ -28,11 +75,37 @@ $(document).ready(function() {
     const cells = row.find('td');
     $('#captureId').val(captureId);
     $('#incident_date').val(cells.eq(1).text().split('/').reverse().join('-'));
-    $('#estado').val(cells.eq(2).text());
-    $('#municipio').val(cells.eq(3).text());
-    $('#organizacion').val(cells.eq(5).text());
     $('#detenidos').val(cells.eq(6).text());
     $('#nombre').val(cells.eq(7).text());
+
+    // Load form data first
+    loadFormData();
+
+    // Set estado and wait for it to populate, then set municipio
+    const selectedEstado = cells.eq(2).text();
+    const selectedMunicipio = cells.eq(3).text();
+    const selectedOrganizacion = cells.eq(5).text();
+
+    // Set estado
+    $('#estado').val(selectedEstado);
+
+    // Load municipalities for this state, then set value
+    $.ajax({
+      url: '/agent/get_counties',
+      type: 'GET',
+      data: { state: selectedEstado },
+      success: function(data) {
+        const municipioSelect = $('#municipio');
+        municipioSelect.find('option:not(:first)').remove();
+        data.counties.forEach(county => {
+          municipioSelect.append(`<option value="${county}">${county}</option>`);
+        });
+        municipioSelect.val(selectedMunicipio);
+      }
+    });
+
+    // Set organizacion
+    $('#organizacion').val(selectedOrganizacion);
 
     const editModalInstance = M.Modal.getInstance(document.getElementById('editModal'));
     editModalInstance.open();
