@@ -4,6 +4,9 @@ $(document).ready(function() {
   console.log('Found edit buttons:', $('.edit-btn').length);
   console.log('Found delete buttons:', $('.delete-btn').length);
 
+  // Initialize Materialize modals
+  $('.modal').modal();
+
   // Link button handler
   $(document).on('click', '.link-btn', function() {
     console.log('Link button clicked');
@@ -24,14 +27,15 @@ $(document).ready(function() {
     // Populate form with row data
     const cells = row.find('td');
     $('#captureId').val(captureId);
-    $('#incident_date').val(cells.eq(1).text().split('/').reverse().join('-')); // Convert DD/MM/YYYY to YYYY-MM-DD
+    $('#incident_date').val(cells.eq(1).text().split('/').reverse().join('-'));
     $('#estado').val(cells.eq(2).text());
     $('#municipio').val(cells.eq(3).text());
     $('#organizacion').val(cells.eq(5).text());
     $('#detenidos').val(cells.eq(6).text());
     $('#nombre').val(cells.eq(7).text());
 
-    $('#editModal').modal('show');
+    const editModalInstance = M.Modal.getInstance(document.getElementById('editModal'));
+    editModalInstance.open();
   });
 
   // Delete button handler
@@ -53,7 +57,9 @@ $(document).ready(function() {
 
     $('#deleteInfo').html(deleteInfo);
     $('#confirmDeleteBtn').data('capture-id', captureId);
-    $('#deleteModal').modal('show');
+
+    const deleteModalInstance = M.Modal.getInstance(document.getElementById('deleteModal'));
+    deleteModalInstance.open();
   });
 
   // Save changes
@@ -70,6 +76,8 @@ $(document).ready(function() {
       contentType: false,
       success: function(response) {
         if (response.success) {
+          const editModalInstance = M.Modal.getInstance(document.getElementById('editModal'));
+          editModalInstance.close();
           alert('Captura actualizada exitosamente');
           location.reload();
         } else {
@@ -93,6 +101,8 @@ $(document).ready(function() {
       dataType: 'json',
       success: function(response) {
         if (response.success) {
+          const deleteModalInstance = M.Modal.getInstance(document.getElementById('deleteModal'));
+          deleteModalInstance.close();
           alert('Captura eliminada exitosamente');
           location.reload();
         } else {
@@ -108,7 +118,6 @@ $(document).ready(function() {
   // Export button
   $(document).on('click', '#confirmExportBtn', function() {
     console.log('Export button clicked');
-    // This would trigger the CSV generation
     alert('Exportación no disponible aún');
   });
 });
