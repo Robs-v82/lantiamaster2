@@ -1,15 +1,24 @@
 $(document).ready(function() {
+  console.log('monthly_captures.js loaded');
+  console.log('Found link buttons:', $('.link-btn').length);
+  console.log('Found edit buttons:', $('.edit-btn').length);
+  console.log('Found delete buttons:', $('.delete-btn').length);
+
   // Link button handler
-  $('.link-btn').on('click', function() {
+  $(document).on('click', '.link-btn', function() {
+    console.log('Link button clicked');
     const url = $(this).data('url');
+    console.log('URL:', url);
     if (url) {
       window.open(url, '_blank');
     }
   });
 
   // Edit button handler
-  $('.edit-btn').on('click', function() {
+  $(document).on('click', '.edit-btn', function() {
+    console.log('Edit button clicked');
     const captureId = $(this).data('id');
+    console.log('Capture ID:', captureId);
     const row = $(`tr[data-capture-id="${captureId}"]`);
 
     // Populate form with row data
@@ -26,7 +35,8 @@ $(document).ready(function() {
   });
 
   // Delete button handler
-  $('.delete-btn').on('click', function() {
+  $(document).on('click', '.delete-btn', function() {
+    console.log('Delete button clicked');
     const captureId = $(this).data('id');
     const row = $(`tr[data-capture-id="${captureId}"]`);
     const cells = row.find('td');
@@ -47,7 +57,8 @@ $(document).ready(function() {
   });
 
   // Save changes
-  $('#saveBtn').on('click', function() {
+  $(document).on('click', '#saveBtn', function() {
+    console.log('Save button clicked');
     const captureId = $('#captureId').val();
     const formData = new FormData($('#editForm')[0]);
 
@@ -72,7 +83,8 @@ $(document).ready(function() {
   });
 
   // Confirm delete
-  $('#confirmDeleteBtn').on('click', function() {
+  $(document).on('click', '#confirmDeleteBtn', function() {
+    console.log('Confirm delete button clicked');
     const captureId = $(this).data('capture-id');
 
     $.ajax({
@@ -94,7 +106,8 @@ $(document).ready(function() {
   });
 
   // Export button
-  $('#confirmExportBtn').on('click', function() {
+  $(document).on('click', '#confirmExportBtn', function() {
+    console.log('Export button clicked');
     // This would trigger the CSV generation
     alert('Exportación no disponible aún');
   });
