@@ -425,11 +425,6 @@ class AgentController < ApplicationController
     render json: { results: results }
   end
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # PRIVATE
-  # ═══════════════════════════════════════════════════════════════════════════
-  private
-
   def process_single_article(article, organizations, claude_key)
     url     = article["url"].to_s
     title   = article["title"].to_s
@@ -812,6 +807,11 @@ class AgentController < ApplicationController
       render json: { success: false, errors: @capture.errors.full_messages }
     end
   end
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PRIVATE
+  # ═══════════════════════════════════════════════════════════════════════════
+  private
 
   def save_csv_row_to_db(csv_row, url, estado, municipio, full_code)
     return nil if csv_row.blank?
