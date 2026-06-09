@@ -421,7 +421,23 @@ class AgentController < ApplicationController
     claude_key = anthropic_api_key
     return render json: { error: "ANTHROPIC_API_KEY no configurada." }, status: :service_unavailable if claude_key.blank?
 
-    results = articles.map { |article| process_single_article(article, organizations, claude_key) }
+    results = articles.map do |article|
+      result = process_single_article(article, organizations, claude_key)
+
+      # Guardar CSV rows en detention_captures
+      if result[:status] == "ok" && result[:csv_rows].present?
+        url = article["url"].to_s
+        estado = result[:full_code_lookups]&.first&.dig(:estado)
+        municipio = result[:full_code_lookups]&.first&.dig(:municipio)
+
+        result[:save_results] = result[:csv_rows].map do |csv_row|
+          save_csv_row_to_db(csv_row, url, estado, municipio, nil)
+        end
+      end
+
+      result
+    end
+
     render json: { results: results }
   end
 
