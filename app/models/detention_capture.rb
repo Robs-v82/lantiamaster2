@@ -25,14 +25,47 @@ class DetentionCapture < ApplicationRecord
     Digest::SHA1.hexdigest(content)
   end
 
+  def self.normalize_name(name)
+    return nil if name.blank?
+    name.downcase
+      .gsub(/[àáäâ]/, 'a')
+      .gsub(/[èéëê]/, 'e')
+      .gsub(/[ìíïî]/, 'i')
+      .gsub(/[òóöô]/, 'o')
+      .gsub(/[ùúüû]/, 'u')
+      .gsub(/[ñ]/, 'n')
+      .gsub(/\s+/, ' ')
+      .strip
+  end
+
   def self.find_duplicates(capture)
-    where.not(id: capture.id)
-      .where(estado: capture.estado)
-      .where(municipio: capture.municipio)
-      .where('incident_date BETWEEN ? AND ?',
-             capture.incident_date - 1.day,
-             capture.incident_date + 1.day)
-      .where(detenidos: (capture.detenidos - 2)..(capture.detenidos + 2))
+    week_start = capture.incident_date - 6.days
+    week_end = capture.incident_date + 6.days
+
+    norm_nombre = normalize_name(capture.nombre)
+    norm_apellido = normalize_name(capture.apellido_paterno)
+    norm_alias = normalize_name(capture.alias)
+
+    duplicates = where.not(id: capture.id).where(estado: capture.estado)
+
+    potential_dups = duplicates.where(
+      'incident_date BETWEEN ? AND ?', week_start, week_end
+    ).map do |other|
+      {
+        record: other,
+        norm_nombre: normalize_name(other.nombre),
+        norm_apellido: normalize_name(other.apellido_paterno),
+        norm_alias: normalize_name(other.alias)
+      }
+    end
+
+    potential_dups.select do |dup|
+      dup_record = dup[:record]
+
+      (norm_nombre.present? && dup[:norm_nombre] == norm_nombre && norm_apellido.present? && dup[:norm_apellido] == norm_apellido) ||
+        (norm_nombre.present? && dup[:norm_nombre] == norm_nombre && norm_apellido.blank? && dup[:norm_apellido].blank?) ||
+        (norm_alias.present? && dup[:norm_alias] == norm_alias)
+    end.map { |dup| dup[:record] }
   end
 
   def self.monthly_summary(year, month)

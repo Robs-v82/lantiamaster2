@@ -857,7 +857,22 @@ class AgentController < ApplicationController
         nombres: [fields[10], fields[11], fields[12]].compact
       )
 
-      # Check if duplicate already exists
+      # Create temporary record to check for duplicates using smart matching
+      temp_capture = DetentionCapture.new(
+        nombre: fields[10],
+        apellido_paterno: fields[11],
+        alias: fields[13],
+        estado: fields[3],
+        incident_date: incident_date
+      )
+
+      # Check for smart duplicates (nombre + apellido + estado + semana OR alias)
+      duplicates = DetentionCapture.find_duplicates(temp_capture)
+      if duplicates.any?
+        return { status: 'duplicate', id: duplicates.first.id, reason: 'smart_match' }
+      end
+
+      # Also check for exact hash duplicates (fallback)
       existing = DetentionCapture.where(capture_hash: capture_hash).first
       return { status: 'duplicate', id: existing.id, hash: capture_hash } if existing
 
