@@ -835,6 +835,11 @@ class AgentController < ApplicationController
     fields = CSV.parse_line(csv_row, col_sep: ",")
     return nil if fields.blank? || fields.length < 28
 
+    detenidos_value = fields[7].to_i
+    if detenidos_value == 0
+      return { status: 'rejected', reason: 'detenidos_is_zero', message: 'Registro rechazado: número de detenidos no puede ser 0' }
+    end
+
     begin
       capture_date = Date.today
       incident_date = Date.new(
@@ -847,7 +852,7 @@ class AgentController < ApplicationController
         estado: fields[3],
         municipio: fields[5],
         incident_date: incident_date,
-        detenidos: fields[7].to_i,
+        detenidos: detenidos_value,
         organizacion: fields[8],
         nombres: [fields[10], fields[11], fields[12]].compact
       )
@@ -863,7 +868,7 @@ class AgentController < ApplicationController
         estado: fields[3],
         municipio: fields[5],
         full_code: fields[4],
-        detenidos: fields[7].to_i,
+        detenidos: detenidos_value,
         organizacion: fields[8],
         grupo_afiliado: fields[9],
         nombre: fields[10],
