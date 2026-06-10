@@ -14,9 +14,24 @@ class ReportSummarizerService
       pdf_content = @pdf_blob.download
       pdf_base64 = Base64.strict_encode64(pdf_content)
 
-      client = Anthropic::Client.new(api_key: anthropic_api_key)
+      api_key = anthropic_api_key
+      if api_key.blank?
+        @error = "ANTHROPIC_API_KEY no configurada."
+        Rails.logger.error("[ReportSummarizerService] #{@error}")
+        return self
+      end
 
-      response = client.messages(
+      uri = URI("https://api.anthropic.com/v1/messages")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.read_timeout = 30
+      http.open_timeout = 10
+
+      req = Net::HTTP::Post.new(uri)
+      req["x-api-key"] = api_key
+      req["anthropic-version"] = "2023-06-01"
+      req["content-type"] = "application/json"
+      req.body = {
         model: "claude-opus-4-5",
         max_tokens: 1024,
         system: system_prompt,
@@ -39,9 +54,11 @@ class ReportSummarizerService
             ]
           }
         ]
-      )
+      }.to_json
 
-      @summary = extract_summary(response)
+      res = http.request(req)
+      body = JSON.parse(res.body)
+      @summary = extract_summary(body)
       self
     rescue => e
       @error = "Error al generar resumen: #{e.class} - #{e.message}"

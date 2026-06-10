@@ -49,9 +49,6 @@ gem 'wicked_pdf'
 
 gem "chartkick"
 
-# Claude API
-gem "anthropic", "~> 0.3"
-
 # gem 'daru-view', git: 'https://github.com/SciRuby/daru-view'
 
 gem 'capistrano', '~> 3.11'
