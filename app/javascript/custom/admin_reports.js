@@ -15,7 +15,7 @@ $(function() {
   let currentRecipientsCount = 0;
   let testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
 
-  // Inicializar etiqueta e instrucción del toggle según estado inicial
+  // Inicializar etiqueta, instrucción y banner según estado inicial
   const isInitiallyTest = $('#test-mode-toggle').val() === 'true';
   const initialLabelText = isInitiallyTest
     ? 'Enviar solo a @lantiaintelligence.com (Modo Prueba)'
@@ -25,6 +25,15 @@ $(function() {
     : 'Estás en modo producción - se enviará a todos los usuarios activos';
   $('#test-mode-label').text(initialLabelText);
   $('#test-mode-instruction').text(initialInstructionText);
+
+  // Inicializar banner
+  if (isInitiallyTest) {
+    $('#mode-banner').html('<strong style="color: #856404;">⚠️ VERSIÓN DE PRUEBA</strong><p style="margin: 10px 0 0 0; font-size: 13px; color: #856404;">Los correos se enviarán solo a usuarios del dominio @lantiaintelligence.com</p>');
+    $('#mode-banner').css('background-color', '#fff3cd').css('border-left-color', '#ffc107');
+  } else {
+    $('#mode-banner').html('<strong style="color: #2e7d32;">✓ MODO PRODUCCIÓN ACTIVO</strong><p style="margin: 10px 0 0 0; font-size: 13px; color: #2e7d32;">Los correos se enviarán a todos los usuarios activos suscritos</p>');
+    $('#mode-banner').css('background-color', '#e8f5e9').css('border-left-color', '#4caf50');
+  }
 
   // Función para actualizar la leyenda de destinatarios
   function updateRecipientCountDisplay() {
@@ -154,15 +163,19 @@ $(function() {
       success: function(data) {
         const count = data.recipients_count;
 
-        // Actualizar la etiqueta e instrucción del toggle
+        // Actualizar la etiqueta, instrucción y banner del toggle
         let labelText = '';
         let instructionText = '';
         if (newState === 'true') {
           labelText = 'Enviar solo a @lantiaintelligence.com (Modo Prueba)';
           instructionText = 'Activa para enviar a prueba. Desactiva para enviar a todos';
+          $('#mode-banner').html('<strong style="color: #856404;">⚠️ VERSIÓN DE PRUEBA</strong><p style="margin: 10px 0 0 0; font-size: 13px; color: #856404;">Los correos se enviarán solo a usuarios del dominio @lantiaintelligence.com</p>');
+          $('#mode-banner').css('background-color', '#fff3cd').css('border-left-color', '#ffc107');
         } else {
           labelText = 'Enviar a todos los usuarios activos (Modo Producción)';
           instructionText = 'Estás en modo producción - se enviará a todos los usuarios activos';
+          $('#mode-banner').html('<strong style="color: #2e7d32;">✓ MODO PRODUCCIÓN ACTIVO</strong><p style="margin: 10px 0 0 0; font-size: 13px; color: #2e7d32;">Los correos se enviarán a todos los usuarios activos suscritos</p>');
+          $('#mode-banner').css('background-color', '#e8f5e9').css('border-left-color', '#4caf50');
         }
         $('#test-mode-label').text(labelText);
         $('#test-mode-instruction').text(instructionText);
