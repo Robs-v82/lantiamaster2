@@ -24,15 +24,12 @@ class AdminReportsController < ApplicationController
     # Crear un Briefing temporal SOLO para obtener parámetros (no guardado en BD)
     briefing_draft = create_briefing_from_params(report_type)
 
-    # Convertir UploadedFile a ActiveStorage::Blob
-    pdf_blob = ActiveStorage::Blob.create_and_upload!(
-      io: pdf_file.open,
-      filename: pdf_file.original_filename,
-      content_type: pdf_file.content_type
-    )
+    # Leer el contenido del PDF directamente
+    pdf_content = pdf_file.read
+    pdf_file.rewind
 
-    # Generar resumen del PDF usando el blob
-    result = ReportSummarizerService.new(pdf_blob).call
+    # Generar resumen del PDF usando el contenido
+    result = ReportSummarizerService.new(pdf_content).call
     if result.ok?
       # Guardar el PDF temporalmente en ActiveStorage para obtener su clave
       temp_briefing = Briefing.new(

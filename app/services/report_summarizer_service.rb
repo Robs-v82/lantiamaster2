@@ -1,18 +1,17 @@
 class ReportSummarizerService
   attr_reader :summary, :error
 
-  def initialize(pdf_blob)
-    @pdf_blob = pdf_blob
+  def initialize(pdf_content)
+    @pdf_content = pdf_content
     @summary = nil
     @error = nil
   end
 
   def call
-    return self if @pdf_blob.blank?
+    return self if @pdf_content.blank?
 
     begin
-      pdf_content = @pdf_blob.download
-      pdf_base64 = Base64.strict_encode64(pdf_content)
+      pdf_base64 = Base64.strict_encode64(@pdf_content)
 
       api_key = anthropic_api_key
       if api_key.blank?
