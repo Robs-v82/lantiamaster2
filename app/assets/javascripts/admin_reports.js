@@ -1,5 +1,7 @@
-document.addEventListener('DOMContentLoaded', function() {
-  M.AutoInit(); // Inicializar componentes Materialize
+$(function() {
+  // Inicializar componentes Materialize con jQuery
+  $('.modal').modal();
+  $('select').formSelect();
 
   const reportTypeSelect = document.getElementById('report-type');
   const semanalFields = document.getElementById('semanal-fields');
@@ -12,23 +14,24 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentBriefingId = null;
 
   // Mostrar/ocultar campos según tipo
-  reportTypeSelect.addEventListener('change', function() {
-    if (this.value === 'briefing_semanal') {
+  $(document).on('change', '#report-type', function() {
+    const value = this.value;
+    if (value === 'briefing_semanal') {
       semanalFields.style.display = 'block';
       monthlyFields.style.display = 'none';
-    } else if (['reporte_riesgo', 'reporte_conflictividad', 'reporte_prospectiva'].includes(this.value)) {
+    } else if (['reporte_riesgo', 'reporte_conflictividad', 'reporte_prospectiva'].includes(value)) {
       semanalFields.style.display = 'none';
       monthlyFields.style.display = 'block';
     } else {
       semanalFields.style.display = 'none';
       monthlyFields.style.display = 'none';
     }
-    M.FormSelect.init(reportTypeSelect);
+    $('select').formSelect();
   });
 
   // Generar resumen
-  generateBtn.addEventListener('click', async function() {
-    const reportType = reportTypeSelect.value;
+  $(document).on('click', '#generate-btn', function() {
+    const reportType = $('#report-type').val();
     const pdfFile = document.getElementById('pdf-file').files[0];
 
     if (!reportType || !pdfFile) {
@@ -41,112 +44,98 @@ document.addEventListener('DOMContentLoaded', function() {
     const formData = new FormData();
     formData.append('report_type', reportType);
     formData.append('pdf', pdfFile);
-    formData.append('number', document.getElementById('briefing-number').value);
-    formData.append('month', document.getElementById('report-month').value);
-    formData.append('year', document.getElementById('report-year').value);
+    formData.append('number', $('#briefing-number').val());
+    formData.append('month', $('#report-month').val());
+    formData.append('year', $('#report-year').val());
 
-    try {
-      const uploadUrl = document.querySelector('[data-upload-url]').getAttribute('data-upload-url');
-      const response = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-        }
-      });
+    const uploadUrl = $('[data-upload-url]').data('upload-url');
 
-      const data = await response.json();
-
-      if (response.ok) {
+    $.ajax({
+      url: uploadUrl,
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(data) {
         currentBriefingId = data.briefing_id;
-        document.getElementById('summary-text').value = data.summary;
+        $('#summary-text').val(data.summary);
+        $('#recipient-count-display').text(`Total de destinatarios: ${data.recipients_count || '(calculando...)'}`);
 
-        const recipientCount = data.recipients_count || calculateRecipientCountUI();
-        document.getElementById('recipient-count-display').textContent =
-          `Total de destinatarios: ${recipientCount}`;
-
-        document.getElementById('step-1').style.display = 'none';
-        document.getElementById('step-2').style.display = 'block';
+        $('#step-1').hide();
+        $('#step-2').show();
         showError('', false);
-      } else {
-        showError(data.error || 'Error al generar resumen');
+      },
+      error: function(err) {
+        const error = err.responseJSON ? err.responseJSON.error : 'Error al generar resumen';
+        showError(error);
+      },
+      complete: function() {
+        showLoading(false);
       }
-    } catch (error) {
-      showError('Error: ' + error.message);
-    } finally {
-      showLoading(false);
-    }
+    });
   });
 
   // Botón cancelar
-  backBtn.addEventListener('click', function() {
-    document.getElementById('step-2').style.display = 'none';
-    document.getElementById('step-1').style.display = 'block';
+  $(document).on('click', '#back-btn', function() {
+    $('#step-2').hide();
+    $('#step-1').show();
     currentBriefingId = null;
-    document.getElementById('pdf-file').value = '';
+    $('#pdf-file').val('');
   });
 
   // Aprobar y enviar
-  approveBtn.addEventListener('click', async function() {
+  $(document).on('click', '#approve-btn', function() {
     if (!currentBriefingId) return;
 
     showLoading(true);
-    const summary = document.getElementById('summary-text').value;
+    const summary = $('#summary-text').val();
+    const approveUrl = $('[data-approve-url]').data('approve-url').replace('BRIEFING_ID', currentBriefingId);
 
-    try {
-      const approveUrl = document.querySelector('[data-approve-url]').getAttribute('data-approve-url')
-        .replace('BRIEFING_ID', currentBriefingId);
-
-      const response = await fetch(approveUrl, {
-        method: 'POST',
-        body: JSON.stringify({ summary }),
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        document.getElementById('step-2').style.display = 'none';
-        document.getElementById('step-3').style.display = 'block';
-        document.getElementById('confirmation-details').textContent =
-          `Se envió a ${data.recipients_count} suscriptores. ID: ${data.briefing_id}`;
+    $.ajax({
+      url: approveUrl,
+      type: 'POST',
+      data: JSON.stringify({ summary: summary }),
+      contentType: 'application/json',
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(data) {
+        $('#step-2').hide();
+        $('#step-3').show();
+        $('#confirmation-details').text(`Se envió a ${data.recipients_count} suscriptores. ID: ${data.briefing_id}`);
         showError('', false);
-      } else {
-        showError(data.error || 'Error al aprobar');
+      },
+      error: function(err) {
+        const error = err.responseJSON ? err.responseJSON.error : 'Error al aprobar';
+        showError(error);
+      },
+      complete: function() {
+        showLoading(false);
       }
-    } catch (error) {
-      showError('Error: ' + error.message);
-    } finally {
-      showLoading(false);
-    }
+    });
   });
 
   // Finalizar
-  finishBtn.addEventListener('click', function() {
-    document.getElementById('step-3').style.display = 'none';
-    document.getElementById('step-1').style.display = 'block';
+  $(document).on('click', '#finish-btn', function() {
+    $('#step-3').hide();
+    $('#step-1').show();
     currentBriefingId = null;
-    document.getElementById('pdf-file').value = '';
-    document.getElementById('report-type').value = '';
-    M.FormSelect.init(reportTypeSelect);
+    $('#pdf-file').val('');
+    $('#report-type').val('');
+    $('select').formSelect();
     location.reload();
   });
 
   function showLoading(show) {
-    document.getElementById('loading-indicator').style.display = show ? 'block' : 'none';
+    $('#loading-indicator').toggle(show);
   }
 
   function showError(message, show = true) {
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.textContent = message;
-    errorDiv.style.display = show && message ? 'block' : 'none';
-  }
-
-  function calculateRecipientCountUI() {
-    // Esto es un placeholder; idealmente obtendríamos del servidor
-    return '(calculando...)';
+    const errorDiv = $('#error-message');
+    errorDiv.text(message);
+    errorDiv.toggle(show && message);
   }
 });
