@@ -1,3 +1,5 @@
+require 'stringio'
+
 class AdminReportsController < ApplicationController
   before_action :require_admin!
   before_action :set_briefing, only: [:review]
@@ -31,36 +33,24 @@ class AdminReportsController < ApplicationController
     # Generar resumen del PDF usando el contenido
     result = ReportSummarizerService.new(pdf_content).call
     if result.ok?
-      # Guardar el PDF temporalmente en ActiveStorage
-      temp_briefing = Briefing.new(
+      # Almacenar datos en sesión (NO guardar en BD aún)
+      # El Briefing se crea recién en approve
+      session[:draft_briefing] = {
         report_type: report_type,
         month_number: briefing_draft.month_number,
         year: briefing_draft.year,
-        number: briefing_draft.number
-      )
-      temp_briefing.pdf.attach(
-        io: pdf_file.open,
-        filename: pdf_file.original_filename,
-        content_type: pdf_file.content_type
-      )
-      temp_briefing.save!
-
-      # Almacenar datos en sesión para usar en approve
-      session[:draft_briefing] = {
-        report_type: temp_briefing.report_type,
-        month_number: temp_briefing.month_number,
-        year: temp_briefing.year,
-        number: temp_briefing.number,
+        number: briefing_draft.number,
         summary: result.summary,
-        briefing_id: temp_briefing.id,
-        pdf_key: temp_briefing.pdf.key
+        pdf_content: pdf_content,
+        pdf_filename: pdf_file.original_filename,
+        pdf_content_type: pdf_file.content_type
       }
 
       render json: {
         success: true,
         summary: result.summary,
-        report_type: temp_briefing.report_type,
-        formatted_date: temp_briefing.formatted_date
+        report_type: briefing_draft.report_type,
+        formatted_date: briefing_draft.formatted_date
       }
     else
       render json: { error: result.error }, status: :unprocessable_entity
@@ -102,21 +92,31 @@ class AdminReportsController < ApplicationController
       return render json: { error: "Sesión expirada. Por favor, carga el reporte nuevamente." }, status: :unprocessable_entity
     end
 
-    # Obtener el Briefing temporal creado durante upload
-    temp_briefing = Briefing.find(draft['briefing_id'])
-
-    # Actualizar con test_mode y summary
-    temp_briefing.update(
+    # Crear el Briefing EN ESTE MOMENTO (no antes)
+    briefing = Briefing.new(
+      report_type: draft['report_type'],
+      month_number: draft['month_number'],
+      year: draft['year'],
+      number: draft['number'],
       summary: summary.present? ? summary : draft['summary'],
       test_mode: test_mode
     )
 
+    # Adjuntar el PDF que guardamos en session
+    briefing.pdf.attach(
+      io: StringIO.new(draft['pdf_content']),
+      filename: draft['pdf_filename'],
+      content_type: draft['pdf_content_type']
+    )
+
+    briefing.save!
+
     # Asociar PDF con Month para reportes mensuales
-    if temp_briefing.monthly_report?
-      temp_briefing.associate_with_month
+    if briefing.monthly_report?
+      briefing.associate_with_month
     end
 
-    @briefing = temp_briefing
+    @briefing = briefing
 
     # Identificar emails según test_mode
     if test_mode
