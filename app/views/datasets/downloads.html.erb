@@ -116,8 +116,32 @@
       </div>
       <div class="card-action grey lighten-2">
         <ul class="collection grey lighten-2" style="max-height: 400px; overflow-y: auto;">
-          <% @briefings.each_with_index do |briefing, index| %>
+          <!-- Nuevos briefings (sistema admin) -->
+          <% @briefings_new.each_with_index do |briefing, index| %>
             <% if !current_user.promo || index == 0 %>
+              <li class="collection-item valign-wrapper grey lighten-2">
+                <a href="<%= rails_blob_path(briefing.pdf, disposition: 'attachment') %>">
+                  <img class="center small-icon-size" src="/assets/pdf_icon.png">
+                </a>
+                <span style="margin-left: 16px;">
+                  <%= briefing.number.to_s.rjust(3, '0') %> | <%= briefing.formatted_date %>
+                </span>
+              </li>
+            <% else %>
+              <li class="collection-item valign-wrapper grey lighten-2">
+                <a class="tooltipped grey-text text-lighten-1" data-tooltip="Las descargas para membresías promocionales están limitadas. Para descargar más datos escríbenos a contacto@lantiaintelligence.com">
+                  <img class="center small-icon-size" src="/assets/pdf_icon.png" style="opacity: 0.3;">
+                </a>
+                <span class="grey-text text-lighten-1" style="margin-left: 16px;">
+                  <%= briefing.number.to_s.rjust(3, '0') %> | <%= briefing.formatted_date %>
+                </span>
+              </li>
+            <% end %>
+          <% end %>
+
+          <!-- Briefings históricos (filesystem) -->
+          <% @briefings.each_with_index do |briefing, index| %>
+            <% if !current_user.promo || (index + @briefings_new.length) < 1 %>
               <li class="collection-item valign-wrapper grey lighten-2">
                 <a href="/<%= briefing[:path] %>">
                   <img class="center small-icon-size" src="/assets/pdf_icon.png">

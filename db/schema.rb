@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_06_08_174523) do
+ActiveRecord::Schema.define(version: 2026_06_09_180000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -97,6 +97,22 @@ ActiveRecord::Schema.define(version: 2026_06_08_174523) do
     t.index ["created_at"], name: "index_auth_events_on_created_at"
     t.index ["event_type"], name: "index_auth_events_on_event_type"
     t.index ["user_id"], name: "index_auth_events_on_user_id"
+  end
+
+  create_table "briefings", force: :cascade do |t|
+    t.integer "number", comment: "Número de briefing, ej: 42"
+    t.integer "month_number", comment: "Mes 1-12"
+    t.integer "year"
+    t.text "summary", comment: "Resumen generado por IA, editable antes de enviar"
+    t.datetime "sent_at", comment: "nil hasta que se confirma envío"
+    t.string "sent_by", comment: "Mail del admin que aprobó"
+    t.integer "recipients_count", default: 0
+    t.string "report_type", null: false, comment: "reporte_riesgo, reporte_conflictividad, reporte_prospectiva, briefing_semanal"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["report_type"], name: "index_briefings_on_report_type"
+    t.index ["sent_at"], name: "index_briefings_on_sent_at"
+    t.index ["year", "month_number", "report_type"], name: "idx_briefings_uniqueness", unique: true
   end
 
   create_table "cities", force: :cascade do |t|

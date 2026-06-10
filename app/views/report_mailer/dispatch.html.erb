@@ -1,0 +1,59 @@
+<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+  <p><strong><%= @greeting %>, <%= @user.member&.firstname || @user.mail %></strong></p>
+
+  <p>Te compartimos el <%= briefing_type_label %> de <%= @briefing.formatted_date %>:</p>
+
+  <div style="background-color: #f5f5f5; padding: 20px; border-left: 4px solid #1976d2; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #1976d2;"><%= briefing_title %></h3>
+
+    <div style="white-space: pre-wrap; font-size: 14px;">
+<%= @briefing.summary %>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <% if @download_url.present? %>
+      <a href="<%= @download_url %>"
+         style="display: inline-block; padding: 12px 24px; background-color: #1976d2; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+        Descargar PDF
+      </a>
+    <% end %>
+  </div>
+
+  <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+
+  <div style="font-size: 12px; color: #999;">
+    <p>Este correo fue enviado a <%= @user.mail %> porque tienes una suscripción activa con Lantia Intelligence.</p>
+    <p>© <%= Date.today.year %> Lantia Intelligence. Todos los derechos reservados.</p>
+  </div>
+</div>
+
+<% def briefing_type_label %>
+  case @briefing.report_type
+  when 'briefing_semanal'
+    'briefing semanal'
+  when 'reporte_riesgo'
+    'reporte de riesgo social'
+  when 'reporte_conflictividad'
+    'reporte de conflictividad social'
+  when 'reporte_prospectiva'
+    'reporte de prospectiva'
+  else
+    'reporte'
+  end
+<% end %>
+
+<% def briefing_title %>
+  case @briefing.report_type
+  when 'briefing_semanal'
+    "Briefing Semanal #{@briefing.number.to_s.rjust(3, '0')}"
+  when 'reporte_riesgo'
+    "Reporte Mensual de Riesgo Social"
+  when 'reporte_conflictividad'
+    "Reporte Mensual de Conflictividad Social"
+  when 'reporte_prospectiva'
+    "Reporte Mensual de Prospectiva"
+  else
+    "Nuevo Reporte"
+  end
+<% end %>

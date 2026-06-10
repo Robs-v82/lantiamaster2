@@ -1,0 +1,345 @@
+<div class="container" style="margin-top: 30px; margin-bottom: 50px;">
+  <div class="row">
+    <div class="col s12">
+      <h3 style="border-bottom: 2px solid #1976d2; padding-bottom: 10px;">
+        Administración de Reportes
+      </h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Formulario de carga -->
+    <div class="col l6 m12 s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">Cargar Reporte</span>
+
+          <div id="upload-form" style="margin-top: 20px;">
+            <!-- Paso 1: Seleccionar tipo -->
+            <div id="step-1">
+              <div class="input-field">
+                <select id="report-type" name="report_type">
+                  <option value="">Seleccionar tipo...</option>
+                  <option value="briefing_semanal">Briefing Semanal</option>
+                  <option value="reporte_riesgo">Reporte de Riesgo Social</option>
+                  <option value="reporte_conflictividad">Reporte de Conflictividad Social</option>
+                  <option value="reporte_prospectiva">Reporte de Prospectiva</option>
+                </select>
+                <label>Tipo de Reporte</label>
+              </div>
+
+              <!-- Campos dinámicos según tipo -->
+              <div id="semanal-fields" style="display: none;">
+                <div class="input-field">
+                  <input type="number" id="briefing-number" name="number" min="1" max="999">
+                  <label for="briefing-number">Número de Briefing (ej: 42)</label>
+                </div>
+              </div>
+
+              <div id="monthly-fields" style="display: none;">
+                <div class="row" style="margin-bottom: 0;">
+                  <div class="col s6">
+                    <div class="input-field">
+                      <select id="report-month" name="month">
+                        <% (1..12).each do |m| %>
+                          <option value="<%= m %>" <% if m == Date.today.month %>selected<% end %>>
+                            <%= Date.new(2020, m).strftime("%B") %>
+                          </option>
+                        <% end %>
+                      </select>
+                      <label>Mes</label>
+                    </div>
+                  </div>
+                  <div class="col s6">
+                    <div class="input-field">
+                      <input type="number" id="report-year" name="year" value="<%= Date.today.year %>" min="2000" max="2099">
+                      <label for="report-year">Año</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-field input-field">
+                <div class="btn blue">
+                  <span>Seleccionar PDF</span>
+                  <input type="file" id="pdf-file" name="pdf" accept=".pdf">
+                </div>
+                <div class="file-path-wrapper">
+                  <input class="file-path validate" type="text" placeholder="Ningún archivo seleccionado">
+                </div>
+              </div>
+
+              <button id="generate-btn" class="btn waves-effect waves-light blue" style="margin-top: 15px; width: 100%;">
+                Generar Resumen
+              </button>
+            </div>
+
+            <!-- Paso 2: Revisión de resumen -->
+            <div id="step-2" style="display: none;">
+              <p style="margin: 10px 0; font-weight: bold; color: #1976d2;">Resumen Generado</p>
+              <div style="background-color: #f5f5f5; padding: 15px; border-radius: 4px; margin: 15px 0; max-height: 300px; overflow-y: auto;">
+                <textarea id="summary-text" style="width: 100%; border: 1px solid #ddd; padding: 10px; font-size: 13px; font-family: monospace; min-height: 200px;"></textarea>
+              </div>
+
+              <p id="recipient-count-display" style="color: #666; font-size: 14px; margin: 10px 0;"></p>
+
+              <div style="margin-top: 15px;">
+                <button id="back-btn" class="btn waves-effect waves-light grey">
+                  Cancelar
+                </button>
+                <button id="approve-btn" class="btn waves-effect waves-light green" style="margin-left: 10px;">
+                  Aprobar y Enviar
+                </button>
+              </div>
+            </div>
+
+            <!-- Paso 3: Confirmación -->
+            <div id="step-3" style="display: none;">
+              <div style="text-align: center; padding: 20px;">
+                <i class="material-icons" style="font-size: 60px; color: #4caf50;">check_circle</i>
+                <h4 style="color: #4caf50; margin: 15px 0;">¡Reporte Enviado!</h4>
+                <p id="confirmation-details" style="color: #666; margin: 10px 0;"></p>
+              </div>
+
+              <button id="finish-btn" class="btn waves-effect waves-light blue" style="width: 100%; margin-top: 15px;">
+                Volver
+              </button>
+            </div>
+          </div>
+
+          <div id="loading-indicator" style="display: none; text-align: center; padding: 20px;">
+            <div class="preloader-wrapper small active">
+              <div class="spinner-layer spinner-blue">
+                <div class="circle-clipper left">
+                  <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                  <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                  <div class="circle"></div>
+                </div>
+              </div>
+            </div>
+            <p style="margin-top: 10px;">Procesando...</p>
+          </div>
+
+          <div id="error-message" style="display: none; background-color: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-top: 15px; border-left: 4px solid #c62828;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de envíos -->
+    <div class="col l6 m12 s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">Historial de Envíos</span>
+
+          <% if @sent_briefings.any? %>
+            <table style="margin-top: 15px;">
+              <thead>
+                <tr style="border-bottom: 1px solid #ddd;">
+                  <th style="padding: 10px; font-weight: bold;">Tipo</th>
+                  <th style="padding: 10px; font-weight: bold;">Fecha</th>
+                  <th style="padding: 10px; font-weight: bold;">Destinatarios</th>
+                  <th style="padding: 10px; font-weight: bold;">Aprobado por</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @sent_briefings.each do |b| %>
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px; font-size: 13px;">
+                      <% type_label = case b.report_type
+                                      when 'briefing_semanal' then "Briefing ##{b.number.to_s.rjust(3, '0')}"
+                                      when 'reporte_riesgo' then "Riesgo"
+                                      when 'reporte_conflictividad' then "Conflictividad"
+                                      when 'reporte_prospectiva' then "Prospectiva"
+                                      else b.report_type
+                                      end %>
+                      <%= type_label %>
+                    </td>
+                    <td style="padding: 10px; font-size: 13px;">
+                      <%= b.sent_at.strftime("%d/%m/%Y %H:%M") %>
+                    </td>
+                    <td style="padding: 10px; font-size: 13px;">
+                      <%= b.recipients_count %>
+                    </td>
+                    <td style="padding: 10px; font-size: 13px;">
+                      <%= b.sent_by %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p style="color: #999; text-align: center; padding: 20px;">No hay envíos realizados</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .card-content {
+    padding: 20px;
+  }
+
+  .input-field {
+    margin-bottom: 15px;
+  }
+
+  .btn {
+    border-radius: 4px;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  M.AutoInit(); // Inicializar componentes Materialize
+
+  const reportTypeSelect = document.getElementById('report-type');
+  const semaналFields = document.getElementById('semanal-fields');
+  const monthlyFields = document.getElementById('monthly-fields');
+  const generateBtn = document.getElementById('generate-btn');
+  const backBtn = document.getElementById('back-btn');
+  const approveBtn = document.getElementById('approve-btn');
+  const finishBtn = document.getElementById('finish-btn');
+
+  let currentBriefingId = null;
+
+  // Mostrar/ocultar campos según tipo
+  reportTypeSelect.addEventListener('change', function() {
+    if (this.value === 'briefing_semanal') {
+      semaналFields.style.display = 'block';
+      monthlyFields.style.display = 'none';
+    } else if (['reporte_riesgo', 'reporte_conflictividad', 'reporte_prospectiva'].includes(this.value)) {
+      semaналFields.style.display = 'none';
+      monthlyFields.style.display = 'block';
+    } else {
+      semaналFields.style.display = 'none';
+      monthlyFields.style.display = 'none';
+    }
+  });
+
+  // Generar resumen
+  generateBtn.addEventListener('click', async function() {
+    const reportType = reportTypeSelect.value;
+    const pdfFile = document.getElementById('pdf-file').files[0];
+
+    if (!reportType || !pdfFile) {
+      showError('Selecciona tipo de reporte y PDF');
+      return;
+    }
+
+    showLoading(true);
+
+    const formData = new FormData();
+    formData.append('report_type', reportType);
+    formData.append('pdf', pdfFile);
+    formData.append('number', document.getElementById('briefing-number').value);
+    formData.append('month', document.getElementById('report-month').value);
+    formData.append('year', document.getElementById('report-year').value);
+
+    try {
+      const response = await fetch('<%= admin_reports_upload_path %>', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRF-Token': '<%= form_authenticity_token %>'
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        currentBriefingId = data.briefing_id;
+        document.getElementById('summary-text').value = data.summary;
+        document.getElementById('recipient-count-display').textContent = `Total de destinatarios: ${data.recipients_count || '(calculando...)'}`;
+
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('step-2').style.display = 'block';
+        showError('', false);
+      } else {
+        showError(data.error || 'Error al generar resumen');
+      }
+    } catch (error) {
+      showError('Error: ' + error.message);
+    } finally {
+      showLoading(false);
+    }
+  });
+
+  // Botón cancelar
+  backBtn.addEventListener('click', function() {
+    document.getElementById('step-2').style.display = 'none';
+    document.getElementById('step-1').style.display = 'block';
+    currentBriefingId = null;
+    document.getElementById('pdf-file').value = '';
+  });
+
+  // Aprobar y enviar
+  approveBtn.addEventListener('click', async function() {
+    if (!currentBriefingId) return;
+
+    showLoading(true);
+    const summary = document.getElementById('summary-text').value;
+
+    try {
+      const response = await fetch(`<%= admin_reports_approve_path %>`.replace(':id', currentBriefingId), {
+        method: 'POST',
+        body: JSON.stringify({ summary }),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': '<%= form_authenticity_token %>'
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        document.getElementById('step-2').style.display = 'none';
+        document.getElementById('step-3').style.display = 'block';
+        document.getElementById('confirmation-details').textContent =
+          `Se envió a ${data.recipients_count} suscriptores. ID: ${data.briefing_id}`;
+        showError('', false);
+      } else {
+        showError(data.error || 'Error al aprobar');
+      }
+    } catch (error) {
+      showError('Error: ' + error.message);
+    } finally {
+      showLoading(false);
+    }
+  });
+
+  // Finalizar
+  finishBtn.addEventListener('click', function() {
+    document.getElementById('step-3').style.display = 'none';
+    document.getElementById('step-1').style.display = 'block';
+    currentBriefingId = null;
+    document.getElementById('pdf-file').value = '';
+    document.getElementById('report-type').value = '';
+    M.FormSelect.init(reportTypeSelect);
+    location.reload();
+  });
+
+  function showLoading(show) {
+    document.getElementById('loading-indicator').style.display = show ? 'block' : 'none';
+  }
+
+  function showError(message, show = true) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = show && message ? 'block' : 'none';
+  }
+});
+</script>

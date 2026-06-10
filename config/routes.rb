@@ -219,4 +219,10 @@ Rails.application.routes.draw do
     get 'members/audit'
     post 'datasets/run_daily_search', to: 'datasets#run_daily_search'
 
+    # Admin reports
+    get '/admin/reportes', to: 'admin_reports#index', as: :admin_reports
+    post '/admin/reportes/upload', to: 'admin_reports#upload', as: :admin_reports_upload
+    get '/admin/reportes/:id/review', to: 'admin_reports#review', as: :admin_reports_review
+    post '/admin/reportes/:id/approve', to: 'admin_reports#approve', as: :admin_reports_approve
+
 end

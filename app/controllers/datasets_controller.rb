@@ -2694,6 +2694,11 @@ end
     		myHash[:month] = I18n.l(myMonth.first_day, format: '%B de %Y')
     		@briefings.push(myHash)
     	}
+
+    	# Nuevos briefings enviados vía sistema admin
+    	@briefings_new = Briefing.where(report_type: "briefing_semanal")
+    		.where.not(sent_at: nil)
+    		.order(year: :desc, month_number: :desc)
     end
 
 		def run_daily_search

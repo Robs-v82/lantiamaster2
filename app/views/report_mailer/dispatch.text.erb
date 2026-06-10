@@ -1,0 +1,46 @@
+<%= @greeting %>, <%= @user.member&.firstname || @user.mail %>
+
+Te compartimos el <%= briefing_type_label %> de <%= @briefing.formatted_date %>:
+
+<%= briefing_title %>
+
+<%= @briefing.summary %>
+
+<% if @download_url.present? %>
+Descargar: <%= @download_url %>
+<% end %>
+
+---
+
+Este correo fue enviado a <%= @user.mail %> porque tienes una suscripción activa con Lantia Intelligence.
+© <%= Date.today.year %> Lantia Intelligence. Todos los derechos reservados.
+
+<% def briefing_type_label %>
+  case @briefing.report_type
+  when 'briefing_semanal'
+    'briefing semanal'
+  when 'reporte_riesgo'
+    'reporte de riesgo social'
+  when 'reporte_conflictividad'
+    'reporte de conflictividad social'
+  when 'reporte_prospectiva'
+    'reporte de prospectiva'
+  else
+    'reporte'
+  end
+<% end %>
+
+<% def briefing_title %>
+  case @briefing.report_type
+  when 'briefing_semanal'
+    "Briefing Semanal #{@briefing.number.to_s.rjust(3, '0')}"
+  when 'reporte_riesgo'
+    "Reporte Mensual de Riesgo Social"
+  when 'reporte_conflictividad'
+    "Reporte Mensual de Conflictividad Social"
+  when 'reporte_prospectiva'
+    "Reporte Mensual de Prospectiva"
+  else
+    "Nuevo Reporte"
+  end
+<% end %>
