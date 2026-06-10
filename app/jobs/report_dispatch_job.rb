@@ -24,15 +24,22 @@ class ReportDispatchJob < ApplicationJob
       end
     end
 
-    briefing.update!(
-      sent_at: Time.current,
-      sent_by: sent_by_email,
-      recipients_count: successful_count
-    )
-
-    Rails.logger.info(
-      "[ReportDispatchJob] Briefing #{briefing.id} despachado a #{successful_count} usuarios (test_mode: #{briefing.test_mode})"
-    )
+    # Solo marcar como enviado y almacenar sent_by si NO es modo prueba
+    if briefing.test_mode
+      briefing.update!(recipients_count: successful_count)
+      Rails.logger.info(
+        "[ReportDispatchJob] Briefing #{briefing.id} enviado en MODO PRUEBA a #{successful_count} usuarios (test_mode: true)"
+      )
+    else
+      briefing.update!(
+        sent_at: Time.current,
+        sent_by: sent_by_email,
+        recipients_count: successful_count
+      )
+      Rails.logger.info(
+        "[ReportDispatchJob] Briefing #{briefing.id} despachado a #{successful_count} usuarios (modo producción)"
+      )
+    end
   end
 
   private

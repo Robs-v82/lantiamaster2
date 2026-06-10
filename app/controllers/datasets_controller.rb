@@ -2695,9 +2695,10 @@ end
     		@briefings.push(myHash)
     	}
 
-    	# Nuevos briefings enviados vía sistema admin
+    	# Nuevos briefings enviados vía sistema admin (solo modo producción, no prueba)
     	@briefings_new = Briefing.where(report_type: "briefing_semanal")
     		.where.not(sent_at: nil)
+    		.where(test_mode: false)
     		.order(year: :desc, month_number: :desc)
     end
 
