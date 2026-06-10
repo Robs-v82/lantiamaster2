@@ -15,6 +15,13 @@ $(function() {
   let currentRecipientsCount = 0;
   let testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
 
+  // Inicializar etiqueta del toggle según estado inicial
+  const isInitiallyTest = $('#test-mode-toggle').val() === 'true';
+  const initialLabelText = isInitiallyTest
+    ? 'Enviar solo a @lantiaintelligence.com (Modo Prueba)'
+    : 'Enviar a todos los usuarios activos (Modo Producción)';
+  $('#test-mode-label').text(initialLabelText);
+
   // Función para actualizar la leyenda de destinatarios
   function updateRecipientCountDisplay() {
     const isTestMode = $('#test-mode-toggle').val() === 'true';
@@ -142,6 +149,15 @@ $(function() {
       },
       success: function(data) {
         const count = data.recipients_count;
+
+        // Actualizar la etiqueta del toggle
+        let labelText = '';
+        if (newState === 'true') {
+          labelText = 'Enviar solo a @lantiaintelligence.com (Modo Prueba)';
+        } else {
+          labelText = 'Enviar a todos los usuarios activos (Modo Producción)';
+        }
+        $('#test-mode-label').text(labelText);
 
         // Actualizar la leyenda debajo del toggle
         let displayText = '';
