@@ -66,7 +66,7 @@ class AdminReportsController < ApplicationController
 
   def approve
     summary = params[:summary]
-    test_mode = params[:test_mode] == 'true'
+    test_mode = ActiveModel::Type::Boolean.new.cast(params[:test_mode])
 
     @briefing.update(test_mode: test_mode)
     @briefing.update(summary: summary) if summary.present?
