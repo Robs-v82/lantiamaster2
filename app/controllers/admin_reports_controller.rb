@@ -35,13 +35,14 @@ class AdminReportsController < ApplicationController
     if result.ok?
       # Almacenar datos en sesión (NO guardar en BD aún)
       # El Briefing se crea recién en approve
+      # Usar Base64 para encodear el contenido binario del PDF (session-safe UTF-8)
       session[:draft_briefing] = {
         report_type: report_type,
         month_number: briefing_draft.month_number,
         year: briefing_draft.year,
         number: briefing_draft.number,
         summary: result.summary,
-        pdf_content: pdf_content,
+        pdf_content_base64: Base64.strict_encode64(pdf_content),
         pdf_filename: pdf_file.original_filename,
         pdf_content_type: pdf_file.content_type
       }
@@ -102,9 +103,10 @@ class AdminReportsController < ApplicationController
       test_mode: test_mode
     )
 
-    # Adjuntar el PDF que guardamos en session
+    # Decodear el PDF desde Base64 y adjuntarlo
+    pdf_binary = Base64.strict_decode64(draft['pdf_content_base64'])
     briefing.pdf.attach(
-      io: StringIO.new(draft['pdf_content']),
+      io: StringIO.new(pdf_binary),
       filename: draft['pdf_filename'],
       content_type: draft['pdf_content_type']
     )
