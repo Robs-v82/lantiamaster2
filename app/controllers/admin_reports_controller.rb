@@ -75,9 +75,11 @@ class AdminReportsController < ApplicationController
     if test_mode
       test_emails = identify_test_emails
       @briefing.save_test_emails(test_emails)
+      recipients_emails = test_emails
       recipients_count = test_emails.length
     else
-      recipients_count = calculate_recipient_count
+      recipients_emails = fetch_active_user_emails
+      recipients_count = recipients_emails.length
     end
 
     user = User.find(session[:user_id])
@@ -89,6 +91,7 @@ class AdminReportsController < ApplicationController
       report_type: @briefing.report_type,
       formatted_date: @briefing.formatted_date,
       recipients_count: recipients_count,
+      recipients_emails: recipients_emails,
       test_mode: test_mode,
       test_emails: test_mode ? @briefing.test_emails_array : []
     }
@@ -147,6 +150,16 @@ class AdminReportsController < ApplicationController
       .where(subscriptions: { status: "active" })
       .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
       .where("mail LIKE ?", "%@lantiaintelligence.com")
+      .distinct
+      .pluck(:mail)
+      .sort
+  end
+
+  def fetch_active_user_emails
+    User.where(membership_type: 4)
+      .joins(:subscriptions)
+      .where(subscriptions: { status: "active" })
+      .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
       .distinct
       .pluck(:mail)
       .sort

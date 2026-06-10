@@ -225,17 +225,24 @@ $(function() {
         $('#step-2').hide();
         $('#step-3').show();
 
-        // Mostrar emails si está en test_mode
+        // Mostrar emails si está en test_mode (en step 2)
         if (data.test_mode && data.test_emails && data.test_emails.length > 0) {
           const emailList = data.test_emails.map(email => `<li>${email}</li>`).join('');
           $('#emails-ul').html(emailList);
+        }
+
+        // Mostrar lista de correos en step 3
+        if (data.recipients_emails && data.recipients_emails.length > 0) {
+          const recipientsList = data.recipients_emails.map(email => `<li>${email}</li>`).join('');
+          $('#recipients-emails-ul').html(recipientsList);
+          $('#recipients-emails-list').show();
         }
 
         let confirmationText = `Se envió a ${data.recipients_count} `;
         if (data.test_mode) {
           confirmationText += `usuario(s) de prueba. ID: ${data.briefing_id}`;
         } else {
-          confirmationText += `suscriptores. ID: ${data.briefing_id}`;
+          confirmationText += `suscriptor(es). ID: ${data.briefing_id}`;
         }
         $('#confirmation-details').text(confirmationText);
         showError('', false);
