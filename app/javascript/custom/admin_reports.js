@@ -35,6 +35,32 @@ $(function() {
     $('#mode-banner').css('background-color', '#e8f5e9').css('border-left-color', '#4caf50');
   }
 
+  // Función para cargar y mostrar la lista de correos en Step 2
+  function loadRecipientsListInStep2() {
+    const testMode = $('#test-mode-toggle').val() === 'true';
+
+    $.ajax({
+      url: '/admin/reportes/calculate_recipients',
+      type: 'GET',
+      data: { test_mode: testMode },
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(data) {
+        if (data.recipients_emails && data.recipients_emails.length > 0) {
+          const emailList = data.recipients_emails.map(email => `<li>${email}</li>`).join('');
+          $('#emails-ul').html(emailList);
+          $('#test-emails-list').show();
+        } else {
+          $('#test-emails-list').hide();
+        }
+      },
+      error: function() {
+        console.error('Error loading recipients list');
+      }
+    });
+  }
+
   // Función para actualizar la leyenda de destinatarios
   function updateRecipientCountDisplay() {
     const isTestMode = $('#test-mode-toggle').val() === 'true';
@@ -112,6 +138,10 @@ $(function() {
         $('#step-1').hide();
         $('#step-2').show();
         updateRecipientCountDisplay();
+
+        // Cargar lista de correos en Step 2
+        loadRecipientsListInStep2();
+
         showError('', false);
       },
       error: function(err) {
@@ -190,6 +220,11 @@ $(function() {
 
         $('#recipient-count-display-step1').text(displayText).show();
         $('#recipient-count-display').text(displayText);
+
+        // Si estamos en Step 2, actualizar también la lista de correos
+        if ($('#step-2').is(':visible')) {
+          loadRecipientsListInStep2();
+        }
       },
       error: function() {
         console.error('Error calculating recipients');

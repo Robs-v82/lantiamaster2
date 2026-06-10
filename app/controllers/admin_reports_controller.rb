@@ -69,12 +69,17 @@ class AdminReportsController < ApplicationController
     test_mode = params[:test_mode] == 'true'
 
     if test_mode
-      count = identify_test_emails.length
+      recipients_emails = identify_test_emails
+      count = recipients_emails.length
     else
-      count = calculate_recipient_count
+      recipients_emails = fetch_active_user_emails
+      count = recipients_emails.length
     end
 
-    render json: { recipients_count: count }
+    render json: {
+      recipients_count: count,
+      recipients_emails: recipients_emails
+    }
   end
 
   def approve
