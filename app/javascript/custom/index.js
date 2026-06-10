@@ -1,4 +1,5 @@
 import './agent_detentions';
+import './admin_reports';
 
 window.addEventListener( "pageshow", function ( event ) {
 	var historyTraversal = event.persisted || 
