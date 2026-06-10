@@ -31,15 +31,19 @@ class AdminReportsController < ApplicationController
     # Generar resumen del PDF usando el contenido
     result = ReportSummarizerService.new(pdf_content).call
     if result.ok?
-      # Guardar el PDF temporalmente en ActiveStorage para obtener su clave
+      # Guardar el PDF temporalmente en ActiveStorage
       temp_briefing = Briefing.new(
         report_type: report_type,
         month_number: briefing_draft.month_number,
         year: briefing_draft.year,
         number: briefing_draft.number
       )
-      temp_briefing.pdf.attach(pdf_blob)
-      temp_briefing.save! # Guardar solo para obtener la clave del PDF
+      temp_briefing.pdf.attach(
+        io: pdf_file.open,
+        filename: pdf_file.original_filename,
+        content_type: pdf_file.content_type
+      )
+      temp_briefing.save!
 
       # Almacenar datos en sesión para usar en approve
       session[:draft_briefing] = {
@@ -48,7 +52,7 @@ class AdminReportsController < ApplicationController
         year: temp_briefing.year,
         number: temp_briefing.number,
         summary: result.summary,
-        briefing_id: temp_briefing.id, # Guardar ID del Briefing temporal
+        briefing_id: temp_briefing.id,
         pdf_key: temp_briefing.pdf.key
       }
 
@@ -106,6 +110,12 @@ class AdminReportsController < ApplicationController
       summary: summary.present? ? summary : draft['summary'],
       test_mode: test_mode
     )
+
+    # Asociar PDF con Month para reportes mensuales
+    if temp_briefing.monthly_report?
+      temp_briefing.associate_with_month
+    end
+
     @briefing = temp_briefing
 
     # Identificar emails según test_mode
@@ -169,10 +179,6 @@ class AdminReportsController < ApplicationController
     else
       raise "Tipo de reporte inválido: #{report_type}"
     end
-  end
-
-  def generate_summary(briefing)
-    ReportSummarizerService.new(briefing.pdf.blob).call
   end
 
   def calculate_recipient_count
