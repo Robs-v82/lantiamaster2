@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     try {
       const approveUrl = document.querySelector('[data-approve-url]').getAttribute('data-approve-url')
-        .replace(':id', currentBriefingId);
+        .replace('BRIEFING_ID', currentBriefingId);
 
       const response = await fetch(approveUrl, {
         method: 'POST',
