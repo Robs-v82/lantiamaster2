@@ -68,7 +68,8 @@ class AdminReportsController < ApplicationController
     summary = params[:summary]
     test_mode = params[:test_mode] == 'true'
 
-    @briefing.update(summary: summary, test_mode: test_mode) if summary.present?
+    @briefing.update(test_mode: test_mode)
+    @briefing.update(summary: summary) if summary.present?
 
     # Identificar emails según test_mode
     if test_mode
