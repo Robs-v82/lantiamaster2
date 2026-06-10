@@ -190,13 +190,6 @@ $(function() {
 
         $('#recipient-count-display-step1').text(displayText).show();
         $('#recipient-count-display').text(displayText);
-
-        // Mostrar/ocultar lista de emails
-        if (newState === 'true') {
-          $('#test-emails-list').show();
-        } else {
-          $('#test-emails-list').hide();
-        }
       },
       error: function() {
         console.error('Error calculating recipients');
@@ -222,12 +215,6 @@ $(function() {
       success: function(data) {
         $('#step-2').hide();
         $('#step-3').show();
-
-        // Mostrar emails si está en test_mode (en step 2)
-        if (data.test_mode && data.test_emails && data.test_emails.length > 0) {
-          const emailList = data.test_emails.map(email => `<li>${email}</li>`).join('');
-          $('#emails-ul').html(emailList);
-        }
 
         // Mostrar lista de correos en step 3
         if (data.recipients_emails && data.recipients_emails.length > 0) {
