@@ -64,7 +64,7 @@ class Briefing < ApplicationRecord
       month.public_send("#{field}=", pdf_blob)
       month.save!
     elsif pdf.present?
-      month.public_send("#{field}=", pdf)
+      month.public_send("#{field}=", pdf.blob)
       month.save!
     end
   end
