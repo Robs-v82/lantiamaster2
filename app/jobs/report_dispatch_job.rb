@@ -30,6 +30,11 @@ class ReportDispatchJob < ApplicationJob
       Rails.logger.info(
         "[ReportDispatchJob] Briefing #{briefing.id} enviado en MODO PRUEBA a #{successful_count} usuarios (test_mode: true)"
       )
+      # Eliminar el Briefing después de prueba para permitir reutilizar el mismo mes/tipo en modo producción
+      briefing.destroy!
+      Rails.logger.info(
+        "[ReportDispatchJob] Briefing #{briefing.id} eliminado después de prueba (test_mode: true)"
+      )
     else
       briefing.update!(
         sent_at: Time.current,
