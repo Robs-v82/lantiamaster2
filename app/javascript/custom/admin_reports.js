@@ -12,6 +12,30 @@ $(function() {
   const finishBtn = document.getElementById('finish-btn');
 
   let currentBriefingId = null;
+  let currentRecipientsCount = 0;
+  let testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
+
+  // Función para actualizar la leyenda de destinatarios
+  function updateRecipientCountDisplay() {
+    const isTestMode = $('#test-mode-toggle').val() === 'true';
+    let displayText = '';
+
+    if (isTestMode) {
+      displayText = `Se enviará a ${testUsersCount} usuario(s) de @lantiaintelligence.com`;
+    } else {
+      if (currentRecipientsCount > 0) {
+        displayText = `Se enviará a ${currentRecipientsCount} usuario(s) en total`;
+      } else {
+        displayText = `Se enviará a todos los usuarios activos`;
+      }
+    }
+
+    // Actualizar en Step 1 - SIEMPRE mostrar
+    $('#recipient-count-display-step1').text(displayText).show();
+
+    // Actualizar en Step 2 (siempre que exista)
+    $('#recipient-count-display').text(displayText);
+  }
 
   // Mostrar/ocultar campos según tipo
   $(document).on('change', '#report-type', function() {
@@ -62,10 +86,12 @@ $(function() {
       success: function(data) {
         currentBriefingId = data.briefing_id;
         $('#summary-text').val(data.summary);
-        $('#recipient-count-display').text(`Total de destinatarios: ${data.recipients_count || '(calculando...)'}`);
+        currentRecipientsCount = data.recipients_count || 0;
+        testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
 
         $('#step-1').hide();
         $('#step-2').show();
+        updateRecipientCountDisplay();
         showError('', false);
       },
       error: function(err) {
@@ -86,14 +112,59 @@ $(function() {
     $('#pdf-file').val('');
   });
 
-  // Toggle test mode
-  $(document).on('change', '#test-mode-toggle', function() {
-    const isTestMode = this.checked;
-    if (isTestMode) {
-      $('#test-emails-list').show();
+  // Toggle test mode - hacer AJAX para calcular dinámicamente
+  $(document).on('click', '#test-mode-toggle-switch', function() {
+    const hiddenInput = $('#test-mode-toggle');
+    const isCurrentlyTest = hiddenInput.val() === 'true';
+    const newState = isCurrentlyTest ? 'false' : 'true';
+
+    hiddenInput.val(newState);
+
+    // Animar el círculo del toggle
+    const toggleSwitch = $(this);
+    const circle = toggleSwitch.find('.toggle-circle');
+
+    if (newState === 'true') {
+      toggleSwitch.css('background-color', '#1976d2');
+      circle.css('transform', 'translateX(0)');
     } else {
-      $('#test-emails-list').hide();
+      toggleSwitch.css('background-color', '#4caf50');
+      circle.css('transform', 'translateX(22px)');
     }
+
+    // Hacer AJAX para obtener el número dinámico de usuarios
+    $.ajax({
+      url: '/admin/reportes/calculate_recipients',
+      type: 'GET',
+      data: { test_mode: newState },
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(data) {
+        const count = data.recipients_count;
+
+        // Actualizar la leyenda debajo del toggle
+        let displayText = '';
+        if (newState === 'true') {
+          displayText = `Se enviará a ${count} usuario(s) de @lantiaintelligence.com`;
+        } else {
+          displayText = `Se enviará a ${count} usuario(s) en total`;
+        }
+
+        $('#recipient-count-display-step1').text(displayText).show();
+        $('#recipient-count-display').text(displayText);
+
+        // Mostrar/ocultar lista de emails
+        if (newState === 'true') {
+          $('#test-emails-list').show();
+        } else {
+          $('#test-emails-list').hide();
+        }
+      },
+      error: function() {
+        console.error('Error calculating recipients');
+      }
+    });
   });
 
   // Aprobar y enviar
@@ -102,7 +173,7 @@ $(function() {
 
     showLoading(true);
     const summary = $('#summary-text').val();
-    const testMode = $('#test-mode-toggle').is(':checked');
+    const testMode = $('#test-mode-toggle').val() === 'true';
     const approveUrl = $('[data-approve-url]').data('approve-url').replace('BRIEFING_ID', currentBriefingId);
 
     $.ajax({
