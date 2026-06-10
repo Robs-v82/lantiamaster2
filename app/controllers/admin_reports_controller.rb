@@ -15,11 +15,24 @@ class AdminReportsController < ApplicationController
       return render json: { error: "PDF requerido" }, status: :unprocessable_entity
     end
 
+    # Validar PDF antes de procesar
+    validation = validate_pdf(pdf_file)
+    unless validation[:ok]
+      return render json: { error: validation[:error] }, status: :unprocessable_entity
+    end
+
     # Crear un Briefing temporal SOLO para obtener parámetros (no guardado en BD)
     briefing_draft = create_briefing_from_params(report_type)
 
-    # Generar resumen del PDF (pasar el archivo directamente, no el objeto)
-    result = ReportSummarizerService.new(pdf_file).call
+    # Convertir UploadedFile a ActiveStorage::Blob
+    pdf_blob = ActiveStorage::Blob.create_and_upload!(
+      io: pdf_file.open,
+      filename: pdf_file.original_filename,
+      content_type: pdf_file.content_type
+    )
+
+    # Generar resumen del PDF usando el blob
+    result = ReportSummarizerService.new(pdf_blob).call
     if result.ok?
       # Guardar el PDF temporalmente en ActiveStorage para obtener su clave
       temp_briefing = Briefing.new(
@@ -28,7 +41,7 @@ class AdminReportsController < ApplicationController
         year: briefing_draft.year,
         number: briefing_draft.number
       )
-      temp_briefing.pdf.attach(pdf_file)
+      temp_briefing.pdf.attach(pdf_blob)
       temp_briefing.save! # Guardar solo para obtener la clave del PDF
 
       # Almacenar datos en sesión para usar en approve
@@ -193,5 +206,19 @@ class AdminReportsController < ApplicationController
       .distinct
       .pluck(:mail)
       .sort
+  end
+
+  def validate_pdf(pdf_file)
+    # Verificar tamaño (máximo 20MB)
+    if pdf_file.size > 20.megabytes
+      return { ok: false, error: "PDF demasiado grande. Máximo permitido: 20MB" }
+    end
+
+    # Verificar content-type
+    unless pdf_file.content_type == 'application/pdf'
+      return { ok: false, error: "El archivo debe ser un PDF válido" }
+    end
+
+    { ok: true }
   end
 end
