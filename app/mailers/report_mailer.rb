@@ -20,6 +20,9 @@ class ReportMailer < ApplicationMailer
                      "Nuevo reporte | Lantia Intelligence"
                    end
 
+    # Agregar prefijo de prueba si está en modo test
+    subject_line = "[CORREO DE PRUEBA] #{subject_line}" if briefing.test_mode
+
     mail(to: @user.mail, subject: subject_line)
   end
 
