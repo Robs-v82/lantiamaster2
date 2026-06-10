@@ -14,6 +14,18 @@ class Briefing < ApplicationRecord
   scope :by_type, ->(type) { where(report_type: type) }
   scope :recent, -> { order(year: :desc, month_number: :desc) }
 
+  def test_emails_array
+    return [] if test_emails.blank?
+    JSON.parse(test_emails)
+  rescue JSON::ParseError
+    []
+  end
+
+  def save_test_emails(emails)
+    self.test_emails = emails.is_a?(Array) ? emails.to_json : emails
+    save!
+  end
+
   def month_name
     I18n.t("date.month_names")[month_number]
   end

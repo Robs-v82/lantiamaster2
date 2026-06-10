@@ -7,6 +7,13 @@
      data-approve-url="<%= admin_reports_approve_path(id: 'BRIEFING_ID') %>">
   <div class="row">
     <div class="col s12">
+      <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin-bottom: 20px; border-radius: 4px;">
+        <strong style="color: #856404;">⚠️ VERSIÓN DE PRUEBA</strong>
+        <p style="margin: 10px 0 0 0; font-size: 13px; color: #856404;">
+          Los correos se enviarán solo a usuarios del dominio @lantiaintelligence.com
+        </p>
+      </div>
+
       <h3 style="border-bottom: 2px solid #1976d2; padding-bottom: 10px;">
         Administración de Reportes
       </h3>
@@ -87,7 +94,22 @@
                 <textarea id="summary-text" style="width: 100%; border: 1px solid #ddd; padding: 10px; font-size: 13px; font-family: monospace; min-height: 200px;"></textarea>
               </div>
 
+              <!-- Toggle Test/Producción -->
+              <div style="background-color: #e3f2fd; padding: 15px; border-radius: 4px; margin: 15px 0;">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                  <input type="checkbox" id="test-mode-toggle" checked style="margin-right: 10px;">
+                  <span style="font-weight: bold; color: #1565c0;">Enviar solo a @lantiaintelligence.com (Modo Prueba)</span>
+                </label>
+                <p style="margin: 10px 0 0 30px; font-size: 12px; color: #1565c0;">
+                  Desactiva para enviar a todos los usuarios
+                </p>
+              </div>
+
               <p id="recipient-count-display" style="color: #666; font-size: 14px; margin: 10px 0;"></p>
+              <div id="test-emails-list" style="display: none; background-color: #f5f5f5; padding: 10px; border-radius: 4px; margin: 10px 0; max-height: 200px; overflow-y: auto;">
+                <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: bold; color: #666;">Correos que recibirán el email:</p>
+                <ul id="emails-ul" style="margin: 0; padding-left: 20px; font-size: 12px;"></ul>
+              </div>
 
               <div style="margin-top: 15px;">
                 <button id="back-btn" class="btn waves-effect waves-light grey">

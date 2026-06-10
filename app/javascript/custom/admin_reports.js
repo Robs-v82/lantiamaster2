@@ -86,18 +86,29 @@ $(function() {
     $('#pdf-file').val('');
   });
 
+  // Toggle test mode
+  $(document).on('change', '#test-mode-toggle', function() {
+    const isTestMode = this.checked;
+    if (isTestMode) {
+      $('#test-emails-list').show();
+    } else {
+      $('#test-emails-list').hide();
+    }
+  });
+
   // Aprobar y enviar
   $(document).on('click', '#approve-btn', function() {
     if (!currentBriefingId) return;
 
     showLoading(true);
     const summary = $('#summary-text').val();
+    const testMode = $('#test-mode-toggle').is(':checked');
     const approveUrl = $('[data-approve-url]').data('approve-url').replace('BRIEFING_ID', currentBriefingId);
 
     $.ajax({
       url: approveUrl,
       type: 'POST',
-      data: JSON.stringify({ summary: summary }),
+      data: JSON.stringify({ summary: summary, test_mode: testMode }),
       contentType: 'application/json',
       headers: {
         'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
@@ -105,7 +116,20 @@ $(function() {
       success: function(data) {
         $('#step-2').hide();
         $('#step-3').show();
-        $('#confirmation-details').text(`Se envió a ${data.recipients_count} suscriptores. ID: ${data.briefing_id}`);
+
+        // Mostrar emails si está en test_mode
+        if (data.test_mode && data.test_emails && data.test_emails.length > 0) {
+          const emailList = data.test_emails.map(email => `<li>${email}</li>`).join('');
+          $('#emails-ul').html(emailList);
+        }
+
+        let confirmationText = `Se envió a ${data.recipients_count} `;
+        if (data.test_mode) {
+          confirmationText += `usuario(s) de prueba. ID: ${data.briefing_id}`;
+        } else {
+          confirmationText += `suscriptores. ID: ${data.briefing_id}`;
+        }
+        $('#confirmation-details').text(confirmationText);
         showError('', false);
       },
       error: function(err) {

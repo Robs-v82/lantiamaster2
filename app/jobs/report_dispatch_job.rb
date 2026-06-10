@@ -5,7 +5,12 @@ class ReportDispatchJob < ApplicationJob
     briefing = Briefing.find(briefing_id)
     return if briefing.sent_at.present? # Ya fue enviado
 
-    users = fetch_active_users
+    if briefing.test_mode
+      users = fetch_test_users
+    else
+      users = fetch_active_users
+    end
+
     successful_count = 0
 
     users.each do |user|
@@ -26,7 +31,7 @@ class ReportDispatchJob < ApplicationJob
     )
 
     Rails.logger.info(
-      "[ReportDispatchJob] Briefing #{briefing.id} despachado a #{successful_count} usuarios"
+      "[ReportDispatchJob] Briefing #{briefing.id} despachado a #{successful_count} usuarios (test_mode: #{briefing.test_mode})"
     )
   end
 
@@ -37,6 +42,15 @@ class ReportDispatchJob < ApplicationJob
       .joins(:subscriptions)
       .where(subscriptions: { status: "active" })
       .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
+      .distinct
+  end
+
+  def fetch_test_users
+    User.where(membership_type: 4)
+      .joins(:subscriptions)
+      .where(subscriptions: { status: "active" })
+      .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
+      .where("mail LIKE ?", "%@lantiaintelligence.com")
       .distinct
   end
 end

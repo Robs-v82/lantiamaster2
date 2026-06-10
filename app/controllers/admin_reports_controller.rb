@@ -54,7 +54,18 @@ class AdminReportsController < ApplicationController
 
   def approve
     summary = params[:summary]
-    @briefing.update(summary: summary) if summary.present?
+    test_mode = params[:test_mode] == 'true'
+
+    @briefing.update(summary: summary, test_mode: test_mode) if summary.present?
+
+    # Identificar emails según test_mode
+    if test_mode
+      test_emails = identify_test_emails
+      @briefing.save_test_emails(test_emails)
+      recipients_count = test_emails.length
+    else
+      recipients_count = calculate_recipient_count
+    end
 
     user = User.find(session[:user_id])
     ReportDispatchJob.perform_later(@briefing.id, user.mail)
@@ -64,7 +75,9 @@ class AdminReportsController < ApplicationController
       briefing_id: @briefing.id,
       report_type: @briefing.report_type,
       formatted_date: @briefing.formatted_date,
-      recipients_count: calculate_recipient_count
+      recipients_count: recipients_count,
+      test_mode: test_mode,
+      test_emails: test_mode ? @briefing.test_emails_array : []
     }
   rescue => e
     Rails.logger.error("[AdminReportsController#approve] #{e.class} - #{e.message}")
@@ -113,5 +126,16 @@ class AdminReportsController < ApplicationController
       .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
       .distinct
       .count
+  end
+
+  def identify_test_emails
+    User.where(membership_type: 4)
+      .joins(:subscriptions)
+      .where(subscriptions: { status: "active" })
+      .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
+      .where("mail LIKE ?", "%@lantiaintelligence.com")
+      .distinct
+      .pluck(:mail)
+      .sort
   end
 end

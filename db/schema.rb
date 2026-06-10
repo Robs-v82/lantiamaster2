@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_06_09_180000) do
+ActiveRecord::Schema.define(version: 2026_06_10_120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -110,8 +110,11 @@ ActiveRecord::Schema.define(version: 2026_06_09_180000) do
     t.string "report_type", null: false, comment: "reporte_riesgo, reporte_conflictividad, reporte_prospectiva, briefing_semanal"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "test_mode", default: true, comment: "true = enviar a @lantiaintelligence.com solo, false = enviar a todos"
+    t.text "test_emails", comment: "JSON array de emails que recibirán en modo test"
     t.index ["report_type"], name: "index_briefings_on_report_type"
     t.index ["sent_at"], name: "index_briefings_on_sent_at"
+    t.index ["test_mode"], name: "index_briefings_on_test_mode"
     t.index ["year", "month_number", "report_type"], name: "idx_briefings_uniqueness", unique: true
   end
 
