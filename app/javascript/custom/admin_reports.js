@@ -104,9 +104,9 @@ $(function() {
         'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
       },
       success: function(data) {
-        currentBriefingId = data.briefing_id;
+        // No hay briefing_id persistente durante el upload (está en sesión)
+        // currentBriefingId se asignará en el approve
         $('#summary-text').val(data.summary);
-        currentRecipientsCount = data.recipients_count || 0;
         testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
 
         $('#step-1').hide();
@@ -206,12 +206,10 @@ $(function() {
 
   // Aprobar y enviar
   $(document).on('click', '#approve-btn', function() {
-    if (!currentBriefingId) return;
-
     showLoading(true);
     const summary = $('#summary-text').val();
     const testMode = $('#test-mode-toggle').val() === 'true';
-    const approveUrl = $('[data-approve-url]').data('approve-url').replace('BRIEFING_ID', currentBriefingId);
+    const approveUrl = '/admin/reportes/approve';
 
     $.ajax({
       url: approveUrl,

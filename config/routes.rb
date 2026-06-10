@@ -223,7 +223,7 @@ Rails.application.routes.draw do
     get '/admin/reportes', to: 'admin_reports#index', as: :admin_reports
     post '/admin/reportes/upload', to: 'admin_reports#upload', as: :admin_reports_upload
     get '/admin/reportes/calculate_recipients', to: 'admin_reports#calculate_recipients', as: :admin_reports_calculate_recipients
+    post '/admin/reportes/approve', to: 'admin_reports#approve', as: :admin_reports_approve
     get '/admin/reportes/:id/review', to: 'admin_reports#review', as: :admin_reports_review
-    post '/admin/reportes/:id/approve', to: 'admin_reports#approve', as: :admin_reports_approve
 
 end

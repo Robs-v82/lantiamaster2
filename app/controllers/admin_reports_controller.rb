@@ -1,6 +1,6 @@
 class AdminReportsController < ApplicationController
   before_action :require_admin!
-  before_action :set_briefing, only: [:review, :approve]
+  before_action :set_briefing, only: [:review]
 
   def index
     @briefing_form = Briefing.new
@@ -15,27 +15,31 @@ class AdminReportsController < ApplicationController
       return render json: { error: "PDF requerido" }, status: :unprocessable_entity
     end
 
+    # Crear un Briefing temporal (solo en memoria, no guardado en BD)
     briefing = create_briefing_from_params(report_type)
+    briefing.pdf.attach(pdf_file)
 
-    if briefing.save
-      briefing.pdf.attach(pdf_file)
+    # Generar resumen del PDF
+    result = generate_summary(briefing)
+    if result.ok?
+      # Almacenar datos en sesión para usar en approve
+      session[:draft_briefing] = {
+        report_type: briefing.report_type,
+        month_number: briefing.month_number,
+        year: briefing.year,
+        number: briefing.number,
+        summary: result.summary,
+        pdf_key: briefing.pdf.key
+      }
 
-      result = generate_summary(briefing)
-      if result.ok?
-        briefing.update(summary: result.summary)
-        render json: {
-          success: true,
-          briefing_id: briefing.id,
-          summary: briefing.summary,
-          report_type: briefing.report_type,
-          formatted_date: briefing.formatted_date
-        }
-      else
-        briefing.destroy
-        render json: { error: result.error }, status: :unprocessable_entity
-      end
+      render json: {
+        success: true,
+        summary: result.summary,
+        report_type: briefing.report_type,
+        formatted_date: briefing.formatted_date
+      }
     else
-      render json: { error: briefing.errors.full_messages.join(", ") }, status: :unprocessable_entity
+      render json: { error: result.error }, status: :unprocessable_entity
     end
   rescue => e
     Rails.logger.error("[AdminReportsController#upload] #{e.class} - #{e.message}")
@@ -68,8 +72,29 @@ class AdminReportsController < ApplicationController
     summary = params[:summary]
     test_mode = ActiveModel::Type::Boolean.new.cast(params[:test_mode])
 
-    @briefing.update(test_mode: test_mode)
-    @briefing.update(summary: summary) if summary.present?
+    # Obtener datos del draft desde sesión
+    draft = session[:draft_briefing]
+    unless draft
+      return render json: { error: "Sesión expirada. Por favor, carga el reporte nuevamente." }, status: :unprocessable_entity
+    end
+
+    # Crear Briefing en BD con los datos del draft
+    @briefing = Briefing.new(
+      report_type: draft['report_type'],
+      month_number: draft['month_number'],
+      year: draft['year'],
+      number: draft['number'],
+      summary: summary.present? ? summary : draft['summary'],
+      test_mode: test_mode
+    )
+
+    unless @briefing.save
+      return render json: { error: @briefing.errors.full_messages.join(", ") }, status: :unprocessable_entity
+    end
+
+    # Reasociar el PDF al Briefing guardado
+    pdf_blob = ActiveStorage::Blob.find_by(key: draft['pdf_key'])
+    @briefing.pdf.attach(pdf_blob) if pdf_blob
 
     # Identificar emails según test_mode
     if test_mode
@@ -84,6 +109,9 @@ class AdminReportsController < ApplicationController
 
     user = User.find(session[:user_id])
     ReportDispatchJob.perform_later(@briefing.id, user.mail)
+
+    # Limpiar la sesión
+    session[:draft_briefing] = nil
 
     render json: {
       success: true,
