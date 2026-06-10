@@ -1,7 +1,8 @@
 class Briefing < ApplicationRecord
   has_one_attached :pdf
 
-  validates :number, :month_number, :year, :report_type, presence: true
+  validates :month_number, :year, :report_type, presence: true
+  validates :number, presence: true, if: proc { |b| b.report_type == 'briefing_semanal' }
   validates :month_number, inclusion: { in: 1..12 }
   validates :report_type, inclusion: {
     in: %w[reporte_riesgo reporte_conflictividad reporte_prospectiva briefing_semanal],
