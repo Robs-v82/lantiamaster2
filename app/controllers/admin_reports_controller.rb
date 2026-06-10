@@ -56,7 +56,8 @@ class AdminReportsController < ApplicationController
     summary = params[:summary]
     @briefing.update(summary: summary) if summary.present?
 
-    ReportDispatchJob.perform_later(@briefing.id, current_user.mail)
+    user = User.find(session[:user_id])
+    ReportDispatchJob.perform_later(@briefing.id, user.mail)
 
     render json: {
       success: true,
@@ -112,9 +113,5 @@ class AdminReportsController < ApplicationController
       .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
       .distinct
       .count
-  end
-
-  def current_user
-    @current_user ||= User.find(session[:user_id])
   end
 end
