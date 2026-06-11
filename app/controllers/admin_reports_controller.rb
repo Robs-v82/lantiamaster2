@@ -116,6 +116,9 @@ class AdminReportsController < ApplicationController
       recipients_count = recipients_emails.length
     end
 
+    # Guardar el número de jobs que se van a encolar
+    briefing.update(pending_dispatch_jobs: recipients_emails.length)
+
     recipients_emails.each do |email|
       ReportDispatchJob.perform_later(briefing.id, email)
     end

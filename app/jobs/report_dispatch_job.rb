@@ -24,17 +24,22 @@ class ReportDispatchJob < ApplicationJob
       end
     end
 
+    # Decrementar el contador de jobs pendientes
+    briefing.decrement!(:pending_dispatch_jobs)
+
     # Solo marcar como enviado y almacenar sent_by si NO es modo prueba
     if briefing.test_mode
-      briefing.update!(recipients_count: successful_count)
+      briefing.update(recipients_count: successful_count)
       Rails.logger.info(
-        "[ReportDispatchJob] Briefing #{briefing.id} enviado en MODO PRUEBA a #{successful_count} usuarios (test_mode: true)"
+        "[ReportDispatchJob] Briefing #{briefing.id} enviado en MODO PRUEBA a #{successful_count} usuarios (test_mode: true, pending_jobs: #{briefing.pending_dispatch_jobs})"
       )
-      # Eliminar el Briefing después de prueba para permitir reutilizar el mismo mes/tipo en modo producción
-      briefing.destroy!
-      Rails.logger.info(
-        "[ReportDispatchJob] Briefing #{briefing.id} eliminado después de prueba (test_mode: true)"
-      )
+      # Eliminar el Briefing solo después de que todos los jobs hayan terminado
+      if briefing.pending_dispatch_jobs <= 0
+        briefing.destroy!
+        Rails.logger.info(
+          "[ReportDispatchJob] Briefing #{briefing.id} eliminado después de prueba (test_mode: true, todos los jobs completados)"
+        )
+      end
     else
       briefing.update!(
         sent_at: Time.current,
