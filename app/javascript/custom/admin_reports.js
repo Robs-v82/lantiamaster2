@@ -167,8 +167,9 @@ $(function() {
         }
 
         $('#email-body-intro').text(introText);
-        $('#email-body-summary-legend').text(summaryLegend);
-        $('#email-body-summary').text(processedSummary);
+        // Prepender leyenda al resumen
+        const fullSummary = summaryLegend + '\n\n' + processedSummary;
+        $('#email-body-summary').text(fullSummary);
 
         $('#step-1').hide();
         $('#step-2').show();
