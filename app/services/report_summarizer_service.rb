@@ -48,7 +48,7 @@ class ReportSummarizerService
               },
               {
                 type: "text",
-                text: "Por favor, lee el reporte adjunto y genera un resumen ejecutivo."
+                text: "Por favor, lee el reporte adjunto y genera un resumen ejecutivo. IMPORTANTE: El total de todas las palabras del resumen no debe exceder 180 palabras. Cuenta las palabras cuidadosamente y ajusta los bullets para cumplir estrictamente este límite."
               }
             ]
           }
@@ -78,7 +78,9 @@ class ReportSummarizerService
     "un resumen ejecutivo en español para enviar por correo a suscriptores. " \
     "El resumen debe ser una lista de 5 a 8 bullets concisos. Cada bullet " \
     "describe un tema central del reporte en una oración directa, sin " \
-    "encabezados ni numeración, solo guiones. El tono es analítico y preciso."
+    "encabezados ni numeración, solo guiones. El tono es analítico y preciso. " \
+    "CRÍTICO: El total del resumen NO DEBE EXCEDER 180 PALABRAS. Ajusta la extensión " \
+    "de los bullets para cumplir estrictamente este límite. Prioriza calidad sobre cantidad."
   end
 
   def extract_summary(response)

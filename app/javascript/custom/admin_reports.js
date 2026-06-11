@@ -134,7 +134,7 @@ $(function() {
         // currentBriefingId se asignará en el approve
         const reportType = $('#report-type').val();
 
-        // Procesar resumen: eliminar leyenda "Resumen Ejecutivo", normalizar espaciado y limitar a 180 palabras
+        // Procesar resumen: eliminar leyenda "Resumen Ejecutivo" y normalizar espaciado
         let summaryText = data.summary || '';
 
         // 1. Eliminar línea "Resumen Ejecutivo..." (con asteriscos opcionales)
@@ -143,16 +143,7 @@ $(function() {
         // 2. Normalizar múltiples saltos de línea a uno solo (máximo 1 línea en blanco = 2 saltos)
         summaryText = summaryText.replace(/\n{3,}/g, '\n\n');
 
-        // 3. Contar palabras (removiendo saltos de línea para conteo preciso)
-        const wordCountText = summaryText.replace(/\n/g, ' ').trim();
-        const wordCount = wordCountText.split(/\s+/).filter(w => w.length > 0).length;
-        let processedSummary = summaryText;
-
-        if (wordCount > 180) {
-          const words = wordCountText.split(/\s+/).filter(w => w.length > 0);
-          processedSummary = words.slice(0, 180).join(' ') + '...';
-          showError('El resumen se truncó a máximo 180 palabras', true);
-        }
+        const processedSummary = summaryText.trim();
 
         $('#summary-text').val(processedSummary);
         testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
