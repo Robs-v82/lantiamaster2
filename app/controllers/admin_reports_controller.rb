@@ -101,7 +101,7 @@ class AdminReportsController < ApplicationController
     )
 
     # Asociar PDF con Month para reportes mensuales
-    if briefing.monthly_report?
+    if briefing.monthly_report? && !test_mode
       briefing.associate_with_month
     end
 
