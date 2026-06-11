@@ -86,7 +86,9 @@ class ReportSummarizerService
   end
 
   def extract_summary(response)
-    response.dig("content", 0, "text") || ""
+    summary = response.dig("content", 0, "text") || ""
+    # Normalizar espaciado: reducir múltiples saltos de línea a máximo uno (una línea en blanco)
+    summary.gsub(/\n(\s*\n){2,}/, "\n\n").strip
   end
 
   def anthropic_api_key
