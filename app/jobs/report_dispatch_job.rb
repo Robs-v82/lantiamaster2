@@ -15,7 +15,7 @@ class ReportDispatchJob < ApplicationJob
 
     users.each do |user|
       begin
-        ReportMailer.dispatch(user, briefing).deliver_later
+        ReportMailer.dispatch(user, briefing).deliver_now
         successful_count += 1
       rescue => e
         Rails.logger.warn(
