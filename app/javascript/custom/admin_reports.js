@@ -134,13 +134,22 @@ $(function() {
         // currentBriefingId se asignará en el approve
         const reportType = $('#report-type').val();
 
-        // Validar máximo 180 palabras
-        const summaryText = data.summary || '';
-        const wordCount = summaryText.trim().split(/\s+/).length;
+        // Procesar resumen: eliminar leyenda "Resumen Ejecutivo", normalizar espaciado y limitar a 180 palabras
+        let summaryText = data.summary || '';
+
+        // 1. Eliminar línea "Resumen Ejecutivo..." (con asteriscos opcionales)
+        summaryText = summaryText.replace(/^\*{0,2}Resumen Ejecutivo[^\n]*\*{0,2}\s*\n+/m, '');
+
+        // 2. Normalizar múltiples saltos de línea a uno solo (máximo 1 línea en blanco = 2 saltos)
+        summaryText = summaryText.replace(/\n{3,}/g, '\n\n');
+
+        // 3. Contar palabras (removiendo saltos de línea para conteo preciso)
+        const wordCountText = summaryText.replace(/\n/g, ' ').trim();
+        const wordCount = wordCountText.split(/\s+/).filter(w => w.length > 0).length;
         let processedSummary = summaryText;
 
         if (wordCount > 180) {
-          const words = summaryText.trim().split(/\s+/);
+          const words = wordCountText.split(/\s+/).filter(w => w.length > 0);
           processedSummary = words.slice(0, 180).join(' ') + '...';
           showError('El resumen se truncó a máximo 180 palabras', true);
         }
