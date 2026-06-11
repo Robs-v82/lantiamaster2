@@ -1,61 +1,21 @@
-<div class="container mt-5">
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <h2>Capturas Mensuales - <%= "#{@year}-#{@month}" %> (year: <%= @year.inspect %> class=<%= @year.class %>, month: <%= @month.inspect %> class=<%= @month.class %>)</h2>
-    </div>
-    <div class="col-md-6 text-right">
-      <a href="<%= agent_detentions_path %>" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Volver al Agente
-      </a>
-    </div>
-  </div>
-
-  <!-- Summary Statistics -->
-  <div class="row mb-4">
-    <div class="col-md-2">
-      <div class="card bg-light">
-        <div class="card-body">
-          <h6 class="card-title">Total Capturas</h6>
-          <h3 class="text-primary"><%= @summary[:total_captures] %></h3>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card bg-light">
-        <div class="card-body">
-          <h6 class="card-title">Validadas</h6>
-          <h3 class="text-success"><%= @summary[:validated] %></h3>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card bg-light">
-        <div class="card-body">
-          <h6 class="card-title">En Revisión</h6>
-          <h3 class="text-warning"><%= @summary[:pending_review] %></h3>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card bg-light">
-        <div class="card-body">
-          <h6 class="card-title">Duplicados</h6>
-          <h3 class="text-info"><%= @summary[:duplicates] %></h3>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card bg-light">
-        <div class="card-body">
-          <h6 class="card-title">Rechazados</h6>
-          <h3 class="text-danger"><%= @summary[:rejected] %></h3>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#exportModal">
-        <i class="fas fa-download"></i> Exportar CSV
+<div class="container mt-3">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h5 class="mb-0 text-muted font-weight-normal">
+      Capturas Mensuales — <strong class="text-dark"><%= "#{@year}-#{ '%02d' % @month}" %></strong>
+    </h5>
+    <div class="d-flex align-items-center">
+      <!-- Summary inline -->
+      <span class="badge badge-secondary mr-1" title="Total">T: <%= @summary[:total_captures] %></span>
+      <span class="badge badge-success mr-1" title="Validadas">V: <%= @summary[:validated] %></span>
+      <span class="badge badge-warning mr-1" title="En revisión">R: <%= @summary[:pending_review] %></span>
+      <span class="badge badge-info mr-1" title="Duplicados">D: <%= @summary[:duplicates] %></span>
+      <span class="badge badge-danger mr-2" title="Rechazados">X: <%= @summary[:rejected] %></span>
+      <button class="btn btn-sm btn-primary mr-2" data-toggle="modal" data-target="#exportModal">
+        <i class="fas fa-download"></i> Exportar
       </button>
+      <a href="<%= agent_detentions_path %>" class="btn btn-sm btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+      </a>
     </div>
   </div>
 
@@ -72,11 +32,19 @@
             <th>Fecha</th>
             <th>Estado</th>
             <th>Municipio</th>
-            <th>Código</th>
-            <th>Organización</th>
-            <th>Detenidos</th>
+            <th>Org.</th>
+            <th class="text-center">Det.</th>
             <th>Nombre</th>
-            <th>Estado</th>
+            <th class="text-center inst-col" title="SEDENA">SED</th>
+            <th class="text-center inst-col" title="SEMAR">SEM</th>
+            <th class="text-center inst-col" title="Guardia Nacional">GN</th>
+            <th class="text-center inst-col" title="SSCP">SSC</th>
+            <th class="text-center inst-col" title="FGR">FGR</th>
+            <th class="text-center inst-col" title="SSP Estatal">SSP</th>
+            <th class="text-center inst-col" title="FGE/PGJ">FGE</th>
+            <th class="text-center inst-col" title="Policía Municipal">PM</th>
+            <th class="text-center inst-col" title="Otra fuerza">Otro</th>
+            <th>Status</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -87,10 +55,19 @@
               <td><%= capture.incident_date.strftime('%d/%m/%Y') %></td>
               <td><%= capture.estado %></td>
               <td><%= capture.municipio %></td>
-              <td><code><%= capture.full_code %></code></td>
-              <td><%= capture.organizacion %></td>
-              <td><%= capture.detenidos %></td>
+              <td><small><%= capture.organizacion %></small></td>
+              <td class="text-center"><%= capture.detenidos %></td>
               <td><%= capture.nombre %></td>
+              <% inst_icon = ->(val) { val ? '<i class="fas fa-check-circle text-success inst-icon"></i>' : '<i class="far fa-circle text-muted inst-icon"></i>' } %>
+              <td class="text-center"><%= inst_icon.call(capture.sedena).html_safe %></td>
+              <td class="text-center"><%= inst_icon.call(capture.semar).html_safe %></td>
+              <td class="text-center"><%= inst_icon.call(capture.gn).html_safe %></td>
+              <td class="text-center"><%= inst_icon.call(capture.sscp).html_safe %></td>
+              <td class="text-center"><%= inst_icon.call(capture.fgr).html_safe %></td>
+              <td class="text-center"><%= inst_icon.call(capture.ssp_estatal).html_safe %></td>
+              <td class="text-center"><%= inst_icon.call(capture.fge_pgj).html_safe %></td>
+              <td class="text-center"><%= inst_icon.call(capture.policia_municipal).html_safe %></td>
+              <td class="text-center"><%= inst_icon.call(capture.otro).html_safe %></td>
               <td>
                 <span class="badge badge-<%= capture.status == 'validated' ? 'success' : (capture.status == 'captured' ? 'info' : 'warning') %>">
                   <%= capture.status %>
@@ -221,32 +198,44 @@
             <textarea class="form-control" id="validation_notes" name="detention_capture[validation_notes]" rows="3"></textarea>
           </div>
 
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <div class="custom-control custom-checkbox">
+          <div class="form-group">
+            <label class="d-block mb-1"><small class="text-muted text-uppercase font-weight-bold">Fuerzas participantes</small></label>
+            <div class="d-flex flex-wrap">
+              <div class="custom-control custom-checkbox mr-3 mb-2">
                 <input type="checkbox" class="custom-control-input" id="sedena" name="detention_capture[sedena]">
                 <label class="custom-control-label" for="sedena">SEDENA</label>
               </div>
-            </div>
-            <div class="form-group col-md-6">
-              <div class="custom-control custom-checkbox">
+              <div class="custom-control custom-checkbox mr-3 mb-2">
                 <input type="checkbox" class="custom-control-input" id="semar" name="detention_capture[semar]">
                 <label class="custom-control-label" for="semar">SEMAR</label>
               </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <div class="custom-control custom-checkbox">
+              <div class="custom-control custom-checkbox mr-3 mb-2">
                 <input type="checkbox" class="custom-control-input" id="gn" name="detention_capture[gn]">
                 <label class="custom-control-label" for="gn">Guardia Nacional</label>
               </div>
-            </div>
-            <div class="form-group col-md-6">
-              <div class="custom-control custom-checkbox">
+              <div class="custom-control custom-checkbox mr-3 mb-2">
+                <input type="checkbox" class="custom-control-input" id="sscp" name="detention_capture[sscp]">
+                <label class="custom-control-label" for="sscp">SSCP</label>
+              </div>
+              <div class="custom-control custom-checkbox mr-3 mb-2">
                 <input type="checkbox" class="custom-control-input" id="fgr" name="detention_capture[fgr]">
                 <label class="custom-control-label" for="fgr">FGR</label>
+              </div>
+              <div class="custom-control custom-checkbox mr-3 mb-2">
+                <input type="checkbox" class="custom-control-input" id="ssp_estatal" name="detention_capture[ssp_estatal]">
+                <label class="custom-control-label" for="ssp_estatal">SSP Estatal</label>
+              </div>
+              <div class="custom-control custom-checkbox mr-3 mb-2">
+                <input type="checkbox" class="custom-control-input" id="fge_pgj" name="detention_capture[fge_pgj]">
+                <label class="custom-control-label" for="fge_pgj">FGE/PGJ</label>
+              </div>
+              <div class="custom-control custom-checkbox mr-3 mb-2">
+                <input type="checkbox" class="custom-control-input" id="policia_municipal" name="detention_capture[policia_municipal]">
+                <label class="custom-control-label" for="policia_municipal">Policía Municipal</label>
+              </div>
+              <div class="custom-control custom-checkbox mr-3 mb-2">
+                <input type="checkbox" class="custom-control-input" id="otro" name="detention_capture[otro]">
+                <label class="custom-control-label" for="otro">Otro</label>
               </div>
             </div>
           </div>
@@ -328,6 +317,19 @@
   }
   .card {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .inst-col {
+    width: 36px;
+    min-width: 36px;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    font-size: 0.7rem;
+  }
+  .inst-icon {
+    font-size: 0.85rem;
+  }
+  thead th.inst-col {
+    letter-spacing: -0.02em;
   }
 </style>
 

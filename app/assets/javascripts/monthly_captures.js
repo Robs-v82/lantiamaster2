@@ -75,8 +75,24 @@ $(document).ready(function() {
     const cells = row.find('td');
     $('#captureId').val(captureId);
     $('#incident_date').val(cells.eq(1).text().split('/').reverse().join('-'));
-    $('#detenidos').val(cells.eq(6).text());
-    $('#nombre').val(cells.eq(7).text());
+    $('#detenidos').val(cells.eq(5).text());
+    $('#nombre').val(cells.eq(6).text());
+
+    // Helper to check if institution checkbox is marked (checks for fa-check-circle icon)
+    const isInstitutionChecked = (cellIndex) => {
+      return cells.eq(cellIndex).find('.fa-check-circle').length > 0;
+    };
+
+    // Set institution checkboxes based on icons in table (cells 7-16)
+    document.getElementById('sedena').checked = isInstitutionChecked(7);
+    document.getElementById('semar').checked = isInstitutionChecked(8);
+    document.getElementById('gn').checked = isInstitutionChecked(9);
+    document.getElementById('sscp').checked = isInstitutionChecked(10);
+    document.getElementById('fgr').checked = isInstitutionChecked(11);
+    document.getElementById('ssp_estatal').checked = isInstitutionChecked(12);
+    document.getElementById('fge_pgj').checked = isInstitutionChecked(13);
+    document.getElementById('policia_municipal').checked = isInstitutionChecked(14);
+    document.getElementById('otro').checked = isInstitutionChecked(15);
 
     // Load form data first
     loadFormData();
@@ -84,7 +100,7 @@ $(document).ready(function() {
     // Set estado and wait for it to populate, then set municipio
     const selectedEstado = cells.eq(2).text();
     const selectedMunicipio = cells.eq(3).text();
-    const selectedOrganizacion = cells.eq(5).text();
+    const selectedOrganizacion = cells.eq(4).text();
 
     // Set estado
     $('#estado').val(selectedEstado);
@@ -123,8 +139,8 @@ $(document).ready(function() {
         <strong>Información a eliminar:</strong><br>
         Estado: ${cells.eq(2).text()}<br>
         Municipio: ${cells.eq(3).text()}<br>
-        Organización: ${cells.eq(5).text()}<br>
-        Nombre: ${cells.eq(7).text()}
+        Organización: ${cells.eq(4).text()}<br>
+        Nombre: ${cells.eq(6).text()}
       </div>
     `;
 
