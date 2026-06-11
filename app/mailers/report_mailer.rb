@@ -7,6 +7,9 @@ class ReportMailer < ApplicationMailer
     @greeting = determine_greeting
     @download_url = generate_download_url
 
+    # Log del resumen que se va a enviar
+    Rails.logger.info("[ReportMailer#dispatch] Briefing #{briefing.id} - Resumen para renderizar (primeros 500 chars): #{briefing.summary[0..500].inspect}")
+
     subject_line = case briefing.report_type
                    when 'briefing_semanal'
                      "Briefing Semanal #{briefing.number.to_s.rjust(3, '0')} | Lantia Intelligence"

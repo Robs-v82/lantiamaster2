@@ -88,7 +88,9 @@ class ReportSummarizerService
   def extract_summary(response)
     summary = response.dig("content", 0, "text") || ""
     # Normalizar espaciado: reducir múltiples saltos de línea a máximo uno (una línea en blanco)
-    summary.gsub(/\n(\s*\n){2,}/, "\n\n").strip
+    normalized = summary.gsub(/\n(\s*\n){2,}/, "\n\n").strip
+    Rails.logger.info("[ReportSummarizerService] Resumen normalizado de Claude (primeros 500 chars): #{normalized[0..500].inspect}")
+    normalized
   end
 
   def anthropic_api_key

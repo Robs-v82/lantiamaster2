@@ -93,8 +93,10 @@ class AdminReportsController < ApplicationController
 
     # Obtener el Briefing creado en upload
     briefing = Briefing.find(briefing_id)
+    final_summary = summary.present? ? summary : briefing.summary
+    Rails.logger.info("[AdminReportsController#approve] Resumen para enviar (primeros 500 chars): #{final_summary[0..500].inspect}")
     briefing.update(
-      summary: summary.present? ? summary : briefing.summary,
+      summary: final_summary,
       test_mode: test_mode
     )
 
