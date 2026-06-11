@@ -179,11 +179,12 @@ class AdminReportsController < ApplicationController
   end
 
   def identify_test_emails
+    admin_emails = ["roberto@lantiaintelligence.com", "jebernal1999@hotmail.com", "eggmexico@gmail.com", "eduardo.guerrero@lantiaintelligence.com"]
     User.where(membership_type: 4)
       .joins(:subscriptions)
       .where(subscriptions: { status: "active" })
       .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
-      .where("mail LIKE ?", "%@lantiaintelligence.com")
+      .where(mail: admin_emails)
       .distinct
       .pluck(:mail)
       .sort
