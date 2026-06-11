@@ -124,9 +124,17 @@
 
             <!-- Paso 2: Revisión de resumen -->
             <div id="step-2" style="display: none;">
-              <p style="margin: 10px 0; font-weight: bold; color: #1976d2;">Resumen Generado</p>
-              <div style="background-color: #f5f5f5; padding: 15px; border-radius: 4px; margin: 15px 0; max-height: 300px; overflow-y: auto;">
-                <textarea id="summary-text" style="width: 100%; border: 1px solid #ddd; padding: 10px; font-size: 13px; font-family: monospace; min-height: 200px;"></textarea>
+              <p style="margin: 10px 0; font-weight: bold; color: #1976d2;">Previsualización del Correo</p>
+              <div style="background-color: #f5f5f5; padding: 20px; border-radius: 4px; margin: 15px 0; max-height: 500px; overflow-y: auto; border: 1px solid #ddd; font-family: Helvetica, Arial, sans-serif; line-height: 1.6;">
+                <p style="color: #041F3A; margin: 10px 0;"><strong>Buenas tardes [nombre],</strong></p>
+
+                <p id="email-body-intro" style="color: #041F3A; margin: 15px 0;"></p>
+
+                <div style="margin: 20px 0; white-space: pre-wrap; color: #041F3A; font-size: 14px;" id="email-body-summary"></div>
+
+                <p style="color: #656565; font-size: 12px; margin: 20px 0; border-top: 1px solid #ddd; padding-top: 15px;">
+                  2026 Lantia Intelligence©, Todos los derechos reservados.
+                </p>
               </div>
 
               <p id="recipient-count-display" style="color: #666; font-size: 14px; margin: 10px 0; font-weight: bold;"></p>

@@ -135,6 +135,25 @@ $(function() {
         $('#summary-text').val(data.summary);
         testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
 
+        // Llenar previsualización del correo
+        const reportType = $('#report-type').val();
+        const monthVal = $('#report-month').val();
+        const yearVal = $('#report-year').val();
+
+        let introText = '';
+
+        if (reportType === 'briefing_semanal') {
+          introText = `Le enviamos adjunta la briefing semanal ${data.report_type === 'briefing_semanal' ? '${data.report_type}' : ''}.`;
+        } else {
+          const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+          const monthName = monthNames[parseInt(monthVal) - 1];
+          introText = `Le enviamos adjunta la ${data.report_type} de ${monthName} de ${yearVal}.`;
+        }
+
+        $('#email-body-intro').text(introText);
+        $('#email-body-summary').text(data.summary);
+
         $('#step-1').hide();
         $('#step-2').show();
         updateRecipientCountDisplay();
