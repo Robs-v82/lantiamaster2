@@ -80,7 +80,9 @@ class ReportSummarizerService
     "describe un tema central del reporte en una oración directa, sin " \
     "encabezados ni numeración, solo guiones. El tono es analítico y preciso. " \
     "CRÍTICO: El total del resumen NO DEBE EXCEDER 180 PALABRAS. Ajusta la extensión " \
-    "de los bullets para cumplir estrictamente este límite. Prioriza calidad sobre cantidad."
+    "de los bullets para cumplir estrictamente este límite. Prioriza calidad sobre cantidad. " \
+    "IMPORTANTE: Entre cada bullet debe haber EXACTAMENTE UNA LÍNEA EN BLANCO (un solo salto de línea). " \
+    "No agrues espacios adicionales entre los bullets. Cada bullet inicia con un guión seguido de espacio."
   end
 
   def extract_summary(response)

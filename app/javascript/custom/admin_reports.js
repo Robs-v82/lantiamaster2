@@ -140,8 +140,8 @@ $(function() {
         // 1. Eliminar línea "Resumen Ejecutivo..." (con asteriscos opcionales)
         summaryText = summaryText.replace(/^\*{0,2}Resumen Ejecutivo[^\n]*\*{0,2}\s*\n+/m, '');
 
-        // 2. Normalizar múltiples saltos de línea a uno solo (máximo 1 línea en blanco = 2 saltos)
-        summaryText = summaryText.replace(/\n{3,}/g, '\n\n');
+        // 2. Normalizar múltiples saltos de línea a uno solo (máximo 1 línea en blanco, incluyendo espacios)
+        summaryText = summaryText.replace(/\n(\s*\n){2,}/g, '\n\n');
 
         const processedSummary = summaryText.trim();
 
