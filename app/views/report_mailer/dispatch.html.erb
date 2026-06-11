@@ -63,12 +63,14 @@
                 </p>
 
                 <% if show_month %>
+                  <% article = ['reporte_prospectiva'].include?(@briefing.report_type) ? 'la' : 'el' %>
+                  <% adjective = ['reporte_prospectiva'].include?(@briefing.report_type) ? 'adjunta' : 'adjunto' %>
                   <p style="text-align: center; color: #041F3A; margin: 15px 0;">
-                    Le enviamos adjunta la <%= title.downcase %> de <strong><%= @briefing.formatted_date %></strong>.
+                    Te enviamos <%= adjective %> <%= article %> <%= title.downcase %> de <strong><%= @briefing.formatted_date %></strong>.
                   </p>
                 <% else %>
                   <p style="text-align: center; color: #041F3A; margin: 15px 0;">
-                    Le enviamos adjunta la <%= title.downcase %>.
+                    Te enviamos adjunto el <%= title.downcase %>.
                   </p>
                 <% end %>
 

@@ -156,13 +156,15 @@ $(function() {
         let summaryLegend = '';
 
         if (reportType === 'briefing_semanal') {
-          introText = `Le enviamos adjunta la briefing semanal.`;
+          introText = `Te enviamos adjunto el briefing semanal.`;
           summaryLegend = 'Esta semana desarrollamos los siguientes temas:';
         } else {
           const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                              'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
           const monthName = monthNames[parseInt(monthVal) - 1];
-          introText = `Le enviamos adjunta la ${data.report_type} de ${monthName} de ${yearVal}.`;
+          const article = reportType === 'reporte_prospectiva' ? 'la' : 'el';
+          const adjective = reportType === 'reporte_prospectiva' ? 'adjunta' : 'adjunto';
+          introText = `Te enviamos ${adjective} ${article} ${data.report_type} de ${monthName} de ${yearVal}.`;
           summaryLegend = 'Este mes desarrollamos los siguientes temas:';
         }
 
