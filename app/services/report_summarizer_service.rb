@@ -87,8 +87,8 @@ class ReportSummarizerService
 
   def extract_summary(response)
     summary = response.dig("content", 0, "text") || ""
-    # Normalizar espaciado: reducir múltiples saltos de línea a exactamente dos (una línea en blanco)
-    normalized = summary.gsub(/\n(\s*\n)+/, "\n\n").strip
+    # Normalizar espaciado: reducir múltiples saltos de línea a un solo salto
+    normalized = summary.gsub(/\n(\s*\n)+/, "\n").strip
     Rails.logger.info("[ReportSummarizerService] Resumen normalizado de Claude (primeros 500 chars): #{normalized[0..500].inspect}")
     normalized
   end
