@@ -13,7 +13,6 @@ $(function() {
 
   let currentBriefingId = null;
   let currentRecipientsCount = 0;
-  let testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
 
   // Inicializar etiqueta, instrucción y banner según estado inicial
   const isInitiallyTest = $('#test-mode-toggle').val() === 'true';
@@ -67,7 +66,7 @@ $(function() {
     let displayText = '';
 
     if (isTestMode) {
-      displayText = `Se enviará a ${testUsersCount} usuario(s) de @lantiaintelligence.com`;
+      displayText = `Se enviará a usuarios de prueba`;
     } else {
       if (currentRecipientsCount > 0) {
         displayText = `Se enviará a ${currentRecipientsCount} usuario(s) en total`;
@@ -146,7 +145,6 @@ $(function() {
         const processedSummary = summaryText.trim();
 
         $('#summary-text').val(processedSummary);
-        testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
 
         // Llenar previsualización del correo
         const monthVal = $('#report-month').val();
@@ -175,7 +173,23 @@ $(function() {
 
         $('#step-1').hide();
         $('#step-2').show();
-        updateRecipientCountDisplay();
+
+        // Obtener conteo real del servidor
+        const testMode = $('#test-mode-toggle').val() === 'true';
+        $.ajax({
+          url: '/admin/reportes/calculate_recipients',
+          type: 'GET',
+          data: { test_mode: testMode },
+          headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+          success: function(recipientData) {
+            const count = recipientData.recipients_count;
+            const displayText = testMode
+              ? `Se enviará a ${count} usuario(s) de prueba`
+              : `Se enviará a ${count} usuario(s) en total`;
+            $('#recipient-count-display-step1').text(displayText).show();
+            $('#recipient-count-display').text(displayText);
+          }
+        });
 
         // Cargar lista de correos en Step 2
         loadRecipientsListInStep2();
@@ -251,7 +265,7 @@ $(function() {
         // Actualizar la leyenda debajo del toggle
         let displayText = '';
         if (newState === 'true') {
-          displayText = `Se enviará a ${count} usuario(s) de @lantiaintelligence.com`;
+          displayText = `Se enviará a ${count} usuario(s) de prueba`;
         } else {
           displayText = `Se enviará a ${count} usuario(s) en total`;
         }
