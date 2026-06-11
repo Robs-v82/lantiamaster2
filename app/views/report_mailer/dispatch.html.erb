@@ -1,55 +1,109 @@
-<% type_label = case @briefing.report_type
-               when 'briefing_semanal'
-                 'briefing semanal'
-               when 'reporte_riesgo'
-                 'reporte de riesgo social'
-               when 'reporte_conflictividad'
-                 'reporte de conflictividad social'
-               when 'reporte_prospectiva'
-                 'reporte de prospectiva'
-               else
-                 'reporte'
-               end %>
-
 <% title = case @briefing.report_type
            when 'briefing_semanal'
-             "Briefing Semanal #{@briefing.number.to_s.rjust(3, '0')}"
+             "BRIEFING SEMANAL #{@briefing.number.to_s.rjust(3, '0')}"
            when 'reporte_riesgo'
-             "Reporte Mensual de Riesgo Social"
+             "REPORTE DE RIESGO"
            when 'reporte_conflictividad'
-             "Reporte Mensual de Conflictividad Social"
+             "REPORTE DE CONFLICTIVIDAD"
            when 'reporte_prospectiva'
-             "Reporte Mensual de Prospectiva"
+             "PROSPECTIVA"
            else
-             "Nuevo Reporte"
+             "NUEVO REPORTE"
            end %>
 
-<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-  <p><strong><%= @greeting %>, <%= @user.member&.firstname || @user.mail %></strong></p>
+<% show_month = ['reporte_riesgo', 'reporte_conflictividad', 'reporte_prospectiva'].include?(@briefing.report_type) %>
 
-  <p>Te compartimos el <%= type_label %> de <%= @briefing.formatted_date %>:</p>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <style type="text/css">
+      body, table { border-collapse: collapse; font-family: Helvetica, Arial, sans-serif; }
+      h1 { color: #041F3A; text-align: center; font-weight: 700; font-size: 26px; margin: 20px 0; padding: 0; }
+      p { color: #041F3A; margin: 10px 0; padding: 0; }
+      a { color: #007C89; text-decoration: none; }
+      .btn { display: inline-block; padding: 18px 30px; background-color: #ffffff; border: 4px solid #EF4E50; border-radius: 2px; font-weight: bold; color: #041F3A; text-decoration: none; text-align: center; font-size: 16px; font-family: Helvetica, Arial, sans-serif; }
+      ol { margin: 20px 0; padding-left: 20px; }
+      li { margin: 8px 0; color: #041F3A; font-size: 14px; }
+      .footer { font-size: 12px; color: #656565; text-align: center; margin-top: 30px; border-top: 1px solid #EAEAEA; padding-top: 20px; }
+      .logo { text-align: center; margin: 20px 0; }
+      .logo img { max-width: 200px; height: auto; }
+    </style>
+  </head>
+  <body style="background-color: #fafafa; margin: 0; padding: 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafafa;">
+      <tr>
+        <td align="center" style="padding: 20px;">
+          <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 0; max-width: 600px;">
+            <!-- HEADER CON LOGO -->
+            <tr>
+              <td style="padding: 20px; text-align: center; border-bottom: 1px solid #EAEAEA;">
+                <div class="logo">
+                  <%= image_tag('Lantia_LogoPositivo.png', alt: 'Lantia Intelligence', style: 'max-width: 150px; height: auto;') %>
+                </div>
+              </td>
+            </tr>
 
-  <div style="background-color: #f5f5f5; padding: 20px; border-left: 4px solid #1976d2; margin: 20px 0;">
-    <h3 style="margin-top: 0; color: #1976d2;"><%= title %></h3>
+            <!-- CUERPO DEL CORREO -->
+            <tr>
+              <td style="padding: 30px 30px 20px 30px;">
+                <h1><%= title %></h1>
+                <p style="text-align: center; border-bottom: 2px solid #EF4E50; padding-bottom: 20px; margin-bottom: 20px;"></p>
 
-    <div style="white-space: pre-wrap; font-size: 14px;">
+                <p style="text-align: center; font-family: Helvetica, Arial, sans-serif; font-weight: 500; margin: 20px 0; color: #041F3A;">
+                  <%= @greeting %> <span style="color: #EF4E50;"><%= @user.member&.firstname || @user.mail %>,</span>
+                </p>
+
+                <% if show_month %>
+                  <p style="text-align: center; color: #041F3A; margin: 15px 0;">
+                    Le enviamos adjunta la <%= title.downcase %> de <strong><%= @briefing.formatted_date %></strong>.
+                  </p>
+                <% else %>
+                  <p style="text-align: center; color: #041F3A; margin: 15px 0;">
+                    Le enviamos adjunta la <%= title.downcase %>.
+                  </p>
+                <% end %>
+
+                <!-- CONTENIDO DEL RESUMEN -->
+                <div style="margin: 30px 0; padding: 20px 0;">
+                  <div style="color: #041F3A; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">
 <%= @briefing.summary %>
-    </div>
-  </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
 
-  <div style="text-align: center; margin: 30px 0;">
-    <% if @download_url.present? %>
-      <a href="<%= @download_url %>"
-         style="display: inline-block; padding: 12px 24px; background-color: #1976d2; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
-        Descargar PDF
-      </a>
-    <% end %>
-  </div>
+            <!-- BOTÓN DE DESCARGA -->
+            <tr>
+              <td style="padding: 0 30px 30px 30px; text-align: center;">
+                <% if @download_url.present? %>
+                  <a href="<%= @download_url %>" class="btn">DESCARGAR REPORTE</a>
+                <% end %>
+              </td>
+            </tr>
 
-  <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-
-  <div style="font-size: 12px; color: #999;">
-    <p>Este correo fue enviado a <%= @user.mail %> porque tienes una suscripción activa con Lantia Intelligence.</p>
-    <p>© <%= Date.today.year %> Lantia Intelligence. Todos los derechos reservados.</p>
-  </div>
-</div>
+            <!-- FOOTER -->
+            <tr>
+              <td style="padding: 30px; background-color: #FAFAFA; border-top: 1px solid #EAEAEA;">
+                <div class="footer">
+                  <p style="color: #656565; font-size: 12px; margin: 10px 0;">
+                    2026 Lantia Intelligence©, Todos los derechos reservados.
+                  </p>
+                  <p style="color: #656565; font-size: 12px; margin: 10px 0;">
+                    Este correo fue enviado a <%= @user.mail %> porque tienes una suscripción activa con Lantia Intelligence.
+                  </p>
+                  <p style="color: #656565; font-size: 12px; margin: 10px 0;">
+                    <a href="https://www.lantiaintelligence.com/" style="color: #007C89;">www.lantiaintelligence.com</a>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
