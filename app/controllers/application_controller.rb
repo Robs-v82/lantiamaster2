@@ -1,4 +1,10 @@
 class ApplicationController < ActionController::Base
+	ADMIN_EMAILS = [
+		"roberto@lantiaintelligence.com",
+		"jebernal1999@hotmail.com",
+		"eggmexico@gmail.com",
+		"eduardo.guerrero@lantiaintelligence.com"
+	].freeze
 
 	# ERROR CON BCRYPT! Valladares/Users/Bobsled/.rvm/gems/ruby-2.7.1/gems/bcrypt-3.1.13/lib/bcrypt/password.rb:50: warning: deprecated Object#=~ is called on Integer; it always returns nil Completed 500 Internal Server Error in 76ms (ActiveRecord: 3.2ms | Allocations: 9495) BCrypt::Errors::InvalidHash (invalid hash):
 	before_action :set_csp_nonce
@@ -245,20 +251,18 @@ class ApplicationController < ActionController::Base
 	helper_method :admin_user?
 
 	def admin_user?
-	  admins = ["roberto@lantiaintelligence.com", "jantonio.vala00@gmail.com", "eggmexico@gmail.com", "eduardo.guerrero@lantiaintelligence.com"] # los mismos que require_admin!
 	  u = User.find_by(id: session[:user_id])
-	  u.present? && admins.include?(u.mail)
+	  u.present? && ADMIN_EMAILS.include?(u.mail)
 	end
 	
 	protected
 
 		def require_admin!
-			admins = ["roberto@lantiaintelligence.com", "roberto@primeraraiz.com", "jantonio.vala00@gmail.com", "eggmexico@gmail.com", "eduardo.guerrero@lantiaintelligence.com"]
 			x = session[:user_id]
 			user = User.find(x)
-			unless admins.include? user.mail
-				redirect_to root_path, alert: 'No autorizado'	
-			end			
+			unless ADMIN_EMAILS.include? user.mail
+				redirect_to root_path, alert: 'No autorizado'
+			end
 		end
 
 		REAUTH_WINDOW_SECONDS = ENV.fetch("REAUTH_WINDOW_SECONDS", 10.minutes.to_i).to_i

@@ -70,7 +70,7 @@ class ReportDispatchJob < ApplicationJob
       .joins(:subscriptions)
       .where(subscriptions: { status: "active" })
       .where("subscriptions.current_period_end > ?", Access::MembershipGate.now_mx)
-      .where("mail LIKE ?", "%@lantiaintelligence.com")
+      .where(mail: ApplicationController::ADMIN_EMAILS)
       .distinct
   end
 end
