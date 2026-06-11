@@ -132,27 +132,43 @@ $(function() {
       success: function(data) {
         // No hay briefing_id persistente durante el upload (está en sesión)
         // currentBriefingId se asignará en el approve
-        $('#summary-text').val(data.summary);
+        const reportType = $('#report-type').val();
+
+        // Validar máximo 180 palabras
+        const summaryText = data.summary || '';
+        const wordCount = summaryText.trim().split(/\s+/).length;
+        let processedSummary = summaryText;
+
+        if (wordCount > 180) {
+          const words = summaryText.trim().split(/\s+/);
+          processedSummary = words.slice(0, 180).join(' ') + '...';
+          showError('El resumen se truncó a máximo 180 palabras', true);
+        }
+
+        $('#summary-text').val(processedSummary);
         testUsersCount = 2; // Siempre 2 usuarios del dominio @lantiaintelligence.com
 
         // Llenar previsualización del correo
-        const reportType = $('#report-type').val();
         const monthVal = $('#report-month').val();
         const yearVal = $('#report-year').val();
 
         let introText = '';
+        let summaryLegend = '';
 
         if (reportType === 'briefing_semanal') {
-          introText = `Le enviamos adjunta la briefing semanal ${data.report_type === 'briefing_semanal' ? '${data.report_type}' : ''}.`;
+          introText = `Le enviamos adjunta la briefing semanal.`;
+          summaryLegend = 'Esta semana desarrollamos los siguientes temas:';
         } else {
           const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                              'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
           const monthName = monthNames[parseInt(monthVal) - 1];
           introText = `Le enviamos adjunta la ${data.report_type} de ${monthName} de ${yearVal}.`;
+          summaryLegend = 'Este mes desarrollamos los siguientes temas:';
         }
 
         $('#email-body-intro').text(introText);
-        $('#email-body-summary').text(data.summary);
+        $('#email-body-summary-legend').text(summaryLegend);
+        $('#email-body-summary').text(processedSummary);
 
         $('#step-1').hide();
         $('#step-2').show();
