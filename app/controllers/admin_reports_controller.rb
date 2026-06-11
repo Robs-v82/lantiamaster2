@@ -116,8 +116,9 @@ class AdminReportsController < ApplicationController
       recipients_count = recipients_emails.length
     end
 
-    user = User.find(session[:user_id])
-    ReportDispatchJob.perform_later(briefing.id, user.mail)
+    recipients_emails.each do |email|
+      ReportDispatchJob.perform_later(briefing.id, email)
+    end
 
     # Limpiar la sesión
     session[:draft_briefing_id] = nil
