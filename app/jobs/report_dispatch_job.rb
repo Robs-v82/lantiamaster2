@@ -11,11 +11,14 @@ class ReportDispatchJob < ApplicationJob
       users = fetch_active_users
     end
 
-    successful_count = 0
+    already_delivered = briefing.delivered_emails_array
+    successful_count = already_delivered.length
 
     users.each do |user|
+      next if already_delivered.include?(user.mail)
       begin
         ReportMailer.dispatch(user, briefing).deliver_now
+        briefing.mark_email_delivered!(user.mail)
         successful_count += 1
       rescue => e
         Rails.logger.warn(

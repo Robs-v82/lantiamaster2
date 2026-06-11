@@ -26,6 +26,19 @@ class Briefing < ApplicationRecord
     save!
   end
 
+  def delivered_emails_array
+    return [] if delivered_emails.blank?
+    JSON.parse(delivered_emails)
+  rescue JSON::ParseError
+    []
+  end
+
+  def mark_email_delivered!(email)
+    current = delivered_emails_array
+    return if current.include?(email)
+    update_column(:delivered_emails, (current << email).to_json)
+  end
+
   def month_name
     I18n.t("date.month_names")[month_number]
   end
