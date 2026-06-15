@@ -1052,7 +1052,17 @@ class OrganizationsController < ApplicationController
         if myCategories.include? x[8]
           unless Organization.where(:name=>x[3]).empty?
             myOrganization = Organization.where(:name=>x[3]).last.id
-            myString = x[9][6..-1]+"_"+x[9][3,2]
+            # Parse date in YYYY-MM-DD format
+            date_str = x[9].strip
+            if date_str.match?(/^\d{4}-\d{2}-\d{2}$/)
+              # Format: YYYY-MM-DD, extract year and month
+              year = date_str[0,4]
+              month = date_str[5,2]
+              myString = year + "_" + month
+            else
+              # Fallback to old format: DD/MM/YY
+              myString = x[9][6..-1]+"_"+x[9][3,2]
+            end
             print x[9]+"\n"
             print myString
             myMonth =  Month.where(:name=>myString).last.id
