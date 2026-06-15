@@ -809,7 +809,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var monthOptions = "<option value='' selected>Todos</option>"
-				for (i=0; i<data.months.length; i++) {
+				for (var i=0; i<data.months.length; i++) {
 					monthOptions += "<option name='query[month]' value='"+data.months[i]+"'>"+data.months[i]+"</option>"
 				}
 			$('.g-operation-month-selector').append(monthOptions)
@@ -826,7 +826,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var quarterOptions = "<option value='' selected>Todos</option>"
-				for (i=0; i<data.quarters.length; i++) {
+				for (var i=0; i<data.quarters.length; i++) {
 					quarterOptions += "<option name='query[quarter]' value='"+data.quarters[i]+"'>"+data.quarters[i]+"</option>"
 				}
 			$('.g-operation-quarter-selector').append(quarterOptions)
@@ -844,7 +844,7 @@ $('.query-field').on('input', function() {
 			$(this).serialize(),
 			function(data) {
 				var monthOptions = "<option value='' selected>Todos</option>"
-				for (i=0; i<data.months.length; i++) {
+				for (var i=0; i<data.months.length; i++) {
 					monthOptions += "<option name='query[month]' value='"+data.months[i]+"'>"+data.months[i]+"</option>"
 				}
 			$('#operation-month-selector').append(monthOptions)
