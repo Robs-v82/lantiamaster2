@@ -102,10 +102,25 @@ $(function() {
   $(document).on('click', '#generate-btn', function() {
     const reportType = $('#report-type').val();
     const pdfFile = document.getElementById('pdf-file').files[0];
+    const briefingNumber = $('#briefing-number').val();
+    const month = $('#report-month').val();
+    const year = $('#report-year').val();
 
     if (!reportType || !pdfFile) {
       showError('Selecciona tipo de reporte y PDF');
       return;
+    }
+
+    if (reportType === 'briefing_semanal' && !briefingNumber) {
+      showError('Selecciona el número de briefing');
+      return;
+    }
+
+    if (['reporte_riesgo', 'reporte_conflictividad', 'reporte_prospectiva'].includes(reportType)) {
+      if (!month || !year) {
+        showError('Selecciona mes y año');
+        return;
+      }
     }
 
     showLoading(true);

@@ -50,6 +50,17 @@ class AdminReportsController < ApplicationController
       briefing.destroy
       render json: { error: result.error }, status: :unprocessable_entity
     end
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error("[AdminReportsController#upload] Validation error - #{e.message}")
+    render json: { error: e.message }, status: :unprocessable_entity
+  rescue PG::UniqueViolation => e
+    Rails.logger.error("[AdminReportsController#upload] Uniqueness violation - #{e.message}")
+    error_msg = if report_type == 'briefing_semanal'
+                  "Ya existe un briefing con ese número"
+                else
+                  "Ya existe un reporte de este tipo para ese mes/año"
+                end
+    render json: { error: error_msg }, status: :unprocessable_entity
   rescue => e
     Rails.logger.error("[AdminReportsController#upload] #{e.class} - #{e.message}")
     render json: { error: "Error procesando PDF: #{e.message}" }, status: :unprocessable_entity
