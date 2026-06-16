@@ -6,10 +6,8 @@ class Briefing < ApplicationRecord
     message: "debe ser uno de: reporte_riesgo, reporte_conflictividad, reporte_prospectiva, briefing_semanal"
   }
 
-  validates :number, presence: true,
-            uniqueness: true,
-            if: proc { |b| b.report_type == 'briefing_semanal' },
-            message: "de briefing ya existe"
+  validates :number, presence: true, if: proc { |b| b.report_type == 'briefing_semanal' }
+  validates :number, uniqueness: true, if: proc { |b| b.report_type == 'briefing_semanal' }, message: "de briefing ya existe"
 
   validates :month_number, :year, presence: true,
             if: proc { |b| b.report_type != 'briefing_semanal' }
