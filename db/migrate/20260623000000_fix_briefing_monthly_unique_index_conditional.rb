@@ -1,4 +1,6 @@
 class FixBriefingMonthlyUniqueIndexConditional < ActiveRecord::Migration[6.0]
+  disable_ddl_transaction!
+
   def change
     # Remover el índice incondicional que está prohibiendo múltiples briefing_semanal
     remove_index :briefings, name: 'idx_briefing_monthly_unique' if index_exists?(:briefings, [:year, :month_number, :report_type], name: 'idx_briefing_monthly_unique')
