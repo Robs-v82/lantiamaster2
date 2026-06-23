@@ -7,7 +7,7 @@ class Briefing < ApplicationRecord
   }
 
   validates :number, presence: true, if: proc { |b| b.report_type == 'briefing_semanal' }
-  validates :number, uniqueness: { message: "de briefing ya existe" }, if: proc { |b| b.report_type == 'briefing_semanal' }
+  validates :number, uniqueness: { scope: [:year, :month_number], message: "de briefing ya existe" }, if: proc { |b| b.report_type == 'briefing_semanal' }
 
   validates :month_number, :year, presence: true,
             if: proc { |b| b.report_type != 'briefing_semanal' }
