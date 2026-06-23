@@ -2699,7 +2699,7 @@ end
     	@briefings_new = Briefing.where(report_type: "briefing_semanal")
     		.where.not(sent_at: nil)
     		.where(test_mode: false)
-    		.order(year: :desc, month_number: :desc)
+    		.order(year: :desc, month_number: :desc, id: :desc)
     end
 
 		def run_daily_search
