@@ -556,25 +556,86 @@ class AgentController < ApplicationController
     rows = all_candidate_rows.select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
     invalid_rows = all_candidate_rows - rows
 
-    # LOGUEAR FILAS INVÁLIDAS CON DETALLES
+    # LOGUEAR FILAS INVÁLIDAS Y INTENTAR CORRECCIÓN
+    corrected_rows = []
     invalid_rows.each do |row|
+      validation = validate_csv_row_format(row)
       fields = row.split(",")
-      error_reason = if !row.match?(/\A\d{1,2},\d/)
-                       "formato_fecha_invalido"
-                     else
-                       "campos_insuficientes (#{fields.count} campos, requiere 28)"
-                     end
-
       estado = fields[3] rescue nil
       municipio = fields[5] rescue nil
 
       Rails.logger.warn(
-        "[Agent#extract_batch] #{url} | ❌ FILA RECHAZADA | " +
-        "Razón: #{error_reason} | " +
+        "[Agent#extract_batch] #{url} | ❌ FILA RECHAZADA (INTENTO 1) | " +
+        "Razón: #{validation[:error_type]} | Detalles: #{validation[:details]} | " +
         "Estado: #{estado} | Municipio: #{municipio} | " +
-        "Row preview: #{row.first(150)}"
+        "Row preview: #{row.first(100)}"
       )
+
+      # INTENTO DE CORRECCIÓN: Detectar si es solucionable
+      if %w[campos_insuficientes formato_fecha_invalido url_invalida].include?(validation[:error_type])
+        Rails.logger.info(
+          "[Agent#extract_batch] #{url} | 🔄 INICIANDO REINTENTO DE CORRECCIÓN | " +
+          "Tipo: #{validation[:error_type]} | Detalles: #{validation[:details]}"
+        )
+
+        correction_message = generate_correction_prompt(validation[:error_type], validation[:details])
+        corrected_response = retry_claude_with_correction(
+          content, url, correction_message, organizations, claude_key
+        )
+
+        if corrected_response.is_a?(Hash) && corrected_response[:error]
+          Rails.logger.warn(
+            "[Agent#extract_batch] #{url} | ❌ REINTENTO FALLÓ | " +
+            "Error: #{corrected_response[:error]}"
+          )
+        else
+          # Procesar la respuesta corregida
+          corrected_lines = corrected_response.strip.split("\n")
+                                              .map(&:strip)
+                                              .reject(&:empty?)
+                                              .reject { |r| r.start_with?("#", "*", "-", " ") }
+                                              .reject { |r| r.start_with?("###CITA") }
+
+          corrected_valid = corrected_lines.select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
+
+          if corrected_valid.any?
+            corrected_valid.each do |corrected_row|
+              corrected_fields = corrected_row.split(",")
+              corrected_estado = corrected_fields[3] rescue nil
+              corrected_municipio = corrected_fields[5] rescue nil
+
+              Rails.logger.info(
+                "[Agent#extract_batch] #{url} | ✅ REINTENTO EXITOSO | " +
+                "Fila corregida: Persona: #{corrected_fields[10..12].compact.join(' ')} | " +
+                "Estado: #{corrected_estado} | Municipio: #{corrected_municipio} | " +
+                "Campos: #{corrected_fields.length}"
+              )
+
+              corrected_rows << corrected_row
+            end
+          else
+            Rails.logger.warn(
+              "[Agent#extract_batch] #{url} | ⚠️ REINTENTO COMPLETADO PERO SIN FILAS VÁLIDAS | " +
+              "Respuesta corregida no contiene filas CSV válidas"
+            )
+          end
+        end
+      else
+        Rails.logger.warn(
+          "[Agent#extract_batch] #{url} | ⚠️ ERROR NO SOLUCIONABLE | " +
+          "Tipo: #{validation[:error_type]} - No se intenta reintento automático"
+        )
+      end
     end
+
+    # Agregar filas corregidas a las válidas
+    rows = rows + corrected_rows
+    Rails.logger.info(
+      "[Agent#extract_batch] #{url} | 📊 RESULTADO DE VALIDACIÓN | " +
+      "Filas válidas iniciales: #{all_candidate_rows.select { |r| r.match?(/\A\d{1,2},\d/) && r.count(',') >= 27 }.length} | " +
+      "Filas corregidas: #{corrected_rows.length} | " +
+      "Total final: #{rows.length}"
+    ) if corrected_rows.any?
 
     # Lookup full_code in database for each row
     rows_with_lookups = rows.map do |row|
@@ -1079,6 +1140,96 @@ class AgentController < ApplicationController
       "[Agent#client_validation] Error al procesar log del cliente: #{e.class}: #{e.message}"
     )
     render json: { error: e.message }, status: :bad_request
+  end
+
+  # ── Validación y corrección de filas CSV ────────────────────────────────────
+  def validate_csv_row_format(row)
+    fields = row.split(",")
+
+    case
+    when fields.length < 28
+      { valid: false, error_type: "campos_insuficientes",
+        details: "Tiene #{fields.length} campos, requiere 28" }
+    when !row.match?(/\A\d{1,2},\d/)
+      { valid: false, error_type: "formato_fecha_invalido",
+        details: "Debe comenzar con DD,MM (ej: 25,06,26)" }
+    when fields[27].blank? || !fields[27].start_with?('http')
+      { valid: false, error_type: "url_invalida",
+        details: "Campo 28 (Fuente) debe ser URL válida" }
+    else
+      { valid: true, error_type: nil, details: nil }
+    end
+  end
+
+  def generate_correction_prompt(error_type, error_details)
+    case error_type
+    when "campos_insuficientes"
+      "Tu respuesta anterior tiene #{error_details}. " +
+      "Debes regenerar la fila CSV con EXACTAMENTE 28 campos separados por comas. " +
+      "Mantén las líneas ###CITA exactamente iguales, solo corrige la fila CSV. " +
+      "Formato: DD,MM,26,Estado,full_code,Municipio,Abatido,Detenidos,... hasta campo 28 que debe ser la URL."
+
+    when "formato_fecha_invalido"
+      "La fecha en tu CSV anterior no es válida. La fila debe comenzar con " +
+      "DD,MM,26 (ejemplo: 25,06,26 para 25 de junio de 2026). " +
+      "Regenera la respuesta con el formato de fecha correcto al principio de la fila CSV. " +
+      "Mantén las líneas ###CITA iguales."
+
+    when "url_invalida"
+      "El campo Fuente (posición 28) debe ser una URL válida que comience con 'http'. " +
+      "Regenera la fila CSV asegurándote de que el último campo es la URL completa de la nota."
+
+    else
+      "Hubo un problema con tu respuesta anterior. " +
+      "Por favor regenera la fila CSV asegurándote de que: " +
+      "1) Tiene exactamente 28 campos separados por comas, " +
+      "2) Comienza con DD,MM,26 (formato de fecha), " +
+      "3) El campo 28 es una URL válida. " +
+      "Mantén las líneas ###CITA exactamente iguales."
+    end
+  end
+
+  def retry_claude_with_correction(content, url, correction_message, organizations, claude_key)
+    org_catalog = organizations.join(", ")
+    user_message = "CATÁLOGO DE ORGANIZACIONES VÁLIDAS:\n#{org_catalog}\n\n" +
+                   "URL: #{url}\n\n" +
+                   "INSTRUCCIÓN DE CORRECCIÓN:\n#{correction_message}\n\n" +
+                   "TEXTO:\n#{content.first(8000)}"
+
+    uri = URI("https://api.anthropic.com/v1/messages")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.read_timeout = 60
+    http.open_timeout = 10
+
+    req = Net::HTTP::Post.new(uri)
+    req["x-api-key"] = claude_key
+    req["anthropic-version"] = "2023-06-01"
+    req["content-type"] = "application/json"
+    req.body = {
+      model: "claude-sonnet-4-6",
+      max_tokens: 2048,
+      temperature: 0.0,
+      cache_control: { type: "ephemeral" },
+      system: EXTRACTION_SYSTEM_PROMPT,
+      messages: [{ role: "user", content: user_message }]
+    }.to_json
+
+    res = http.request(req)
+    data = JSON.parse(res.body)
+
+    if data["error"]
+      error_msg = "#{data['error']['type']}: #{data['error']['message']}"
+      Rails.logger.error("[Agent#retry_claude] #{url} | API Error: #{error_msg}")
+      { error: error_msg }
+    else
+      text = data.dig("content", 0, "text")
+      return { error: "Empty response from Claude" } if text.blank?
+      text
+    end
+  rescue => e
+    Rails.logger.error("[Agent#retry_claude] #{url} | #{e.class}: #{e.message}")
+    { error: "#{e.class}: #{e.message}" }
   end
 
   private
