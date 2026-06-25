@@ -438,6 +438,29 @@ class AgentController < ApplicationController
       result
     end
 
+    # LOGUEAR RESUMEN FINAL
+    summary = results.group_by { |r| r[:status] }
+    Rails.logger.info(
+      "[Agent#extract_batch] RESUMEN FINAL | " +
+      "Total artículos: #{results.length} | " +
+      "OK: #{summary['ok']&.length || 0} | " +
+      "Discarded: #{summary['discarded']&.length || 0} | " +
+      "Error: #{summary['error']&.length || 0}"
+    )
+
+    # Loguear detalles de cada resultado de guardado
+    results.each do |result|
+      if result[:save_results]&.any?
+        result[:save_results].each do |save_result|
+          Rails.logger.info(
+            "[Agent#extract_batch] #{result[:url]} | " +
+            "Save result: #{save_result[:status]} | " +
+            "Reason: #{save_result[:reason]}"
+          )
+        end
+      end
+    end
+
     render json: { results: results }
   end
 
@@ -518,12 +541,34 @@ class AgentController < ApplicationController
     end
 
     # Parse CSV rows: must start with 1-2 digits (Día), have ≥27 commas, no markdown
-    rows = claude_response.strip.split("\n")
-                          .map(&:strip)
-                          .reject(&:empty?)
-                          .reject { |r| r.start_with?("#", "*", "-", " ") }
-                          .reject { |r| r.start_with?("###CITA") }
-                          .select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
+    all_candidate_rows = claude_response.strip.split("\n")
+                                       .map(&:strip)
+                                       .reject(&:empty?)
+                                       .reject { |r| r.start_with?("#", "*", "-", " ") }
+                                       .reject { |r| r.start_with?("###CITA") }
+
+    rows = all_candidate_rows.select { |r| r.match?(/\A\d{1,2},\d/) && r.count(",") >= 27 }
+    invalid_rows = all_candidate_rows - rows
+
+    # LOGUEAR FILAS INVÁLIDAS CON DETALLES
+    invalid_rows.each do |row|
+      fields = row.split(",")
+      error_reason = if !row.match?(/\A\d{1,2},\d/)
+                       "formato_fecha_invalido"
+                     else
+                       "campos_insuficientes (#{fields.count} campos, requiere 28)"
+                     end
+
+      estado = fields[3] rescue nil
+      municipio = fields[5] rescue nil
+
+      Rails.logger.warn(
+        "[Agent#extract_batch] #{url} | ❌ FILA RECHAZADA | " +
+        "Razón: #{error_reason} | " +
+        "Estado: #{estado} | Municipio: #{municipio} | " +
+        "Row preview: #{row.first(150)}"
+      )
+    end
 
     # Lookup full_code in database for each row
     rows_with_lookups = rows.map do |row|
@@ -850,15 +895,47 @@ class AgentController < ApplicationController
     return nil if csv_row.blank?
 
     fields = CSV.parse_line(csv_row, col_sep: ",")
-    return nil if fields.blank? || fields.length < 28
+
+    # LOGUEAR INTENTO
+    pessoa_info = "#{fields[10] || '?'} #{fields[11] || '?'}" rescue "?"
+    Rails.logger.info(
+      "[Agent#save_csv] #{url} | Intento guardar: " +
+      "#{pessoa_info} | " +
+      "Estado: #{estado} | Municipio: #{municipio} | " +
+      "Campos: #{fields.length}"
+    )
+
+    # VALIDACIÓN 1: Campos suficientes
+    if fields.blank? || fields.length < 28
+      Rails.logger.warn(
+        "[Agent#save_csv] #{url} | ❌ RECHAZADO | " +
+        "Razón: campos_insuficientes (#{fields.length} vs 28) | " +
+        "Persona: #{pessoa_info}"
+      )
+      return nil
+    end
 
     detenidos_value = fields[7].to_i
+
+    # VALIDACIÓN 2: Detenidos > 0
     if detenidos_value == 0
+      Rails.logger.warn(
+        "[Agent#save_csv] #{url} | ❌ RECHAZADO | " +
+        "Razón: detenidos_is_zero | " +
+        "Persona: #{pessoa_info} | " +
+        "Detenidos: #{detenidos_value}"
+      )
       return { status: 'rejected', reason: 'detenidos_is_zero', message: 'Registro rechazado: número de detenidos no puede ser 0' }
     end
 
-    # Validar que al menos el estado esté identificado
+    # VALIDACIÓN 3: Estado identificado
     if estado.blank?
+      Rails.logger.warn(
+        "[Agent#save_csv] #{url} | ❌ RECHAZADO | " +
+        "Razón: estado_not_found | " +
+        "Persona: #{pessoa_info} | " +
+        "Municipio: #{municipio}"
+      )
       return { status: 'rejected', reason: 'estado_not_found', message: 'Registro rechazado: Estado no identificado' }
     end
 
@@ -929,9 +1006,21 @@ class AgentController < ApplicationController
         status: 'captured'
       )
 
+      Rails.logger.info(
+        "[Agent#save_csv] #{url} | ✅ GUARDADO EXITOSO | " +
+        "ID: #{capture.id} | " +
+        "Persona: #{pessoa_info} | " +
+        "Estado: #{fields[3]} | Municipio: #{fields[5]} | " +
+        "Detenidos: #{detenidos_value}"
+      )
+
       { status: 'saved', id: capture.id, hash: capture_hash }
     rescue StandardError => e
-      Rails.logger.error("[DetentionCapture] Error saving: #{e.message}")
+      Rails.logger.error(
+        "[Agent#save_csv] #{url} | ❌ ERROR AL GUARDAR | " +
+        "Persona: #{pessoa_info} | " +
+        "Error: #{e.class}: #{e.message}"
+      )
       { status: 'error', error: e.message }
     end
   end
