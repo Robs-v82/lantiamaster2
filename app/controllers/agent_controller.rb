@@ -857,6 +857,11 @@ class AgentController < ApplicationController
       return { status: 'rejected', reason: 'detenidos_is_zero', message: 'Registro rechazado: número de detenidos no puede ser 0' }
     end
 
+    # Validar que al menos el estado esté identificado
+    if estado.blank?
+      return { status: 'rejected', reason: 'estado_not_found', message: 'Registro rechazado: Estado no identificado' }
+    end
+
     begin
       capture_date = Date.today
       incident_date = Date.new(

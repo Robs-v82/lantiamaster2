@@ -7,7 +7,8 @@ class DetentionCapture < ApplicationRecord
   scope :by_status, ->(status) { where(status: status) }
 
   validates :capture_hash, presence: true, uniqueness: true
-  validates :incident_date, :estado, :municipio, :full_code, presence: true
+  validates :incident_date, :estado, :municipio, presence: true
+  validates :full_code, uniqueness: true, allow_blank: true
 
   before_create :ensure_capture_date
 
