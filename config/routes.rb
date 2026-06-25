@@ -191,6 +191,7 @@ Rails.application.routes.draw do
     get   "agent/get_organizations",          to: "agent#get_organizations", as: :get_organizations
     get   "agent/get_states",                 to: "agent#get_states",        as: :get_states
     get   "agent/get_counties",               to: "agent#get_counties",      as: :get_counties
+    post  "agent/detentions/log_client_validation", to: "agent#log_client_validation", as: :log_client_validation_agent_detentions
 
     get  "organizations/admin", to: "organizations#admin"
     post "organizations/:id/set_search_level", to: "organizations#set_search_level", as: :set_org_search_level

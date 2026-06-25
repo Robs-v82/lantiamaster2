@@ -536,6 +536,35 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
 
           var status = result.csv_rows && result.csv_rows.length > 0 ? 'ÉXITO (' + result.csv_rows.length + ' filas)' : 'ok (sin filas)';
           fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + status + contentInfo + claudeRespInfo + fullCodeInfo + lookupDetailsMsg + debugMsg);
+
+          // ENVIAR INFORMACIÓN DE VALIDACIÓN AL SERVIDOR
+          if (result.status === 'ok' && result.csv_rows && result.csv_rows.length > 0) {
+            var acceptedRows = [];
+            var rejectedRows = [];
+            (result.csv_rows || []).forEach(function(rawRow) {
+              var v = validateRow(rawRow, result.url);
+              if (v.ok) {
+                acceptedRows.push(rawRow);
+              } else {
+                rejectedRows.push({ row_preview: rawRow.substring(0, 150), reason: v.error });
+              }
+            });
+
+            // Enviar al servidor para logging
+            fetch('/agent/detentions/log_client_validation', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() },
+              body: JSON.stringify({
+                url: result.url,
+                csv_rows_received: result.csv_rows.length,
+                csv_rows_accepted: acceptedRows.length,
+                csv_rows_rejected: rejectedRows.length,
+                rejections: rejectedRows
+              })
+            }).catch(function(err) {
+              console.log('Error logging validation:', err);
+            });
+          }
         }
 
         if (result.status === 'discarded') {

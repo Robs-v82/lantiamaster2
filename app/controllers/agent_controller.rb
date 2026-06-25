@@ -501,6 +501,12 @@ class AgentController < ApplicationController
     # Call Claude
     claude_response = call_claude_api(content, url, organizations, claude_key)
 
+    # LOGUEAR RESPUESTA COMPLETA DE CLAUDE
+    Rails.logger.info(
+      "[Agent#claude_response] #{url} | " +
+      "Respuesta Claude (#{claude_response&.length || 0} chars):\n#{claude_response&.to_s&.first(2000)}"
+    )
+
     # Handle error response from Claude API
     if claude_response.is_a?(Hash) && claude_response[:error]
       return { url: url, status: "error", reason: "claude_error", csv_rows: [], error_detail: claude_response[:error], content_length: content_length }
@@ -601,11 +607,27 @@ class AgentController < ApplicationController
     # When no rows parsed, include a truncated Claude response for diagnosis
     debug = rows.empty? ? claude_response.strip.first(1000) : nil
 
+    final_csv_rows = rows_with_lookups.map { |r| r[:row] }
+
+    # LOGUEAR CSV ROWS QUE SE DEVOLVERÁN AL CLIENTE
+    if final_csv_rows.any?
+      Rails.logger.info(
+        "[Agent#csv_rows_output] #{url} | " +
+        "Devolviendo #{final_csv_rows.length} fila(s) al cliente:\n" +
+        final_csv_rows.map { |row| "  #{row.first(150)}" }.join("\n")
+      )
+    else
+      Rails.logger.info(
+        "[Agent#csv_rows_output] #{url} | " +
+        "No se devuelven filas (status: ok pero sin datos)"
+      )
+    end
+
     {
       url: url,
       status: "ok",
       reason: nil,
-      csv_rows: rows_with_lookups.map { |r| r[:row] },
+      csv_rows: final_csv_rows,
       full_code_lookups: rows_with_lookups,
       citation_validations: citation_validations,
       debug: debug,
@@ -1023,6 +1045,40 @@ class AgentController < ApplicationController
       )
       { status: 'error', error: e.message }
     end
+  end
+
+  # ── Logging endpoint para validaciones del cliente ────────────────────────
+  def log_client_validation
+    body = JSON.parse(request.raw_post)
+    url = body["url"]
+    csv_rows_received = body["csv_rows_received"]
+    csv_rows_accepted = body["csv_rows_accepted"]
+    csv_rows_rejected = body["csv_rows_rejected"]
+    rejections = body["rejections"] || []
+
+    Rails.logger.info(
+      "[Agent#client_validation] #{url} | " +
+      "Recibidas: #{csv_rows_received} | Aceptadas: #{csv_rows_accepted} | Rechazadas: #{csv_rows_rejected}"
+    )
+
+    if rejections.any?
+      Rails.logger.warn(
+        "[Agent#client_validation] #{url} | Filas rechazadas por cliente:"
+      )
+      rejections.each_with_index do |rejection, idx|
+        Rails.logger.warn(
+          "[Agent#client_validation] #{url} | [#{idx + 1}] Razón: #{rejection['reason']} | " +
+          "Preview: #{rejection['row_preview']&.first(100)}"
+        )
+      end
+    end
+
+    render json: { status: "logged" }
+  rescue => e
+    Rails.logger.error(
+      "[Agent#client_validation] Error al procesar log del cliente: #{e.class}: #{e.message}"
+    )
+    render json: { error: e.message }, status: :bad_request
   end
 
   private
