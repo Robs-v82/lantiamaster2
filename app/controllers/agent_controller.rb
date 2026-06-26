@@ -939,7 +939,7 @@ class AgentController < ApplicationController
         .where(deleted_at: nil)
         .where(capture_date: month_start..month_end)
         .where(status: ['captured', 'validated', 'pending_review'])
-        .order(incident_date: :desc)
+        .order(id: :asc)
 
       @summary = DetentionCapture.monthly_summary(@year, @month)
     rescue => e
