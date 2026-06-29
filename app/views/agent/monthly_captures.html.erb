@@ -1,8 +1,55 @@
 <div class="container mt-3">
+  <!-- Navigation and Title Section -->
+  <div class="mb-3 p-2 bg-light rounded">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2">
+        <!-- Previous Month Button -->
+        <%
+          prev_month = @month == 1 ? 12 : @month - 1
+          prev_year = @month == 1 ? @year - 1 : @year
+        %>
+        <a href="<%= agent_monthly_captures_path(year: prev_year, month: prev_month) %>" class="btn btn-sm btn-outline-secondary" title="Mes anterior">
+          <i class="fas fa-chevron-left"></i> Anterior
+        </a>
+
+        <!-- Month/Year Display -->
+        <h5 class="mb-0 mx-3 text-dark font-weight-bold" style="min-width: 150px; text-align: center;">
+          <%= Date.new(@year, @month, 1).strftime("%B %Y") %>
+        </h5>
+
+        <!-- Next Month Button -->
+        <%
+          next_month = @month == 12 ? 1 : @month + 1
+          next_year = @month == 12 ? @year + 1 : @year
+        %>
+        <a href="<%= agent_monthly_captures_path(year: next_year, month: next_month) %>" class="btn btn-sm btn-outline-secondary" title="Mes siguiente">
+          Siguiente <i class="fas fa-chevron-right"></i>
+        </a>
+
+        <!-- Year Selector -->
+        <div class="ml-3">
+          <label for="yearSelector" class="mb-0 mr-2 text-muted small">Año:</label>
+          <select id="yearSelector" class="form-control form-control-sm" style="width: 80px; display: inline-block;" onchange="navigateToYearMonth(this.value, <%= @month %>)">
+            <% (2024..2030).each do |year| %>
+              <option value="<%= year %>" <%= 'selected' if year == @year %>>
+                <%= year %>
+              </option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Go to Today Button -->
+        <a href="<%= agent_monthly_captures_path %>" class="btn btn-sm btn-info ml-2" title="Ir a este mes">
+          <i class="fas fa-calendar-today"></i> Hoy
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="d-flex align-items-center justify-content-between mb-2">
-    <h5 class="mb-0 text-muted font-weight-normal">
-      Capturas Mensuales — <strong class="text-dark"><%= "#{@year}-#{ '%02d' % @month}" %></strong>
-    </h5>
+    <h6 class="mb-0 text-muted">
+      Registros del mes seleccionado
+    </h6>
     <div class="d-flex align-items-center">
       <!-- Summary inline -->
       <span class="badge badge-secondary mr-1" title="Total">T: <%= @summary[:total_captures] %></span>
@@ -298,6 +345,26 @@
 
 <script src="/assets/monthly_captures.js" nonce="<%= content_security_policy_nonce %>"></script>
 
+<script>
+  // Navigate to selected year while keeping current month
+  function navigateToYearMonth(year, month) {
+    const url = '<%= agent_monthly_captures_path %>' + '?year=' + year + '&month=' + month;
+    window.location.href = url;
+  }
+
+  // Add bootstrap gap utility if not available
+  if (!document.querySelector('style[data-gap]')) {
+    const style = document.createElement('style');
+    style.setAttribute('data-gap', 'true');
+    style.textContent = `
+      .gap-2 {
+        gap: 0.5rem;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+</script>
+
 <style>
   .table-hover tbody tr:hover {
     background-color: #f5f5f5;
@@ -332,6 +399,25 @@
   }
   thead th.inst-col {
     letter-spacing: -0.02em;
+  }
+  /* Navigation Section Styles */
+  .bg-light {
+    background-color: #f8f9fa !important;
+  }
+  .rounded {
+    border-radius: 0.25rem;
+  }
+  .gap-2 {
+    gap: 0.5rem;
+  }
+  #yearSelector {
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+  }
+  #yearSelector:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
 </style>
 
