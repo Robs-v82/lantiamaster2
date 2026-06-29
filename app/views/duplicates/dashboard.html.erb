@@ -93,7 +93,7 @@
                     <th>Fecha</th>
                     <th>Organización</th>
                     <th>Status</th>
-                    <th>Acción</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -110,15 +110,22 @@
                         </span>
                       </td>
                       <td>
-                        <% if record.status != 'duplicate' %>
-                          <button class="btn btn-sm btn-danger" onclick="markAsDuplicate(<%= record.id %>, <%= records.first.id %>)">
-                            Marcar dup
-                          </button>
-                        <% else %>
-                          <button class="btn btn-sm btn-warning" onclick="unmarkDuplicate(<%= record.id %>)">
-                            Desmarcar
-                          </button>
-                        <% end %>
+                        <div class="btn-group btn-group-sm" role="group">
+                          <% if record.source_url.present? %>
+                            <a href="<%= record.source_url %>" target="_blank" class="btn btn-info" title="Ver fuente original">
+                              <i class="fas fa-external-link-alt"></i>
+                            </a>
+                          <% end %>
+                          <% if record.status != 'duplicate' %>
+                            <button class="btn btn-danger" onclick="markAsDuplicate(<%= record.id %>, <%= records.first.id %>)" title="Marcar como duplicado">
+                              <i class="fas fa-copy"></i>
+                            </button>
+                          <% else %>
+                            <button class="btn btn-warning" onclick="unmarkDuplicate(<%= record.id %>)" title="Desmarcar">
+                              <i class="fas fa-undo"></i>
+                            </button>
+                          <% end %>
+                        </div>
                       </td>
                     </tr>
                   <% end %>
@@ -159,7 +166,7 @@
                     <th>Fecha</th>
                     <th>Alias</th>
                     <th>Organización</th>
-                    <th>Acción</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -172,9 +179,16 @@
                       <td><small><%= record.alias %></small></td>
                       <td><small><%= record.organizacion %></small></td>
                       <td>
-                        <button class="btn btn-sm btn-warning" onclick="reviewDuplicate(<%= record.id %>)">
-                          Revisar
-                        </button>
+                        <div class="btn-group btn-group-sm" role="group">
+                          <% if record.source_url.present? %>
+                            <a href="<%= record.source_url %>" target="_blank" class="btn btn-info" title="Ver fuente original">
+                              <i class="fas fa-external-link-alt"></i>
+                            </a>
+                          <% end %>
+                          <button class="btn btn-warning" onclick="reviewDuplicate(<%= record.id %>)" title="Revisar">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   <% end %>
@@ -211,6 +225,7 @@
                     <th>Alias</th>
                     <th>Organización</th>
                     <th>Rol</th>
+                    <th>Fuente</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -221,6 +236,13 @@
                       <td><%= record.alias %></td>
                       <td><%= record.organizacion %></td>
                       <td><small><%= record.rol %></small></td>
+                      <td>
+                        <% if record.source_url.present? %>
+                          <a href="<%= record.source_url %>" target="_blank" class="btn btn-sm btn-info" title="Ver fuente original">
+                            <i class="fas fa-external-link-alt"></i>
+                          </a>
+                        <% end %>
+                      </td>
                     </tr>
                   <% end %>
                 </tbody>
@@ -247,6 +269,7 @@
                     <th>Municipio/Estado</th>
                     <th>Full Code</th>
                     <th>Fecha</th>
+                    <th>Fuente</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -256,6 +279,13 @@
                       <td><%= record.municipio %>, <%= record.estado %></td>
                       <td><%= record.full_code %></td>
                       <td><%= record.incident_date.strftime('%Y-%m-%d') %></td>
+                      <td>
+                        <% if record.source_url.present? %>
+                          <a href="<%= record.source_url %>" target="_blank" class="btn btn-sm btn-info" title="Ver fuente original">
+                            <i class="fas fa-external-link-alt"></i>
+                          </a>
+                        <% end %>
+                      </td>
                     </tr>
                   <% end %>
                 </tbody>
