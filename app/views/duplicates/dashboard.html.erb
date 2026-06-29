@@ -116,11 +116,11 @@
                           </a>
                         <% end %>
                         <% if record.status != 'duplicate' %>
-                          <button class="btn btn-sm btn-danger full-width-btn" onclick="markAsDuplicate(<%= record.id %>, <%= records.first.id %>)" title="Marcar como duplicado">
+                          <button class="btn btn-sm btn-danger full-width-btn" data-action="mark-duplicate" data-duplicate-id="<%= record.id %>" data-keep-id="<%= records.first.id %>" title="Marcar como duplicado">
                             <i class="fas fa-copy mr-1"></i> Marcar Dup
                           </button>
                         <% else %>
-                          <button class="btn btn-sm btn-warning full-width-btn" onclick="unmarkDuplicate(<%= record.id %>)" title="Desmarcar">
+                          <button class="btn btn-sm btn-warning full-width-btn" data-action="unmark-duplicate" data-record-id="<%= record.id %>" title="Desmarcar">
                             <i class="fas fa-undo mr-1"></i> Desmarcar
                           </button>
                         <% end %>
@@ -182,7 +182,7 @@
                             <i class="fas fa-external-link-alt mr-1"></i> Ver Fuente
                           </a>
                         <% end %>
-                        <button class="btn btn-sm btn-warning full-width-btn" onclick="reviewDuplicate(<%= record.id %>)" title="Revisar">
+                        <button class="btn btn-sm btn-warning full-width-btn" data-action="review-duplicate" data-record-id="<%= record.id %>" title="Revisar">
                           <i class="fas fa-eye mr-1"></i> Revisar
                         </button>
                       </td>
@@ -351,57 +351,13 @@
       <a href="<%= duplicates_export_report_path %>" class="btn btn-primary" target="_blank">
         <i class="fas fa-download"></i> Descargar Reporte CSV
       </a>
-      <button class="btn btn-secondary" onclick="location.reload()">
+      <button class="btn btn-secondary" data-action="refresh-analysis">
         <i class="fas fa-sync"></i> Actualizar Análisis
       </button>
     </div>
   </div>
 </div>
 
-<script>
-function markAsDuplicate(duplicateId, keepId) {
-  if (confirm(`¿Marcar registro #${duplicateId} como duplicado de #${keepId}?`)) {
-    fetch(`/duplicates/${duplicateId}/mark_as_duplicate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({
-        keep_id: keepId,
-        reason: 'confirmed_duplicate'
-      })
-    })
-    .then(r => r.json())
-    .then(data => {
-      alert(data.message || data.error);
-      location.reload();
-    });
-  }
-}
-
-function unmarkDuplicate(id) {
-  if (confirm(`¿Desmarcar registro #${id} como duplicado?`)) {
-    fetch(`/duplicates/${id}/unmark`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      }
-    })
-    .then(r => r.json())
-    .then(data => {
-      alert(data.message || data.error);
-      location.reload();
-    });
-  }
-}
-
-function reviewDuplicate(id) {
-  // Abrir modal o ir a página de detalle
-  alert('Revisión manual para registro #' + id);
-}
-</script>
 
 <style>
 .card {
