@@ -299,7 +299,7 @@
             <div class="card-header bg-warning text-dark">
               👤 Sin Apellido Paterno (<%= @analysis[:incomplete_records][:sin_apellido].size %>)
             </div>
-            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+            <div class="card-body scrollable-list">
               <div class="list-group list-group-flush">
                 <% @analysis[:incomplete_records][:sin_apellido].first(20).each do |record| %>
                   <div class="list-group-item">
@@ -429,5 +429,11 @@ table.table tbody tr td {
 
 .full-width-btn:last-child {
   margin-bottom: 0;
+}
+
+/* Scrollable list for incomplete records */
+.scrollable-list {
+  max-height: 400px;
+  overflow-y: auto;
 }
 </style>
