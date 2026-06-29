@@ -1,0 +1,428 @@
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <h1>🔍 Dashboard de Análisis de Duplicados</h1>
+      <p class="text-muted">Análisis completo de registros de detenciones en junio de 2026</p>
+    </div>
+  </div>
+
+  <!-- Estadísticas Generales - Tabla Compacta -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">📊 Estadísticas Generales</h6>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <tbody>
+              <tr>
+                <td class="stat-label"><strong>Total de Registros</strong></td>
+                <td class="stat-value text-primary"><strong><%= @stats[:total_records] %></strong></td>
+                <td class="stat-label"><strong>Full Codes Únicos</strong></td>
+                <td class="stat-value text-info"><strong><%= @stats[:unique_full_codes] %></strong></td>
+              </tr>
+              <tr>
+                <td class="stat-label"><strong>Nombres Completos</strong></td>
+                <td class="stat-value text-success"><strong><%= @stats[:records_with_full_name] %></strong></td>
+                <td class="stat-label"><strong>Con Organización</strong></td>
+                <td class="stat-value text-warning"><strong><%= @stats[:records_with_org] %></strong></td>
+              </tr>
+              <tr>
+                <td class="stat-label"><strong>Con Full Code</strong></td>
+                <td class="stat-value text-secondary"><strong><%= @stats[:records_with_full_code] %></strong></td>
+                <td class="stat-label"><strong>Nombres Únicos</strong></td>
+                <td class="stat-value text-muted"><strong><%= @stats[:unique_names] %></strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs de Análisis -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link <%= @tab == 'level1' ? 'active' : '' %>" href="#level1" data-toggle="tab">
+        <i class="fas fa-exclamation-circle"></i> Nivel 1: Confirmados (<%= @analysis[:level_1].size %>)
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= @tab == 'level2' ? 'active' : '' %>" href="#level2" data-toggle="tab">
+        <i class="fas fa-question-circle"></i> Nivel 2: Probables (<%= @analysis[:level_2].size %>)
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= @tab == 'operations' ? 'active' : '' %>" href="#operations" data-toggle="tab">
+        <i class="fas fa-check-circle"></i> Operativos Legítimos (<%= @analysis[:multi_person_ops].size %>)
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= @tab == 'incomplete' ? 'active' : '' %>" href="#incomplete" data-toggle="tab">
+        <i class="fas fa-file-alt"></i> Datos Incompletos
+      </a>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content mt-4">
+    <!-- TAB 1: NIVEL 1 - DUPLICADOS CONFIRMADOS -->
+    <div id="level1" class="tab-pane fade <%= @tab == 'level1' ? 'show active' : '' %>">
+      <div class="alert alert-danger">
+        <strong>🔴 Nivel 1 - Duplicados Confirmados</strong><br>
+        <%= @analysis[:level_1].size %> grupo(s) con <%= @analysis[:level_1].values.flatten.size %> registro(s) afectado(s)
+      </div>
+
+      <% if @analysis[:level_1].empty? %>
+        <div class="alert alert-success">✅ No se encontraron duplicados confirmados</div>
+      <% else %>
+        <% @analysis[:level_1].each do |group_key, records| %>
+          <div class="card mb-3">
+            <div class="card-header bg-danger text-white">
+              <strong><%= group_key %></strong>
+              <span class="badge badge-light"><%= records.size %> registros</span>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Municipio/Estado</th>
+                    <th>Fecha</th>
+                    <th>Organización</th>
+                    <th>Status</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% records.each_with_index do |record, idx| %>
+                    <tr class="<%= record.status == 'duplicate' ? 'table-secondary' : '' %>">
+                      <td><strong>#<%= record.id %></strong></td>
+                      <td><%= "#{record.nombre} #{record.apellido_paterno}".strip %></td>
+                      <td><%= record.municipio %>, <%= record.estado %></td>
+                      <td><%= record.incident_date.strftime('%Y-%m-%d') %></td>
+                      <td><small><%= record.organizacion %></small></td>
+                      <td>
+                        <span class="badge <%= record.status == 'duplicate' ? 'badge-secondary' : 'badge-primary' %>">
+                          <%= record.status %>
+                        </span>
+                      </td>
+                      <td>
+                        <% if record.status != 'duplicate' %>
+                          <button class="btn btn-sm btn-danger" onclick="markAsDuplicate(<%= record.id %>, <%= records.first.id %>)">
+                            Marcar dup
+                          </button>
+                        <% else %>
+                          <button class="btn btn-sm btn-warning" onclick="unmarkDuplicate(<%= record.id %>)">
+                            Desmarcar
+                          </button>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- TAB 2: NIVEL 2 - DUPLICADOS PROBABLES -->
+    <div id="level2" class="tab-pane fade <%= @tab == 'level2' ? 'show active' : '' %>">
+      <div class="alert alert-warning">
+        <strong>🟡 Nivel 2 - Duplicados Probables</strong><br>
+        <%= @analysis[:level_2].size %> grupo(s) que requieren revisión manual
+      </div>
+
+      <% if @analysis[:level_2].empty? %>
+        <div class="alert alert-success">✅ No se encontraron duplicados probables</div>
+      <% else %>
+        <% @analysis[:level_2].each do |group_key, dup_data| %>
+          <div class="card mb-3">
+            <div class="card-header <%= dup_data[:suspicious] ? 'bg-warning text-dark' : 'bg-info text-white' %>">
+              <strong><%= group_key %></strong>
+              <span class="badge <%= dup_data[:suspicious] ? 'badge-danger' : 'badge-info' %>">
+                <%= dup_data[:suspicious] ? '⚠️ SOSPECHOSO' : '✓ Revisar' %>
+              </span>
+              <span class="badge badge-light"><%= dup_data[:records].size %> registros</span>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Municipio/Estado</th>
+                    <th>Fecha</th>
+                    <th>Alias</th>
+                    <th>Organización</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% dup_data[:records].each do |record| %>
+                    <tr>
+                      <td><strong>#<%= record.id %></strong></td>
+                      <td><%= "#{record.nombre} #{record.apellido_paterno}".strip %></td>
+                      <td><%= record.municipio %>, <%= record.estado %></td>
+                      <td><%= record.incident_date.strftime('%Y-%m-%d') %></td>
+                      <td><small><%= record.alias %></small></td>
+                      <td><small><%= record.organizacion %></small></td>
+                      <td>
+                        <button class="btn btn-sm btn-warning" onclick="reviewDuplicate(<%= record.id %>)">
+                          Revisar
+                        </button>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- TAB 3: OPERATIVOS LEGÍTIMOS -->
+    <div id="operations" class="tab-pane fade <%= @tab == 'operations' ? 'show active' : '' %>">
+      <div class="alert alert-success">
+        <strong>✅ Operativos Legítimos con Múltiples Detenidos</strong><br>
+        <%= @analysis[:multi_person_ops].size %> operativo(s) con <%= @analysis[:multi_person_ops].values.flatten.size %> persona(s)
+      </div>
+
+      <% if @analysis[:multi_person_ops].empty? %>
+        <div class="alert alert-info">ℹ️ No se encontraron operativos con múltiples detenidos</div>
+      <% else %>
+        <% @analysis[:multi_person_ops].each do |operation_key, records| %>
+          <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+              <strong><%= operation_key %></strong>
+              <span class="badge badge-light"><%= records.size %> personas</span>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Alias</th>
+                    <th>Organización</th>
+                    <th>Rol</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% records.each do |record| %>
+                    <tr>
+                      <td>#<%= record.id %></td>
+                      <td><%= "#{record.nombre} #{record.apellido_paterno}".strip %></td>
+                      <td><%= record.alias %></td>
+                      <td><%= record.organizacion %></td>
+                      <td><small><%= record.rol %></small></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- TAB 4: DATOS INCOMPLETOS -->
+    <div id="incomplete" class="tab-pane fade <%= @tab == 'incomplete' ? 'show active' : '' %>">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-danger text-white">
+              📭 Sin Nombre (<%= @analysis[:incomplete_records][:sin_nombre].size %>)
+            </div>
+            <div class="card-body">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Municipio/Estado</th>
+                    <th>Full Code</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @analysis[:incomplete_records][:sin_nombre].each do |record| %>
+                    <tr>
+                      <td>#<%= record.id %></td>
+                      <td><%= record.municipio %>, <%= record.estado %></td>
+                      <td><%= record.full_code %></td>
+                      <td><%= record.incident_date.strftime('%Y-%m-%d') %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-warning text-dark">
+              👤 Sin Apellido Paterno (<%= @analysis[:incomplete_records][:sin_apellido].size %>)
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+              <div class="list-group list-group-flush">
+                <% @analysis[:incomplete_records][:sin_apellido].first(20).each do |record| %>
+                  <div class="list-group-item">
+                    <strong>#<%= record.id %>:</strong> <%= record.nombre %> | <%= record.municipio %>
+                  </div>
+                <% end %>
+                <% if @analysis[:incomplete_records][:sin_apellido].size > 20 %>
+                  <div class="list-group-item text-muted">
+                    ... y <%= @analysis[:incomplete_records][:sin_apellido].size - 20 %> más
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+              🏢 Sin Organización (<%= @analysis[:incomplete_records][:sin_organizacion].size %>)
+            </div>
+            <div class="card-body">
+              <p><small><%= @analysis[:incomplete_records][:sin_organizacion].size %> registros sin organización identificada</small></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-secondary text-white">
+              📍 Sin Full Code (<%= @analysis[:incomplete_records][:sin_full_code].size %>)
+            </div>
+            <div class="card-body">
+              <% @analysis[:incomplete_records][:sin_full_code].each do |record| %>
+                <div class="badge badge-secondary mr-1 mb-1">#<%= record.id %></div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones de Acción -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <a href="<%= duplicates_export_report_path %>" class="btn btn-primary" target="_blank">
+        <i class="fas fa-download"></i> Descargar Reporte CSV
+      </a>
+      <button class="btn btn-secondary" onclick="location.reload()">
+        <i class="fas fa-sync"></i> Actualizar Análisis
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function markAsDuplicate(duplicateId, keepId) {
+  if (confirm(`¿Marcar registro #${duplicateId} como duplicado de #${keepId}?`)) {
+    fetch(`/duplicates/${duplicateId}/mark_as_duplicate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        keep_id: keepId,
+        reason: 'confirmed_duplicate'
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      alert(data.message || data.error);
+      location.reload();
+    });
+  }
+}
+
+function unmarkDuplicate(id) {
+  if (confirm(`¿Desmarcar registro #${id} como duplicado?`)) {
+    fetch(`/duplicates/${id}/unmark`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      alert(data.message || data.error);
+      location.reload();
+    });
+  }
+}
+
+function reviewDuplicate(id) {
+  // Abrir modal o ir a página de detalle
+  alert('Revisión manual para registro #' + id);
+}
+</script>
+
+<style>
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-bottom: 2px solid #e0e0e0;
+  color: #666;
+}
+
+.nav-tabs .nav-link.active {
+  border-color: #007bff;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.badge-danger {
+  background-color: #dc3545 !important;
+}
+
+/* Estilos para tabla de estadísticas */
+.stat-label {
+  padding: 12px 16px !important;
+  width: 25%;
+  font-size: 0.95rem;
+  color: #666;
+  border-right: 1px solid #f0f0f0;
+}
+
+.stat-value {
+  padding: 12px 16px !important;
+  width: 25%;
+  font-size: 1.4rem;
+  font-weight: bold;
+  text-align: left;
+}
+
+/* Asegurar que no se repitan los bordes */
+.stat-label:nth-child(3),
+.stat-value:nth-child(4) {
+  border-left: 1px solid #f0f0f0;
+}
+
+table.table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+table.table tbody tr td {
+  vertical-align: middle;
+  border-color: #f0f0f0;
+}
+</style>
