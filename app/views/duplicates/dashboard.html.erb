@@ -109,23 +109,21 @@
                           <%= record.status %>
                         </span>
                       </td>
-                      <td>
-                        <div class="btn-group btn-group-sm" role="group">
-                          <% if record.source_url.present? %>
-                            <a href="<%= record.source_url %>" target="_blank" class="btn btn-info" title="Ver fuente original">
-                              <i class="fas fa-external-link-alt"></i>
-                            </a>
-                          <% end %>
-                          <% if record.status != 'duplicate' %>
-                            <button class="btn btn-danger" onclick="markAsDuplicate(<%= record.id %>, <%= records.first.id %>)" title="Marcar como duplicado">
-                              <i class="fas fa-copy"></i>
-                            </button>
-                          <% else %>
-                            <button class="btn btn-warning" onclick="unmarkDuplicate(<%= record.id %>)" title="Desmarcar">
-                              <i class="fas fa-undo"></i>
-                            </button>
-                          <% end %>
-                        </div>
+                      <td class="actions-cell">
+                        <% if record.source_url.present? %>
+                          <a href="<%= record.source_url %>" target="_blank" class="btn btn-sm btn-info mb-2 full-width-btn" title="Ver fuente original">
+                            <i class="fas fa-external-link-alt mr-1"></i> Ver Fuente
+                          </a>
+                        <% end %>
+                        <% if record.status != 'duplicate' %>
+                          <button class="btn btn-sm btn-danger full-width-btn" onclick="markAsDuplicate(<%= record.id %>, <%= records.first.id %>)" title="Marcar como duplicado">
+                            <i class="fas fa-copy mr-1"></i> Marcar Dup
+                          </button>
+                        <% else %>
+                          <button class="btn btn-sm btn-warning full-width-btn" onclick="unmarkDuplicate(<%= record.id %>)" title="Desmarcar">
+                            <i class="fas fa-undo mr-1"></i> Desmarcar
+                          </button>
+                        <% end %>
                       </td>
                     </tr>
                   <% end %>
@@ -178,17 +176,15 @@
                       <td><%= record.incident_date.strftime('%Y-%m-%d') %></td>
                       <td><small><%= record.alias %></small></td>
                       <td><small><%= record.organizacion %></small></td>
-                      <td>
-                        <div class="btn-group btn-group-sm" role="group">
-                          <% if record.source_url.present? %>
-                            <a href="<%= record.source_url %>" target="_blank" class="btn btn-info" title="Ver fuente original">
-                              <i class="fas fa-external-link-alt"></i>
-                            </a>
-                          <% end %>
-                          <button class="btn btn-warning" onclick="reviewDuplicate(<%= record.id %>)" title="Revisar">
-                            <i class="fas fa-eye"></i>
-                          </button>
-                        </div>
+                      <td class="actions-cell">
+                        <% if record.source_url.present? %>
+                          <a href="<%= record.source_url %>" target="_blank" class="btn btn-sm btn-info mb-2 full-width-btn" title="Ver fuente original">
+                            <i class="fas fa-external-link-alt mr-1"></i> Ver Fuente
+                          </a>
+                        <% end %>
+                        <button class="btn btn-sm btn-warning full-width-btn" onclick="reviewDuplicate(<%= record.id %>)" title="Revisar">
+                          <i class="fas fa-eye mr-1"></i> Revisar
+                        </button>
                       </td>
                     </tr>
                   <% end %>
@@ -236,11 +232,13 @@
                       <td><%= record.alias %></td>
                       <td><%= record.organizacion %></td>
                       <td><small><%= record.rol %></small></td>
-                      <td>
+                      <td class="actions-cell">
                         <% if record.source_url.present? %>
-                          <a href="<%= record.source_url %>" target="_blank" class="btn btn-sm btn-info" title="Ver fuente original">
-                            <i class="fas fa-external-link-alt"></i>
+                          <a href="<%= record.source_url %>" target="_blank" class="btn btn-sm btn-info full-width-btn" title="Ver fuente original">
+                            <i class="fas fa-external-link-alt mr-1"></i> Ver Fuente
                           </a>
+                        <% else %>
+                          <span class="text-muted small">—</span>
                         <% end %>
                       </td>
                     </tr>
@@ -279,11 +277,13 @@
                       <td><%= record.municipio %>, <%= record.estado %></td>
                       <td><%= record.full_code %></td>
                       <td><%= record.incident_date.strftime('%Y-%m-%d') %></td>
-                      <td>
+                      <td class="actions-cell">
                         <% if record.source_url.present? %>
-                          <a href="<%= record.source_url %>" target="_blank" class="btn btn-sm btn-info" title="Ver fuente original">
-                            <i class="fas fa-external-link-alt"></i>
+                          <a href="<%= record.source_url %>" target="_blank" class="btn btn-sm btn-info full-width-btn" title="Ver fuente original">
+                            <i class="fas fa-external-link-alt mr-1"></i> Ver Fuente
                           </a>
+                        <% else %>
+                          <span class="text-muted small">—</span>
                         <% end %>
                       </td>
                     </tr>
@@ -455,5 +455,23 @@ table.table tbody tr:hover {
 table.table tbody tr td {
   vertical-align: middle;
   border-color: #f0f0f0;
+}
+
+/* Estilos para celdas de acciones */
+.actions-cell {
+  min-width: 200px;
+  padding: 8px 12px !important;
+}
+
+.full-width-btn {
+  width: 100%;
+  display: block;
+  margin-bottom: 6px;
+  padding: 6px 12px !important;
+  font-size: 0.9rem;
+}
+
+.full-width-btn:last-child {
+  margin-bottom: 0;
 }
 </style>
