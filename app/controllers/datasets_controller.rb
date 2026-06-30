@@ -2680,9 +2680,9 @@ end
     end
 
     def downloads
-    	@v_months = Month.joins(:violence_report_attachment).sort { |a, b| b <=> a }
-    	@s_months = Month.joins(:social_report_attachment).sort { |a, b| b <=> a }
-    	@f_months = Month.joins(:forecast_report_attachment).sort { |a, b| b <=> a }
+    	@v_months = Month.with_violence_report.sort { |a, b| b <=> a }
+    	@s_months = Month.with_social_report.sort { |a, b| b <=> a }
+    	@f_months = Month.with_forecast_report.sort { |a, b| b <=> a }
     	myFiles = Dir['public/briefings/*'].sort { |a, b| b.downcase <=> a.downcase }
     	@briefings = []
     	myFiles.each{|file|
