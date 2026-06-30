@@ -15,7 +15,7 @@ class Briefing < ApplicationRecord
   validates :month_number, inclusion: { in: 1..12 },
             if: proc { |b| b.report_type != 'briefing_semanal' }
 
-  validates :year, :month_number, :report_type,
+  validates :report_type,
             uniqueness: { scope: [:month_number, :year],
                           message: "ya existe un reporte de este tipo para ese mes/año" },
             if: proc { |b| b.report_type != 'briefing_semanal' }
