@@ -14,7 +14,13 @@ class Month < ApplicationRecord
 	has_one_attached :crime_victim_report
 	has_one_attached :car_theft_report
 
-	scope :with_violence_report, -> { where(id: joins(:active_storage_attachments).where(active_storage_attachments: { name: 'violence_report' }).distinct.pluck(:id)) }
-	scope :with_social_report, -> { where(id: joins(:active_storage_attachments).where(active_storage_attachments: { name: 'social_report' }).distinct.pluck(:id)) }
-	scope :with_forecast_report, -> { where(id: joins(:active_storage_attachments).where(active_storage_attachments: { name: 'forecast_report' }).distinct.pluck(:id)) }
+	scope :with_violence_report, -> {
+		joins("INNER JOIN active_storage_attachments ON active_storage_attachments.record_id = months.id AND active_storage_attachments.record_type = 'Month' AND active_storage_attachments.name = 'violence_report'").distinct
+	}
+	scope :with_social_report, -> {
+		joins("INNER JOIN active_storage_attachments ON active_storage_attachments.record_id = months.id AND active_storage_attachments.record_type = 'Month' AND active_storage_attachments.name = 'social_report'").distinct
+	}
+	scope :with_forecast_report, -> {
+		joins("INNER JOIN active_storage_attachments ON active_storage_attachments.record_id = months.id AND active_storage_attachments.record_type = 'Month' AND active_storage_attachments.name = 'forecast_report'").distinct
+	}
 end
