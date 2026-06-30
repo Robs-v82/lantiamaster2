@@ -65,9 +65,9 @@ class Briefing < ApplicationRecord
   def attachment_field_for_month
     case report_type
     when 'reporte_riesgo'
-      :violence_report
-    when 'reporte_conflictividad'
       :social_report
+    when 'reporte_conflictividad'
+      :violence_report
     when 'reporte_prospectiva'
       :forecast_report
     else
