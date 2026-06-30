@@ -2,11 +2,11 @@
                when 'briefing_semanal'
                  'briefing semanal'
                when 'reporte_riesgo'
-                 'reporte de riesgo social'
+                 'riesgo social'
                when 'reporte_conflictividad'
-                 'reporte de conflictividad social'
+                 'violencia del crimen organizado'
                when 'reporte_prospectiva'
-                 'reporte de prospectiva'
+                 'prospectiva'
                else
                  'reporte'
                end %>
@@ -15,11 +15,11 @@
            when 'briefing_semanal'
              "Briefing Semanal #{@briefing.number.to_s.rjust(3, '0')}"
            when 'reporte_riesgo'
-             "Reporte Mensual de Riesgo Social"
+             "Riesgo Social"
            when 'reporte_conflictividad'
-             "Reporte Mensual de Conflictividad Social"
+             "Violencia del Crimen Organizado"
            when 'reporte_prospectiva'
-             "Reporte Mensual de Prospectiva"
+             "Prospectiva"
            else
              "Nuevo Reporte"
            end %>

@@ -14,11 +14,11 @@ class ReportMailer < ApplicationMailer
                    when 'briefing_semanal'
                      "Briefing Semanal #{briefing.number.to_s.rjust(3, '0')} | Lantia Intelligence"
                    when 'reporte_riesgo'
-                     "Reporte de Riesgo Social #{briefing.formatted_date} | Lantia Intelligence"
+                     "Riesgo Social #{briefing.formatted_date} | Lantia Intelligence"
                    when 'reporte_conflictividad'
-                     "Reporte de Conflictividad Social #{briefing.formatted_date} | Lantia Intelligence"
+                     "Violencia del Crimen Organizado #{briefing.formatted_date} | Lantia Intelligence"
                    when 'reporte_prospectiva'
-                     "Reporte de Prospectiva #{briefing.formatted_date} | Lantia Intelligence"
+                     "Prospectiva #{briefing.formatted_date} | Lantia Intelligence"
                    else
                      "Nuevo reporte | Lantia Intelligence"
                    end
