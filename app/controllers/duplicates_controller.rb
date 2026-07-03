@@ -55,14 +55,16 @@ class DuplicatesController < ApplicationController
       duplicate_record_id: capture.id,
       action: 'marked_as_duplicate',
       reason: params[:reason] || 'manual_review',
-      user_id: current_user&.id,
+      user_id: current_user_safe&.id,
       notes: params[:notes]
     )
 
     # Marcar como duplicado
-    capture.update(status: 'duplicate', validation_notes: "Duplicate of record ##{keep_record.id}")
-
-    render json: { success: true, message: "Record ##{capture.id} marked as duplicate of ##{keep_record.id}" }
+    if capture.update(status: 'duplicate', validation_notes: "Duplicate of record ##{keep_record.id}")
+      render json: { success: true, message: "Record ##{capture.id} marked as duplicate of ##{keep_record.id}" }
+    else
+      render json: { error: "Failed to update record: #{capture.errors.full_messages.join(', ')}" }, status: :unprocessable_entity
+    end
   end
 
   # POST /duplicates/:id/unmark

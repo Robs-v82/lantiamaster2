@@ -3,7 +3,9 @@
 let selectedKeeperId = null;
 
 function selectKeeper(keeperId) {
+  console.log('[selectKeeper] Called with keeperId:', keeperId);
   selectedKeeperId = keeperId;
+  console.log('[selectKeeper] selectedKeeperId set to:', selectedKeeperId);
 
   // Update UI to show selection
   document.querySelectorAll('.keeper-option').forEach(opt => {
@@ -13,12 +15,14 @@ function selectKeeper(keeperId) {
   const selectedOption = document.querySelector(`[data-keeper-id="${keeperId}"]`);
   if (selectedOption) {
     selectedOption.classList.add('selected');
+    console.log('[selectKeeper] Visual selection applied to option:', keeperId);
   }
 
   // Enable confirm button
   const confirmBtn = document.getElementById('confirm-keeper-btn');
   if (confirmBtn) {
     confirmBtn.disabled = false;
+    console.log('[selectKeeper] Confirm button enabled');
   }
 }
 
@@ -41,18 +45,28 @@ function closeKeeperModal() {
 }
 
 function confirmKeeper(duplicateId) {
+  console.log('[confirmKeeper] Called with duplicateId:', duplicateId);
+  console.log('[confirmKeeper] Current selectedKeeperId:', selectedKeeperId);
+
   if (selectedKeeperId) {
+    // Save keeperId in local variable BEFORE closing modal
+    const keeperId = selectedKeeperId;
+    console.log('[confirmKeeper] Saved keeperId to local variable:', keeperId);
+    console.log('[confirmKeeper] Condition passed, calling markAsDuplicate with:', {duplicateId, keeperId});
+
     closeKeeperModal();
-    markAsDuplicate(duplicateId, selectedKeeperId);
+    markAsDuplicate(duplicateId, keeperId);
+  } else {
+    console.warn('[confirmKeeper] selectedKeeperId is falsy:', selectedKeeperId);
   }
 }
 
 function openKeeperSelectionModal(duplicateId, otherRecords) {
   selectedKeeperId = null;
 
-  // Create modal HTML
+  // Create modal HTML without inline event handlers
   const keeperOptionsHtml = otherRecords.map(record => `
-    <div class="keeper-option" data-keeper-id="${record.id}" onclick="selectKeeper(${record.id})" style="
+    <div class="keeper-option" data-keeper-id="${record.id}" style="
       cursor: pointer;
       padding: 15px;
       margin: 10px 0;
@@ -60,7 +74,7 @@ function openKeeperSelectionModal(duplicateId, otherRecords) {
       border-radius: 4px;
       background-color: #f9f9f9;
       transition: all 0.3s ease;
-    " onmouseover="this.style.borderColor='#17a2b8'; this.style.backgroundColor='#f0f8ff';" onmouseout="if (!this.classList.contains('selected')) { this.style.borderColor='#ddd'; this.style.backgroundColor='#f9f9f9'; }">
+    ">
       <strong style="font-size: 16px;">#${record.id}</strong> - ${record.nombre} ${record.apellido_paterno}
       <br><small style="color: #666; margin-top: 5px; display: block;">${record.municipio}, ${record.estado} | ${record.incident_date} | ${record.organizacion}</small>
     </div>
@@ -74,7 +88,7 @@ function openKeeperSelectionModal(duplicateId, otherRecords) {
             <h5 class="modal-title" id="keeperModalLabel">
               🔍 Selecciona el registro a conservar
             </h5>
-            <button type="button" class="close" onclick="closeKeeperModal()" aria-label="Close">
+            <button type="button" class="close" data-action="close-modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -88,8 +102,8 @@ function openKeeperSelectionModal(duplicateId, otherRecords) {
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeKeeperModal()">Cancelar</button>
-            <button type="button" class="btn btn-primary" id="confirm-keeper-btn" onclick="confirmKeeper(${duplicateId})" disabled>
+            <button type="button" class="btn btn-secondary" data-action="cancel-modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="confirm-keeper-btn" data-action="confirm-keeper" data-duplicate-id="${duplicateId}" disabled>
               Marcar como Duplicado
             </button>
           </div>
@@ -110,6 +124,13 @@ function openKeeperSelectionModal(duplicateId, otherRecords) {
   // Add CSS styles for selected state
   const style = document.createElement('style');
   style.textContent = `
+    .keeper-option {
+      cursor: pointer;
+    }
+    .keeper-option:hover:not(.selected) {
+      border-color: #17a2b8 !important;
+      background-color: #f0f8ff !important;
+    }
     .keeper-option.selected {
       border-color: #17a2b8 !important;
       background-color: #e7f3f7 !important;
@@ -131,34 +152,79 @@ function openKeeperSelectionModal(duplicateId, otherRecords) {
   const modal = document.getElementById('keeperModal');
   modal.style.display = 'block';
   modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
-  // Add event listeners to keeper options using event delegation
-  setTimeout(() => {
-    const keeperOptions = document.querySelectorAll('.keeper-option');
-    keeperOptions.forEach(option => {
-      option.addEventListener('click', function() {
-        const keeperId = parseInt(this.getAttribute('data-keeper-id'));
+  // Attach event listeners using event delegation (no setTimeout needed)
+  // This is more reliable and doesn't depend on timing
+
+  // Keeper option selection using event delegation on container
+  const keeperOptionsContainer = document.getElementById('keeper-options');
+  console.log('[openKeeperSelectionModal] keeperOptionsContainer:', keeperOptionsContainer);
+
+  if (keeperOptionsContainer) {
+    keeperOptionsContainer.addEventListener('click', function(e) {
+      console.log('[keeperOptions.click] Event triggered on:', e.target);
+      const option = e.target.closest('.keeper-option');
+      console.log('[keeperOptions.click] Closest .keeper-option found:', option);
+
+      if (option) {
+        const keeperId = parseInt(option.getAttribute('data-keeper-id'));
+        console.log('[keeperOptions.click] Extracted keeperId from data attribute:', keeperId);
         selectKeeper(keeperId);
-      });
+      } else {
+        console.log('[keeperOptions.click] No .keeper-option found in event target hierarchy');
+      }
     });
-  }, 0);
+  }
+
+  // Close button
+  const closeBtn = document.querySelector('[data-action="close-modal"]');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeKeeperModal);
+  }
+
+  // Cancel button
+  const cancelBtn = document.querySelector('[data-action="cancel-modal"]');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closeKeeperModal);
+  }
+
+  // Confirm button
+  const confirmBtn = document.querySelector('[data-action="confirm-keeper"]');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', function() {
+      const duplicateId = parseInt(this.getAttribute('data-duplicate-id'));
+      confirmKeeper(duplicateId);
+    });
+  }
 }
 
 function markAsDuplicate(duplicateId, keepId) {
+  console.log('[markAsDuplicate] Called with:', {duplicateId, keepId});
+
+  const payload = {
+    keep_id: keepId,
+    reason: 'manual_review'
+  };
+
+  console.log('[markAsDuplicate] Sending payload:', payload);
+  console.log('[markAsDuplicate] JSON string:', JSON.stringify(payload));
+
   fetch(`/duplicates/${duplicateId}/mark_as_duplicate`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
     },
-    body: JSON.stringify({
-      keep_id: keepId,
-      reason: 'manual_review'
-    })
+    body: JSON.stringify(payload)
   })
-  .then(r => r.json())
+  .then(r => {
+    console.log('[markAsDuplicate] Response status:', r.status);
+    return r.json();
+  })
   .then(data => {
+    console.log('[markAsDuplicate] Response data:', data);
     if (data.success) {
       alert(data.message);
       location.reload();
@@ -167,6 +233,7 @@ function markAsDuplicate(duplicateId, keepId) {
     }
   })
   .catch(error => {
+    console.error('[markAsDuplicate] Error:', error);
     alert('Error: ' + error.message);
   });
 }

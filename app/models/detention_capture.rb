@@ -8,7 +8,6 @@ class DetentionCapture < ApplicationRecord
 
   validates :capture_hash, presence: true, uniqueness: true
   validates :incident_date, :estado, :municipio, presence: true
-  validates :full_code, uniqueness: true, allow_blank: true
 
   before_create :ensure_capture_date
 
@@ -106,7 +105,7 @@ class DetentionCapture < ApplicationRecord
     confirmed = {}
 
     captures
-      .select { |c| c.full_code.present? && c.nombre.present? }
+      .select { |c| c.full_code.present? && c.nombre.present? && c.status != 'duplicate' }
       .group_by { |c| "#{c.full_code}|#{normalize_name(c.nombre)}|#{normalize_name(c.apellido_paterno)}|#{c.municipio}" }
       .select { |k, v| v.size > 1 }
       .each { |k, v| confirmed[k] = v.sort_by(&:incident_date) }
@@ -119,7 +118,7 @@ class DetentionCapture < ApplicationRecord
     probable = {}
 
     captures
-      .select { |c| c.nombre.present? && c.municipio.present? }
+      .select { |c| c.nombre.present? && c.municipio.present? && c.status != 'duplicate' }
       .group_by { |c| "#{normalize_name(c.nombre)}|#{normalize_name(c.apellido_paterno)}|#{c.municipio}|#{c.estado}" }
       .select { |k, v| v.size > 1 }
       .each do |k, v|
