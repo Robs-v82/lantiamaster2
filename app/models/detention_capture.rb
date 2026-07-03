@@ -83,9 +83,14 @@ class DetentionCapture < ApplicationRecord
   end
 
   # Análisis de duplicados por nivel
-  def self.analyze_duplicates(date_range = 1.month)
-    date_start = Time.now - date_range
-    captures = where(capture_date: date_start..Date.today, deleted_at: nil)
+  def self.analyze_duplicates(year = nil, month = nil)
+    year ||= Date.today.year
+    month ||= Date.today.month
+
+    date_start = Date.new(year, month, 1)
+    date_end = date_start.end_of_month
+
+    captures = where(capture_date: date_start..date_end, deleted_at: nil).to_a
 
     {
       level_1: find_confirmed_duplicates(captures),

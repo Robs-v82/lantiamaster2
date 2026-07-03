@@ -2,6 +2,7 @@ class DuplicatesController < ApplicationController
   # Skip authentication for development dashboard
   skip_before_action :verify_authenticity_token, only: [:mark_as_duplicate, :unmark_duplicate]
 
+  before_action :set_month_params, only: [:index]
   before_action :set_analysis, only: [:index, :show]
 
   # GET /duplicates
@@ -100,8 +101,13 @@ class DuplicatesController < ApplicationController
 
   private
 
+  def set_month_params
+    @year = (params[:year] || Date.today.year).to_i
+    @month = (params[:month] || Date.today.month).to_i
+  end
+
   def set_analysis
-    @analysis = DetentionCapture.analyze_duplicates
+    @analysis = DetentionCapture.analyze_duplicates(@year, @month)
     @stats = @analysis[:stats]
   end
 
