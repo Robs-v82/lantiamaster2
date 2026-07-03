@@ -4,6 +4,32 @@ $(document).ready(function() {
   console.log('Found edit buttons:', $('.edit-btn').length);
   console.log('Found delete buttons:', $('.delete-btn').length);
 
+  // DEBUG: Inspecciona valores de campos dicotómicos
+  console.log('=== DEBUG: Inspección de campos dicotómicos ===');
+  const rows = document.querySelectorAll('[data-capture-id]');
+  const debugData = [];
+
+  rows.forEach(row => {
+    const captureId = row.getAttribute('data-capture-id');
+    const debugInfo = {
+      id: captureId,
+      sedena: row.querySelector('[data-debug-sedena]')?.getAttribute('data-debug-sedena'),
+      semar: row.querySelector('[data-debug-semar]')?.getAttribute('data-debug-semar'),
+      gn: row.querySelector('[data-debug-gn]')?.getAttribute('data-debug-gn'),
+      sscp: row.querySelector('[data-debug-sscp]')?.getAttribute('data-debug-sscp'),
+      fgr: row.querySelector('[data-debug-fgr]')?.getAttribute('data-debug-fgr'),
+      ssp: row.querySelector('[data-debug-ssp]')?.getAttribute('data-debug-ssp'),
+      fge: row.querySelector('[data-debug-fge]')?.getAttribute('data-debug-fge'),
+      pm: row.querySelector('[data-debug-pm]')?.getAttribute('data-debug-pm'),
+      otro: row.querySelector('[data-debug-otro]')?.getAttribute('data-debug-otro')
+    };
+    debugData.push(debugInfo);
+  });
+
+  console.table(debugData);
+  console.log('Nota: true = debería mostrar icono de check, false/null = círculo vacío');
+  window.__debugDichotomous = debugData; // Disponible en consola
+
   // Initialize Materialize modals
   $('.modal').modal();
 
@@ -75,32 +101,32 @@ $(document).ready(function() {
     const cells = row.find('td');
     $('#captureId').val(captureId);
     $('#incident_date').val(cells.eq(1).text().split('/').reverse().join('-'));
-    $('#detenidos').val(cells.eq(5).text());
-    $('#nombre').val(cells.eq(6).text());
+    $('#detenidos').val(cells.eq(6).text());
+    $('#nombre').val(cells.eq(7).text());
 
     // Helper to check if institution checkbox is marked (checks for fa-check-circle icon)
     const isInstitutionChecked = (cellIndex) => {
       return cells.eq(cellIndex).find('.fa-check-circle').length > 0;
     };
 
-    // Set institution checkboxes based on icons in table (cells 7-16)
-    document.getElementById('sedena').checked = isInstitutionChecked(7);
-    document.getElementById('semar').checked = isInstitutionChecked(8);
-    document.getElementById('gn').checked = isInstitutionChecked(9);
-    document.getElementById('sscp').checked = isInstitutionChecked(10);
-    document.getElementById('fgr').checked = isInstitutionChecked(11);
-    document.getElementById('ssp_estatal').checked = isInstitutionChecked(12);
-    document.getElementById('fge_pgj').checked = isInstitutionChecked(13);
-    document.getElementById('policia_municipal').checked = isInstitutionChecked(14);
-    document.getElementById('otro').checked = isInstitutionChecked(15);
+    // Set institution checkboxes based on icons in table (cells 8-16)
+    document.getElementById('sedena').checked = isInstitutionChecked(8);
+    document.getElementById('semar').checked = isInstitutionChecked(9);
+    document.getElementById('gn').checked = isInstitutionChecked(10);
+    document.getElementById('sscp').checked = isInstitutionChecked(11);
+    document.getElementById('fgr').checked = isInstitutionChecked(12);
+    document.getElementById('ssp_estatal').checked = isInstitutionChecked(13);
+    document.getElementById('fge_pgj').checked = isInstitutionChecked(14);
+    document.getElementById('policia_municipal').checked = isInstitutionChecked(15);
+    document.getElementById('otro').checked = isInstitutionChecked(16);
 
     // Load form data first
     loadFormData();
 
     // Set estado and wait for it to populate, then set municipio
     const selectedEstado = cells.eq(2).text();
-    const selectedMunicipio = cells.eq(3).text();
-    const selectedOrganizacion = cells.eq(4).text();
+    const selectedMunicipio = cells.eq(4).text();
+    const selectedOrganizacion = cells.eq(5).text();
 
     // Set estado
     $('#estado').val(selectedEstado);
@@ -138,9 +164,9 @@ $(document).ready(function() {
       <div class="alert alert-info">
         <strong>Información a eliminar:</strong><br>
         Estado: ${cells.eq(2).text()}<br>
-        Municipio: ${cells.eq(3).text()}<br>
-        Organización: ${cells.eq(4).text()}<br>
-        Nombre: ${cells.eq(6).text()}
+        Municipio: ${cells.eq(4).text()}<br>
+        Organización: ${cells.eq(5).text()}<br>
+        Nombre: ${cells.eq(7).text()}
       </div>
     `;
 

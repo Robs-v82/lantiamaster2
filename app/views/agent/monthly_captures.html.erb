@@ -1,3 +1,5 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 <div class="container mt-3">
   <!-- Navigation and Title Section -->
   <div class="mb-3 p-2 bg-light rounded">
@@ -92,8 +94,7 @@
             <th class="text-center inst-col" title="FGE/PGJ">FGE</th>
             <th class="text-center inst-col" title="Policía Municipal">PM</th>
             <th class="text-center inst-col" title="Otra fuerza">Otro</th>
-            <th>Status</th>
-            <th>Acciones</th>
+            <th style="width: 120px;">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -107,30 +108,25 @@
               <td><small><%= capture.organizacion %></small></td>
               <td class="text-center"><%= capture.detenidos %></td>
               <td><%= capture.nombre %></td>
-              <% inst_icon = ->(val) { val ? '<i class="fas fa-check-circle text-success inst-icon"></i>' : '<i class="far fa-circle text-muted inst-icon"></i>' } %>
-              <td class="text-center"><%= inst_icon.call(capture.sedena).html_safe %></td>
-              <td class="text-center"><%= inst_icon.call(capture.semar).html_safe %></td>
-              <td class="text-center"><%= inst_icon.call(capture.gn).html_safe %></td>
-              <td class="text-center"><%= inst_icon.call(capture.sscp).html_safe %></td>
-              <td class="text-center"><%= inst_icon.call(capture.fgr).html_safe %></td>
-              <td class="text-center"><%= inst_icon.call(capture.ssp_estatal).html_safe %></td>
-              <td class="text-center"><%= inst_icon.call(capture.fge_pgj).html_safe %></td>
-              <td class="text-center"><%= inst_icon.call(capture.policia_municipal).html_safe %></td>
-              <td class="text-center"><%= inst_icon.call(capture.otro).html_safe %></td>
-              <td>
-                <span class="badge badge-<%= capture.status == 'validated' ? 'success' : (capture.status == 'captured' ? 'info' : 'warning') %>">
-                  <%= capture.status %>
-                </span>
-              </td>
+              <% inst_icon = ->(val) { val ? '<span class="material-icons" style="color: #ef4e50; font-size: 1.3rem;">check_box</span>' : '<span class="material-icons" style="color: #ddd; font-size: 1.3rem;">check_box_outline_blank</span>' } %>
+              <td class="text-center" data-debug-sedena="<%= capture.sedena.inspect %>"><%= inst_icon.call(capture.sedena).html_safe %></td>
+              <td class="text-center" data-debug-semar="<%= capture.semar.inspect %>"><%= inst_icon.call(capture.semar).html_safe %></td>
+              <td class="text-center" data-debug-gn="<%= capture.gn.inspect %>"><%= inst_icon.call(capture.gn).html_safe %></td>
+              <td class="text-center" data-debug-sscp="<%= capture.sscp.inspect %>"><%= inst_icon.call(capture.sscp).html_safe %></td>
+              <td class="text-center" data-debug-fgr="<%= capture.fgr.inspect %>"><%= inst_icon.call(capture.fgr).html_safe %></td>
+              <td class="text-center" data-debug-ssp="<%= capture.ssp_estatal.inspect %>"><%= inst_icon.call(capture.ssp_estatal).html_safe %></td>
+              <td class="text-center" data-debug-fge="<%= capture.fge_pgj.inspect %>"><%= inst_icon.call(capture.fge_pgj).html_safe %></td>
+              <td class="text-center" data-debug-pm="<%= capture.policia_municipal.inspect %>"><%= inst_icon.call(capture.policia_municipal).html_safe %></td>
+              <td class="text-center" data-debug-otro="<%= capture.otro.inspect %>"><%= inst_icon.call(capture.otro).html_safe %></td>
               <td class="action-buttons">
-                <button class="btn btn-sm btn-primary edit-btn" data-id="<%= capture.id %>" title="Editar registro">
-                  <i class="fas fa-pencil-alt"></i> Editar
+                <button class="btn-icon edit-btn" data-id="<%= capture.id %>" title="Editar registro">
+                  <span class="material-icons">edit</span>
                 </button>
-                <button class="btn btn-sm btn-info link-btn" data-url="<%= capture.source_url %>" title="Ver nota original">
-                  <i class="fas fa-external-link-alt"></i> Link
+                <button class="btn-icon link-btn" data-url="<%= capture.source_url %>" title="Ver nota original">
+                  <span class="material-icons">open_in_new</span>
                 </button>
-                <button class="btn btn-sm btn-danger delete-btn" data-id="<%= capture.id %>" title="Eliminar registro">
-                  <i class="fas fa-times-circle"></i> Eliminar
+                <button class="btn-icon delete-btn" data-id="<%= capture.id %>" title="Eliminar registro">
+                  <span class="material-icons">delete</span>
                 </button>
               </td>
             </tr>
@@ -366,6 +362,15 @@
 </script>
 
 <style>
+  /* Compact table styling */
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+  .table th,
+  .table td {
+    padding: 0.35rem 0.5rem !important;
+    vertical-align: middle;
+  }
   .table-hover tbody tr:hover {
     background-color: #f5f5f5;
   }
@@ -377,13 +382,51 @@
     font-size: 0.85rem;
     white-space: nowrap;
   }
-  .action-buttons .btn-sm {
-    margin-right: 0.3rem;
-    margin-bottom: 0.2rem;
+
+  /* Circular icon buttons */
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background-color: #f0f0f0;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 2px;
   }
-  .action-buttons .btn-sm i {
-    margin-right: 0.3rem;
+  .btn-icon:hover {
+    background-color: #ef4e50;
+    transform: scale(1.1);
   }
+  .btn-icon.edit-btn:hover {
+    background-color: #ef4e50;
+    color: white;
+  }
+  .btn-icon.link-btn:hover {
+    background-color: #ef4e50;
+    color: white;
+  }
+  .btn-icon.delete-btn:hover {
+    background-color: #ef4e50;
+    color: white;
+  }
+  .btn-icon .material-icons {
+    font-size: 20px;
+    color: #ef4e50;
+  }
+  .btn-icon:hover .material-icons {
+    color: white;
+  }
+
+  .action-buttons {
+    text-align: center;
+    white-space: nowrap;
+  }
+
   .card {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
