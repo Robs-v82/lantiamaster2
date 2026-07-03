@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_06_10_120000) do
+ActiveRecord::Schema.define(version: 2026_06_25_000001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -112,10 +112,13 @@ ActiveRecord::Schema.define(version: 2026_06_10_120000) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "test_mode", default: true, comment: "true = enviar a @lantiaintelligence.com solo, false = enviar a todos"
     t.text "test_emails", comment: "JSON array de emails que recibirán en modo test"
+    t.integer "pending_dispatch_jobs", default: 0
+    t.text "delivered_emails", comment: "JSON array de emails que recibieron el correo exitosamente"
+    t.index ["number", "year", "month_number"], name: "idx_briefing_number_unique", unique: true, where: "((report_type)::text = 'briefing_semanal'::text)"
     t.index ["report_type"], name: "index_briefings_on_report_type"
     t.index ["sent_at"], name: "index_briefings_on_sent_at"
     t.index ["test_mode"], name: "index_briefings_on_test_mode"
-    t.index ["year", "month_number", "report_type"], name: "idx_briefings_uniqueness", unique: true
+    t.index ["year", "month_number", "report_type"], name: "idx_briefing_monthly_unique", unique: true, where: "((report_type)::text <> 'briefing_semanal'::text)"
   end
 
   create_table "cities", force: :cascade do |t|
@@ -258,6 +261,23 @@ ActiveRecord::Schema.define(version: 2026_06_10_120000) do
     t.integer "organization_id"
     t.index ["division_id"], name: "index_divisions_organizations_on_division_id"
     t.index ["organization_id"], name: "index_divisions_organizations_on_organization_id"
+  end
+
+  create_table "duplication_logs", force: :cascade do |t|
+    t.bigint "source_record_id"
+    t.bigint "duplicate_record_id"
+    t.string "action", null: false
+    t.string "reason"
+    t.bigint "user_id"
+    t.text "notes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["action"], name: "index_duplication_logs_on_action"
+    t.index ["created_at"], name: "index_duplication_logs_on_created_at"
+    t.index ["duplicate_record_id"], name: "index_duplication_logs_on_duplicate_record_id"
+    t.index ["reason"], name: "index_duplication_logs_on_reason"
+    t.index ["source_record_id"], name: "index_duplication_logs_on_source_record_id"
+    t.index ["user_id"], name: "index_duplication_logs_on_user_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -936,6 +956,9 @@ ActiveRecord::Schema.define(version: 2026_06_10_120000) do
   add_foreign_key "county_aliases", "counties"
   add_foreign_key "detentions", "events"
   add_foreign_key "divisions", "sectors"
+  add_foreign_key "duplication_logs", "detention_captures", column: "duplicate_record_id"
+  add_foreign_key "duplication_logs", "detention_captures", column: "source_record_id"
+  add_foreign_key "duplication_logs", "users"
   add_foreign_key "events", "months"
   add_foreign_key "events", "organizations"
   add_foreign_key "events", "towns"

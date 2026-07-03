@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
 	before_action :enforce_session_timeout
 	before_action :enforce_session_version
 	before_action :allow_iframe
-	before_action :require_login, except: [:frontpage, :password, :login, :states_and_counties_api, :year_victims_api, :state_victims, :state_victims_api, :county_victims, :county_victims_api, :county_victims_map_api, :county_victims_map, :year_victims, :featured_state_api, :featured_county_api]
+	before_action :require_login, except: [:frontpage, :password, :login, :states_and_counties_api, :year_victims_api, :state_victims, :state_victims_api, :county_victims, :county_victims_api, :county_victims_map_api, :county_victims_map, :year_victims, :featured_state_api, :featured_county_api], unless: :is_development_duplicates?
 	before_action :sync_membership_session
 	before_action :set_variables
 	helper_method :myResouces
@@ -34,6 +34,11 @@ class ApplicationController < ActionController::Base
 	def allow_iframe
     	response.headers['X-Frame-Options'] = 'ALLOWALL'
   	end
+
+	# Allow duplicates dashboard access in development
+	def is_development_duplicates?
+		Rails.env.development? && controller_name == 'duplicates'
+	end
 
 	def set_variables
  		unless session[:user_id] == nil

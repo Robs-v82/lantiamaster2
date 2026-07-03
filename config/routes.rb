@@ -227,4 +227,14 @@ Rails.application.routes.draw do
     post '/admin/reportes/approve', to: 'admin_reports#approve', as: :admin_reports_approve
     get '/admin/reportes/:id/review', to: 'admin_reports#review', as: :admin_reports_review
 
+    # Duplicates Dashboard (Development Only)
+    get '/duplicates', to: 'duplicates#index', as: :duplicates_dashboard
+    get '/duplicates/level1', to: 'duplicates#level1_details', as: :duplicates_level1
+    get '/duplicates/level2', to: 'duplicates#level2_details', as: :duplicates_level2
+    get '/duplicates/operations', to: 'duplicates#operations_details', as: :duplicates_operations
+    get '/duplicates/incomplete', to: 'duplicates#incomplete_details', as: :duplicates_incomplete
+    post '/duplicates/:id/mark_as_duplicate', to: 'duplicates#mark_as_duplicate', as: :mark_duplicate
+    post '/duplicates/:id/unmark', to: 'duplicates#unmark_duplicate', as: :unmark_duplicate
+    get '/duplicates/export_report', to: 'duplicates#export_report', as: :duplicates_export_report
+
 end
