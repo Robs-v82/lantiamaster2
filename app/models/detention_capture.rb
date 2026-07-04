@@ -2,7 +2,7 @@ class DetentionCapture < ApplicationRecord
   belongs_to :detentions_monthly_export, optional: true
 
   scope :recent, -> { order(created_at: :desc) }
-  scope :this_month, -> { where(capture_date: Date.today.beginning_of_month..Date.today.end_of_month) }
+  scope :this_month, -> { where(incident_date: Date.today.beginning_of_month..Date.today.end_of_month) }
   scope :active, -> { where(deleted_at: nil) }
   scope :by_status, ->(status) { where(status: status) }
 
@@ -223,11 +223,11 @@ class DetentionCapture < ApplicationRecord
     date_end = date_start.end_of_month
 
     {
-      total_captures: where(capture_date: date_start..date_end).count,
-      validated: where(capture_date: date_start..date_end, status: 'validated').count,
-      pending_review: where(capture_date: date_start..date_end, status: 'pending_review').count,
-      duplicates: where(capture_date: date_start..date_end, status: 'duplicate').count,
-      rejected: where(capture_date: date_start..date_end, status: 'rejected').count
+      total_captures: where(incident_date: date_start..date_end).count,
+      validated: where(incident_date: date_start..date_end, status: 'validated').count,
+      pending_review: where(incident_date: date_start..date_end, status: 'pending_review').count,
+      duplicates: where(incident_date: date_start..date_end, status: 'duplicate').count,
+      rejected: where(incident_date: date_start..date_end, status: 'rejected').count
     }
   end
 
@@ -239,7 +239,7 @@ class DetentionCapture < ApplicationRecord
     date_start = Date.new(year, month, 1)
     date_end = date_start.end_of_month
 
-    captures = where(capture_date: date_start..date_end, deleted_at: nil).to_a
+    captures = where(incident_date: date_start..date_end, deleted_at: nil).to_a
 
     {
       level_1: find_confirmed_duplicates(captures),

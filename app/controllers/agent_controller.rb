@@ -943,7 +943,7 @@ class AgentController < ApplicationController
 
       @captures = DetentionCapture
         .where(deleted_at: nil)
-        .where(capture_date: month_start..month_end)
+        .where(incident_date: month_start..month_end)
         .where(status: ['captured', 'validated', 'pending_review'])
         .order(id: :asc)
 
