@@ -62,10 +62,49 @@ class DetentionCapture < ApplicationRecord
     potential_dups.select do |dup|
       dup_record = dup[:record]
 
-      (norm_nombre.present? && dup[:norm_nombre] == norm_nombre && norm_apellido.present? && dup[:norm_apellido] == norm_apellido) ||
-        (norm_nombre.present? && dup[:norm_nombre] == norm_nombre && norm_apellido.blank? && dup[:norm_apellido].blank?) ||
-        (norm_alias.present? && dup[:norm_alias] == norm_alias)
+      # Criterio 1: Nombre + Apellido Paterno exactos
+      exact_name_apellido = (norm_nombre.present? && dup[:norm_nombre] == norm_nombre &&
+                             norm_apellido.present? && dup[:norm_apellido] == norm_apellido)
+
+      # Criterio 2: Solo nombre (ambos sin apellido paterno)
+      only_name = (norm_nombre.present? && dup[:norm_nombre] == norm_nombre &&
+                   norm_apellido.blank? && dup[:norm_apellido].blank?)
+
+      # Criterio 3: Alias exacto
+      alias_match = (norm_alias.present? && dup[:norm_alias] == norm_alias)
+
+      # Criterio 4: Nombres/apellidos parciales - uno es subset del otro
+      partial_match = names_are_partial_match(
+        capture.nombre, capture.apellido_paterno, capture.apellido_materno,
+        dup_record.nombre, dup_record.apellido_paterno, dup_record.apellido_materno
+      )
+
+      exact_name_apellido || only_name || alias_match || partial_match
     end.map { |dup| dup[:record] }
+  end
+
+  def self.names_are_partial_match(name1, apellido1, apellido_materno1,
+                                    name2, apellido2, apellido_materno2)
+    # Construir arrays de tokens normalizados para cada registro
+    tokens1 = [name1, apellido1, apellido_materno1]
+                .compact
+                .flat_map { |n| n.split(/\s+/) }
+                .map { |t| normalize_name(t) }
+                .uniq
+                .sort
+
+    tokens2 = [name2, apellido2, apellido_materno2]
+                .compact
+                .flat_map { |n| n.split(/\s+/) }
+                .map { |t| normalize_name(t) }
+                .uniq
+                .sort
+
+    # Requiere al menos 2 tokens en cada set para evitar falsos positivos
+    return false if tokens1.length < 2 || tokens2.length < 2
+
+    # Verifica si uno es subset del otro
+    (tokens1 - tokens2).empty? || (tokens2 - tokens1).empty?
   end
 
   def self.monthly_summary(year, month)

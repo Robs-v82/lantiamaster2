@@ -1049,6 +1049,7 @@ class AgentController < ApplicationController
       temp_capture = DetentionCapture.new(
         nombre: fields[10],
         apellido_paterno: fields[11],
+        apellido_materno: fields[12],
         alias: fields[13],
         estado: fields[3],
         incident_date: incident_date
@@ -1057,7 +1058,20 @@ class AgentController < ApplicationController
       # Check for smart duplicates (nombre + apellido + estado + semana OR alias)
       duplicates = DetentionCapture.find_duplicates(temp_capture)
       if duplicates.any?
-        return { status: 'duplicate', id: duplicates.first.id, reason: 'smart_match' }
+        duplicate_record = duplicates.first
+
+        # Determinar cuál criterio se aplicó
+        match_criteria = detect_match_criteria(temp_capture, duplicate_record)
+
+        Rails.logger.info(
+          "[Agent#save_csv] #{url} | ✓ DUPLICADO DETECTADO | " +
+          "Persona: #{fields[10]} #{fields[11]} | " +
+          "Estado: #{fields[3]} | Municipio: #{fields[5]} | " +
+          "Criterio: #{match_criteria} | " +
+          "ID duplicado existente: #{duplicate_record.id}"
+        )
+
+        return { status: 'duplicate', id: duplicate_record.id, reason: 'smart_match', criteria: match_criteria }
       end
 
       # Also check for exact hash duplicates (fallback)
@@ -1239,6 +1253,48 @@ class AgentController < ApplicationController
   end
 
   private
+
+  def detect_match_criteria(new_capture, existing_record)
+    norm_nombre = DetentionCapture.normalize_name(new_capture.nombre)
+    norm_apellido = DetentionCapture.normalize_name(new_capture.apellido_paterno)
+    norm_alias = DetentionCapture.normalize_name(new_capture.alias)
+
+    dup_norm_nombre = DetentionCapture.normalize_name(existing_record.nombre)
+    dup_norm_apellido = DetentionCapture.normalize_name(existing_record.apellido_paterno)
+    dup_norm_alias = DetentionCapture.normalize_name(existing_record.alias)
+
+    # Criterio 1: Nombre + Apellido Paterno exactos
+    if norm_nombre.present? && dup_norm_nombre == norm_nombre &&
+       norm_apellido.present? && dup_norm_apellido == norm_apellido
+      return "Criterio 1: Nombre + Apellido Paterno exactos"
+    end
+
+    # Criterio 2: Solo nombre (ambos sin apellido paterno)
+    if norm_nombre.present? && dup_norm_nombre == norm_nombre &&
+       norm_apellido.blank? && dup_norm_apellido.blank?
+      return "Criterio 2: Solo nombre (ambos sin apellido paterno)"
+    end
+
+    # Criterio 3: Alias exacto
+    if norm_alias.present? && dup_norm_alias == norm_alias
+      return "Criterio 3: Alias exacto"
+    end
+
+    # Criterio 4: Nombres/apellidos parciales
+    if DetentionCapture.names_are_partial_match(
+      new_capture.nombre, new_capture.apellido_paterno, new_capture.apellido_materno,
+      existing_record.nombre, existing_record.apellido_paterno, existing_record.apellido_materno
+    )
+      new_tokens = [new_capture.nombre, new_capture.apellido_paterno, new_capture.apellido_materno]
+                     .compact.flat_map { |n| n.split(/\s+/) }.map { |t| DetentionCapture.normalize_name(t) }.uniq
+      existing_tokens = [existing_record.nombre, existing_record.apellido_paterno, existing_record.apellido_materno]
+                          .compact.flat_map { |n| n.split(/\s+/) }.map { |t| DetentionCapture.normalize_name(t) }.uniq
+
+      return "Criterio 4: Nombres parciales (tokens: #{new_tokens.sort.join(',')} vs #{existing_tokens.sort.join(',')})"
+    end
+
+    "Criterio desconocido"
+  end
 
   def capture_params
     params.require(:detention_capture).permit(
