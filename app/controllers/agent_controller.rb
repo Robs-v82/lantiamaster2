@@ -1051,8 +1051,24 @@ class AgentController < ApplicationController
         apellido_paterno: fields[11],
         apellido_materno: fields[12],
         alias: fields[13],
+        genero: fields[14],
+        edad: fields[15].present? ? fields[15].to_i : nil,
+        posicion_liderazgo: fields[16],
+        rol: fields[17],
+        sedena: fields[18] == '1',
+        semar: fields[19] == '1',
+        gn: fields[20] == '1',
+        sscp: fields[21] == '1',
+        fgr: fields[22] == '1',
+        ssp_estatal: fields[23] == '1',
+        fge_pgj: fields[24] == '1',
+        policia_municipal: fields[25] == '1',
+        otro: fields[26] == '1',
         estado: fields[3],
-        incident_date: incident_date
+        organizacion: fields[8],
+        grupo_afiliado: fields[9],
+        incident_date: incident_date,
+        validation_notes: "Merged from #{url}"
       )
 
       # Check for smart duplicates (nombre + apellido + estado + semana OR alias)
@@ -1063,15 +1079,20 @@ class AgentController < ApplicationController
         # Determinar cuál criterio se aplicó
         match_criteria = detect_match_criteria(temp_capture, duplicate_record)
 
+        # Enriquecer el registro existente con información más completa
+        merge_result = duplicate_record.merge_with_duplicate(temp_capture)
+
         Rails.logger.info(
-          "[Agent#save_csv] #{url} | ✓ DUPLICADO DETECTADO | " +
+          "[Agent#save_csv] #{url} | ✓ DUPLICADO DETECTADO Y ACTUALIZADO | " +
           "Persona: #{fields[10]} #{fields[11]} | " +
           "Estado: #{fields[3]} | Municipio: #{fields[5]} | " +
           "Criterio: #{match_criteria} | " +
-          "ID duplicado existente: #{duplicate_record.id}"
+          "ID duplicado: #{duplicate_record.id} | " +
+          "Campos actualizados: #{merge_result[:fields_updated_count]} | " +
+          "Razones: #{merge_result[:update_reasons].join(' | ')}"
         )
 
-        return { status: 'duplicate', id: duplicate_record.id, reason: 'smart_match', criteria: match_criteria }
+        return { status: 'duplicate_merged', id: duplicate_record.id, reason: 'smart_match', criteria: match_criteria, merge_result: merge_result }
       end
 
       # Also check for exact hash duplicates (fallback)

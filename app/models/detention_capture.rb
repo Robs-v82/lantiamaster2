@@ -107,6 +107,117 @@ class DetentionCapture < ApplicationRecord
     (tokens1 - tokens2).empty? || (tokens2 - tokens1).empty?
   end
 
+  def merge_with_duplicate(new_record)
+    updates = {}
+    update_reasons = []
+
+    # ────────────────────────────────────────────────────────────────
+    # CAMPOS DE NOMBRE (privilegiar completitud)
+    # ────────────────────────────────────────────────────────────────
+
+    # Nombre: usar el que tenga más palabras (nombre compuesto)
+    new_nombre_words = (new_record.nombre || '').split(/\s+/).length
+    old_nombre_words = (self.nombre || '').split(/\s+/).length
+    if new_nombre_words > old_nombre_words && new_record.nombre.present?
+      updates[:nombre] = new_record.nombre
+      update_reasons << "nombre: '#{self.nombre}' → '#{new_record.nombre}' (#{new_nombre_words} palabras vs #{old_nombre_words})"
+    end
+
+    # Apellido Paterno: agregar si falta
+    if self.apellido_paterno.blank? && new_record.apellido_paterno.present?
+      updates[:apellido_paterno] = new_record.apellido_paterno
+      update_reasons << "apellido_paterno: agregado '#{new_record.apellido_paterno}'"
+    end
+
+    # Apellido Materno: agregar si falta
+    if self.apellido_materno.blank? && new_record.apellido_materno.present?
+      updates[:apellido_materno] = new_record.apellido_materno
+      update_reasons << "apellido_materno: agregado '#{new_record.apellido_materno}'"
+    end
+
+    # Alias: agregar si falta
+    if self.alias.blank? && new_record.alias.present?
+      updates[:alias] = new_record.alias
+      update_reasons << "alias: agregado '#{new_record.alias}'"
+    end
+
+    # ────────────────────────────────────────────────────────────────
+    # CAMPOS DICOTÓMICOS (usar OR lógico: true si alguno es true)
+    # ────────────────────────────────────────────────────────────────
+
+    dichotomous_fields = [:sedena, :semar, :gn, :sscp, :fgr, :ssp_estatal, :fge_pgj, :policia_municipal, :otro]
+
+    dichotomous_fields.each do |field|
+      old_val = self.send(field) || false
+      new_val = new_record.send(field) || false
+
+      if !old_val && new_val
+        updates[field] = true
+        update_reasons << "#{field}: marcado como true (nueva fuente identificó participación)"
+      end
+    end
+
+    # ────────────────────────────────────────────────────────────────
+    # CAMPOS DE TEXTO GENERAL (agregar si falta)
+    # ────────────────────────────────────────────────────────────────
+
+    text_fields = [:organizacion, :grupo_afiliado, :rol, :posicion_liderazgo, :genero]
+
+    text_fields.each do |field|
+      if self.send(field).blank? && new_record.send(field).present?
+        updates[field] = new_record.send(field)
+        update_reasons << "#{field}: agregado '#{new_record.send(field)}'"
+      end
+    end
+
+    # ────────────────────────────────────────────────────────────────
+    # CAMPOS NUMÉRICOS (usar el mayor valor)
+    # ────────────────────────────────────────────────────────────────
+
+    if new_record.edad.present? && (self.edad.blank? || new_record.edad > self.edad)
+      updates[:edad] = new_record.edad
+      update_reasons << "edad: actualizada a #{new_record.edad}"
+    end
+
+    if new_record.detenidos.present? && (self.detenidos.blank? || new_record.detenidos > self.detenidos)
+      updates[:detenidos] = new_record.detenidos
+      update_reasons << "detenidos: actualizado a #{new_record.detenidos}"
+    end
+
+    # ────────────────────────────────────────────────────────────────
+    # NOTAS DE VALIDACIÓN (concatenar información)
+    # ────────────────────────────────────────────────────────────────
+
+    if new_record.validation_notes.present?
+      existing_notes = self.validation_notes || ""
+      if !existing_notes.include?(new_record.validation_notes)
+        updates[:validation_notes] = "#{existing_notes}\n[Merged] #{new_record.validation_notes}".strip
+        update_reasons << "validation_notes: información adicional agregada"
+      end
+    end
+
+    # ────────────────────────────────────────────────────────────────
+    # APLICAR ACTUALIZACIONES
+    # ────────────────────────────────────────────────────────────────
+
+    if updates.any?
+      self.update(updates)
+      return {
+        success: true,
+        updates_applied: updates.keys,
+        update_reasons: update_reasons,
+        fields_updated_count: updates.length
+      }
+    else
+      return {
+        success: true,
+        updates_applied: [],
+        update_reasons: ["Sin cambios necesarios - registro ya contiene información completa"],
+        fields_updated_count: 0
+      }
+    end
+  end
+
   def self.monthly_summary(year, month)
     date_start = Date.new(year, month, 1)
     date_end = date_start.end_of_month
