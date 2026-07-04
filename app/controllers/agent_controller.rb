@@ -469,6 +469,12 @@ class AgentController < ApplicationController
     title   = article["title"].to_s
     snippet = article["snippet"].to_s
 
+    # Verificación previa: ¿URL ya fue procesado?
+    existing = DetentionCapture.where(source_url: url).limit(1).first
+    if existing.present?
+      return { url: url, status: "skipped", reason: "url_already_processed", id: existing.id }
+    end
+
     # Filter 0: excluded domains
     if EXCLUDED_DOMAINS.any? { |d| url.include?(d) }
       return { url: url, status: "discarded", reason: "snippet_irrelevante", csv_rows: [], content_length: 0 }

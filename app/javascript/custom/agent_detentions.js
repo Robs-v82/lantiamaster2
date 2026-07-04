@@ -567,6 +567,12 @@ async function processGroupsWithFallback(groups, extractUrl, progMsg, progBar, s
           }
         }
 
+        if (result.status === 'skipped') {
+          var skipMsg = 'URL ya fue procesada anteriormente';
+          fallbackLog.push('  [' + (attemptDuration/1000).toFixed(1) + 's] Intento ' + (ai + 1) + '/' + groupArticles.length + ': ' + skipMsg + ' (ID: ' + result.id + ')');
+          continue;
+        }
+
         if (result.status === 'discarded') {
           var discardMsg = result.reason;
           if (result.fetch_error_detail) discardMsg += ' — ' + result.fetch_error_detail;
