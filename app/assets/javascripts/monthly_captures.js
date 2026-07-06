@@ -1,238 +1,253 @@
-$(document).ready(function() {
-  console.log('monthly_captures.js loaded');
-  console.log('Found link buttons:', $('.link-btn').length);
-  console.log('Found edit buttons:', $('.edit-btn').length);
-  console.log('Found delete buttons:', $('.delete-btn').length);
+function navigateToYearMonth(year, month) {
+  window.location.href = window.monthlyClapturesPath + '?year=' + year + '&month=' + month;
+}
 
-  // DEBUG: Inspecciona valores de campos dicotómicos
-  console.log('=== DEBUG: Inspección de campos dicotómicos ===');
-  const rows = document.querySelectorAll('[data-capture-id]');
-  const debugData = [];
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadAllStates();
+  loadAllOrganizations();
+});
 
-  rows.forEach(row => {
-    const captureId = row.getAttribute('data-capture-id');
-    const debugInfo = {
-      id: captureId,
-      sedena: row.querySelector('[data-debug-sedena]')?.getAttribute('data-debug-sedena'),
-      semar: row.querySelector('[data-debug-semar]')?.getAttribute('data-debug-semar'),
-      gn: row.querySelector('[data-debug-gn]')?.getAttribute('data-debug-gn'),
-      sscp: row.querySelector('[data-debug-sscp]')?.getAttribute('data-debug-sscp'),
-      fgr: row.querySelector('[data-debug-fgr]')?.getAttribute('data-debug-fgr'),
-      ssp: row.querySelector('[data-debug-ssp]')?.getAttribute('data-debug-ssp'),
-      fge: row.querySelector('[data-debug-fge]')?.getAttribute('data-debug-fge'),
-      pm: row.querySelector('[data-debug-pm]')?.getAttribute('data-debug-pm'),
-      otro: row.querySelector('[data-debug-otro]')?.getAttribute('data-debug-otro')
-    };
-    debugData.push(debugInfo);
-  });
-
-  console.table(debugData);
-  console.log('Nota: true = debería mostrar icono de check, false/null = círculo vacío');
-  window.__debugDichotomous = debugData; // Disponible en consola
-
-  // Initialize Materialize modals
-  $('.modal').modal();
-
-  // Link button handler
-  $(document).on('click', '.link-btn', function() {
-    console.log('Link button clicked');
-    const url = $(this).data('url');
-    console.log('URL:', url);
-    if (url) {
-      window.open(url, '_blank');
-    }
-  });
-
-  // Load form data (states, organizations)
-  function loadFormData() {
-    $.ajax({
-      url: '/agent/get_states',
-      type: 'GET',
-      success: function(data) {
-        const stateSelect = $('#estado');
-        stateSelect.find('option:not(:first)').remove();
+function loadAllStates() {
+  fetch('/agent/get_states')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.states) return;
+      document.querySelectorAll('.estado-select').forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">Seleccionar estado</option>';
         data.states.forEach(state => {
-          stateSelect.append(`<option value="${state}">${state}</option>`);
+          const opt = document.createElement('option');
+          opt.value = state;
+          opt.textContent = state;
+          if (currentValue === state) opt.selected = true;
+          select.appendChild(opt);
         });
-      }
-    });
+        // Reinitialize Materialize FormSelect after loading
+        const instance = M.FormSelect.getInstance(select);
+        if (instance) instance.destroy();
+        M.FormSelect.init(select);
+      });
+    })
+    .catch(err => console.error('Error loading states:', err));
+}
 
-    $.ajax({
-      url: '/agent/get_organizations',
-      type: 'GET',
-      success: function(data) {
-        const orgSelect = $('#organizacion');
-        orgSelect.find('option:not(:first)').remove();
+function loadAllOrganizations() {
+  fetch('/agent/get_organizations')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.organizations) return;
+      document.querySelectorAll('.organizacion-select').forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">Seleccionar organización</option>';
         data.organizations.forEach(org => {
-          orgSelect.append(`<option value="${org}">${org}</option>`);
+          const opt = document.createElement('option');
+          opt.value = org;
+          opt.textContent = org;
+          if (currentValue === org) opt.selected = true;
+          select.appendChild(opt);
         });
+        // Reinitialize Materialize FormSelect after loading
+        const instance = M.FormSelect.getInstance(select);
+        if (instance) instance.destroy();
+        M.FormSelect.init(select);
+      });
+    })
+    .catch(err => console.error('Error loading organizations:', err));
+}
+
+// Edit button handler - use Materialize API
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.edit-btn')) {
+    e.preventDefault();
+    e.stopPropagation();
+    const btn = e.target.closest('.edit-btn');
+    const captureId = btn.dataset.id;
+    const li = document.querySelector(`li[data-capture-id="${captureId}"]`);
+    if (li) {
+      const instance = M.Collapsible.getInstance(li);
+      if (instance) instance.open();
+
+      // Load counties for current estado
+      const estadoSelect = li.querySelector('.estado-select');
+      if (estadoSelect && estadoSelect.value) {
+        loadCounties(estadoSelect.value, captureId);
       }
-    });
+    }
+  }
+});
+
+// Cancel button handler - use Materialize API
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.cancel-btn')) {
+    e.preventDefault();
+    const btn = e.target.closest('.cancel-btn');
+    const captureId = btn.dataset.id;
+    const li = document.querySelector(`li[data-capture-id="${captureId}"]`);
+    if (li) {
+      const instance = M.Collapsible.getInstance(li);
+      if (instance) instance.close();
+    }
+  }
+});
+
+// Cancel delete handler
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.cancel-delete-btn')) {
+    e.preventDefault();
+    const btn = e.target.closest('.cancel-delete-btn');
+    const captureId = btn.dataset.id;
+    const deleteConfirm = document.getElementById(`deleteConfirm_${captureId}`);
+    if (deleteConfirm) {
+      deleteConfirm.style.display = 'none';
+    }
+  }
+});
+
+// Link button handler
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.link-btn')) {
+    e.preventDefault();
+    const btn = e.target.closest('.link-btn');
+    const url = btn.dataset.url;
+    if (url) window.open(url, '_blank');
+  }
+});
+
+// Delete button handler
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.delete-btn')) {
+    e.preventDefault();
+    const btn = e.target.closest('.delete-btn');
+    const captureId = btn.dataset.id;
+    const deleteConfirm = document.getElementById(`deleteConfirm_${captureId}`);
+    if (deleteConfirm) {
+      deleteConfirm.style.display = 'block';
+    }
+  }
+});
+
+// Estado change handler - load municipalities
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('estado-select')) {
+    const estado = e.target.value;
+    const selectId = e.target.id;
+    const captureId = selectId.replace('estado_', '');
+    loadCounties(estado, captureId);
+  }
+});
+
+function loadCounties(estado, captureId) {
+  const municipioSelect = document.querySelector(`#municipio_${captureId}`);
+  if (!municipioSelect) return;
+
+  if (!estado) {
+    municipioSelect.innerHTML = '<option value="">Seleccionar municipio</option>';
+    // Reinitialize Materialize FormSelect
+    const instance = M.FormSelect.getInstance(municipioSelect);
+    if (instance) instance.destroy();
+    M.FormSelect.init(municipioSelect);
+    return;
   }
 
-  // Update municipalities when state changes
-  $(document).on('change', '#estado', function() {
-    const state = $(this).val();
-    const municipioSelect = $('#municipio');
-    municipioSelect.find('option:not(:first)').remove();
-
-    if (state) {
-      $.ajax({
-        url: '/agent/get_counties',
-        type: 'GET',
-        data: { state: state },
-        success: function(data) {
-          data.counties.forEach(county => {
-            municipioSelect.append(`<option value="${county}">${county}</option>`);
-          });
-        }
+  fetch(`/agent/get_counties?state=${encodeURIComponent(estado)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.counties) {
+        municipioSelect.innerHTML = '<option value="">Seleccionar municipio</option>';
+        // Reinitialize Materialize FormSelect
+        const instance = M.FormSelect.getInstance(municipioSelect);
+        if (instance) instance.destroy();
+        M.FormSelect.init(municipioSelect);
+        return;
+      }
+      const currentValue = municipioSelect.value;
+      municipioSelect.innerHTML = '<option value="">Seleccionar municipio</option>';
+      data.counties.forEach(county => {
+        const opt = document.createElement('option');
+        const countyName = county[0];
+        const countyFullCode = county[1];
+        opt.value = countyName;
+        opt.textContent = `${countyName} - ${countyFullCode}`;
+        if (currentValue === countyName) opt.selected = true;
+        municipioSelect.appendChild(opt);
       });
-    }
-  });
-
-  // Edit button handler
-  $(document).on('click', '.edit-btn', function() {
-    console.log('Edit button clicked');
-    const captureId = $(this).data('id');
-    console.log('Capture ID:', captureId);
-    const row = $(`tr[data-capture-id="${captureId}"]`);
-
-    // Populate form with row data
-    const cells = row.find('td');
-    $('#captureId').val(captureId);
-    $('#incident_date').val(cells.eq(1).text().split('/').reverse().join('-'));
-    $('#detenidos').val(cells.eq(6).text());
-    $('#nombre').val(cells.eq(7).text());
-
-    // Helper to check if institution checkbox is marked (checks for fa-check-circle icon)
-    const isInstitutionChecked = (cellIndex) => {
-      return cells.eq(cellIndex).find('.fa-check-circle').length > 0;
-    };
-
-    // Set institution checkboxes based on icons in table (cells 8-16)
-    document.getElementById('sedena').checked = isInstitutionChecked(8);
-    document.getElementById('semar').checked = isInstitutionChecked(9);
-    document.getElementById('gn').checked = isInstitutionChecked(10);
-    document.getElementById('sscp').checked = isInstitutionChecked(11);
-    document.getElementById('fgr').checked = isInstitutionChecked(12);
-    document.getElementById('ssp_estatal').checked = isInstitutionChecked(13);
-    document.getElementById('fge_pgj').checked = isInstitutionChecked(14);
-    document.getElementById('policia_municipal').checked = isInstitutionChecked(15);
-    document.getElementById('otro').checked = isInstitutionChecked(16);
-
-    // Load form data first
-    loadFormData();
-
-    // Set estado and wait for it to populate, then set municipio
-    const selectedEstado = cells.eq(2).text();
-    const selectedMunicipio = cells.eq(4).text();
-    const selectedOrganizacion = cells.eq(5).text();
-
-    // Set estado
-    $('#estado').val(selectedEstado);
-
-    // Load municipalities for this state, then set value
-    $.ajax({
-      url: '/agent/get_counties',
-      type: 'GET',
-      data: { state: selectedEstado },
-      success: function(data) {
-        const municipioSelect = $('#municipio');
-        municipioSelect.find('option:not(:first)').remove();
-        data.counties.forEach(county => {
-          municipioSelect.append(`<option value="${county}">${county}</option>`);
-        });
-        municipioSelect.val(selectedMunicipio);
-      }
+      // Reinitialize Materialize FormSelect after loading
+      const instance = M.FormSelect.getInstance(municipioSelect);
+      if (instance) instance.destroy();
+      M.FormSelect.init(municipioSelect);
+    })
+    .catch(err => {
+      console.error('Error loading counties:', err);
+      municipioSelect.innerHTML = '<option value="">Error al cargar municipios</option>';
+      // Reinitialize Materialize FormSelect
+      const instance = M.FormSelect.getInstance(municipioSelect);
+      if (instance) instance.destroy();
+      M.FormSelect.init(municipioSelect);
     });
+}
 
-    // Set organizacion
-    $('#organizacion').val(selectedOrganizacion);
+// Save button handler
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.save-btn')) {
+    e.preventDefault();
+    const btn = e.target.closest('.save-btn');
+    const captureId = btn.dataset.captureId;
+    const form = document.getElementById(`editForm_${captureId}`);
 
-    const editModalInstance = M.Modal.getInstance(document.getElementById('editModal'));
-    editModalInstance.open();
-  });
+    if (!form) return;
 
-  // Delete button handler
-  $(document).on('click', '.delete-btn', function() {
-    console.log('Delete button clicked');
-    const captureId = $(this).data('id');
-    const row = $(`tr[data-capture-id="${captureId}"]`);
-    const cells = row.find('td');
+    const formData = new FormData(form);
 
-    const deleteInfo = `
-      <div class="alert alert-info">
-        <strong>Información a eliminar:</strong><br>
-        Estado: ${cells.eq(2).text()}<br>
-        Municipio: ${cells.eq(4).text()}<br>
-        Organización: ${cells.eq(5).text()}<br>
-        Nombre: ${cells.eq(7).text()}
-      </div>
-    `;
-
-    $('#deleteInfo').html(deleteInfo);
-    $('#confirmDeleteBtn').data('capture-id', captureId);
-
-    const deleteModalInstance = M.Modal.getInstance(document.getElementById('deleteModal'));
-    deleteModalInstance.open();
-  });
-
-  // Save changes
-  $(document).on('click', '#saveBtn', function() {
-    console.log('Save button clicked');
-    const captureId = $('#captureId').val();
-    const formData = new FormData($('#editForm')[0]);
-
-    $.ajax({
-      url: `/agent/detention_captures/${captureId}`,
-      type: 'PATCH',
-      data: formData,
-      processData: false,
-      contentType: false,
-      success: function(response) {
-        if (response.success) {
-          const editModalInstance = M.Modal.getInstance(document.getElementById('editModal'));
-          editModalInstance.close();
-          alert('Captura actualizada exitosamente');
-          location.reload();
-        } else {
-          alert('Error: ' + response.errors.join(', '));
-        }
-      },
-      error: function(xhr) {
-        alert('Error al actualizar la captura');
+    fetch(`/agent/detention_captures/${captureId}`, {
+      method: 'PATCH',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
       }
-    });
-  });
-
-  // Confirm delete
-  $(document).on('click', '#confirmDeleteBtn', function() {
-    console.log('Confirm delete button clicked');
-    const captureId = $(this).data('capture-id');
-
-    $.ajax({
-      url: `/agent/detention_captures/${captureId}`,
-      type: 'DELETE',
-      dataType: 'json',
-      success: function(response) {
-        if (response.success) {
-          const deleteModalInstance = M.Modal.getInstance(document.getElementById('deleteModal'));
-          deleteModalInstance.close();
-          alert('Captura eliminada exitosamente');
-          location.reload();
-        } else {
-          alert('Error: ' + response.errors.join(', '));
-        }
-      },
-      error: function(xhr) {
-        alert('Error al eliminar la captura');
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        alert('Captura actualizada exitosamente');
+        location.reload();
+      } else {
+        alert('Error: ' + (data.errors ? data.errors.join(', ') : 'Error desconocido'));
       }
+    })
+    .catch(err => {
+      alert('Error al actualizar la captura');
+      console.error(err);
     });
-  });
+  }
+});
 
-  // Export button
-  $(document).on('click', '#confirmExportBtn', function() {
-    console.log('Export button clicked');
-    alert('Exportación no disponible aún');
-  });
+// Confirm delete handler
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.confirm-delete-btn')) {
+    e.preventDefault();
+    const btn = e.target.closest('.confirm-delete-btn');
+    const captureId = btn.dataset.id;
+
+    fetch(`/agent/detention_captures/${captureId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        alert('Captura eliminada exitosamente');
+        location.reload();
+      } else {
+        alert('Error: ' + (data.errors ? data.errors.join(', ') : 'Error desconocido'));
+      }
+    })
+    .catch(err => {
+      alert('Error al eliminar la captura');
+      console.error(err);
+    });
+  }
 });

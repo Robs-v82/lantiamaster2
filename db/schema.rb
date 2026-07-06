@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_06_25_000001) do
+ActiveRecord::Schema.define(version: 2026_07_06_180225) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -203,11 +203,13 @@ ActiveRecord::Schema.define(version: 2026_06_25_000001) do
     t.bigint "monthly_export_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "organization_id"
     t.index ["capture_date"], name: "index_detention_captures_on_capture_date"
     t.index ["capture_hash"], name: "index_detention_captures_on_capture_hash"
     t.index ["estado", "municipio", "incident_date"], name: "idx_dc_estado_municipio_date"
     t.index ["incident_date"], name: "index_detention_captures_on_incident_date"
     t.index ["monthly_export_id"], name: "index_detention_captures_on_monthly_export_id"
+    t.index ["organization_id"], name: "index_detention_captures_on_organization_id"
     t.index ["status"], name: "index_detention_captures_on_status"
   end
 
@@ -954,6 +956,7 @@ ActiveRecord::Schema.define(version: 2026_06_25_000001) do
   add_foreign_key "counties", "cities"
   add_foreign_key "counties", "states"
   add_foreign_key "county_aliases", "counties"
+  add_foreign_key "detention_captures", "organizations", on_delete: :nullify
   add_foreign_key "detentions", "events"
   add_foreign_key "divisions", "sectors"
   add_foreign_key "duplication_logs", "detention_captures", column: "duplicate_record_id"

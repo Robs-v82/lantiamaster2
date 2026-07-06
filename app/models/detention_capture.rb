@@ -1,5 +1,6 @@
 class DetentionCapture < ApplicationRecord
   belongs_to :detentions_monthly_export, optional: true
+  belongs_to :organization, optional: true
 
   scope :recent, -> { order(created_at: :desc) }
   scope :this_month, -> { where(incident_date: Date.today.beginning_of_month..Date.today.end_of_month) }

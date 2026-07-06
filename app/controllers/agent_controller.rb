@@ -912,7 +912,7 @@ class AgentController < ApplicationController
   def get_counties
     state_name = params[:state]
     state = State.find_by(name: state_name)
-    counties = state ? state.counties.pluck(:name).sort : []
+    counties = state ? state.counties.pluck(:name, :full_code).sort : []
     render json: { counties: counties }
   end
 
@@ -1099,6 +1099,46 @@ class AgentController < ApplicationController
       existing = DetentionCapture.where(capture_hash: capture_hash).first
       return { status: 'duplicate', id: existing.id, hash: capture_hash } if existing
 
+      # Buscar organization_id: prioridad a grupo_afiliado, sino organizacion
+      organization_id = nil
+      org_source = nil
+      org_name = nil
+
+      if fields[9].present?
+        org_name = fields[9].strip
+        org_source = "grupo_afiliado"
+      elsif fields[8].present?
+        org_name = fields[8].strip
+        org_source = "organizacion"
+      end
+
+      if org_name.present? && org_source.present?
+        org = Organization.where("name ILIKE ?", org_name).first
+
+        if org
+          organization_id = org.id
+          Rails.logger.info(
+            "[Agent#save_csv] #{url} | ORGANIZATION FOUND | " +
+            "Source: #{org_source} | " +
+            "Value searched: '#{org_name}' | " +
+            "Organization ID: #{organization_id} | " +
+            "Organization name: '#{org.name}'"
+          )
+        else
+          Rails.logger.warn(
+            "[Agent#save_csv] #{url} | ORGANIZATION NOT FOUND | " +
+            "Source: #{org_source} | " +
+            "Value searched: '#{org_name}'"
+          )
+        end
+      else
+        Rails.logger.warn(
+          "[Agent#save_csv] #{url} | NO ORGANIZATION DATA | " +
+          "grupo_afiliado: '#{fields[9]}' | " +
+          "organizacion: '#{fields[8]}'"
+        )
+      end
+
       capture = DetentionCapture.create!(
         source_url: url,
         capture_date: capture_date,
@@ -1109,6 +1149,7 @@ class AgentController < ApplicationController
         detenidos: detenidos_value,
         organizacion: fields[8],
         grupo_afiliado: fields[9],
+        organization_id: organization_id,
         nombre: fields[10],
         apellido_paterno: fields[11],
         apellido_materno: fields[12],

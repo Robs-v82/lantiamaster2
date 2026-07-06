@@ -1,466 +1,719 @@
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<% content_for :head_tags do %>
+  <style>
+    .b-container {
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+    }
 
-<div class="container mt-3">
-  <!-- Navigation and Title Section -->
-  <div class="mb-3 p-2 bg-light rounded">
-    <div class="d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center gap-2">
-        <!-- Previous Month Button -->
-        <%
-          prev_month = @month == 1 ? 12 : @month - 1
-          prev_year = @month == 1 ? @year - 1 : @year
-        %>
-        <a href="<%= agent_monthly_captures_path(year: prev_year, month: prev_month) %>" class="btn btn-sm btn-outline-secondary" title="Mes anterior">
-          <i class="fas fa-chevron-left"></i> Anterior
-        </a>
+    .nav-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 12px 20px;
+      background-color: #f5f5f5;
+      border-radius: 0;
+    }
 
-        <!-- Month/Year Display -->
-        <h5 class="mb-0 mx-3 text-dark font-weight-bold" style="min-width: 150px; text-align: center;">
-          <%= Date.new(@year, @month, 1).strftime("%B %Y") %>
-        </h5>
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        <!-- Next Month Button -->
-        <%
-          next_month = @month == 12 ? 1 : @month + 1
-          next_year = @month == 12 ? @year + 1 : @year
-        %>
-        <a href="<%= agent_monthly_captures_path(year: next_year, month: next_month) %>" class="btn btn-sm btn-outline-secondary" title="Mes siguiente">
-          Siguiente <i class="fas fa-chevron-right"></i>
-        </a>
+    .nav-btn {
+      padding: 8px 12px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
 
-        <!-- Year Selector -->
-        <div class="ml-3">
-          <label for="yearSelector" class="mb-0 mr-2 text-muted small">Año:</label>
-          <select id="yearSelector" class="form-control form-control-sm" style="width: 80px; display: inline-block;" onchange="navigateToYearMonth(this.value, <%= @month %>)">
-            <% (2024..2030).each do |year| %>
-              <option value="<%= year %>" <%= 'selected' if year == @year %>>
-                <%= year %>
-              </option>
-            <% end %>
-          </select>
-        </div>
+    .nav-btn:hover {
+      background-color: #ef4e50;
+      color: white;
+      border-color: #ef4e50;
+    }
 
-        <!-- Go to Today Button -->
-        <a href="<%= agent_monthly_captures_path %>" class="btn btn-sm btn-info ml-2" title="Ir a este mes">
-          <i class="fas fa-calendar-today"></i> Hoy
-        </a>
+    .nav-month {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      min-width: 160px;
+      text-align: center;
+    }
+
+    .year-selector {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .summary-badges {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-secondary { background-color: #9e9e9e; color: white; }
+    .badge-success { background-color: #4caf50; color: white; }
+    .badge-warning { background-color: #ff9800; color: white; }
+    .badge-info { background-color: #2196f3; color: white; }
+    .badge-danger { background-color: #f44336; color: white; }
+
+    /* Table styling */
+    .table-wrapper {
+      background: white;
+      border-radius: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin: 0 20px;
+    }
+
+    .table-header {
+      padding: 12px 16px;
+      background-color: #333;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .captures-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .captures-table thead th {
+      background-color: #333;
+      color: white;
+      padding: 10px 8px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 2px solid #222;
+    }
+
+    .captures-table tbody tr {
+      border-bottom: 1px solid #e0e0e0;
+      transition: background-color 0.2s;
+    }
+
+    .captures-table tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .captures-table tbody td {
+      padding: 8px;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .inst-col {
+      width: 50px;
+      text-align: center;
+      padding: 4px;
+    }
+
+    .action-buttons {
+      text-align: center;
+      width: 160px;
+    }
+
+    /* Icon buttons */
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background-color: #f0f0f0;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0 1px;
+    }
+
+    .btn-icon:hover {
+      background-color: #ef4e50;
+    }
+
+    .btn-icon .material-icons {
+      font-size: 18px;
+      color: #ef4e50;
+    }
+
+    .btn-icon:hover .material-icons {
+      color: white;
+    }
+
+    /* Collapsible styling */
+    .collapsible {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .collapsible > li {
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background-color: #fafafa;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+      font-size: 13px;
+    }
+
+    .collapsible-header:hover {
+      background-color: #f0f0f0;
+    }
+
+    .collapsible-header.active {
+      background-color: #fffacd;
+    }
+
+    .capture-row {
+      display: flex;
+      gap: 0;
+      width: 100%;
+      font-size: 13px;
+    }
+
+    .capture-col {
+      padding: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .capture-col.inst-col {
+      padding: 4px;
+      text-align: center;
+    }
+
+    .capture-col.action-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 4px;
+    }
+
+    .collapsible-body {
+      display: none;
+      padding: 24px;
+      background-color: #f9f9f9;
+    }
+
+    .collapsible-body.active {
+      display: block;
+    }
+
+    /* Form styling */
+    .edit-form {
+      background-color: white;
+      padding: 20px;
+    }
+
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: visible !important;
+      min-height: auto !important;
+    }
+
+    /* Inputs de texto, number, date dentro de .input-field */
+    .input-field input[type="text"],
+    .input-field input[type="number"],
+    .input-field input[type="date"],
+    .input-field textarea {
+      border: 1px solid #ccc !important;
+      border-radius: 4px;
+      padding: 8px 10px !important;
+      height: 55px !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+      font-size: 14px !important;
+    }
+
+    /* Select transformado por Materialize */
+    .input-field .select-wrapper input.select-dropdown {
+      border: 1px solid #ccc !important;
+      border-radius: 4px;
+      padding: 8px 10px !important;
+      height: 55px !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+      font-size: 14px !important;
+      background-color: white !important;
+      color: #333 !important;
+    }
+
+    .input-field .select-wrapper {
+      margin-bottom: 0 !important;
+    }
+
+    /* Fuerzas section */
+    .forces-section {
+      background-color: #f5f5f5;
+      padding: 12px;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+
+    .input-field.inline-label label {
+      position: relative;
+      top: 0;
+    }
+
+    .forces-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .forces-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .checkbox-wrapper input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .checkbox-wrapper label {
+      margin: 0;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: normal;
+    }
+
+    /* Form buttons */
+    .form-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #ddd;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: #ef4e50;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #d43e40;
+    }
+
+    .btn-secondary {
+      background-color: #9e9e9e;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #757575;
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      color: #999;
+    }
+
+  </style>
+
+  <script nonce="<%= csp_nonce %>">
+    document.addEventListener('DOMContentLoaded', function() {
+      var elems = document.querySelectorAll('select');
+      M.FormSelect.init(elems);
+    });
+  </script>
+<% end %>
+
+<div class="b-container">
+  <!-- Navigation Section -->
+  <div class="nav-section">
+    <div class="nav-controls">
+      <% prev_month = @month == 1 ? 12 : @month - 1 %>
+      <% prev_year = @month == 1 ? @year - 1 : @year %>
+      <a href="<%= agent_monthly_captures_path(year: prev_year, month: prev_month) %>" class="nav-btn" title="Mes anterior">
+        ← Anterior
+      </a>
+
+      <div class="nav-month">
+        <%= Date.new(@year, @month, 1).strftime("%B %Y") %>
       </div>
-    </div>
-  </div>
 
-  <div class="d-flex align-items-center justify-content-between mb-2">
-    <h6 class="mb-0 text-muted">
-      Registros del mes seleccionado
-    </h6>
-    <div class="d-flex align-items-center">
-      <!-- Summary inline -->
-      <span class="badge badge-secondary mr-1" title="Total">T: <%= @summary[:total_captures] %></span>
-      <span class="badge badge-success mr-1" title="Validadas">V: <%= @summary[:validated] %></span>
-      <span class="badge badge-warning mr-1" title="En revisión">R: <%= @summary[:pending_review] %></span>
-      <span class="badge badge-info mr-1" title="Duplicados">D: <%= @summary[:duplicates] %></span>
-      <span class="badge badge-danger mr-2" title="Rechazados">X: <%= @summary[:rejected] %></span>
-      <button class="btn btn-sm btn-primary mr-2" data-toggle="modal" data-target="#exportModal">
-        <i class="fas fa-download"></i> Exportar
-      </button>
-      <a href="<%= agent_detentions_path %>" class="btn btn-sm btn-secondary">
-        <i class="fas fa-arrow-left"></i> Volver
+      <% next_month = @month == 12 ? 1 : @month + 1 %>
+      <% next_year = @month == 12 ? @year + 1 : @year %>
+      <a href="<%= agent_monthly_captures_path(year: next_year, month: next_month) %>" class="nav-btn" title="Mes siguiente">
+        Siguiente →
+      </a>
+
+      <select id="yearSelector" class="year-selector" onchange="navigateToYearMonth(this.value, <%= @month %>)">
+        <% (2024..2030).each do |year| %>
+          <option value="<%= year %>" <%= 'selected' if year == @year %>>
+            <%= year %>
+          </option>
+        <% end %>
+      </select>
+
+      <a href="<%= agent_monthly_captures_path %>" class="nav-btn" title="Ir a este mes">
+        ⊙ Hoy
+      </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div class="summary-badges">
+        <span class="badge badge-secondary" title="Total">T: <%= @summary[:total_captures] %></span>
+        <span class="badge badge-success" title="Validadas">V: <%= @summary[:validated] %></span>
+        <span class="badge badge-warning" title="En revisión">R: <%= @summary[:pending_review] %></span>
+        <span class="badge badge-info" title="Duplicados">D: <%= @summary[:duplicates] %></span>
+        <span class="badge badge-danger" title="Rechazados">X: <%= @summary[:rejected] %></span>
+      </div>
+
+      <a href="<%= agent_detentions_path %>" class="nav-btn" style="background-color: #6366f1; color: white; border-color: #6366f1;">
+        ← Volver
       </a>
     </div>
   </div>
 
   <!-- Captures Table -->
-  <div class="card">
-    <div class="card-header">
-      <h5>Listado de Capturas</h5>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-sm table-hover" id="capturesTable">
-        <thead class="table-dark">
+  <div class="table-wrapper">
+    <% if @captures.empty? %>
+      <div class="empty-state">
+        No hay capturas registradas para este mes.
+      </div>
+    <% else %>
+      <table class="captures-table">
+        <thead>
           <tr>
-            <th>ID</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-            <th>full_code</th>
-            <th>Municipio</th>
-            <th>Org.</th>
-            <th class="text-center">Det.</th>
-            <th>Nombre</th>
-            <th class="text-center inst-col" title="SEDENA">SED</th>
-            <th class="text-center inst-col" title="SEMAR">SEM</th>
-            <th class="text-center inst-col" title="Guardia Nacional">GN</th>
-            <th class="text-center inst-col" title="SSCP">SSC</th>
-            <th class="text-center inst-col" title="FGR">FGR</th>
-            <th class="text-center inst-col" title="SSP Estatal">SSP</th>
-            <th class="text-center inst-col" title="FGE/PGJ">FGE</th>
-            <th class="text-center inst-col" title="Policía Municipal">PM</th>
-            <th class="text-center inst-col" title="Otra fuerza">Otro</th>
-            <th style="width: 120px;">Acciones</th>
+            <th style="width: 4%;">ID</th>
+            <th style="width: 7%;">Fecha</th>
+            <th style="width: 17%;">Lugar</th>
+            <th style="width: 12%;">Org.</th>
+            <th style="width: 5%;" class="inst-col">Det.</th>
+            <th style="width: 12%;">Nombre</th>
+            <th class="inst-col" title="SEDENA">SED</th>
+            <th class="inst-col" title="SEMAR">SEM</th>
+            <th class="inst-col" title="Guardia Nacional">GN</th>
+            <th class="inst-col" title="SSCP">SSC</th>
+            <th class="inst-col" title="FGR">FGR</th>
+            <th class="inst-col" title="SSP Estatal">SSP</th>
+            <th class="inst-col" title="FGE/PGJ">FGE</th>
+            <th class="inst-col" title="Policía Municipal">PM</th>
+            <th class="inst-col" title="Otra fuerza">Otro</th>
+            <th class="inst-col">Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          <% @captures.each do |capture| %>
-            <tr data-capture-id="<%= capture.id %>">
-              <td><%= capture.id %></td>
-              <td><%= capture.incident_date.strftime('%d/%m/%Y') %></td>
-              <td><%= capture.estado %></td>
-              <td><%= capture.full_code %></td>
-              <td><%= capture.municipio %></td>
-              <td><small><%= capture.organizacion %></small></td>
-              <td class="text-center"><%= capture.detenidos %></td>
-              <td><%= capture.nombre %></td>
-              <% inst_icon = ->(val) { val ? '<span class="material-icons" style="color: #ef4e50; font-size: 1.3rem;">check_box</span>' : '<span class="material-icons" style="color: #ddd; font-size: 1.3rem;">check_box_outline_blank</span>' } %>
-              <td class="text-center" data-debug-sedena="<%= capture.sedena.inspect %>"><%= inst_icon.call(capture.sedena).html_safe %></td>
-              <td class="text-center" data-debug-semar="<%= capture.semar.inspect %>"><%= inst_icon.call(capture.semar).html_safe %></td>
-              <td class="text-center" data-debug-gn="<%= capture.gn.inspect %>"><%= inst_icon.call(capture.gn).html_safe %></td>
-              <td class="text-center" data-debug-sscp="<%= capture.sscp.inspect %>"><%= inst_icon.call(capture.sscp).html_safe %></td>
-              <td class="text-center" data-debug-fgr="<%= capture.fgr.inspect %>"><%= inst_icon.call(capture.fgr).html_safe %></td>
-              <td class="text-center" data-debug-ssp="<%= capture.ssp_estatal.inspect %>"><%= inst_icon.call(capture.ssp_estatal).html_safe %></td>
-              <td class="text-center" data-debug-fge="<%= capture.fge_pgj.inspect %>"><%= inst_icon.call(capture.fge_pgj).html_safe %></td>
-              <td class="text-center" data-debug-pm="<%= capture.policia_municipal.inspect %>"><%= inst_icon.call(capture.policia_municipal).html_safe %></td>
-              <td class="text-center" data-debug-otro="<%= capture.otro.inspect %>"><%= inst_icon.call(capture.otro).html_safe %></td>
-              <td class="action-buttons">
-                <button class="btn-icon edit-btn" data-id="<%= capture.id %>" title="Editar registro">
-                  <span class="material-icons">edit</span>
-                </button>
-                <button class="btn-icon link-btn" data-url="<%= capture.source_url %>" title="Ver nota original">
-                  <span class="material-icons">open_in_new</span>
-                </button>
-                <button class="btn-icon delete-btn" data-id="<%= capture.id %>" title="Eliminar registro">
-                  <span class="material-icons">delete</span>
-                </button>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
       </table>
-      <% if @captures.empty? %>
-        <div class="alert alert-info">
-          No hay capturas registradas para este mes.
-        </div>
-      <% end %>
-    </div>
+
+      <ul class="collapsible" id="capturesCollapsible">
+            <% @captures.each do |capture| %>
+              <li data-capture-id="<%= capture.id %>">
+                <div class="collapsible-header">
+                  <div class="capture-row">
+                    <div class="capture-col" style="width: 4%;">
+                      <%= capture.id %>
+                    </div>
+                    <div class="capture-col" style="width: 7%;">
+                      <%= capture.incident_date.strftime('%d/%m/%Y') %>
+                    </div>
+                    <div class="capture-col" style="width: 17%;">
+                      <% county = County.find_by(full_code: capture.full_code) %>
+                      <% state = county&.state %>
+                      <% if capture.municipio.present? && county && state %>
+                        <%= "#{county.name}, #{state.shortname}" %>
+                      <% elsif capture.municipio.present? %>
+                        <%= capture.municipio %>
+                      <% elsif state %>
+                        <%= state.name %>
+                      <% else %>
+                        <%= capture.estado %>
+                      <% end %>
+                    </div>
+                    <div class="capture-col" style="width: 12%;">
+                      <small><%= capture.organizacion %></small>
+                    </div>
+                    <div class="capture-col" style="width: 5%;">
+                      <%= capture.detenidos %>
+                    </div>
+                    <div class="capture-col" style="width: 12%;">
+                      <% full_name = [capture.nombre, capture.apellido_paterno, capture.apellido_materno].compact.join(" ").strip %>
+                      <%= full_name.present? ? full_name : capture.nombre %>
+                    </div>
+                    <% inst_icon = ->(val) { val ? '<span class="material-icons" style="color: #ef4e50; font-size: 18px;">check_box</span>' : '<span class="material-icons" style="color: #ddd; font-size: 18px;">check_box_outline_blank</span>' } %>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.sedena).html_safe %>
+                    </div>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.semar).html_safe %>
+                    </div>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.gn).html_safe %>
+                    </div>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.sscp).html_safe %>
+                    </div>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.fgr).html_safe %>
+                    </div>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.ssp_estatal).html_safe %>
+                    </div>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.fge_pgj).html_safe %>
+                    </div>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.policia_municipal).html_safe %>
+                    </div>
+                    <div class="capture-col inst-col">
+                      <%= inst_icon.call(capture.otro).html_safe %>
+                    </div>
+                    <div class="capture-col action-buttons">
+                      <button class="btn-icon edit-btn" data-id="<%= capture.id %>" title="Editar registro">
+                        <span class="material-icons">edit</span>
+                      </button>
+                      <button class="btn-icon link-btn" data-url="<%= capture.source_url %>" title="Ver nota original">
+                        <span class="material-icons">open_in_new</span>
+                      </button>
+                      <button class="btn-icon delete-btn" data-id="<%= capture.id %>" title="Eliminar registro">
+                        <span class="material-icons">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="collapsible-body">
+                  <div class="edit-form">
+                    <form id="editForm_<%= capture.id %>" class="capture-edit-form" data-capture-id="<%= capture.id %>">
+                      <input type="hidden" name="capture_id" value="<%= capture.id %>">
+
+                      <div class="row" style="display: flex; gap: 10px; margin-bottom: 12px; max-height: 80px !important;">
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <label for="incident_date_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">FECHA DEL INCIDENTE</label>
+                          <input type="date" id="incident_date_<%= capture.id %>" name="detention_capture[incident_date]" value="<%= capture.incident_date.strftime('%Y-%m-%d') %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <select id="estado_<%= capture.id %>" name="detention_capture[estado]" class="estado-select">
+
+                            <option value="">Seleccionar estado</option>
+                          </select>
+                          <label for="estado_<%= capture.id %>">Estado</label>
+                        </div>
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <select id="municipio_<%= capture.id %>" name="detention_capture[municipio]" class="municipio-select">
+                            <option value="">Seleccionar municipio</option>
+                          </select>
+                          <label for="municipio_<%= capture.id %>">Municipio</label>
+                        </div>
+                      </div>
+
+                      <div class="row" style="display: flex; gap: 10px; margin-bottom: 12px; max-height: 80px !important;">
+                        <div class="input-field" style="flex: 0.6; min-width: 0; margin-bottom: 0;">
+                          <label for="detenidos_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">NÚMERO DE DETENIDOS</label>
+                          <input type="number" id="detenidos_<%= capture.id %>" name="detention_capture[detenidos]" min="1" value="<%= capture.detenidos %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                        <div class="input-field" style="flex: 1.2; min-width: 0; margin-bottom: 0;">
+                          <label for="grupo_afiliado_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">GRUPO AFILIADO</label>
+                          <input type="text" id="grupo_afiliado_<%= capture.id %>" name="detention_capture[grupo_afiliado]" value="<%= capture.grupo_afiliado %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                        <div class="input-field" style="flex: 1.2; min-width: 0; margin-bottom: 0;">
+                          <select id="organizacion_<%= capture.id %>" name="detention_capture[organizacion]" class="organizacion-select">
+                            <option value="">Seleccionar organización</option>
+                          </select>
+                          <label for="organizacion_<%= capture.id %>">ORGANIZACIÓN</label>
+                        </div>
+                      </div>
+
+                      <div class="row" style="display: flex; gap: 10px; margin-bottom: 12px; max-height: 80px !important;">
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <label for="nombre_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Nombre</label>
+                          <input type="text" id="nombre_<%= capture.id %>" name="detention_capture[nombre]" value="<%= capture.nombre %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <label for="apellido_paterno_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">APELLIDO PATERNO</label>
+                          <input type="text" id="apellido_paterno_<%= capture.id %>" name="detention_capture[apellido_paterno]" value="<%= capture.apellido_paterno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                      </div>
+
+                      <div class="row" style="display: flex; gap: 10px; margin-bottom: 12px; max-height: 80px !important;">
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <label for="apellido_materno_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">APELLIDO MATERNO</label>
+                          <input type="text" id="apellido_materno_<%= capture.id %>" name="detention_capture[apellido_materno]" value="<%= capture.apellido_materno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <label for="alias_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Alias</label>
+                          <input type="text" id="alias_<%= capture.id %>" name="detention_capture[alias]" value="<%= capture.alias %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <select id="genero_<%= capture.id %>" name="detention_capture[genero]">
+                            <option value="">Seleccionar</option>
+                            <option value="M" <%= 'selected' if capture.genero == 'M' %>>Masculino</option>
+                            <option value="F" <%= 'selected' if capture.genero == 'F' %>>Femenino</option>
+                            <option value="X" <%= 'selected' if capture.genero == 'X' %>>Otro</option>
+                          </select>
+                          <label for="genero_<%= capture.id %>">Género</label>
+                        </div>
+                      </div>
+
+                      <div class="row" style="display: flex; gap: 10px; margin-bottom: 12px; max-height: 80px !important;">
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <label for="edad_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Edad</label>
+                          <input type="number" id="edad_<%= capture.id %>" name="detention_capture[edad]" value="<%= capture.edad %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <select id="posicion_liderazgo_<%= capture.id %>" name="detention_capture[posicion_liderazgo]">
+                            <option value="">No especificado</option>
+                            <option value="1" <%= 'selected' if capture.posicion_liderazgo == '1' %>>Sí</option>
+                          </select>
+                          <label for="posicion_liderazgo_<%= capture.id %>">POSICIÓN DE LIDERAZGO</label>
+                        </div>
+                        <div class="input-field" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                          <select id="rol_<%= capture.id %>" name="detention_capture[rol]" class="rol-select">
+                            <option value="">Seleccionar rol</option>
+                            <option value="Extorsionador" <%= 'selected' if capture.rol == 'Extorsionador' %>>Extorsionador</option>
+                            <option value="Sicario" <%= 'selected' if capture.rol == 'Sicario' %>>Sicario</option>
+                            <option value="Líder" <%= 'selected' if capture.rol == 'Líder' %>>Líder</option>
+                            <option value="Autoridad cooptada" <%= 'selected' if capture.rol == 'Autoridad cooptada' %>>Autoridad cooptada</option>
+                            <option value="Jefe de célula" <%= 'selected' if capture.rol == 'Jefe de célula' %>>Jefe de célula</option>
+                            <option value="Jefe de plaza" <%= 'selected' if capture.rol == 'Jefe de plaza' %>>Jefe de plaza</option>
+                            <option value="Jefe de sicarios" <%= 'selected' if capture.rol == 'Jefe de sicarios' %>>Jefe de sicarios</option>
+                            <option value="Jefe operativo" <%= 'selected' if capture.rol == 'Jefe operativo' %>>Jefe operativo</option>
+                            <option value="Jefe regional" <%= 'selected' if capture.rol == 'Jefe regional' %>>Jefe regional</option>
+                            <option value="Narcomenudista" <%= 'selected' if capture.rol == 'Narcomenudista' %>>Narcomenudista</option>
+                            <option value="Traficante o distribuidor" <%= 'selected' if capture.rol == 'Traficante o distribuidor' %>>Traficante o distribuidor</option>
+                            <option value="Otro" <%= 'selected' if capture.rol == 'Otro' %>>Otro</option>
+                          </select>
+                          <label for="rol_<%= capture.id %>">Rol</label>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="input-field col s12">
+                          <label for="validation_notes_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">NOTAS DE VALIDACIÓN</label>
+                          <textarea id="validation_notes_<%= capture.id %>" name="detention_capture[validation_notes]"><%= capture.validation_notes %></textarea>
+                        </div>
+                      </div>
+
+                      <div class="forces-section">
+                        <label class="forces-label" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Fuerzas participantes</label>
+                        <div class="forces-grid">
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="sedena_<%= capture.id %>" name="detention_capture[sedena]" <%= 'checked' if capture.sedena %>>
+                            <label for="sedena_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">SEDENA</label>
+                          </div>
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="semar_<%= capture.id %>" name="detention_capture[semar]" <%= 'checked' if capture.semar %>>
+                            <label for="semar_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">SEMAR</label>
+                          </div>
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="gn_<%= capture.id %>" name="detention_capture[gn]" <%= 'checked' if capture.gn %>>
+                            <label for="gn_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Guardia Nacional</label>
+                          </div>
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="sscp_<%= capture.id %>" name="detention_capture[sscp]" <%= 'checked' if capture.sscp %>>
+                            <label for="sscp_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">SSCP</label>
+                          </div>
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="fgr_<%= capture.id %>" name="detention_capture[fgr]" <%= 'checked' if capture.fgr %>>
+                            <label for="fgr_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">FGR</label>
+                          </div>
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="ssp_estatal_<%= capture.id %>" name="detention_capture[ssp_estatal]" <%= 'checked' if capture.ssp_estatal %>>
+                            <label for="ssp_estatal_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">SSP Estatal</label>
+                          </div>
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="fge_pgj_<%= capture.id %>" name="detention_capture[fge_pgj]" <%= 'checked' if capture.fge_pgj %>>
+                            <label for="fge_pgj_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">FGE/PGJ</label>
+                          </div>
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="policia_municipal_<%= capture.id %>" name="detention_capture[policia_municipal]" <%= 'checked' if capture.policia_municipal %>>
+                            <label for="policia_municipal_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Policía Municipal</label>
+                          </div>
+                          <div class="checkbox-wrapper">
+                            <input type="checkbox" id="otro_<%= capture.id %>" name="detention_capture[otro]" <%= 'checked' if capture.otro %>>
+                            <label for="otro_<%= capture.id %>" style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Otro</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-buttons">
+                        <button type="button" class="btn btn-primary save-btn" data-capture-id="<%= capture.id %>">Guardar Cambios</button>
+                        <button type="button" class="btn btn-secondary cancel-btn" data-capture-id="<%= capture.id %>">Cancelar</button>
+                      </div>
+                    </form>
+                  </div>
+
+                  <!-- Delete confirmation -->
+                  <div id="deleteConfirm_<%= capture.id %>" style="display: none; background-color: #ffebee; padding: 12px; border-radius: 4px; margin-top: 12px;">
+                    <p style="margin: 0 0 12px 0; color: #c62828;"><strong>¿Está seguro de que desea eliminar esta captura?</strong></p>
+                    <div style="background-color: white; padding: 12px; border-radius: 4px; margin-bottom: 12px; font-size: 12px;">
+                      <div><strong>Estado:</strong> <%= capture.estado %></div>
+                      <div><strong>Municipio:</strong> <%= capture.municipio %></div>
+                      <div><strong>ORGANIZACIÓN:</strong> <%= capture.organizacion %></div>
+                      <div><strong>Nombre:</strong> <%= capture.nombre %></div>
+                    </div>
+                    <div class="form-buttons">
+                      <button type="button" class="btn" style="background-color: #f44336; color: white;" class="confirm-delete-btn" data-capture-id="<%= capture.id %>">Sí, Eliminar</button>
+                      <button type="button" class="btn btn-secondary cancel-delete-btn" data-capture-id="<%= capture.id %>">Cancelar</button>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+    <% end %>
   </div>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Editar Captura</h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="editForm">
-          <input type="hidden" id="captureId" name="id">
-
-          <div class="form-row">
-            <div class="form-group col-md-4">
-              <label>Fecha del Incidente</label>
-              <input type="date" class="form-control" id="incident_date" name="detention_capture[incident_date]">
-            </div>
-            <div class="form-group col-md-4">
-              <label>Estado</label>
-              <select class="form-control" id="estado" name="detention_capture[estado]">
-                <option value="">Seleccionar estado</option>
-              </select>
-            </div>
-            <div class="form-group col-md-4">
-              <label>Municipio</label>
-              <select class="form-control" id="municipio" name="detention_capture[municipio]">
-                <option value="">Seleccionar municipio</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col-md-4">
-              <label>Organización</label>
-              <select class="form-control" id="organizacion" name="detention_capture[organizacion]">
-                <option value="">Seleccionar organización</option>
-              </select>
-            </div>
-            <div class="form-group col-md-4">
-              <label>Grupo Afiliado</label>
-              <input type="text" class="form-control" id="grupo_afiliado" name="detention_capture[grupo_afiliado]">
-            </div>
-            <div class="form-group col-md-4">
-              <label>Número de Detenidos</label>
-              <input type="number" class="form-control" id="detenidos" name="detention_capture[detenidos]">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col-md-4">
-              <label>Nombre</label>
-              <input type="text" class="form-control" id="nombre" name="detention_capture[nombre]">
-            </div>
-            <div class="form-group col-md-4">
-              <label>Apellido Paterno</label>
-              <input type="text" class="form-control" id="apellido_paterno" name="detention_capture[apellido_paterno]">
-            </div>
-            <div class="form-group col-md-4">
-              <label>Apellido Materno</label>
-              <input type="text" class="form-control" id="apellido_materno" name="detention_capture[apellido_materno]">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col-md-4">
-              <label>Alias</label>
-              <input type="text" class="form-control" id="alias" name="detention_capture[alias]">
-            </div>
-            <div class="form-group col-md-4">
-              <label>Género</label>
-              <select class="form-control" id="genero" name="detention_capture[genero]">
-                <option value="">Seleccionar</option>
-                <option value="M">Masculino</option>
-                <option value="F">Femenino</option>
-                <option value="X">Otro</option>
-              </select>
-            </div>
-            <div class="form-group col-md-4">
-              <label>Edad</label>
-              <input type="number" class="form-control" id="edad" name="detention_capture[edad]">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label>Posición de Liderazgo</label>
-              <input type="text" class="form-control" id="posicion_liderazgo" name="detention_capture[posicion_liderazgo]">
-            </div>
-            <div class="form-group col-md-6">
-              <label>Rol</label>
-              <input type="text" class="form-control" id="rol" name="detention_capture[rol]">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Notas de Validación</label>
-            <textarea class="form-control" id="validation_notes" name="detention_capture[validation_notes]" rows="3"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label class="d-block mb-1"><small class="text-muted text-uppercase font-weight-bold">Fuerzas participantes</small></label>
-            <div class="d-flex flex-wrap">
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="sedena" name="detention_capture[sedena]">
-                <label class="custom-control-label" for="sedena">SEDENA</label>
-              </div>
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="semar" name="detention_capture[semar]">
-                <label class="custom-control-label" for="semar">SEMAR</label>
-              </div>
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="gn" name="detention_capture[gn]">
-                <label class="custom-control-label" for="gn">Guardia Nacional</label>
-              </div>
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="sscp" name="detention_capture[sscp]">
-                <label class="custom-control-label" for="sscp">SSCP</label>
-              </div>
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="fgr" name="detention_capture[fgr]">
-                <label class="custom-control-label" for="fgr">FGR</label>
-              </div>
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="ssp_estatal" name="detention_capture[ssp_estatal]">
-                <label class="custom-control-label" for="ssp_estatal">SSP Estatal</label>
-              </div>
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="fge_pgj" name="detention_capture[fge_pgj]">
-                <label class="custom-control-label" for="fge_pgj">FGE/PGJ</label>
-              </div>
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="policia_municipal" name="detention_capture[policia_municipal]">
-                <label class="custom-control-label" for="policia_municipal">Policía Municipal</label>
-              </div>
-              <div class="custom-control custom-checkbox mr-3 mb-2">
-                <input type="checkbox" class="custom-control-input" id="otro" name="detention_capture[otro]">
-                <label class="custom-control-label" for="otro">Otro</label>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="saveBtn">Guardar Cambios</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title">Confirmar Eliminación</h5>
-        <button type="button" class="close text-white" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>¿Está seguro de que desea eliminar esta captura?</p>
-        <div id="deleteInfo"></div>
-        <p class="text-muted mt-3">Esta acción no se puede deshacer.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sí, Eliminar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Export Modal -->
-<div class="modal fade" id="exportModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Exportar Capturas</h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Se exportarán todas las capturas validadas del mes actual en formato CSV.</p>
-        <p>El archivo será compatible con el sistema de carga de "Datasets".</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="confirmExportBtn">Exportar Ahora</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="/assets/monthly_captures.js" nonce="<%= content_security_policy_nonce %>"></script>
-
-<script>
-  // Navigate to selected year while keeping current month
-  function navigateToYearMonth(year, month) {
-    const url = '<%= agent_monthly_captures_path %>' + '?year=' + year + '&month=' + month;
-    window.location.href = url;
-  }
-
-  // Add bootstrap gap utility if not available
-  if (!document.querySelector('style[data-gap]')) {
-    const style = document.createElement('style');
-    style.setAttribute('data-gap', 'true');
-    style.textContent = `
-      .gap-2 {
-        gap: 0.5rem;
-      }
-    `;
-    document.head.appendChild(style);
-  }
+<script nonce="<%= csp_nonce %>">
+  window.monthlyClapturesPath = '<%= agent_monthly_captures_path %>';
 </script>
 
-<style>
-  /* Compact table styling */
-  .table-responsive {
-    font-size: 0.9rem;
-  }
-  .table th,
-  .table td {
-    padding: 0.35rem 0.5rem !important;
-    vertical-align: middle;
-  }
-  .table-hover tbody tr:hover {
-    background-color: #f5f5f5;
-  }
-  .badge {
-    padding: 0.5rem 0.75rem;
-  }
-  .btn-sm {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.85rem;
-    white-space: nowrap;
-  }
-
-  /* Circular icon buttons */
-  .btn-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    background-color: #f0f0f0;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin: 0 2px;
-  }
-  .btn-icon:hover {
-    background-color: #ef4e50;
-    transform: scale(1.1);
-  }
-  .btn-icon.edit-btn:hover {
-    background-color: #ef4e50;
-    color: white;
-  }
-  .btn-icon.link-btn:hover {
-    background-color: #ef4e50;
-    color: white;
-  }
-  .btn-icon.delete-btn:hover {
-    background-color: #ef4e50;
-    color: white;
-  }
-  .btn-icon .material-icons {
-    font-size: 20px;
-    color: #ef4e50;
-  }
-  .btn-icon:hover .material-icons {
-    color: white;
-  }
-
-  .action-buttons {
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .card {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  .inst-col {
-    width: 52px;
-    min-width: 52px;
-    padding-left: 6px !important;
-    padding-right: 6px !important;
-    font-size: 0.9rem;
-  }
-  .inst-icon {
-    font-size: 1.1rem;
-  }
-  thead th.inst-col {
-    letter-spacing: -0.02em;
-  }
-  /* Navigation Section Styles */
-  .bg-light {
-    background-color: #f8f9fa !important;
-  }
-  .rounded {
-    border-radius: 0.25rem;
-  }
-  .gap-2 {
-    gap: 0.5rem;
-  }
-  #yearSelector {
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    padding: 0.375rem 0.75rem;
-  }
-  #yearSelector:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-</style>
+<script src="<%= asset_path('monthly_captures.js') %>"></script>
 
