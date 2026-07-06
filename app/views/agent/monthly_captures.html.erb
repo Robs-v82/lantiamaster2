@@ -517,10 +517,8 @@
             <th class="inst-col">Acciones</th>
           </tr>
         </thead>
-      </table>
-
-      <tbody>
-        <% @captures.each do |capture| %>
+        <tbody>
+          <% @captures.each do |capture| %>
           <tr data-capture-id="<%= capture.id %>">
             <td style="width: 4%;">
               <%= capture.id %>
@@ -593,12 +591,9 @@
               </button>
             </td>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
 
-    <!-- Modal for edit form -->
-    <div class="modal-overlay" id="editModal_<%= capture.id %>">
+        <!-- Modal for edit form -->
+        <div class="modal-overlay" id="editModal_<%= capture.id %>">
       <div class="modal-content">
         <button class="modal-close" title="Cerrar">×</button>
         <div class="edit-form">
@@ -768,6 +763,8 @@
       </div>
     </div>
     <% end %>
+        </tbody>
+      </table>
   </div>
 </div>
 
