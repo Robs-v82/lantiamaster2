@@ -2,7 +2,7 @@ function navigateToYearMonth(year, month) {
   window.location.href = window.monthlyClapturesPath + '?year=' + year + '&month=' + month;
 }
 
-// Global organizations list for autocomplete
+// Global organizations list for autocomplete (now array of {id, name})
 let allOrganizations = [];
 
 // Initialize on page load
@@ -160,7 +160,7 @@ document.addEventListener('input', function(e) {
 
     const normalizedSearch = normalizeString(searchTerm);
     const matches = allOrganizations.filter(org =>
-      normalizeString(org).includes(normalizedSearch)
+      normalizeString(org.name).includes(normalizedSearch)
     );
 
     if (matches.length === 0) {
@@ -171,7 +171,8 @@ document.addEventListener('input', function(e) {
     listElement.innerHTML = '';
     matches.forEach(match => {
       const li = document.createElement('li');
-      li.textContent = match;
+      li.textContent = match.name;
+      li.dataset.orgId = match.id;
       li.style.padding = '10px 12px';
       li.style.cursor = 'pointer';
       li.style.borderBottom = '1px solid #e0e0e0';
@@ -185,7 +186,12 @@ document.addEventListener('input', function(e) {
         li.style.backgroundColor = 'white';
       });
       li.addEventListener('click', () => {
-        input.value = match;
+        input.value = match.name;
+        // Set the organization_id in a hidden field
+        const orgIdInput = document.querySelector(`input[name="detention_capture[organization_id]"][data-capture-id="${captureId}"]`);
+        if (orgIdInput) {
+          orgIdInput.value = match.id;
+        }
         listElement.style.display = 'none';
       });
       listElement.appendChild(li);

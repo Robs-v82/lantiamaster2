@@ -900,8 +900,16 @@ class AgentController < ApplicationController
   end
 
   def get_organizations
-    orgs = criminal_organizations
-    render json: { organizations: orgs }
+    orgs_with_ids = Sector.where(scian2: 98).last
+                          .organizations
+                          .where(active: true)
+                          .uniq
+                          .sort_by(:name)
+                          .map { |org| { id: org.id, name: org.name } }
+    render json: { organizations: orgs_with_ids }
+  rescue => e
+    Rails.logger.error("[Agent#get_organizations] #{e.message}")
+    render json: { organizations: [] }
   end
 
   def get_states
@@ -958,7 +966,17 @@ class AgentController < ApplicationController
   def update_capture
     @capture = DetentionCapture.find(params[:id])
 
-    if @capture.update(capture_params)
+    params_to_update = capture_params.to_h
+
+    # Convert boolean fields from string to actual boolean
+    boolean_fields = [:sedena, :semar, :gn, :sscp, :fgr, :ssp_estatal, :fge_pgj, :policia_municipal, :otro]
+    boolean_fields.each do |field|
+      if params_to_update[field].present?
+        params_to_update[field] = params_to_update[field] == 'true'
+      end
+    end
+
+    if @capture.update(params_to_update)
       render json: { success: true, message: "Captura actualizada exitosamente" }
     else
       render json: { success: false, errors: @capture.errors.full_messages }
@@ -1360,7 +1378,7 @@ class AgentController < ApplicationController
 
   def capture_params
     params.require(:detention_capture).permit(
-      :incident_date, :estado, :municipio, :organizacion, :grupo_afiliado,
+      :incident_date, :estado, :municipio, :organizacion, :organization_id, :grupo_afiliado,
       :detenidos, :nombre, :apellido_paterno, :apellido_materno, :alias,
       :genero, :edad, :posicion_liderazgo, :rol, :validation_notes,
       :sedena, :semar, :gn, :sscp, :fgr, :ssp_estatal, :fge_pgj,

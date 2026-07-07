@@ -678,6 +678,7 @@
                         <div class="col m4 s12 input-field" style="margin-bottom: 0; position: relative; padding-top: 0 !important;">
                           <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ORGANIZACIÓN</div>
                           <input type="text" id="organizacion_<%= capture.id %>" name="detention_capture[organizacion]" class="organizacion-autocomplete" value="<%= capture.organization&.name %>" placeholder="Buscar organización..." data-current-org-name="<%= capture.organization&.name %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+                          <input type="hidden" name="detention_capture[organization_id]" data-capture-id="<%= capture.id %>" value="<%= capture.organization_id %>">
                           <ul class="organizacion-autocomplete-list" id="autocomplete_<%= capture.id %>" style="position: absolute; top: 100%; left: 0; right: 0; list-style: none; margin: 0; padding: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-sizing: border-box;"></ul>
                         </div>
                       </div>
