@@ -13,7 +13,7 @@
       gap: 16px;
       margin-bottom: 20px;
       padding: 12px 20px;
-      background-color: #f5f5f5;
+      background-color: transparent;
       border-radius: 0;
     }
 
@@ -80,6 +80,8 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       overflow: hidden;
       margin: 0 20px;
+      max-height: 600px;
+      overflow-y: auto;
     }
 
     .table-header {
@@ -103,6 +105,9 @@
       font-size: 13px;
       font-weight: 600;
       border-bottom: 2px solid #222;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     .captures-table tbody tr {
@@ -113,6 +118,10 @@
 
     .captures-table tbody tr:hover {
       background-color: #f9f9f9;
+    }
+
+    .captures-table tbody tr.complete-record {
+      background-color: white;
     }
 
     .captures-table tbody td {
@@ -472,50 +481,61 @@
 <% end %>
 
 <div class="b-container">
+  <h5 style="margin-bottom: 20px; color: #33333c; font-weight: 600; text-align: center;">Tabla provisional de capturas</h5>
   <!-- Navigation Section -->
-  <div class="nav-section">
-    <div class="nav-controls">
-      <% prev_month = @month == 1 ? 12 : @month - 1 %>
-      <% prev_year = @month == 1 ? @year - 1 : @year %>
-      <a href="<%= agent_monthly_captures_path(year: prev_year, month: prev_month) %>" class="nav-btn" title="Mes anterior">
-        ← Anterior
-      </a>
+  <div class="nav-section" style="justify-content: center;">
+    <% prev_month = @month == 1 ? 12 : @month - 1 %>
+    <% prev_year = @month == 1 ? @year - 1 : @year %>
+    <a href="<%= agent_monthly_captures_path(year: prev_year, month: prev_month) %>" class="btn btn-primary" title="Mes anterior" style="text-decoration: none; display: flex; align-items: center; justify-content: center; height: 40px;">
+      ← Anterior
+    </a>
 
-      <div class="nav-month">
-        <%= Date.new(@year, @month, 1).strftime("%B %Y") %>
-      </div>
-
-      <% next_month = @month == 12 ? 1 : @month + 1 %>
-      <% next_year = @month == 12 ? @year + 1 : @year %>
-      <a href="<%= agent_monthly_captures_path(year: next_year, month: next_month) %>" class="nav-btn" title="Mes siguiente">
-        Siguiente →
-      </a>
-
-      <select id="yearSelector" class="year-selector" onchange="navigateToYearMonth(this.value, <%= @month %>)">
-        <% (2024..2030).each do |year| %>
-          <option value="<%= year %>" <%= 'selected' if year == @year %>>
-            <%= year %>
-          </option>
-        <% end %>
-      </select>
-
-      <a href="<%= agent_monthly_captures_path %>" class="nav-btn" title="Ir a este mes">
-        ⊙ Hoy
-      </a>
+    <% meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] %>
+    <div class="nav-month">
+      <%= "#{meses[@month - 1]} #{@year}" %>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <div class="summary-badges">
-        <span class="badge badge-secondary" title="Total">T: <%= @summary[:total_captures] %></span>
-        <span class="badge badge-success" title="Validadas">V: <%= @summary[:validated] %></span>
-        <span class="badge badge-warning" title="En revisión">R: <%= @summary[:pending_review] %></span>
-        <span class="badge badge-info" title="Duplicados">D: <%= @summary[:duplicates] %></span>
-        <span class="badge badge-danger" title="Rechazados">X: <%= @summary[:rejected] %></span>
-      </div>
+    <% next_month = @month == 12 ? 1 : @month + 1 %>
+    <% next_year = @month == 12 ? @year + 1 : @year %>
+    <a href="<%= agent_monthly_captures_path(year: next_year, month: next_month) %>" class="btn btn-primary" title="Mes siguiente" style="text-decoration: none; display: flex; align-items: center; justify-content: center; height: 40px;">
+      Siguiente →
+    </a>
+  </div>
 
-      <a href="<%= agent_detentions_path %>" class="nav-btn" style="background-color: #6366f1; color: white; border-color: #6366f1;">
-        ← Volver
-      </a>
+  <!-- Summary Table -->
+  <div class="row" style="margin: 20px 0; margin-left: 20px; margin-right: 20px;">
+    <div class="col m3 s12" style="padding: 12px;">
+      <div style="background: #f5f5f5; padding: 16px; border-radius: 4px; text-align: center;">
+        <div style="font-size: 12px; color: #999; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Número de registros</div>
+        <div style="font-size: 28px; font-weight: 600; color: #33333c;"><%= @captures.count %></div>
+      </div>
+    </div>
+    <div class="col m3 s12" style="padding: 12px;">
+      <div style="background: #f5f5f5; padding: 16px; border-radius: 4px; text-align: center;">
+        <div style="font-size: 12px; color: #999; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Incompletos</div>
+        <div style="font-size: 28px; font-weight: 600; color: #ef4e50;">
+          <% incomplete_count = @captures.select { |c| !(c.full_code.present? && c.organization_id.present? && [c.sedena, c.semar, c.gn, c.sscp, c.fgr, c.ssp_estatal, c.fge_pgj, c.policia_municipal].any?) }.count %>
+          <%= incomplete_count %>
+        </div>
+      </div>
+    </div>
+    <div class="col m3 s12" style="padding: 12px;">
+      <div style="background: #f5f5f5; padding: 16px; border-radius: 4px; text-align: center;">
+        <div style="font-size: 12px; color: #999; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Completos</div>
+        <div style="font-size: 28px; font-weight: 600; color: #33333c;">
+          <% complete_count = @captures.select { |c| c.full_code.present? && c.organization_id.present? && [c.sedena, c.semar, c.gn, c.sscp, c.fgr, c.ssp_estatal, c.fge_pgj, c.policia_municipal].any? }.count %>
+          <%= complete_count %>
+        </div>
+      </div>
+    </div>
+    <div class="col m3 s12" style="padding: 12px;">
+      <div style="background: #f5f5f5; padding: 16px; border-radius: 4px; text-align: center;">
+        <div style="font-size: 12px; color: #999; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Detenidos Válidos</div>
+        <div style="font-size: 28px; font-weight: 600; color: #33333c;">
+          <% valid_detainees = @captures.select { |c| c.full_code.present? && c.organization_id.present? && [c.sedena, c.semar, c.gn, c.sscp, c.fgr, c.ssp_estatal, c.fge_pgj, c.policia_municipal].any? }.sum(&:detenidos) %>
+          <%= valid_detainees %>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -549,7 +569,7 @@
         </thead>
         <tbody>
           <% @captures.each do |capture| %>
-          <tr data-capture-id="<%= capture.id %>">
+          <tr data-capture-id="<%= capture.id %>" class="<%= 'complete-record' if capture.full_code.present? && capture.organization_id.present? && [capture.sedena, capture.semar, capture.gn, capture.sscp, capture.fgr, capture.ssp_estatal, capture.fge_pgj, capture.policia_municipal].any? %>">
             <td style="width: 4%;">
               <%= capture.id %>
             </td>
