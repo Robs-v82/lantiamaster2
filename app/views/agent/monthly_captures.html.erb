@@ -273,54 +273,7 @@
       margin-bottom: 0 !important;
     }
 
-    /* Fuerzas section */
-    .forces-section {
-      background-color: #f5f5f5;
-      padding: 12px;
-      border-radius: 4px;
-      margin-top: 12px;
-    }
-
-    .input-field.inline-label label {
-      position: relative;
-      top: 0;
-    }
-
-    .forces-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #9e9e9e;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .forces-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .checkbox-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .checkbox-wrapper input {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
-
-    .checkbox-wrapper label {
-      margin: 0;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: normal;
-    }
-
-    /* Form buttons */
+/* Form buttons */
     .form-buttons {
       display: flex;
       gap: 8px;
@@ -676,72 +629,73 @@
                     <form id="editForm_<%= capture.id %>" class="capture-edit-form" data-capture-id="<%= capture.id %>">
                       <input type="hidden" name="capture_id" value="<%= capture.id %>">
 
-                      <div class="row" style="margin-bottom: 12px; min-height: 95px !important; max-height: 95px !important;">
-                        <div class="col m2 s6 input-field" style="margin-bottom: 0;">
-                          <label for="incident_date_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">FECHA DEL INCIDENTE</label>
+                      <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
+                        <div class="col m2 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FECHA DEL INCIDENTE</div>
                           <input type="date" id="incident_date_<%= capture.id %>" name="detention_capture[incident_date]" value="<%= capture.incident_date.strftime('%Y-%m-%d') %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
 
-                        <div class="col m2 s6 input-field" style="margin-bottom: 0;">
+                        <div class="col m2 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ESTADO</div>
                           <select id="estado_<%= capture.id %>" name="detention_capture[estado]" class="estado-select" data-current-value="<%= capture.estado %>">
                             <option value="">Seleccionar estado</option>
                           </select>
-                          <label for="estado_<%= capture.id %>">ESTADO</label>
                         </div>
 
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0;">
+                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">MUNICIPIO</div>
                           <select id="municipio_<%= capture.id %>" name="detention_capture[municipio]" class="municipio-select" data-current-value="<%= capture.municipio %>" data-current-fullcode="<%= capture.full_code %>" data-current-estado="<%= capture.estado %>">
                             <option value="">Seleccionar municipio</option>
                           </select>
-                          <label for="municipio_<%= capture.id %>">MUNICIPIO</label>
                         </div>
 
-                        <div class="col m1 s6 input-field" style="margin-bottom: 0;">
-                          <label for="detenidos_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">DETENIDOS</label>
+                        <div class="col m1 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">DETENIDOS</div>
                           <input type="number" id="detenidos_<%= capture.id %>" name="detention_capture[detenidos]" min="1" value="<%= capture.detenidos %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
 
-                        <div class="col m4 s12 input-field" style="margin-bottom: 0; position: relative;">
+                        <div class="col m4 s12 input-field" style="margin-bottom: 0; position: relative; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ORGANIZACIÓN</div>
                           <input type="text" id="organizacion_<%= capture.id %>" name="detention_capture[organizacion]" class="organizacion-autocomplete" value="<%= capture.organization&.name %>" placeholder="Buscar organización..." data-current-org-name="<%= capture.organization&.name %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                          <label for="organizacion_<%= capture.id %>">ORGANIZACIÓN</label>
                           <ul class="organizacion-autocomplete-list" id="autocomplete_<%= capture.id %>" style="position: absolute; top: 100%; left: 0; right: 0; list-style: none; margin: 0; padding: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-sizing: border-box;"></ul>
                         </div>
                       </div>
 
-                      <div class="row" style="margin-bottom: 12px; min-height: 95px !important; max-height: 95px !important;">
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0;">
-                          <label for="nombre_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">NOMBRE</label>
+                      <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
+                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">NOMBRE</div>
                           <input type="text" id="nombre_<%= capture.id %>" name="detention_capture[nombre]" value="<%= capture.nombre %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0;">
-                          <label for="apellido_paterno_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">APELLIDO PATERNO</label>
+                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">APELLIDO PATERNO</div>
                           <input type="text" id="apellido_paterno_<%= capture.id %>" name="detention_capture[apellido_paterno]" value="<%= capture.apellido_paterno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0;">
-                          <label for="apellido_materno_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">APELLIDO MATERNO</label>
+                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">APELLIDO MATERNO</div>
                           <input type="text" id="apellido_materno_<%= capture.id %>" name="detention_capture[apellido_materno]" value="<%= capture.apellido_materno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0;">
-                          <label for="alias_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">ALIAS</label>
+                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ALIAS</div>
                           <input type="text" id="alias_<%= capture.id %>" name="detention_capture[alias]" value="<%= capture.alias %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
                       </div>
 
-                      <div class="row" style="margin-bottom: 12px; min-height: 95px !important; max-height: 95px !important;">
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0;">
-                          <label for="edad_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">EDAD</label>
+                      <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
+                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">EDAD</div>
                           <input type="number" id="edad_<%= capture.id %>" name="detention_capture[edad]" value="<%= capture.edad %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0;">
+                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">GÉNERO</div>
                           <select id="genero_<%= capture.id %>" name="detention_capture[genero]">
                             <option value="">Seleccionar</option>
                             <option value="M" <%= 'selected' if capture.genero == 'M' %>>Masculino</option>
                             <option value="F" <%= 'selected' if capture.genero == 'F' %>>Femenino</option>
                             <option value="X" <%= 'selected' if capture.genero == 'X' %>>Otro</option>
                           </select>
-                          <label for="genero_<%= capture.id %>">GÉNERO</label>
                         </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0;">
+                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ROL</div>
                           <select id="rol_<%= capture.id %>" name="detention_capture[rol]" class="rol-select">
                             <option value="">Seleccionar rol</option>
                             <option value="Extorsionador" <%= 'selected' if capture.rol == 'Extorsionador' %>>Extorsionador</option>
@@ -757,70 +711,86 @@
                             <option value="Traficante o distribuidor" <%= 'selected' if capture.rol == 'Traficante o distribuidor' %>>Traficante o distribuidor</option>
                             <option value="Otro" <%= 'selected' if capture.rol == 'Otro' %>>Otro</option>
                           </select>
-                          <label for="rol_<%= capture.id %>">ROL</label>
                         </div>
                       </div>
 
-                      <div class="forces-section">
-                        <label class="forces-label" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">FUERZAS PARTICIPANTES</label>
-                        <div class="forces-grid">
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="sedena_<%= capture.id %>" name="detention_capture[sedena]" <%= 'checked' if capture.sedena %>>
-                            <label for="sedena_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">SEDENA</label>
-                          </div>
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="semar_<%= capture.id %>" name="detention_capture[semar]" <%= 'checked' if capture.semar %>>
-                            <label for="semar_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">SEMAR</label>
-                          </div>
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="gn_<%= capture.id %>" name="detention_capture[gn]" <%= 'checked' if capture.gn %>>
-                            <label for="gn_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">GUARDIA NACIONAL</label>
-                          </div>
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="sscp_<%= capture.id %>" name="detention_capture[sscp]" <%= 'checked' if capture.sscp %>>
-                            <label for="sscp_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">SSCP</label>
-                          </div>
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="fgr_<%= capture.id %>" name="detention_capture[fgr]" <%= 'checked' if capture.fgr %>>
-                            <label for="fgr_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">FGR</label>
-                          </div>
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="ssp_estatal_<%= capture.id %>" name="detention_capture[ssp_estatal]" <%= 'checked' if capture.ssp_estatal %>>
-                            <label for="ssp_estatal_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">SSP ESTATAL</label>
-                          </div>
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="fge_pgj_<%= capture.id %>" name="detention_capture[fge_pgj]" <%= 'checked' if capture.fge_pgj %>>
-                            <label for="fge_pgj_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">FGE/PGJ</label>
-                          </div>
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="policia_municipal_<%= capture.id %>" name="detention_capture[policia_municipal]" <%= 'checked' if capture.policia_municipal %>>
-                            <label for="policia_municipal_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">Policía Municipal</label>
-                          </div>
-                          <div class="checkbox-wrapper">
-                            <input type="checkbox" id="otro_<%= capture.id %>" name="detention_capture[otro]" <%= 'checked' if capture.otro %>>
-                            <label for="otro_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">Otro</label>
-                          </div>
+                      <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SEDENA</div>
+                          <select id="sedena_<%= capture.id %>" name="detention_capture[sedena]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.sedena == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.sedena == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SEMAR</div>
+                          <select id="semar_<%= capture.id %>" name="detention_capture[semar]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.semar == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.semar == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">GN</div>
+                          <select id="gn_<%= capture.id %>" name="detention_capture[gn]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.gn == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.gn == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SSCP</div>
+                          <select id="sscp_<%= capture.id %>" name="detention_capture[sscp]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.sscp == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.sscp == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FGR</div>
+                          <select id="fgr_<%= capture.id %>" name="detention_capture[fgr]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.fgr == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.fgr == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SSP ESTATAL</div>
+                          <select id="ssp_estatal_<%= capture.id %>" name="detention_capture[ssp_estatal]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.ssp_estatal == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.ssp_estatal == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FGE/PGJ</div>
+                          <select id="fge_pgj_<%= capture.id %>" name="detention_capture[fge_pgj]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.fge_pgj == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.fge_pgj == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">P. MUNICIP.</div>
+                          <select id="policia_municipal_<%= capture.id %>" name="detention_capture[policia_municipal]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.policia_municipal == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.policia_municipal == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">OTRO</div>
+                          <select id="otro_<%= capture.id %>" name="detention_capture[otro]">
+                            <option value="">Seleccionar</option>
+                            <option value="true" <%= 'selected' if capture.otro == true %>>Verdadero</option>
+                            <option value="false" <%= 'selected' if capture.otro == false %>>Falso</option>
+                          </select>
+                        </div>
+                        <div class="col m1 offset-m2" style="margin-bottom: 0; display: flex; align-items: center;">
+                          <button type="submit" class="btn btn-primary" style="width: 100%; margin: 0; display: flex; align-items: center; justify-content: center; height: 55px; margin-top: 20px !important;">Guardar</button>
                         </div>
                       </div>
-
-                      <div class="form-buttons">
-                        <button type="button" class="btn btn-primary save-btn" data-capture-id="<%= capture.id %>">Guardar Cambios</button>
-                        <button type="button" class="btn btn-secondary cancel-btn" data-capture-id="<%= capture.id %>">Cancelar</button>
-                      </div>
-          <!-- Delete confirmation -->
-          <div id="deleteConfirm_<%= capture.id %>" style="display: none; background-color: #ffebee; padding: 12px; border-radius: 4px; margin-top: 12px;">
-            <p style="margin: 0 0 12px 0; color: #c62828;"><strong>¿Está seguro de que desea eliminar esta captura?</strong></p>
-            <div style="background-color: white; padding: 12px; border-radius: 4px; margin-bottom: 12px; font-size: 12px;">
-              <div><strong>Estado:</strong> <%= capture.estado %></div>
-              <div><strong>Municipio:</strong> <%= capture.municipio %></div>
-              <div><strong>ORGANIZACIÓN:</strong> <%= capture.organizacion %></div>
-              <div><strong>Nombre:</strong> <%= capture.nombre %></div>
-            </div>
-            <div class="form-buttons">
-              <button type="button" class="btn" style="background-color: #f44336; color: white;" class="confirm-delete-btn" data-capture-id="<%= capture.id %>">Sí, Eliminar</button>
-              <button type="button" class="btn btn-secondary cancel-delete-btn" data-capture-id="<%= capture.id %>">Cancelar</button>
-            </div>
-          </div>
         </form>
       </div>
     </div>
