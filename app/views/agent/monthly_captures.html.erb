@@ -437,6 +437,14 @@
     document.addEventListener('DOMContentLoaded', function() {
       var elems = document.querySelectorAll('select');
       M.FormSelect.init(elems);
+
+      // Expand b-container to full width for this view only
+      var bContainer = document.querySelector('.b-container');
+      var tableWrapper = document.querySelector('.table-wrapper');
+      if (bContainer && tableWrapper) {
+        bContainer.style.width = '100%';
+        bContainer.style.margin = '0';
+      }
     });
   </script>
 <% end %>
