@@ -457,6 +457,15 @@
       overflow: visible !important;
     }
 
+    /* Conditional border colors for form inputs */
+    .input-has-value {
+      border-color: #33333C !important;
+    }
+
+    .input-no-value {
+      border-color: #FF4E50 !important;
+    }
+
   </style>
 
   <script nonce="<%= csp_nonce %>">
@@ -472,11 +481,17 @@
         bContainer.style.margin = '0';
       }
 
-      // Apply conditional border colors to form inputs
+      // Apply conditional border colors to form inputs using classes
       function updateInputBorderColor(input) {
         var hasValidValue = input.value && input.value.trim() !== '';
-        var borderColor = hasValidValue ? '#333' : '#FF4E50';
-        input.style.borderColor = borderColor + ' !important';
+
+        if (hasValidValue) {
+          input.classList.remove('input-no-value');
+          input.classList.add('input-has-value');
+        } else {
+          input.classList.remove('input-has-value');
+          input.classList.add('input-no-value');
+        }
       }
 
       // Get all inputs in edit form
