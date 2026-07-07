@@ -471,6 +471,33 @@
         bContainer.style.width = '100%';
         bContainer.style.margin = '0';
       }
+
+      // Apply conditional border colors to form inputs
+      function updateInputBorderColor(input) {
+        var hasValidValue = input.value && input.value.trim() !== '';
+        var borderColor = hasValidValue ? '#333' : '#FF4E50';
+        input.style.borderColor = borderColor + ' !important';
+      }
+
+      // Get all inputs in edit form
+      var editForm = document.querySelector('.edit-form');
+      if (editForm) {
+        var inputs = editForm.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea');
+
+        // Initial border color setting
+        inputs.forEach(function(input) {
+          updateInputBorderColor(input);
+
+          // Listen for changes
+          input.addEventListener('input', function() {
+            updateInputBorderColor(this);
+          });
+
+          input.addEventListener('change', function() {
+            updateInputBorderColor(this);
+          });
+        });
+      }
     });
   </script>
 <% end %>
@@ -637,7 +664,7 @@
                       <div class="row" style="margin-bottom: 12px; min-height: 95px !important; max-height: 95px !important;">
                         <div class="col m2 s6 input-field" style="margin-bottom: 0;">
                           <label for="incident_date_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">FECHA DEL INCIDENTE</label>
-                          <input type="date" id="incident_date_<%= capture.id %>" name="detention_capture[incident_date]" value="<%= capture.incident_date.strftime('%Y-%m-%d') %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                          <input type="date" id="incident_date_<%= capture.id %>" name="detention_capture[incident_date]" value="<%= capture.incident_date.strftime('%Y-%m-%d') %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
 
                         <div class="col m2 s6 input-field" style="margin-bottom: 0;">
@@ -656,11 +683,11 @@
 
                         <div class="col m1 s6 input-field" style="margin-bottom: 0;">
                           <label for="detenidos_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">DETENIDOS</label>
-                          <input type="number" id="detenidos_<%= capture.id %>" name="detention_capture[detenidos]" min="1" value="<%= capture.detenidos %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                          <input type="number" id="detenidos_<%= capture.id %>" name="detention_capture[detenidos]" min="1" value="<%= capture.detenidos %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
 
                         <div class="col m4 s12 input-field" style="margin-bottom: 0; position: relative;">
-                          <input type="text" id="organizacion_<%= capture.id %>" name="detention_capture[organizacion]" class="organizacion-autocomplete" value="<%= capture.organization&.name %>" placeholder="Buscar organización..." data-current-org-name="<%= capture.organization&.name %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                          <input type="text" id="organizacion_<%= capture.id %>" name="detention_capture[organizacion]" class="organizacion-autocomplete" value="<%= capture.organization&.name %>" placeholder="Buscar organización..." data-current-org-name="<%= capture.organization&.name %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                           <label for="organizacion_<%= capture.id %>">ORGANIZACIÓN</label>
                           <ul class="organizacion-autocomplete-list" id="autocomplete_<%= capture.id %>" style="position: absolute; top: 100%; left: 0; right: 0; list-style: none; margin: 0; padding: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-sizing: border-box;"></ul>
                         </div>
@@ -669,26 +696,26 @@
                       <div class="row" style="margin-bottom: 12px; min-height: 95px !important; max-height: 95px !important;">
                         <div class="col m3 s12 input-field" style="margin-bottom: 0;">
                           <label for="nombre_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">NOMBRE</label>
-                          <input type="text" id="nombre_<%= capture.id %>" name="detention_capture[nombre]" value="<%= capture.nombre %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                          <input type="text" id="nombre_<%= capture.id %>" name="detention_capture[nombre]" value="<%= capture.nombre %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
                         <div class="col m3 s12 input-field" style="margin-bottom: 0;">
                           <label for="apellido_paterno_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">APELLIDO PATERNO</label>
-                          <input type="text" id="apellido_paterno_<%= capture.id %>" name="detention_capture[apellido_paterno]" value="<%= capture.apellido_paterno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                          <input type="text" id="apellido_paterno_<%= capture.id %>" name="detention_capture[apellido_paterno]" value="<%= capture.apellido_paterno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
                         <div class="col m3 s12 input-field" style="margin-bottom: 0;">
                           <label for="apellido_materno_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">APELLIDO MATERNO</label>
-                          <input type="text" id="apellido_materno_<%= capture.id %>" name="detention_capture[apellido_materno]" value="<%= capture.apellido_materno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                          <input type="text" id="apellido_materno_<%= capture.id %>" name="detention_capture[apellido_materno]" value="<%= capture.apellido_materno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
                         <div class="col m3 s12 input-field" style="margin-bottom: 0;">
                           <label for="alias_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">ALIAS</label>
-                          <input type="text" id="alias_<%= capture.id %>" name="detention_capture[alias]" value="<%= capture.alias %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                          <input type="text" id="alias_<%= capture.id %>" name="detention_capture[alias]" value="<%= capture.alias %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
                       </div>
 
                       <div class="row" style="margin-bottom: 12px; min-height: 95px !important; max-height: 95px !important;">
                         <div class="col m3 s12 input-field" style="margin-bottom: 0;">
                           <label for="edad_<%= capture.id %>" style="font-size: 12px; color: #9e9e9e !important; display: block; margin-bottom: 5px; opacity: 1 !important;" class="active">EDAD</label>
-                          <input type="number" id="edad_<%= capture.id %>" name="detention_capture[edad]" value="<%= capture.edad %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                          <input type="number" id="edad_<%= capture.id %>" name="detention_capture[edad]" value="<%= capture.edad %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
                         </div>
                         <div class="col m3 s12 input-field" style="margin-bottom: 0;">
                           <select id="genero_<%= capture.id %>" name="detention_capture[genero]">
