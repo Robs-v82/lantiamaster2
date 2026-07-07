@@ -431,29 +431,30 @@
       color: #333;
     }
 
-    /* Uniformize all labels in edit form */
-    .edit-form label {
+    /* Labels for TEXT INPUTS - larger to match select labels */
+    .edit-form label:not(.select-wrapper label) {
       font-size: 12px !important;
       color: #9e9e9e !important;
       font-weight: 400 !important;
       font-family: Poppins, sans-serif !important;
       display: block !important;
-      line-height: 14px !important;
-      height: 14px !important;
+      line-height: 1.5 !important;
+      height: auto !important;
       margin-bottom: 5px !important;
-      overflow: hidden !important;
+      overflow: visible !important;
     }
 
+    /* Labels for MATERIALIZE SELECT - maintain natural size */
     .edit-form .select-wrapper label {
       font-size: 12px !important;
       color: #9e9e9e !important;
       font-weight: 400 !important;
       font-family: Poppins, sans-serif !important;
       display: block !important;
-      line-height: 14px !important;
-      height: 14px !important;
+      line-height: 1.5 !important;
+      height: auto !important;
       margin-bottom: 5px !important;
-      overflow: hidden !important;
+      overflow: visible !important;
     }
 
   </style>
