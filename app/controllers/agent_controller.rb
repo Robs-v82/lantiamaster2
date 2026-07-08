@@ -891,7 +891,7 @@ class AgentController < ApplicationController
     Sector.where(scian2: 98).last
           .organizations
           .where(active: true)
-          .uniq
+          .distinct
           .pluck(:name)
           .sort
   rescue => e
@@ -900,20 +900,25 @@ class AgentController < ApplicationController
   end
 
   def get_organizations
-    orgs_with_ids = Sector.where(scian2: 98).last
-                          .organizations
-                          .where(active: true)
-                          .uniq
-                          .sort_by(:name)
-                          .map { |org| { id: org.id, name: org.name } }
+    sector = Sector.where(scian2: 98).last
+
+    if sector.nil?
+      Rails.logger.warn("[Agent#get_organizations] ❌ NO HAY SECTOR con scian2=98")
+      return render json: { organizations: [], error: "No sector found with scian2=98" }
+    end
+
+    all_orgs = sector.organizations.where(active: true).distinct.sort_by { |org| org.name }
+    orgs_with_ids = all_orgs.map { |org| { id: org.id, name: org.name } }
+
+    Rails.logger.info("[Agent#get_organizations] ✓ #{orgs_with_ids.count} organizaciones")
     render json: { organizations: orgs_with_ids }
   rescue => e
-    Rails.logger.error("[Agent#get_organizations] #{e.message}")
-    render json: { organizations: [] }
+    Rails.logger.error("[Agent#get_organizations] ❌ #{e.class}: #{e.message}")
+    render json: { organizations: [], error: e.message }
   end
 
   def get_states
-    states = State.pluck(:name).sort
+    states = State.order(:name).map { |s| { name: s.name, code: s.code } }
     render json: { states: states }
   end
 
@@ -964,9 +969,17 @@ class AgentController < ApplicationController
   end
 
   def update_capture
-    @capture = DetentionCapture.find(params[:id])
+    Rails.logger.info("[update_capture] ► INICIANDO - Captura ID: #{params[:id]}")
+    Rails.logger.info("[update_capture] params.keys: #{params.keys.inspect}")
+    Rails.logger.info("[update_capture] params[:detention_capture]: #{params[:detention_capture].inspect}")
 
-    params_to_update = capture_params.to_h
+    @capture = DetentionCapture.find(params[:id])
+    Rails.logger.info("[update_capture] ✓ Captura encontrada - Organización actual: #{@capture.organization_id}")
+
+    raw_params = capture_params.to_h
+    Rails.logger.info("[update_capture] Parámetros originales (#{raw_params.count} campos): #{raw_params.keys.join(', ')}")
+
+    params_to_update = raw_params.dup
 
     # Convert boolean fields from string to actual boolean
     boolean_fields = [:sedena, :semar, :gn, :sscp, :fgr, :ssp_estatal, :fge_pgj, :policia_municipal, :otro]
@@ -976,9 +989,50 @@ class AgentController < ApplicationController
       end
     end
 
-    if @capture.update(params_to_update)
+    Rails.logger.info("[update_capture] Después de procesar booleanos (#{params_to_update.count} campos): #{params_to_update.keys.join(', ')}")
+
+    # Process full_code to update estado, municipio, and full_code
+    full_code = params_to_update[:full_code]
+    Rails.logger.info("[update_capture] full_code: #{full_code.inspect}")
+
+    if full_code.present?
+      county = County.find_by(full_code: full_code)
+      if county
+        Rails.logger.info("[update_capture] ✓ County encontrado: #{county.name}")
+        params_to_update[:estado] = county.state.name
+        params_to_update[:municipio] = county.name
+        params_to_update[:full_code] = county.full_code
+      else
+        # If full_code is invalid or not found, remove those fields from update
+        Rails.logger.warn("[update_capture] ❌ County NO encontrado para full_code: #{full_code}")
+        params_to_update.delete(:estado)
+        params_to_update.delete(:municipio)
+        params_to_update.delete(:full_code)
+      end
+    else
+      # If no full_code provided, don't update estado/municipio/full_code
+      Rails.logger.info("[update_capture] full_code vacío - no actualizando ubicación")
+      params_to_update.delete(:estado)
+      params_to_update.delete(:municipio)
+      params_to_update.delete(:full_code)
+    end
+
+    Rails.logger.info("[update_capture] FINAL - Campos a actualizar (#{params_to_update.count}): #{params_to_update.keys.join(', ')}")
+    Rails.logger.debug("[update_capture] Valores finales: #{params_to_update.inspect}")
+
+    Rails.logger.info("[update_capture] ► Intentando update con:")
+    Rails.logger.info("[update_capture]   - organizacion: #{params_to_update[:organizacion].inspect}")
+    Rails.logger.info("[update_capture]   - organization_id: #{params_to_update[:organization_id].inspect}")
+
+    update_result = @capture.update(params_to_update)
+
+    Rails.logger.info("[update_capture] Update resultado: #{update_result}")
+    Rails.logger.info("[update_capture] Captura después del update - org_id: #{@capture.organization_id}, organizacion: #{@capture.organizacion.inspect}")
+
+    if update_result
       render json: { success: true, message: "Captura actualizada exitosamente" }
     else
+      Rails.logger.error("[update_capture] ❌ Update falló - Errores: #{@capture.errors.full_messages.inspect}")
       render json: { success: false, errors: @capture.errors.full_messages }
     end
   end
@@ -1378,7 +1432,7 @@ class AgentController < ApplicationController
 
   def capture_params
     params.require(:detention_capture).permit(
-      :incident_date, :estado, :municipio, :organizacion, :organization_id, :grupo_afiliado,
+      :incident_date, :estado, :municipio, :full_code, :organizacion, :organization_id, :grupo_afiliado,
       :detenidos, :nombre, :apellido_paterno, :apellido_materno, :alias,
       :genero, :edad, :posicion_liderazgo, :rol, :validation_notes,
       :sedena, :semar, :gn, :sscp, :fgr, :ssp_estatal, :fge_pgj,
