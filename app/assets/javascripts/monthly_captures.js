@@ -150,18 +150,6 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Cancel delete handler
-document.addEventListener('click', function(e) {
-  if (e.target.closest('.cancel-delete-btn')) {
-    e.preventDefault();
-    const btn = e.target.closest('.cancel-delete-btn');
-    const captureId = btn.dataset.id;
-    const deleteConfirm = document.getElementById(`deleteConfirm_${captureId}`);
-    if (deleteConfirm) {
-      deleteConfirm.style.display = 'none';
-    }
-  }
-});
 
 // Link button handler
 document.addEventListener('click', function(e) {
@@ -265,9 +253,28 @@ document.addEventListener('click', function(e) {
     e.preventDefault();
     const btn = e.target.closest('.delete-btn');
     const captureId = btn.dataset.id;
-    const deleteConfirm = document.getElementById(`deleteConfirm_${captureId}`);
-    if (deleteConfirm) {
-      deleteConfirm.style.display = 'block';
+
+    if (confirm(`¿Está seguro de que desea eliminar el registro ${captureId}?`)) {
+      fetch(`/agent/detention_captures/${captureId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert('Captura eliminada exitosamente');
+          location.reload();
+        } else {
+          alert('Error: ' + (data.errors ? data.errors.join(', ') : 'Error desconocido'));
+        }
+      })
+      .catch(err => {
+        alert('Error al eliminar la captura');
+        console.error(err);
+      });
     }
   }
 });
@@ -463,32 +470,3 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Confirm delete handler
-document.addEventListener('click', function(e) {
-  if (e.target.closest('.confirm-delete-btn')) {
-    e.preventDefault();
-    const btn = e.target.closest('.confirm-delete-btn');
-    const captureId = btn.dataset.id;
-
-    fetch(`/agent/detention_captures/${captureId}`, {
-      method: 'DELETE',
-      headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'application/json'
-      }
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        alert('Captura eliminada exitosamente');
-        location.reload();
-      } else {
-        alert('Error: ' + (data.errors ? data.errors.join(', ') : 'Error desconocido'));
-      }
-    })
-    .catch(err => {
-      alert('Error al eliminar la captura');
-      console.error(err);
-    });
-  }
-});
