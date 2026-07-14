@@ -1,0 +1,458 @@
+<% content_for :head_tags do %>
+  <style>
+    .b-container {
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 12px 20px;
+      background-color: transparent;
+      border-radius: 0;
+    }
+
+    .nav-btn {
+      padding: 8px 12px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover {
+      background-color: #ef4e50;
+      color: white;
+      border-color: #ef4e50;
+    }
+
+    .summary-badges {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-secondary { background-color: #9e9e9e; color: white; }
+    .badge-success { background-color: #4caf50; color: white; }
+    .badge-warning { background-color: #ff9800; color: white; }
+
+    .table-wrapper {
+      background: white;
+      border-radius: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin: 0 20px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .hits-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .hits-table thead th {
+      background-color: #333;
+      color: white;
+      padding: 10px 8px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 2px solid #222;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .hits-table tbody tr {
+      border-bottom: 1px solid #e0e0e0;
+      transition: background-color 0.2s;
+    }
+
+    .hits-table tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .hits-table tbody td {
+      padding: 8px;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background-color: #f0f0f0;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0 1px;
+    }
+
+    .btn-icon:hover {
+      background-color: #ef4e50;
+    }
+
+    .btn-icon .material-icons {
+      font-size: 18px;
+      color: #ef4e50;
+    }
+
+    .btn-icon:hover .material-icons {
+      color: white;
+    }
+
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      color: #999;
+    }
+
+    /* Modal styling */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      width: 90%;
+      max-width: 95%;
+      max-height: 90vh;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      overflow-y: auto;
+      position: relative;
+      padding: 24px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      color: #666;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      color: #333;
+    }
+
+    .edit-form {
+      background-color: white;
+      padding: 20px;
+    }
+
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: visible !important;
+      min-height: auto !important;
+    }
+
+    .input-field input[type="text"],
+    .input-field input[type="date"],
+    .input-field textarea {
+      border: 1px solid #ccc !important;
+      border-radius: 4px;
+      padding: 8px 10px !important;
+      height: 55px !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+      font-size: 14px !important;
+    }
+
+    .edit-form label {
+      font-size: 12px !important;
+      color: #9e9e9e !important;
+      font-weight: 400 !important;
+      font-family: Poppins, sans-serif !important;
+      display: block !important;
+      line-height: 1.5 !important;
+      height: auto !important;
+      margin-bottom: 5px !important;
+      overflow: visible !important;
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #ddd;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: #ef4e50;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #d43e40;
+    }
+
+    .btn-secondary {
+      background-color: #9e9e9e;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #757575;
+    }
+  </style>
+
+  <script nonce="<%= csp_nonce %>">
+    document.addEventListener('DOMContentLoaded', function() {
+      var elems = document.querySelectorAll('select');
+      M.FormSelect.init(elems);
+    });
+  </script>
+<% end %>
+
+<div class="b-container">
+  <h5 style="margin-bottom: 20px; color: #33333c; font-weight: 600; text-align: center;">Tabla de hits capturados</h5>
+
+  <!-- Navigation Section -->
+  <div class="nav-section" style="justify-content: flex-start; gap: 20px;">
+    <a href="<%= agent_media_monitoring_path %>" class="btn btn-primary" style="text-decoration: none; display: flex; align-items: center; justify-content: center; height: 40px;">
+      ← Volver al monitor
+    </a>
+    <span style="font-family: 'Poppins', sans-serif; color: #888; font-size: 14px;">
+      Total de hits: <strong><%= @hits.count %></strong>
+    </span>
+  </div>
+
+  <!-- Hits Table -->
+  <div class="table-wrapper">
+    <% if @hits.empty? %>
+      <div class="empty-state">
+        No hay hits capturados aún.
+      </div>
+    <% else %>
+      <table class="hits-table">
+        <thead>
+          <tr>
+            <th style="width: 5%;">ID</th>
+            <th style="width: 12%;">Fecha</th>
+            <th style="width: 20%;">Lugar</th>
+            <th style="width: 40%;">Título</th>
+            <th style="width: 20%;">Fuente</th>
+            <th style="width: 8%;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @hits.each do |hit| %>
+          <tr data-hit-id="<%= hit.id %>">
+            <td style="width: 5%;"><%= hit.legacy_id || hit.id %></td>
+            <td style="width: 12%;">
+              <% if hit.created_at %>
+                <%= hit.created_at.strftime('%d/%m/%Y') %>
+              <% end %>
+            </td>
+            <td style="width: 20%;">
+              <% if hit.town %>
+                <%= hit.town.name %>
+              <% else %>
+                —
+              <% end %>
+            </td>
+            <td style="width: 40%;"><%= hit.title || '(Sin título)' %></td>
+            <td style="width: 20%;">
+              <% if hit.link %>
+                <a href="<%= hit.link %>" target="_blank" rel="noopener" style="color: #ef4e50; text-decoration: none; font-size: 12px;">
+                  Ver link <i class="material-icons" style="font-size:14px; vertical-align: middle;">open_in_new</i>
+                </a>
+              <% else %>
+                —
+              <% end %>
+            </td>
+            <td style="width: 8%; text-align: center;">
+              <button class="btn-icon edit-btn" data-id="<%= hit.id %>" title="Editar">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="btn-icon delete-btn" data-id="<%= hit.id %>" title="Eliminar">
+                <span class="material-icons">delete</span>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Modal for edit form -->
+          <div class="modal-overlay" id="editModal_<%= hit.id %>">
+            <div class="modal-content">
+              <button class="modal-close" title="Cerrar">×</button>
+              <div class="edit-form">
+                <form id="editForm_<%= hit.id %>" class="hit-edit-form" data-hit-id="<%= hit.id %>">
+                  <input type="hidden" name="hit_id" value="<%= hit.id %>">
+
+                  <div class="row" style="margin-bottom: 12px;">
+                    <div class="col m6 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                      <label for="title_<%= hit.id %>" style="font-size: 12px; color: #9e9e9e; margin-bottom: 5px;">TÍTULO</label>
+                      <input type="text" id="title_<%= hit.id %>" name="hit[title]" value="<%= hit.title %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+                    </div>
+
+                    <div class="col m6 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                      <label for="date_<%= hit.id %>" style="font-size: 12px; color: #9e9e9e; margin-bottom: 5px;">FECHA</label>
+                      <input type="date" id="date_<%= hit.id %>" name="hit[date]" value="<%= hit.date&.strftime('%Y-%m-%d') %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+                    </div>
+                  </div>
+
+                  <div class="row" style="margin-bottom: 12px;">
+                    <div class="col m12 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                      <label for="location_<%= hit.id %>" style="font-size: 12px; color: #9e9e9e; margin-bottom: 5px;">LUGAR</label>
+                      <input type="text" id="location_<%= hit.id %>" name="hit[location_label]" value="<%= hit.town&.name %>" placeholder="Municipio o Estado" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+                    </div>
+                  </div>
+
+                  <div class="row" style="margin-bottom: 12px;">
+                    <div class="col m12 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+                      <label for="link_<%= hit.id %>" style="font-size: 12px; color: #9e9e9e; margin-bottom: 5px;">LINK</label>
+                      <input type="text" id="link_<%= hit.id %>" name="hit[link]" value="<%= hit.link %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+                    </div>
+                  </div>
+
+                  <div class="form-buttons">
+                    <button type="button" class="btn btn-primary save-btn" data-hit-id="<%= hit.id %>">Guardar</button>
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancelar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+</div>
+
+<script nonce="<%= csp_nonce %>">
+  // Edit button handler
+  $(document).on('click', '.edit-btn', function() {
+    const hitId = $(this).data('id');
+    $(`#editModal_${hitId}`).addClass('active');
+  });
+
+  // Close button handler
+  $(document).on('click', '.modal-close', function() {
+    $(this).closest('.modal-overlay').removeClass('active');
+  });
+
+  // Cancel button handler
+  $(document).on('click', '.cancel-btn', function() {
+    $(this).closest('.modal-overlay').removeClass('active');
+  });
+
+  // Save button handler
+  $(document).on('click', '.save-btn', function() {
+    const hitId = $(this).data('hit-id');
+    const formId = `#editForm_${hitId}`;
+    const form = $(formId)[0];
+
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const hitData = {
+      title: formData.get('hit[title]'),
+      date: formData.get('hit[date]'),
+      link: formData.get('hit[link]')
+    };
+
+    fetch(`/agent/media_hits/${hitId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ hit: hitData })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(`Error: ${data.error || 'Error desconocido'}`);
+      }
+    })
+    .catch(err => alert(`Error: ${err.message}`));
+  });
+
+  // Delete button handler
+  $(document).on('click', '.delete-btn', function() {
+    const hitId = $(this).data('id');
+
+    if (!confirm('¿Estás seguro de que quieres eliminar este hit?')) return;
+
+    fetch(`/agent/media_hits/${hitId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(`Error: ${data.error || 'Error desconocido'}`);
+      }
+    })
+    .catch(err => alert(`Error: ${err.message}`));
+  });
+
+  // Close modal when clicking outside
+  $(document).on('click', '.modal-overlay', function(e) {
+    if (e.target === this) {
+      $(this).removeClass('active');
+    }
+  });
+</script>

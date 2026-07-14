@@ -1048,6 +1048,150 @@ class AgentController < ApplicationController
   end
 
   # ═══════════════════════════════════════════════════════════════════════════
+  # MEDIA MONITORING - NEW METHODS
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  def media_monitoring
+    @page_title = "Agente de captura — Monitoreo de medios"
+  end
+
+  def search_media
+    api_key = serper_api_key
+    return render json: { error: "SERPER_API_KEY no configurada." }, status: :service_unavailable if api_key.blank?
+
+    results = []
+    mutex = Mutex.new
+
+    media_queries = [
+      %("cartel" "captura" OR "detenido" OR "operativo"),
+      %("CJNG" "operativo"),
+      %("Cártel de Sinaloa" "captura"),
+      %("Cárteles Unidos" "detenidos"),
+      %("Familia Michoacana" "operativo"),
+      %(cartel Mexico "2026")
+    ]
+
+    threads = media_queries.map do |query|
+      Thread.new do
+        begin
+          uri = URI("https://google.serper.dev/news")
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = true
+          http.read_timeout = 10
+          http.open_timeout = 5
+
+          req = Net::HTTP::Post.new(uri)
+          req["X-API-KEY"] = api_key
+          req["Content-Type"] = "application/json"
+          req.body = { q: query, tbs: "qdr:d", gl: "mx", hl: "es", num: 10 }.to_json
+
+          res = http.request(req)
+          data = JSON.parse(res.body)
+          mutex.synchronize { results.concat(data["news"] || []) } if data["news"].is_a?(Array)
+        rescue => e
+          Rails.logger.error("[Agent#search_media] #{query.inspect} #{e.class}: #{e.message}")
+        end
+      end
+    end
+
+    threads.each(&:join)
+
+    seen = {}
+    unique = results.select { |a| a["link"] && seen[a["link"]] ? false : (seen[a["link"]] = true) }
+
+    formatted_results = unique.map do |article|
+      {
+        title: article["title"] || "(Sin título)",
+        link: article["link"] || "",
+        source_domain: URI.parse(article["link"] || "").host || "unknown",
+        published_date: article["date"] || Time.now.strftime("%d/%m/%Y"),
+        snippet: article["snippet"] || ""
+      }
+    end
+
+    render json: { results: formatted_results }
+  end
+
+  def extract_media_batch
+    body = JSON.parse(request.raw_post)
+    urls = (body["urls"] || []).map(&:to_s).compact.select { |u| u.present? }
+
+    return render json: { error: "No URLs provided" }, status: :bad_request if urls.blank?
+
+    claude_key = anthropic_api_key
+    return render json: { error: "ANTHROPIC_API_KEY no configurada." }, status: :service_unavailable if claude_key.blank?
+
+    log = []
+    extracted_count = 0
+    error_count = 0
+
+    urls.each do |url|
+      begin
+        result = extract_hit_from_url(url, claude_key)
+
+        if result[:success]
+          extracted_count += 1
+          log << { url: url, status: "extracted", message: "Hit creado exitosamente" }
+        else
+          error_count += 1
+          log << { url: url, status: "error", message: result[:error] || "Error desconocido" }
+        end
+      rescue => e
+        error_count += 1
+        log << { url: url, status: "error", message: e.message }
+        Rails.logger.error("[Agent#extract_media_batch] #{url} | #{e.class}: #{e.message}")
+      end
+    end
+
+    render json: {
+      log: log,
+      summary: {
+        total: urls.length,
+        extracted: extracted_count,
+        errors: error_count
+      }
+    }
+  end
+
+  def extract_media_url
+    body = JSON.parse(request.raw_post)
+    url = body["url"].to_s.strip
+
+    return render json: { error: "URL vacía" }, status: :bad_request if url.blank?
+
+    claude_key = anthropic_api_key
+    return render json: { error: "ANTHROPIC_API_KEY no configurada." }, status: :service_unavailable if claude_key.blank?
+
+    result = extract_hit_from_url(url, claude_key)
+    render json: { success: result[:success], error: result[:error], hit_id: result[:hit_id] }
+  end
+
+  def media_hits
+    @hits = Hit.all.order(created_at: :desc).limit(100)
+  end
+
+  def update_media_hit
+    @hit = Hit.find(params[:id])
+    hit_params_safe = params.require(:hit).permit(:title, :date, :link)
+
+    if @hit.update(hit_params_safe)
+      render json: { success: true, message: "Hit actualizado exitosamente" }
+    else
+      render json: { success: false, error: @hit.errors.full_messages.join(", ") }
+    end
+  end
+
+  def delete_media_hit
+    @hit = Hit.find(params[:id])
+
+    if @hit.destroy
+      render json: { success: true, message: "Hit eliminado exitosamente" }
+    else
+      render json: { success: false, error: @hit.errors.full_messages.join(", ") }
+    end
+  end
+
+  # ═══════════════════════════════════════════════════════════════════════════
   # PRIVATE
   # ═══════════════════════════════════════════════════════════════════════════
   private
@@ -1438,5 +1582,135 @@ class AgentController < ApplicationController
       :sedena, :semar, :gn, :sscp, :fgr, :ssp_estatal, :fge_pgj,
       :policia_municipal, :otro
     )
+  end
+
+  def extract_hit_from_url(url, claude_key)
+    begin
+      # Fetch article content
+      content = fetch_article_content(url)
+      return { success: false, error: "No se pudo obtener contenido de la URL" } if content.blank?
+
+      # Send to Claude for extraction
+      user_message = "Extrae la siguiente información de esta nota de noticias:\n\n#{content}"
+      extraction_prompt = <<~PROMPT.strip.freeze
+        Eres un experto extrayendo información de notas de noticias sobre operativos de seguridad en México.
+
+        Extrae EXACTAMENTE en formato JSON (y SOLO JSON, sin explicaciones):
+        {
+          "title": "Título de la nota",
+          "date": "YYYY-MM-DD o null si no está disponible",
+          "location": "Nombre del municipio o estado",
+          "location_code": "Código del municipio (ej: 09009) o null",
+          "should_create_hit": true o false (solo true si es nota relevante sobre operativos)
+        }
+
+        Reglas:
+        - title: Extrae el título principal
+        - date: Usa formato YYYY-MM-DD o null
+        - location: Municipio y/o Estado si está disponible
+        - should_create_hit: true SOLO si describe operativos, capturas o detenciones concretas
+        - Responde ÚNICAMENTE el JSON, nada más
+      PROMPT
+
+      uri = URI("https://api.anthropic.com/v1/messages")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.read_timeout = 30
+      http.open_timeout = 10
+
+      req = Net::HTTP::Post.new(uri)
+      req["x-api-key"] = claude_key
+      req["anthropic-version"] = "2023-06-01"
+      req["content-type"] = "application/json"
+      req.body = {
+        model: "claude-sonnet-4-6",
+        max_tokens: 512,
+        temperature: 0.0,
+        system: extraction_prompt,
+        messages: [{ role: "user", content: user_message }]
+      }.to_json
+
+      res = http.request(req)
+      data = JSON.parse(res.body)
+
+      if data["error"]
+        error_msg = data["error"]["message"]
+        return { success: false, error: error_msg }
+      end
+
+      response_text = data.dig("content", 0, "text")
+      return { success: false, error: "Empty response from Claude" } if response_text.blank?
+
+      # Parse JSON from Claude
+      begin
+        cleaned = response_text.gsub(/^```json\n?/, '').gsub(/\n?```$/, '').strip
+        extraction = JSON.parse(cleaned)
+
+        # Only create hit if Claude says it should be created
+        if extraction["should_create_hit"] != true
+          return { success: false, error: "Hit no relevante según análisis" }
+        end
+
+        # Try to find town by location name
+        town = nil
+        if extraction["location"].present?
+          town = Town.where("name ILIKE ?", "%#{extraction['location']}%").first
+        end
+
+        # If no town found, try to find a default "Unknown" town or use first available town
+        if town.blank?
+          # Try to find a generic town
+          town = Town.where("name ILIKE ?", "%desconocido%").first
+          # If still not found, use the first town in the database
+          town ||= Town.first
+        end
+
+        return { success: false, error: "No hay municipios registrados en la base de datos" } if town.blank?
+
+        # Create hit record
+        hit = Hit.new
+        hit.title = extraction["title"]
+        hit.date = extraction["date"] if extraction["date"].present?
+        hit.link = url
+        hit.town = town
+        hit.legacy_id = (Hit.maximum(:legacy_id) || 0).to_i + 1
+
+        if hit.save
+          { success: true, hit_id: hit.id }
+        else
+          { success: false, error: hit.errors.full_messages.join(", ") }
+        end
+      rescue JSON::ParserError => e
+        { success: false, error: "Error parsing Claude response: #{e.message}" }
+      end
+    rescue => e
+      Rails.logger.error("[Agent#extract_hit_from_url] #{url} | #{e.class}: #{e.message}")
+      { success: false, error: e.message }
+    end
+  end
+
+  def fetch_article_content(url)
+    begin
+      uri = URI(url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = (uri.scheme == 'https')
+      http.read_timeout = 10
+      http.open_timeout = 5
+
+      req = Net::HTTP::Get.new(uri)
+      req["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+
+      res = http.request(req)
+      return nil unless res.is_a?(Net::HTTPSuccess)
+
+      # Extract text content from HTML
+      doc = Nokogiri::HTML(res.body)
+      doc.search('script, style').remove
+      text = doc.text.gsub(/\s+/, ' ').strip
+      text.first(5000)
+    rescue => e
+      Rails.logger.warn("[Agent#fetch_article_content] #{url} | #{e.class}: #{e.message}")
+      nil
+    end
   end
 end

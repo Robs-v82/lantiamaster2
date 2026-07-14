@@ -193,6 +193,14 @@ Rails.application.routes.draw do
     get   "agent/get_counties",               to: "agent#get_counties",      as: :get_counties
     post  "agent/detentions/log_client_validation", to: "agent#log_client_validation", as: :log_client_validation_agent_detentions
 
+    get  "agent/media_monitoring",            to: "agent#media_monitoring", as: :agent_media_monitoring
+    get  "agent/media_monitoring/search",     to: "agent#search_media",     as: :search_agent_media_monitoring
+    post "agent/media_monitoring/extract_batch", to: "agent#extract_media_batch", as: :extract_media_batch_agent
+    post "agent/media_monitoring/extract_url",   to: "agent#extract_media_url",   as: :extract_media_url_agent
+    get  "agent/media_hits",                  to: "agent#media_hits",       as: :agent_media_hits
+    patch "agent/media_hits/:id",             to: "agent#update_media_hit", as: :update_agent_media_hit
+    delete "agent/media_hits/:id",            to: "agent#delete_media_hit", as: :delete_agent_media_hit
+
     get  "organizations/admin", to: "organizations#admin"
     post "organizations/:id/set_search_level", to: "organizations#set_search_level", as: :set_org_search_level
     post "organizations/admin_create", to: "organizations#admin_create"

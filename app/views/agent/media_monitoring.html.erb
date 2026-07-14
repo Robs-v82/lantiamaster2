@@ -1,0 +1,219 @@
+<% content_for :head_tags do %>
+  <style>
+    .agent-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .agent-header h5 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      color: #33333C;
+      margin: 0;
+    }
+    .agent-btn {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      border-radius: 4px;
+      padding: 0 20px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    #search-btn  { background-color: #EF4E50; }
+    #search-btn:hover    { background-color: #d43e40; }
+    #extract-btn { background-color: #33333C; }
+    #extract-btn:hover   { background-color: #555; }
+    #download-btn { background-color: #2e7d32; }
+    #download-btn:hover  { background-color: #1b5e20; }
+    .agent-btn:disabled  { background-color: #aaa !important; cursor: not-allowed; }
+
+    #status-msg {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 16px;
+      min-height: 20px;
+    }
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+    .news-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: box-shadow 0.2s;
+    }
+    .news-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.14); }
+    .news-card .card-source {
+      font-size: 11px;
+      font-weight: 600;
+      color: #EF4E50;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .news-card .card-date   { font-size: 11px; color: #aaa; }
+    .news-card .card-title  {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #33333C;
+      line-height: 1.4;
+    }
+    .news-card .card-snippet { font-size: 13px; color: #666; line-height: 1.5; }
+    .news-card .card-link {
+      font-size: 12px;
+      color: #EF4E50;
+      text-decoration: none;
+      margin-top: auto;
+      padding-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .news-card .card-link:hover { text-decoration: underline; }
+
+    .agent-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: agent-spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes agent-spin { to { transform: rotate(360deg); } }
+
+    #extraction-section { margin-top: 28px; border-top: 1px solid #eee; padding-top: 20px; }
+
+    #progress-area { margin: 16px 0; }
+    #progress-msg  { font-family: 'Poppins', sans-serif; font-size: 13px; color: #555; margin-bottom: 8px; }
+    #progress-bar-wrap {
+      background: #eee;
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    #progress-bar {
+      background: #EF4E50;
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 4px;
+    }
+
+    #summary-area {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+    }
+    #summary-area h6 {
+      font-weight: 600;
+      color: #33333C;
+      margin: 0 0 12px 0;
+      font-size: 14px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { color: #555; }
+    .summary-value { font-weight: 600; color: #33333C; }
+    .summary-value.highlight { color: #EF4E50; }
+  </style>
+<% end %>
+
+<div class="b-inner-container" style="max-width: 1100px; margin: 0 auto; padding: 16px 8px;">
+
+  <%# ── Etapa 1: Búsqueda ───────────────────────────────────────────────── %>
+  <div class="agent-header">
+    <h5>Agente de captura — Monitoreo de medios</h5>
+    <div style="display:flex; gap:8px;">
+      <a href="<%= agent_media_hits_path %>" class="agent-btn" style="background-color:#6366f1; text-decoration:none;">
+        <i class="material-icons" style="font-size:18px;">table_chart</i>
+        Tabla de hits
+      </a>
+      <button id="search-btn" class="agent-btn" data-search-url="<%= search_agent_media_monitoring_path %>">
+        <i class="material-icons" style="font-size:18px;">search</i>
+        Buscar medios del día
+      </button>
+    </div>
+  </div>
+
+  <div id="status-msg"></div>
+  <div id="results-grid" class="news-grid"></div>
+
+  <%# ── Etapa 2: Extracción (oculta hasta tener resultados) ─────────────── %>
+  <div id="extraction-section" style="display:none;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+      <span style="font-family:'Poppins',sans-serif; font-size:13px; color:#555;">
+        Etapa 2 — Extraer datos de hits
+      </span>
+      <button id="extract-btn" class="agent-btn"
+              data-extract-url="<%= extract_media_batch_agent_path %>">
+        <i class="material-icons" style="font-size:18px;">table_chart</i>
+        Extraer datos
+      </button>
+    </div>
+
+    <div id="progress-area" style="display:none;">
+      <div id="progress-msg"></div>
+      <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+    </div>
+
+    <div id="summary-area" style="display:none;"></div>
+
+    <%# ── Procesar URL específica ────────────────────────────────────────── %>
+    <div id="manual-url-section" style="margin-top:20px; padding-top:16px; border-top:1px dashed #ddd;">
+      <div style="font-family:'Poppins',sans-serif; font-size:12px; color:#888; margin-bottom:8px; text-transform:uppercase; letter-spacing:.5px;">
+        Procesar URL específica
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input id="manual-url-input" type="url" placeholder="https://…"
+               style="flex:1; min-width:240px; height:38px; border:1px solid #ddd; border-radius:4px; padding:0 12px; font-family:'Poppins',sans-serif; font-size:13px;"
+               data-extract-url="<%= extract_media_url_agent_path %>">
+        <button id="manual-url-btn" class="agent-btn" style="background-color:#555; height:38px;">
+          <i class="material-icons" style="font-size:16px;">add_link</i>
+          Agregar y extraer
+        </button>
+      </div>
+      <div id="manual-url-status" style="font-family:'Poppins',sans-serif; font-size:12px; color:#888; margin-top:6px; min-height:18px;"></div>
+    </div>
+
+    <div id="download-area" style="display:none; margin-top:16px; gap:12px; flex-wrap:wrap;">
+      <button id="download-btn" class="agent-btn" style="background-color:#2e7d32;">
+        <i class="material-icons" style="font-size:18px;">download</i>
+        Descargar CSV
+      </button>
+      <a href="<%= agent_media_hits_path %>" class="agent-btn" style="background-color:#6366f1; text-decoration:none;">
+        <i class="material-icons" style="font-size:18px;">table_chart</i>
+        Ver tabla de hits
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script src="<%= asset_path('media_monitoring.js') %>" nonce="<%= csp_nonce %>"></script>
