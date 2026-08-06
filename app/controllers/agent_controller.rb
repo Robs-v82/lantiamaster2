@@ -1047,6 +1047,610 @@ class AgentController < ApplicationController
     end
   end
 
+  def create_hit_from_capture
+    @capture = DetentionCapture.find(params[:id])
+    errors = []
+
+    Rails.logger.info("[create_hit] Iniciando creación de Hit desde DetentionCapture #{@capture.id}")
+    Rails.logger.info("[create_hit] Parámetros recibidos: #{params.inspect}")
+    Rails.logger.info("[create_hit] params[:hit] = #{params[:hit].inspect}")
+    Rails.logger.info("[create_hit] ¿PDF presente? #{params[:hit]&.dig(:pdf).present?}")
+
+    # Validaciones básicas
+    if @capture.source_url.blank?
+      errors << "URL de la noticia es requerida"
+    end
+
+    if @capture.incident_date.blank?
+      errors << "Fecha del incidente es requerida"
+    end
+
+    if @capture.full_code.blank?
+      errors << "Código de ubicación es requerido"
+    end
+
+    if @capture.organizacion.blank? || @capture.municipio.blank? || @capture.estado.blank?
+      errors << "Información de ubicación incompleta (organización, municipio, estado)"
+    end
+
+    if errors.any?
+      Rails.logger.warn("[create_hit] ❌ Validaciones fallaron: #{errors.inspect}")
+      return render json: { success: false, errors: errors }
+    end
+
+    # Resolver town_id desde full_code
+    full_code = @capture.full_code.to_s.strip
+    town_full_code = "#{full_code}0000"
+    town = Town.find_by(full_code: town_full_code)
+
+    if town.nil?
+      error_msg = "No se encontró Town para full_code=#{town_full_code}"
+      Rails.logger.error("[create_hit] ❌ #{error_msg}")
+      return render json: { success: false, errors: [error_msg] }
+    end
+
+    # Generar datos del Hit
+    date = @capture.incident_date
+    title = "#{@capture.organization&.name || @capture.organizacion} en #{@capture.municipio}, #{@capture.estado}"
+    link = @capture.source_url
+
+    # Verificar si el Hit ya existe (reutilizar)
+    existing_hit = Hit.find_by(link: link)
+    if existing_hit.present?
+      Rails.logger.info("[create_hit] ℹ️ Hit ya existe con mismo link, reutilizando: #{existing_hit.id}")
+      return render json: {
+        success: true,
+        message: "Hit reutilizado de captura anterior",
+        hit_id: existing_hit.id,
+        legacy_id: existing_hit.legacy_id,
+        pdf_attached: existing_hit.pdf.attached?,
+        hit_reused: true
+      }
+    end
+
+    # Generar legacy_id
+    require 'securerandom'
+    require 'uri'
+    domain = begin
+      URI.parse(link).host.to_s.sub(/\Awww\./, "")
+    rescue
+      ""
+    end
+
+    user = current_user_safe rescue nil
+    initials = if user&.respond_to?(:member) && user.member
+                 [
+                   user.member.firstname.to_s[0],
+                   user.member.lastname1.to_s[0]
+                 ].compact.join.upcase
+               else
+                 "XX"
+               end
+
+    date_str = date.strftime("%d%m%y")
+    random_str = SecureRandom.random_bytes(2).unpack('H*')[0].upcase[0, 4]
+    legacy_id = "#{domain}_#{date_str}_#{initials}_#{random_str}"
+
+    # Crear Hit
+    hit = Hit.new(
+      date: date,
+      title: title,
+      link: link,
+      town_id: town.id,
+      legacy_id: legacy_id,
+      user_id: user&.id
+    )
+
+    if hit.save
+      # Procesar archivo PDF si existe
+      if params[:hit]&.dig(:pdf).present?
+        begin
+          hit.pdf.attach(params[:hit][:pdf])
+          Rails.logger.info("[create_hit] ✓ PDF adjunto exitosamente: #{params[:hit][:pdf].original_filename}")
+        rescue => e
+          Rails.logger.error("[create_hit] ⚠️ Error al adjuntar PDF: #{e.message}")
+        end
+      end
+
+      Rails.logger.info("[create_hit] ✓ Hit creado exitosamente: #{hit.id} (legacy_id: #{legacy_id})")
+      render json: {
+        success: true,
+        message: "Hit creado exitosamente",
+        hit_id: hit.id,
+        legacy_id: hit.legacy_id,
+        pdf_attached: hit.pdf.attached?,
+        hit_reused: false
+      }
+    else
+      Rails.logger.error("[create_hit] ❌ Error al guardar Hit: #{hit.errors.full_messages.inspect}")
+      render json: { success: false, errors: hit.errors.full_messages }
+    end
+  end
+
+  def create_member_from_capture
+    @capture = DetentionCapture.find(params[:id])
+    errors = []
+
+    timestamp = Time.current.strftime("%H:%M:%S.%L")
+    Rails.logger.info("")
+    Rails.logger.info("╔═══════════════════════════════════════════════════════════════╗")
+    Rails.logger.info("║ [#{timestamp}] INICIO: create_member_from_capture                 ║")
+    Rails.logger.info("╚═══════════════════════════════════════════════════════════════╝")
+    Rails.logger.info("[create_member] DetentionCapture ID: #{@capture.id}")
+    Rails.logger.info("[create_member] Nombre: #{@capture.nombre} #{@capture.apellido_paterno} #{@capture.apellido_materno}")
+
+    # ═══ VALIDACIONES INICIALES ═══
+    Rails.logger.info("[create_member] ▶ Validando datos maestros (Hit, Role, Organization)...")
+
+    hit = Hit.find_by(id: params[:hit_id])
+    if hit.nil?
+      error_msg = "Hit con ID #{params[:hit_id]} no encontrado"
+      Rails.logger.error("[create_member] ❌ VALIDACIÓN FALLIDA: #{error_msg}")
+      return render json: { success: false, errors: [error_msg] }
+    end
+    Rails.logger.info("[create_member]   ✓ Hit validado: #{hit.id} (legacy_id: #{hit.legacy_id})")
+
+    # Validar Role existe (buscar por nombre desde DetentionCapture)
+    role_name = params[:role_name].to_s.strip
+    if role_name.blank?
+      error_msg = "Rol no especificado en la detención"
+      Rails.logger.error("[create_member] ❌ VALIDACIÓN FALLIDA: #{error_msg}")
+      return render json: { success: false, errors: [error_msg] }
+    end
+
+    role = Role.find_by(name: role_name)
+    if role.nil?
+      error_msg = "Rol '#{role_name}' no encontrado en BD"
+      Rails.logger.error("[create_member] ❌ VALIDACIÓN FALLIDA: #{error_msg}")
+      return render json: { success: false, errors: [error_msg] }
+    end
+    Rails.logger.info("[create_member]   ✓ Role validado: #{role.name} (ID: #{role.id})")
+
+    org = Organization.find_by(id: params[:organization_id])
+    if org.nil?
+      error_msg = "Organización con ID #{params[:organization_id]} no encontrada"
+      Rails.logger.error("[create_member] ❌ VALIDACIÓN FALLIDA: #{error_msg}")
+      return render json: { success: false, errors: [error_msg] }
+    end
+    Rails.logger.info("[create_member]   ✓ Organization validada: #{org.name} (ID: #{org.id}, criminal_link_id: #{org.criminal_link_id})")
+
+    # ═══ EXTRAER DATOS ═══
+    Rails.logger.info("[create_member] ▶ Extrayendo datos de formulario...")
+    firstname = @capture.nombre.to_s.strip
+    lastname1 = @capture.apellido_paterno.to_s.strip
+    lastname2 = @capture.apellido_materno.to_s.strip
+    alias_raw = params[:alias_raw].to_s.strip
+    gender_from_form = params[:gender].to_s.strip
+
+    if firstname.blank? || lastname1.blank? || lastname2.blank?
+      error_msg = "Nombre y apellidos son requeridos"
+      Rails.logger.error("[create_member] ❌ VALIDACIÓN FALLIDA: #{error_msg}")
+      return render json: { success: false, errors: [error_msg] }
+    end
+
+    Rails.logger.info("[create_member]   Firstname: #{firstname}")
+    Rails.logger.info("[create_member]   Lastname1: #{lastname1}")
+    Rails.logger.info("[create_member]   Lastname2: #{lastname2}")
+    Rails.logger.info("[create_member]   Gender (formulario): #{gender_from_form.present? ? gender_from_form : 'VACÍO (se estimará)'}")
+    Rails.logger.info("[create_member]   Alias: #{alias_raw.present? ? alias_raw : 'NINGUNO'}")
+
+    # ═══ BÚSQUEDA DE MATCH (exacto + fuzzy + fake_identities) ═══
+    Rails.logger.info("[create_member] ▶ Buscando Member existente...")
+    Rails.logger.info("[create_member]   Buscando: #{firstname} #{lastname1} #{lastname2}")
+    existing_member = search_member_with_fake_identities(firstname, lastname1, lastname2)
+    Rails.logger.info("[create_member]   Resultado: #{existing_member.present? ? "ENCONTRADO (ID: #{existing_member.id})" : 'NO ENCONTRADO'}")
+
+    if existing_member.present?
+      Rails.logger.info("[create_member] ┌─ RAMA: MEMBER EXISTENTE (UPDATE)")
+      Rails.logger.info("[create_member] │ ID: #{existing_member.id}")
+      Rails.logger.info("[create_member] │ Nombre actual: #{existing_member.firstname} #{existing_member.lastname1} #{existing_member.lastname2}")
+      Rails.logger.info("[create_member] │ Organization actual: #{existing_member.organization&.name} (ID: #{existing_member.organization_id})")
+      Rails.logger.info("[create_member] │ Role actual: #{existing_member.role&.name} (ID: #{existing_member.role_id})")
+      Rails.logger.info("[create_member] │ Criminal Link actual: #{existing_member.criminal_link&.name} (ID: #{existing_member.criminal_link_id})")
+
+      # ═══ UPDATE MEMBER EXISTENTE ═══
+      Rails.logger.info("[create_member] ├─ Preparando UPDATE...")
+      update_data = { involved: true }
+      Rails.logger.info("[create_member] │ ✓ involved = true")
+
+      # Actualizar rol si el Member no tiene uno
+      if existing_member.role_id.nil?
+        update_data[:role_id] = role.id
+        Rails.logger.info("[create_member] │ ✓ role_id será actualizado: #{role.name} (ID: #{role.id})")
+      else
+        Rails.logger.info("[create_member] │ ℹ️ role_id NO se cambia (ya tiene uno)")
+      end
+
+      # Calcular criminal_role según involved=true
+      new_criminal_role = compute_criminal_role(true, role.name)
+      update_data[:criminal_role] = new_criminal_role
+      Rails.logger.info("[create_member] │ ✓ criminal_role calculado: #{new_criminal_role}")
+
+      # Criminal Link: Si Member existente tiene org NO-criminal → asignar como criminal_link
+      if existing_member.organization_id.present? && existing_member.criminal_link_id.blank?
+        existing_org = Organization.find_by(id: existing_member.organization_id)
+        if existing_org&.criminal_link_id.blank?
+          update_data[:criminal_link_id] = org.id
+          Rails.logger.info("[create_member] │ ✓ criminal_link_id asignado desde formulario: #{org.name} (ID: #{org.id})")
+        else
+          Rails.logger.info("[create_member] │ ℹ️ criminal_link_id NO se cambia (org existente ya tiene uno)")
+        end
+      else
+        Rails.logger.info("[create_member] │ ℹ️ criminal_link_id NO se cambia (ya existe o no aplica)")
+      end
+
+      existing_member.update(update_data)
+      Rails.logger.info("[create_member] │ ✓ Member actualizado")
+
+      # Merge alias
+      if alias_raw.present?
+        alias_array = alias_raw.split(';').map(&:strip).reject(&:empty?)
+        current_aliases = Array(existing_member.alias).map(&:to_s)
+        merged_aliases = (current_aliases + alias_array).map(&:strip).reject(&:blank?).uniq
+        existing_member.update(alias: merged_aliases)
+        Rails.logger.info("[create_member] │ ✓ Alias mergeados: #{merged_aliases.join(', ')}")
+      else
+        Rails.logger.info("[create_member] │ ℹ️ Sin alias nuevos para mergear")
+      end
+
+      # Agregar Hit si no está ya asociado
+      if existing_member.hits.exists?(hit.id)
+        Rails.logger.info("[create_member] │ ℹ️ Hit #{hit.id} ya estaba asociado")
+      else
+        existing_member.hits << hit
+        Rails.logger.info("[create_member] │ ✓ Hit #{hit.id} asociado al Member")
+      end
+
+      # Crear Note de auditoría
+      create_member_audit_note(existing_member, "Hit agregado desde DetentionCapture")
+
+      Rails.logger.info("[create_member] └─ ✅ ÉXITO: Member existente actualizado")
+      Rails.logger.info("")
+
+      render json: {
+        success: true,
+        message: "Member existente actualizado",
+        member_id: existing_member.id,
+        member_existed: true
+      }
+    else
+      # ═══ CREAR NUEVO MEMBER ═══
+      Rails.logger.info("[create_member] ┌─ RAMA: CREAR NUEVO MEMBER")
+
+      # Género: usar del formulario, si está vacío usar estimado
+      Rails.logger.info("[create_member] ├─ Determinando GENDER...")
+      gender_value = if gender_from_form.present? && ["MASCULINO", "FEMENINO"].include?(gender_from_form)
+                       Rails.logger.info("[create_member] │ ✓ Gender desde formulario: #{gender_from_form}")
+                       gender_from_form
+                     else
+                       estimated = estimate_gender(firstname)
+                       Rails.logger.info("[create_member] │ ✓ Gender estimado desde CSV: #{estimated || 'FALLIDO - usando MASCULINO como fallback'}")
+                       estimated || "MASCULINO"
+                     end
+
+      # Para detenciones, involved es siempre true
+      involved_value = true
+      Rails.logger.info("[create_member] │ ✓ involved = true (son detenidos)")
+
+      # Calcular criminal_role
+      criminal_role_value = compute_criminal_role(involved_value, role.name)
+      Rails.logger.info("[create_member] │ ✓ criminal_role calculado: #{criminal_role_value} (según role: #{role.name})")
+
+      # criminal_link_id: hereda de organización
+      criminal_link_id_value = org&.criminal_link_id
+      Rails.logger.info("[create_member] │ ✓ criminal_link_id heredado de org: #{criminal_link_id_value || 'NINGUNO'}")
+
+      # Crear Member
+      Rails.logger.info("[create_member] ├─ Creando record de Member en BD...")
+      new_member = Member.new(
+        firstname: firstname,
+        lastname1: lastname1,
+        lastname2: lastname2,
+        organization_id: org.id,
+        role_id: role.id,
+        gender: gender_value,
+        involved: involved_value,
+        criminal_role: criminal_role_value,
+        criminal_link_id: criminal_link_id_value
+      )
+
+      # Agregar alias
+      if alias_raw.present?
+        alias_array = alias_raw.split(';').map(&:strip).reject(&:empty?)
+        new_member.alias_raw = alias_array.join(';')
+        Rails.logger.info("[create_member] │ ✓ Alias agregados: #{alias_array.join(', ')}")
+      else
+        Rails.logger.info("[create_member] │ ℹ️ Sin alias")
+      end
+
+      if new_member.save
+        Rails.logger.info("[create_member] │ ✓ Member guardado en BD (ID: #{new_member.id})")
+
+        # Asociar Hit
+        new_member.hits << hit
+        Rails.logger.info("[create_member] │ ✓ Hit #{hit.id} asociado")
+
+        # Aplicar rol en femenino si corresponde
+        apply_feminine_role_if_needed(new_member)
+
+        # Crear Note de auditoría
+        create_member_audit_note(new_member, "Creado vía DetentionCapture")
+
+        Rails.logger.info("[create_member] ├─ RESUMEN DE CREACIÓN:")
+        Rails.logger.info("[create_member] │ ID: #{new_member.id}")
+        Rails.logger.info("[create_member] │ Nombre: #{new_member.firstname} #{new_member.lastname1} #{new_member.lastname2}")
+        Rails.logger.info("[create_member] │ Organization: #{new_member.organization&.name}")
+        Rails.logger.info("[create_member] │ Role: #{new_member.role&.name}")
+        Rails.logger.info("[create_member] │ Gender: #{new_member.gender}")
+        Rails.logger.info("[create_member] │ Involved: #{new_member.involved}")
+        Rails.logger.info("[create_member] │ Criminal Role: #{new_member.criminal_role}")
+        Rails.logger.info("[create_member] │ Criminal Link: #{new_member.criminal_link&.name}")
+        Rails.logger.info("[create_member] └─ ✅ ÉXITO: Member creado exitosamente")
+        Rails.logger.info("")
+
+        render json: {
+          success: true,
+          message: "Member creado exitosamente",
+          member_id: new_member.id,
+          member_existed: false
+        }
+      else
+        Rails.logger.error("[create_member] ├─ ❌ ERROR al guardar Member")
+        Rails.logger.error("[create_member] │ Errores: #{new_member.errors.full_messages.inspect}")
+        Rails.logger.error("[create_member] └─ FALLÓ: create_member_from_capture")
+        Rails.logger.error("")
+        render json: { success: false, errors: new_member.errors.full_messages }
+      end
+    end
+  end
+
+  def create_member_audit_note(member, action)
+    user = current_user_safe rescue nil
+    user_name = user&.mail || "Sistema"
+
+    note = Note.create(
+      member_id: member.id,
+      story: "#{action} por #{user_name} el #{Time.current.strftime('%d/%m/%Y %H:%M')}"
+    )
+    Rails.logger.info("[audit] ✓ Note creada (ID: #{note.id}): #{action}")
+  rescue => e
+    Rails.logger.warn("[audit] ⚠️ Error al crear Note: #{e.message}")
+  end
+
+  def apply_feminine_role_if_needed(member)
+    Rails.logger.info("[feminine_role] ▶ Verificando si se debe aplicar rol femenino...")
+    Rails.logger.info("[feminine_role] │ Gender: #{member.gender}")
+    Rails.logger.info("[feminine_role] │ Role ID: #{member.role_id}")
+
+    return Rails.logger.info("[feminine_role] ✗ No aplica (gender no es FEMENINO)") if member.gender != "FEMENINO"
+    return Rails.logger.info("[feminine_role] ✗ No aplica (sin role_id)") if member.role_id.blank?
+
+    role = member.role
+    return Rails.logger.info("[feminine_role] ✗ No aplica (role no encontrado)") if role.nil?
+
+    Rails.logger.info("[feminine_role] │ Role actual: #{role.name}")
+
+    feminine_map = get_feminine_role_map
+    feminine_role_name = feminine_map[role.name]
+
+    if feminine_role_name.nil?
+      Rails.logger.info("[feminine_role] ℹ️ No hay mapeo femenino para: #{role.name}")
+      return
+    end
+
+    Rails.logger.info("[feminine_role] │ Buscando rol femenino: #{feminine_role_name}")
+
+    # Buscar si existe rol femenino, si no, dejar el original
+    feminine_role = Role.find_by(name: feminine_role_name)
+    if feminine_role.present?
+      member.update(role_id: feminine_role.id)
+      Rails.logger.info("[feminine_role] ✓ Rol ajustado a femenino: #{feminine_role_name} (ID: #{feminine_role.id})")
+    else
+      Rails.logger.warn("[feminine_role] ⚠️ Rol femenino '#{feminine_role_name}' no existe en BD")
+    end
+  rescue => e
+    Rails.logger.error("[feminine_role] ❌ Error al aplicar rol femenino: #{e.message}")
+  end
+
+  private
+
+  def estimate_gender(firstname)
+    return nil if firstname.blank?
+
+    gender_file = if Rails.env.production?
+                    "/var/www/lantiamaster/shared/names_by_gender.csv"
+                  else
+                    Rails.root.join("scripts", "names_by_gender.csv").to_s
+                  end
+
+    unless File.exist?(gender_file)
+      Rails.logger.warn("[estimate_gender] ⚠️ CSV no encontrado: #{gender_file}")
+      return nil
+    end
+
+    row = CSV.read(gender_file, headers: true).find do |r|
+      r["firstname"].to_s.strip.downcase == firstname.to_s.strip.downcase
+    end
+
+    if row.nil?
+      Rails.logger.info("[estimate_gender] ℹ️ '#{firstname}' no encontrado en CSV")
+      return nil
+    end
+
+    estimated = row&.[]("genero_estimado").to_s.strip.downcase
+    result = case estimated
+             when "masculino" then "MASCULINO"
+             when "femenino"  then "FEMENINO"
+             else nil
+             end
+
+    Rails.logger.info("[estimate_gender] ✓ '#{firstname}' estimado como: #{result || 'DESCONOCIDO'}")
+    result
+  rescue => e
+    Rails.logger.error("[estimate_gender] ❌ Error al estimar gender: #{e.message}")
+    nil
+  end
+
+  def get_feminine_role_map
+    {
+      "Padre" => "Madre",
+      "Hijo" => "Hija",
+      "Abuelo" => "Abuela",
+      "Nieto" => "Nieta",
+      "Tio" => "Tia",
+      "Sobrino" => "Sobrina",
+      "Padrino" => "Madrina",
+      "Ahijado" => "Ahijada",
+      "Abogado" => "Abogada",
+      "Defendido" => "Defendida",
+      "Jefe" => "Jefa",
+      "Colaborador" => "Colaboradora",
+      "Hermano" => "Hermana",
+      "Compañero" => "Compañera",
+      "Amigo" => "Amiga",
+      "Primo" => "Prima",
+      "Conyuge" => "Conyuge",
+      "Pareja" => "Pareja",
+      "Esposo" => "Esposa",
+      "Socio" => "Socia",
+      "Allegado" => "Allegada",
+      "Compadre" => "Comadre",
+      "Cuñado" => "Cuñada",
+      "Suegro" => "Suegra",
+      "Yerno" => "Nuera"
+    }
+  end
+
+  def members_similar?(member1, member2)
+    fn1 = I18n.transliterate(member1.firstname.to_s.downcase)
+    ln1a = I18n.transliterate(member1.lastname1.to_s.downcase)
+    ln1b = I18n.transliterate(member1.lastname2.to_s.downcase)
+
+    fn2 = I18n.transliterate(member2.firstname.to_s.downcase)
+    ln2a = I18n.transliterate(member2.lastname1.to_s.downcase)
+    ln2b = I18n.transliterate(member2.lastname2.to_s.downcase)
+
+    firstname_match = fn1.include?(fn2) || fn2.include?(fn1)
+    lastname1_match = ln1a.include?(ln2a) || ln2a.include?(ln1a)
+    lastname2_match = ln1b.include?(ln2b) || ln2b.include?(ln1b)
+
+    firstname_match && lastname1_match && lastname2_match
+  end
+
+  def search_member_with_fake_identities(firstname, lastname1, lastname2)
+    candidate = OpenStruct.new(firstname: firstname, lastname1: lastname1, lastname2: lastname2)
+
+    # Búsqueda EXACTA
+    Rails.logger.info("[search] ▶ Búsqueda EXACTA: #{firstname} #{lastname1} #{lastname2}")
+    exact_match = Member.find_by(firstname: firstname, lastname1: lastname1, lastname2: lastname2)
+    if exact_match.present?
+      Rails.logger.info("[search] ✓ EXACTO encontrado: #{exact_match.id}")
+      return exact_match
+    end
+    Rails.logger.info("[search] ✗ Exacto no encontrado")
+
+    # Búsqueda FUZZY en Members activos
+    Rails.logger.info("[search] ▶ Búsqueda FUZZY en todos los Members...")
+    fuzzy_match = Member.all.find { |m| members_similar?(m, candidate) }
+    if fuzzy_match.present?
+      Rails.logger.info("[search] ✓ FUZZY encontrado: #{fuzzy_match.id}")
+      return fuzzy_match
+    end
+    Rails.logger.info("[search] ✗ Fuzzy no encontrado")
+
+    # Búsqueda en FAKE IDENTITIES
+    Rails.logger.info("[search] ▶ Búsqueda en FAKE IDENTITIES...")
+    fake_match = nil
+    fake_search_count = 0
+    Member.all.each do |m|
+      next if m.fake_identities.blank?
+      m.fake_identities.each do |fake_id|
+        fake_search_count += 1
+        fake_candidate = OpenStruct.new(
+          firstname: fake_id.firstname,
+          lastname1: fake_id.lastname1,
+          lastname2: fake_id.lastname2
+        )
+        if members_similar?(fake_candidate, candidate)
+          Rails.logger.info("[search] ✓ FAKE IDENTITY encontrada: #{fake_id.firstname} #{fake_id.lastname1} #{fake_id.lastname2} → Member #{m.id}")
+          fake_match = m
+          break
+        end
+      end
+      break if fake_match.present?
+    end
+    if fake_match.nil?
+      Rails.logger.info("[search] ✗ Fake identities no encontradas (#{fake_search_count} revisadas)")
+    end
+
+    fake_match
+  end
+
+  def compute_criminal_role(involved_value, role_name)
+    return nil if role_name.blank?
+
+    Rails.logger.info("[compute_criminal] ▶ Calculando criminal_role")
+    Rails.logger.info("[compute_criminal] │ involved: #{involved_value}")
+    Rails.logger.info("[compute_criminal] │ role_name: #{role_name}")
+
+    lookup_true = {
+      "Líder" => "Líder",
+      "Extorsionador" => "Miembro",
+      "Jefe operativo" => "Miembro",
+      "Sicario" => "Miembro",
+      "Jefe de plaza" => "Miembro",
+      "Operador" => "Miembro",
+      "Jefe de célula" => "Miembro",
+      "Traficante o distribuidor" => "Miembro",
+      "Narcomenudista" => "Miembro",
+      "Jefe de sicarios" => "Miembro",
+      "Jefe regional" => "Miembro",
+      "Abogado" => "Socio",
+      "Manager" => "Socio",
+      "Socio" => "Socio",
+      "Artista" => "Socio",
+      "Dirigente sindical" => "Socio",
+      "Músico" => "Socio",
+      "Alcalde" => "Autoridad vinculada",
+      "Militar" => "Autoridad vinculada",
+      "Coordinador estatal" => "Autoridad vinculada",
+      "Regidor" => "Autoridad vinculada",
+      "Policía" => "Autoridad vinculada",
+      "Delegado estatal" => "Autoridad vinculada",
+      "Gobernador" => "Autoridad vinculada",
+      "Autoridad cooptada" => "Autoridad vinculada",
+      "Secretario de Seguridad" => "Autoridad vinculada",
+      "Sin definir" => nil
+    }
+
+    lookup_false = {
+      "Regidor" => "Autoridad expuesta",
+      "Policía" => "Autoridad expuesta",
+      "Delegado estatal" => "Autoridad expuesta",
+      "Autoridad expuesta" => "Autoridad expuesta",
+      "Gobernador" => "Autoridad expuesta",
+      "Alcalde" => "Autoridad expuesta",
+      "Secretario de Seguridad" => "Autoridad expuesta",
+      "Servicios lícitos" => "Servicios lícitos",
+      "Abogado" => "Servicios lícitos",
+      "Manager" => "Servicios lícitos",
+      "Artista" => "Servicios lícitos",
+      "Dirigente sindical" => "Servicios lícitos",
+      "Músico" => "Servicios lícitos",
+      "Familiar" => "Familiar/allegado",
+      "Sin definir" => nil
+    }
+
+    result = involved_value ? lookup_true[role_name] : lookup_false[role_name]
+    Rails.logger.info("[compute_criminal] ✓ Resultado: #{result || 'nil (Sin definir)'}")
+    result
+  end
+
+  def get_roles
+    roles = Role.all.map { |r| { id: r.id, name: r.name } }
+    render json: { success: true, roles: roles }
+  end
+
   # ═══════════════════════════════════════════════════════════════════════════
   # MEDIA MONITORING - NEW METHODS
   # ═══════════════════════════════════════════════════════════════════════════

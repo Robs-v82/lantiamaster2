@@ -186,11 +186,14 @@ Rails.application.routes.draw do
     post "agent/detentions/extract_batch",    to: "agent#extract_batch",    as: :extract_batch_agent_detentions
     post "agent/detentions/extract_url",      to: "agent#extract_url",      as: :extract_url_agent_detentions
     get  "agent/monthly_captures",            to: "agent#monthly_captures", as: :agent_monthly_captures
+    post "agent/detention_captures/:id/create_hit", to: "agent#create_hit_from_capture", as: :create_hit_from_capture
+    post "agent/detention_captures/:id/create_member", to: "agent#create_member_from_capture", as: :create_member_from_capture
     patch "agent/detention_captures/:id",     to: "agent#update_capture",   as: :update_agent_detention
     delete "agent/detention_captures/:id",    to: "agent#delete_capture",   as: :delete_agent_detention
     get   "agent/get_organizations",          to: "agent#get_organizations", as: :get_organizations
     get   "agent/get_states",                 to: "agent#get_states",        as: :get_states
     get   "agent/get_counties",               to: "agent#get_counties",      as: :get_counties
+    get   "agent/get_roles",                  to: "agent#get_roles",         as: :get_roles
     post  "agent/detentions/log_client_validation", to: "agent#log_client_validation", as: :log_client_validation_agent_detentions
 
     get  "agent/media_monitoring",            to: "agent#media_monitoring", as: :agent_media_monitoring

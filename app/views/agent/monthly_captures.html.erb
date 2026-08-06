@@ -429,6 +429,178 @@
       border-color: #FF4E50 !important;
     }
 
+    /* Member + Hit Creation Button Styles */
+    .btn-icon-enabled {
+      background-color: #f0f0f0;
+      cursor: pointer;
+    }
+
+    .btn-icon-enabled:hover {
+      background-color: #ef4e50;
+    }
+
+    .btn-icon-enabled:hover .material-icons {
+      color: white;
+    }
+
+    .btn-icon-disabled {
+      background-color: #f0f0f0;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .btn-icon-disabled .material-icons {
+      color: #bdbdbd;
+    }
+
+    .btn-icon-disabled:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Snapshot Modal Styles */
+    .snapshot-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .snapshot-modal-overlay.active {
+      display: flex;
+    }
+
+    .snapshot-modal-content {
+      background-color: white;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      overflow-y: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .snapshot-modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .snapshot-modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .snapshot-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      color: #666;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .snapshot-modal-close:hover {
+      color: #333;
+    }
+
+    .snapshot-modal-body {
+      padding: 24px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .snapshot-form-group {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .snapshot-form-group label {
+      font-size: 12px;
+      color: #9e9e9e;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .snapshot-form-group input[type="text"],
+    .snapshot-form-group input[type="file"],
+    .snapshot-form-group textarea {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .snapshot-form-group textarea {
+      resize: vertical;
+    }
+
+    .snapshot-modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+
+    .snapshot-cancel-btn,
+    .snapshot-confirm-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .snapshot-cancel-btn {
+      background-color: #9e9e9e;
+      color: white;
+    }
+
+    .snapshot-cancel-btn:hover {
+      background-color: #757575;
+    }
+
+    .snapshot-confirm-btn {
+      background-color: #ef4e50;
+      color: white;
+    }
+
+    .snapshot-confirm-btn:hover:not(:disabled) {
+      background-color: #d43e40;
+    }
+
+    .snapshot-confirm-btn:disabled {
+      background-color: #bdbdbd;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
   </style>
 
   <script nonce="<%= csp_nonce %>">
@@ -550,9 +722,9 @@
         <thead>
           <tr>
             <th style="width: 4%;">ID</th>
-            <th style="width: 7%;">Fecha</th>
+            <th style="width: 4%;">Día</th>
             <th style="width: 17%;">Lugar</th>
-            <th style="width: 12%;">Org.</th>
+            <th style="width: 16%;">Org.</th>
             <th style="width: 5%;" class="inst-col">Det.</th>
             <th style="width: 12%;">Nombre</th>
             <th class="inst-col" title="SEDENA">SED</th>
@@ -564,17 +736,32 @@
             <th class="inst-col" title="FGE/PGJ">FGE</th>
             <th class="inst-col" title="Policía Municipal">PM</th>
             <th class="inst-col" title="Otra fuerza">Otro</th>
-            <th class="inst-col" style="width: 10%;">Acciones</th>
+            <th class="inst-col" style="width: 18%; text-align: center;">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <% @captures.each do |capture| %>
-          <tr data-capture-id="<%= capture.id %>" class="<%= 'complete-record' if capture.full_code.present? && capture.organization_id.present? && [capture.sedena, capture.semar, capture.gn, capture.sscp, capture.fgr, capture.ssp_estatal, capture.fge_pgj, capture.policia_municipal].any? %>">
+          <tr data-capture-id="<%= capture.id %>"
+              data-nombre="<%= ERB::Util.h(capture.nombre) %>"
+              data-apellido-paterno="<%= ERB::Util.h(capture.apellido_paterno) %>"
+              data-apellido-materno="<%= ERB::Util.h(capture.apellido_materno) %>"
+              data-genero="<%= ERB::Util.h(capture.genero) %>"
+              data-organization-id="<%= capture.organization_id %>"
+              data-organizacion="<%= ERB::Util.h(capture.organization&.name || capture.organizacion) %>"
+              data-municipio="<%= ERB::Util.h(capture.municipio) %>"
+              data-estado="<%= ERB::Util.h(capture.estado) %>"
+              data-source-url="<%= ERB::Util.h(capture.source_url) %>"
+              data-incident-date="<%= capture.incident_date.strftime('%Y-%m-%d') %>"
+              data-full-code="<%= ERB::Util.h(capture.full_code) %>"
+              data-rol="<%= ERB::Util.h(capture.rol) %>"
+              data-alias="<%= ERB::Util.h(capture.alias) %>"
+              data-deleted-at="<%= capture.deleted_at %>"
+              class="<%= 'complete-record' if capture.full_code.present? && capture.organization_id.present? && [capture.sedena, capture.semar, capture.gn, capture.sscp, capture.fgr, capture.ssp_estatal, capture.fge_pgj, capture.policia_municipal].any? %>">
             <td style="width: 4%;">
               <%= capture.id %>
             </td>
-            <td style="width: 7%;">
-              <%= capture.incident_date.strftime('%d/%m/%Y') %>
+            <td style="width: 4%;">
+              <%= capture.incident_date.day %>
             </td>
             <td style="width: 17%;">
               <% county = County.find_by(full_code: capture.full_code) %>
@@ -589,9 +776,9 @@
                 <%= capture.estado %>
               <% end %>
             </td>
-            <td style="width: 12%;">
+            <td style="width: 16%; font-size: 13px;">
               <% if capture.organization_id.present? && capture.organization.present? %>
-                <small><%= capture.organization.name %></small>
+                <%= capture.organization.name %>
               <% end %>
             </td>
             <td style="width: 5%; text-align: center;">
@@ -629,7 +816,10 @@
             <td class="inst-col" style="text-align: center;">
               <%= inst_icon.call(capture.otro).html_safe %>
             </td>
-            <td class="inst-col" style="width: 10%; text-align: center;">
+            <td class="inst-col" style="width: 18%; text-align: center; white-space: nowrap;">
+              <button class="btn-icon member-hit-btn" data-id="<%= capture.id %>" title="Crear Member y Hit">
+                <span class="material-icons">person_add</span>
+              </button>
               <button class="btn-icon edit-btn" data-id="<%= capture.id %>" title="Editar registro">
                 <span class="material-icons">edit</span>
               </button>
@@ -641,193 +831,6 @@
               </button>
             </td>
           </tr>
-
-        <!-- Modal for edit form -->
-        <div class="modal-overlay" id="editModal_<%= capture.id %>">
-      <div class="modal-content">
-        <button class="modal-close" title="Cerrar">×</button>
-        <div class="edit-form">
-                    <form id="editForm_<%= capture.id %>" class="capture-edit-form" data-capture-id="<%= capture.id %>">
-                      <input type="hidden" name="capture_id" value="<%= capture.id %>">
-                      <input type="hidden" id="full_code_<%= capture.id %>" name="detention_capture[full_code]" value="<%= capture.full_code %>" data-capture-id="<%= capture.id %>">
-
-                      <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
-                        <div class="col m2 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FECHA DEL INCIDENTE</div>
-                          <input type="date" id="incident_date_<%= capture.id %>" name="detention_capture[incident_date]" value="<%= capture.incident_date.strftime('%Y-%m-%d') %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                        </div>
-
-                        <div class="col m2 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ESTADO</div>
-                          <select id="estado_<%= capture.id %>" name="detention_capture[estado_display]" class="estado-select" data-current-value="<%= capture.estado %>" data-state-codes="{}">
-                            <option value="">Seleccionar estado</option>
-                          </select>
-                        </div>
-
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">MUNICIPIO</div>
-                          <select id="municipio_<%= capture.id %>" class="municipio-select" data-current-value="<%= capture.municipio %>" data-current-fullcode="<%= capture.full_code %>" data-current-estado="<%= capture.estado %>" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar municipio</option>
-                          </select>
-                        </div>
-
-                        <div class="col m1 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">DETENIDOS</div>
-                          <input type="number" id="detenidos_<%= capture.id %>" name="detention_capture[detenidos]" min="1" value="<%= capture.detenidos %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                        </div>
-
-                        <div class="col m4 s12 input-field" style="margin-bottom: 0; position: relative; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ORGANIZACIÓN</div>
-                          <input type="text" id="organizacion_<%= capture.id %>" name="detention_capture[organizacion]" class="organizacion-autocomplete" value="<%= capture.organization&.name %>" placeholder="Buscar organización..." data-current-org-name="<%= capture.organization&.name %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                          <input type="hidden" name="detention_capture[organization_id]" data-capture-id="<%= capture.id %>" value="<%= capture.organization_id %>">
-                          <ul class="organizacion-autocomplete-list" id="autocomplete_<%= capture.id %>" style="position: absolute; top: 100%; left: 0; right: 0; list-style: none; margin: 0; padding: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-sizing: border-box;"></ul>
-                        </div>
-                      </div>
-
-                      <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">NOMBRE</div>
-                          <input type="text" id="nombre_<%= capture.id %>" name="detention_capture[nombre]" value="<%= capture.nombre %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                        </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">APELLIDO PATERNO</div>
-                          <input type="text" id="apellido_paterno_<%= capture.id %>" name="detention_capture[apellido_paterno]" value="<%= capture.apellido_paterno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                        </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">APELLIDO MATERNO</div>
-                          <input type="text" id="apellido_materno_<%= capture.id %>" name="detention_capture[apellido_materno]" value="<%= capture.apellido_materno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                        </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ALIAS</div>
-                          <input type="text" id="alias_<%= capture.id %>" name="detention_capture[alias]" value="<%= capture.alias %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                        </div>
-                      </div>
-
-                      <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">EDAD</div>
-                          <input type="number" id="edad_<%= capture.id %>" name="detention_capture[edad]" value="<%= capture.edad %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
-                        </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">GÉNERO</div>
-                          <select id="genero_<%= capture.id %>" class="select-with-hidden" data-hidden-field="genero" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="M" <%= 'selected' if capture.genero == 'M' %>>Masculino</option>
-                            <option value="F" <%= 'selected' if capture.genero == 'F' %>>Femenino</option>
-                            <option value="X" <%= 'selected' if capture.genero == 'X' %>>Otro</option>
-                          </select>
-                          <input type="hidden" id="genero_value_<%= capture.id %>" name="detention_capture[genero]" value="<%= capture.genero %>">
-                        </div>
-                        <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ROL</div>
-                          <select id="rol_<%= capture.id %>" class="select-with-hidden" data-hidden-field="rol" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar rol</option>
-                            <option value="Extorsionador" <%= 'selected' if capture.rol == 'Extorsionador' %>>Extorsionador</option>
-                            <option value="Sicario" <%= 'selected' if capture.rol == 'Sicario' %>>Sicario</option>
-                            <option value="Líder" <%= 'selected' if capture.rol == 'Líder' %>>Líder</option>
-                            <option value="Autoridad cooptada" <%= 'selected' if capture.rol == 'Autoridad cooptada' %>>Autoridad cooptada</option>
-                            <option value="Jefe de célula" <%= 'selected' if capture.rol == 'Jefe de célula' %>>Jefe de célula</option>
-                            <option value="Jefe de plaza" <%= 'selected' if capture.rol == 'Jefe de plaza' %>>Jefe de plaza</option>
-                            <option value="Jefe de sicarios" <%= 'selected' if capture.rol == 'Jefe de sicarios' %>>Jefe de sicarios</option>
-                            <option value="Jefe operativo" <%= 'selected' if capture.rol == 'Jefe operativo' %>>Jefe operativo</option>
-                            <option value="Jefe regional" <%= 'selected' if capture.rol == 'Jefe regional' %>>Jefe regional</option>
-                            <option value="Narcomenudista" <%= 'selected' if capture.rol == 'Narcomenudista' %>>Narcomenudista</option>
-                            <option value="Traficante o distribuidor" <%= 'selected' if capture.rol == 'Traficante o distribuidor' %>>Traficante o distribuidor</option>
-                            <option value="Otro" <%= 'selected' if capture.rol == 'Otro' %>>Otro</option>
-                          </select>
-                          <input type="hidden" id="rol_value_<%= capture.id %>" name="detention_capture[rol]" value="<%= capture.rol %>">
-                        </div>
-                      </div>
-
-                      <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SEDENA</div>
-                          <select id="sedena_<%= capture.id %>" class="boolean-select" data-boolean-field="sedena" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.sedena == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.sedena == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="sedena_value_<%= capture.id %>" name="detention_capture[sedena]" value="<%= capture.sedena %>">
-                        </div>
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SEMAR</div>
-                          <select id="semar_<%= capture.id %>" class="boolean-select" data-boolean-field="semar" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.semar == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.semar == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="semar_value_<%= capture.id %>" name="detention_capture[semar]" value="<%= capture.semar %>">
-                        </div>
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">GN</div>
-                          <select id="gn_<%= capture.id %>" class="boolean-select" data-boolean-field="gn" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.gn == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.gn == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="gn_value_<%= capture.id %>" name="detention_capture[gn]" value="<%= capture.gn %>">
-                        </div>
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SSCP</div>
-                          <select id="sscp_<%= capture.id %>" class="boolean-select" data-boolean-field="sscp" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.sscp == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.sscp == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="sscp_value_<%= capture.id %>" name="detention_capture[sscp]" value="<%= capture.sscp %>">
-                        </div>
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FGR</div>
-                          <select id="fgr_<%= capture.id %>" class="boolean-select" data-boolean-field="fgr" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.fgr == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.fgr == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="fgr_value_<%= capture.id %>" name="detention_capture[fgr]" value="<%= capture.fgr %>">
-                        </div>
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SSP ESTATAL</div>
-                          <select id="ssp_estatal_<%= capture.id %>" class="boolean-select" data-boolean-field="ssp_estatal" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.ssp_estatal == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.ssp_estatal == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="ssp_estatal_value_<%= capture.id %>" name="detention_capture[ssp_estatal]" value="<%= capture.ssp_estatal %>">
-                        </div>
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FGE/PGJ</div>
-                          <select id="fge_pgj_<%= capture.id %>" class="boolean-select" data-boolean-field="fge_pgj" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.fge_pgj == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.fge_pgj == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="fge_pgj_value_<%= capture.id %>" name="detention_capture[fge_pgj]" value="<%= capture.fge_pgj %>">
-                        </div>
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">P. MUNICIP.</div>
-                          <select id="policia_municipal_<%= capture.id %>" class="boolean-select" data-boolean-field="policia_municipal" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.policia_municipal == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.policia_municipal == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="policia_municipal_value_<%= capture.id %>" name="detention_capture[policia_municipal]" value="<%= capture.policia_municipal %>">
-                        </div>
-                        <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
-                          <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">OTRO</div>
-                          <select id="otro_<%= capture.id %>" class="boolean-select" data-boolean-field="otro" data-capture-id="<%= capture.id %>">
-                            <option value="">Seleccionar</option>
-                            <option value="true" <%= 'selected' if capture.otro == true %>>Verdadero</option>
-                            <option value="false" <%= 'selected' if capture.otro == false %>>Falso</option>
-                          </select>
-                          <input type="hidden" id="otro_value_<%= capture.id %>" name="detention_capture[otro]" value="<%= capture.otro %>">
-                        </div>
-                        <div class="col m1 offset-m2" style="margin-bottom: 0; display: flex; align-items: center;">
-                          <button type="button" class="btn btn-primary save-btn" data-capture-id="<%= capture.id %>" style="width: 100%; margin: 0; display: flex; align-items: center; justify-content: center; height: 55px; margin-top: 20px !important;">Guardar</button>
-                        </div>
-                      </div>
-        </form>
-      </div>
-    </div>
     <% end %>
         </tbody>
       </table>
@@ -835,9 +838,250 @@
   </div>
 </div>
 
+<!-- Modals Container - Outside Table, Each Capture Has Its Own Modals -->
+<% @captures.each do |capture| %>
+  <!-- Modal for edit form -->
+  <div class="modal-overlay" id="editModal_<%= capture.id %>">
+    <div class="modal-content">
+      <button class="modal-close" title="Cerrar">×</button>
+      <div class="edit-form">
+        <form id="editForm_<%= capture.id %>" class="capture-edit-form" data-capture-id="<%= capture.id %>">
+          <input type="hidden" name="capture_id" value="<%= capture.id %>">
+          <input type="hidden" id="full_code_<%= capture.id %>" name="detention_capture[full_code]" value="<%= capture.full_code %>" data-capture-id="<%= capture.id %>">
+
+          <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
+            <div class="col m2 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FECHA DEL INCIDENTE</div>
+              <input type="date" id="incident_date_<%= capture.id %>" name="detention_capture[incident_date]" value="<%= capture.incident_date.strftime('%Y-%m-%d') %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+            </div>
+
+            <div class="col m2 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ESTADO</div>
+              <select id="estado_<%= capture.id %>" name="detention_capture[estado_display]" class="estado-select" data-current-value="<%= capture.estado %>" data-state-codes="{}">
+                <option value="">Seleccionar estado</option>
+              </select>
+            </div>
+
+            <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">MUNICIPIO</div>
+              <select id="municipio_<%= capture.id %>" class="municipio-select" data-current-value="<%= capture.municipio %>" data-current-fullcode="<%= capture.full_code %>" data-current-estado="<%= capture.estado %>" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar municipio</option>
+              </select>
+            </div>
+
+            <div class="col m1 s6 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">DETENIDOS</div>
+              <input type="number" id="detenidos_<%= capture.id %>" name="detention_capture[detenidos]" min="1" value="<%= capture.detenidos %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+            </div>
+
+            <div class="col m4 s12 input-field" style="margin-bottom: 0; position: relative; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ORGANIZACIÓN</div>
+              <input type="text" id="organizacion_<%= capture.id %>" name="detention_capture[organizacion]" class="organizacion-autocomplete" value="<%= capture.organization&.name %>" placeholder="Buscar organización..." data-current-org-name="<%= capture.organization&.name %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+              <input type="hidden" name="detention_capture[organization_id]" data-capture-id="<%= capture.id %>" value="<%= capture.organization_id %>">
+              <ul class="organizacion-autocomplete-list" id="autocomplete_<%= capture.id %>" style="position: absolute; top: 100%; left: 0; right: 0; list-style: none; margin: 0; padding: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-sizing: border-box;"></ul>
+            </div>
+          </div>
+
+          <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
+            <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">NOMBRE</div>
+              <input type="text" id="nombre_<%= capture.id %>" name="detention_capture[nombre]" value="<%= capture.nombre %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+            </div>
+            <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">APELLIDO PATERNO</div>
+              <input type="text" id="apellido_paterno_<%= capture.id %>" name="detention_capture[apellido_paterno]" value="<%= capture.apellido_paterno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+            </div>
+            <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">APELLIDO MATERNO</div>
+              <input type="text" id="apellido_materno_<%= capture.id %>" name="detention_capture[apellido_materno]" value="<%= capture.apellido_materno %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+            </div>
+            <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ALIAS</div>
+              <input type="text" id="alias_<%= capture.id %>" name="detention_capture[alias]" value="<%= capture.alias %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+            </div>
+          </div>
+
+          <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
+            <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">EDAD</div>
+              <input type="number" id="edad_<%= capture.id %>" name="detention_capture[edad]" value="<%= capture.edad %>" style="width: 100%; padding: 8px 10px; height: 55px !important; font-size: 14px; border: 2px solid #333; border-radius: 0; box-sizing: border-box;">
+            </div>
+            <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">GÉNERO</div>
+              <select id="genero_<%= capture.id %>" class="select-with-hidden" data-hidden-field="genero" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="M" <%= 'selected' if capture.genero == 'M' %>>Masculino</option>
+                <option value="F" <%= 'selected' if capture.genero == 'F' %>>Femenino</option>
+                <option value="X" <%= 'selected' if capture.genero == 'X' %>>Otro</option>
+              </select>
+              <input type="hidden" id="genero_value_<%= capture.id %>" name="detention_capture[genero]" value="<%= capture.genero %>">
+            </div>
+            <div class="col m3 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">ROL</div>
+              <select id="rol_<%= capture.id %>" class="select-with-hidden" data-hidden-field="rol" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar rol</option>
+                <option value="Extorsionador" <%= 'selected' if capture.rol == 'Extorsionador' %>>Extorsionador</option>
+                <option value="Sicario" <%= 'selected' if capture.rol == 'Sicario' %>>Sicario</option>
+                <option value="Líder" <%= 'selected' if capture.rol == 'Líder' %>>Líder</option>
+                <option value="Autoridad cooptada" <%= 'selected' if capture.rol == 'Autoridad cooptada' %>>Autoridad cooptada</option>
+                <option value="Jefe de célula" <%= 'selected' if capture.rol == 'Jefe de célula' %>>Jefe de célula</option>
+                <option value="Jefe de plaza" <%= 'selected' if capture.rol == 'Jefe de plaza' %>>Jefe de plaza</option>
+                <option value="Jefe de sicarios" <%= 'selected' if capture.rol == 'Jefe de sicarios' %>>Jefe de sicarios</option>
+                <option value="Jefe operativo" <%= 'selected' if capture.rol == 'Jefe operativo' %>>Jefe operativo</option>
+                <option value="Jefe regional" <%= 'selected' if capture.rol == 'Jefe regional' %>>Jefe regional</option>
+                <option value="Narcomenudista" <%= 'selected' if capture.rol == 'Narcomenudista' %>>Narcomenudista</option>
+                <option value="Traficante o distribuidor" <%= 'selected' if capture.rol == 'Traficante o distribuidor' %>>Traficante o distribuidor</option>
+                <option value="Otro" <%= 'selected' if capture.rol == 'Otro' %>>Otro</option>
+              </select>
+              <input type="hidden" id="rol_value_<%= capture.id %>" name="detention_capture[rol]" value="<%= capture.rol %>">
+            </div>
+          </div>
+
+          <div class="row" style="margin-bottom: 12px; min-height: 120px !important; max-height: 120px !important;">
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SEDENA</div>
+              <select id="sedena_<%= capture.id %>" class="boolean-select" data-boolean-field="sedena" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.sedena == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.sedena == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="sedena_value_<%= capture.id %>" name="detention_capture[sedena]" value="<%= capture.sedena %>">
+            </div>
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SEMAR</div>
+              <select id="semar_<%= capture.id %>" class="boolean-select" data-boolean-field="semar" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.semar == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.semar == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="semar_value_<%= capture.id %>" name="detention_capture[semar]" value="<%= capture.semar %>">
+            </div>
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">GN</div>
+              <select id="gn_<%= capture.id %>" class="boolean-select" data-boolean-field="gn" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.gn == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.gn == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="gn_value_<%= capture.id %>" name="detention_capture[gn]" value="<%= capture.gn %>">
+            </div>
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SSCP</div>
+              <select id="sscp_<%= capture.id %>" class="boolean-select" data-boolean-field="sscp" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.sscp == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.sscp == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="sscp_value_<%= capture.id %>" name="detention_capture[sscp]" value="<%= capture.sscp %>">
+            </div>
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FGR</div>
+              <select id="fgr_<%= capture.id %>" class="boolean-select" data-boolean-field="fgr" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.fgr == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.fgr == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="fgr_value_<%= capture.id %>" name="detention_capture[fgr]" value="<%= capture.fgr %>">
+            </div>
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">SSP ESTATAL</div>
+              <select id="ssp_estatal_<%= capture.id %>" class="boolean-select" data-boolean-field="ssp_estatal" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.ssp_estatal == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.ssp_estatal == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="ssp_estatal_value_<%= capture.id %>" name="detention_capture[ssp_estatal]" value="<%= capture.ssp_estatal %>">
+            </div>
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">FGE/PGJ</div>
+              <select id="fge_pgj_<%= capture.id %>" class="boolean-select" data-boolean-field="fge_pgj" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.fge_pgj == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.fge_pgj == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="fge_pgj_value_<%= capture.id %>" name="detention_capture[fge_pgj]" value="<%= capture.fge_pgj %>">
+            </div>
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">P. MUNICIP.</div>
+              <select id="policia_municipal_<%= capture.id %>" class="boolean-select" data-boolean-field="policia_municipal" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.policia_municipal == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.policia_municipal == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="policia_municipal_value_<%= capture.id %>" name="detention_capture[policia_municipal]" value="<%= capture.policia_municipal %>">
+            </div>
+            <div class="col m1 s12 input-field" style="margin-bottom: 0; padding-top: 0 !important;">
+              <div style="font-size: 12px; color: #9e9e9e; display: block; margin-bottom: 0; margin-left: 4px; height: 18px; overflow: hidden;">OTRO</div>
+              <select id="otro_<%= capture.id %>" class="boolean-select" data-boolean-field="otro" data-capture-id="<%= capture.id %>">
+                <option value="">Seleccionar</option>
+                <option value="true" <%= 'selected' if capture.otro == true %>>Verdadero</option>
+                <option value="false" <%= 'selected' if capture.otro == false %>>Falso</option>
+              </select>
+              <input type="hidden" id="otro_value_<%= capture.id %>" name="detention_capture[otro]" value="<%= capture.otro %>">
+            </div>
+            <div class="col m1 offset-m2" style="margin-bottom: 0; display: flex; align-items: center;">
+              <button type="button" class="btn btn-primary save-btn" data-capture-id="<%= capture.id %>" style="width: 100%; margin: 0; display: flex; align-items: center; justify-content: center; height: 55px; margin-top: 20px !important;">Guardar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Hit creation from DetentionCapture -->
+  <div class="snapshot-modal-overlay" id="snapshotModal_<%= capture.id %>">
+    <div class="snapshot-modal-content">
+      <div class="snapshot-modal-header">
+        <h3 class="snapshot-modal-title">Crear Hit - Fase 1: Información de la Noticia</h3>
+        <button class="snapshot-modal-close" title="Cerrar">×</button>
+      </div>
+      <div class="snapshot-modal-body">
+        <form id="snapshotForm_<%= capture.id %>" class="snapshot-form" data-capture-id="<%= capture.id %>">
+          <div class="snapshot-form-group">
+            <label>Fecha del Incidente</label>
+            <input type="text" readonly value="<%= capture.incident_date.strftime('%d/%m/%Y') %>" style="background-color: #f5f5f5; cursor: not-allowed;">
+          </div>
+
+          <div class="snapshot-form-group">
+            <label>Ubicación (Municipio/Estado)</label>
+            <input type="text" readonly value="<%= "#{capture.municipio}, #{capture.estado}" %>" style="background-color: #f5f5f5; cursor: not-allowed;">
+            <input type="hidden" id="snapshotFullCode_<%= capture.id %>" value="<%= ERB::Util.h(capture.full_code) %>">
+          </div>
+
+          <div class="snapshot-form-group">
+            <label>Título del Hit (auto-generado)</label>
+            <input type="text" id="snapshotTitle_<%= capture.id %>" readonly value="<%= "#{capture.organization&.name || capture.organizacion} en #{capture.municipio}, #{capture.estado}" %>" style="background-color: #f5f5f5; cursor: not-allowed;">
+          </div>
+
+          <div class="snapshot-form-group">
+            <label>URL de la Noticia</label>
+            <input type="text" readonly value="<%= ERB::Util.h(capture.source_url) %>" style="background-color: #f5f5f5; cursor: not-allowed; word-break: break-all;">
+            <input type="hidden" id="snapshotLink_<%= capture.id %>" value="<%= ERB::Util.h(capture.source_url) %>">
+          </div>
+
+          <div class="snapshot-form-group">
+            <label>Archivo o Captura de Pantalla (Opcional)</label>
+            <input type="file" id="snapshotFile_<%= capture.id %>" accept="image/*,.pdf">
+          </div>
+
+          <div class="snapshot-form-group">
+            <label>Notas Adicionales (Opcional)</label>
+            <textarea id="snapshotNotes_<%= capture.id %>" placeholder="Agrega notas sobre la noticia o captura..." style="min-height: 80px;"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="snapshot-modal-footer">
+        <button class="snapshot-cancel-btn" data-capture-id="<%= capture.id %>">Cancelar</button>
+        <button class="snapshot-create-hit-btn" data-capture-id="<%= capture.id %>">Crear Hit</button>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <script nonce="<%= csp_nonce %>">
   window.monthlyClapturesPath = '<%= agent_monthly_captures_path %>';
 </script>
 
 <script src="<%= asset_path('monthly_captures.js') %>" nonce="<%= csp_nonce %>"></script>
+<script src="<%= asset_path('member_hit_creation.js') %>" nonce="<%= csp_nonce %>"></script>
 
