@@ -418,7 +418,8 @@
         console.log('[MemberHitBtn] ✓ Member creado/actualizado: ID=' + data.member_id);
         alert('✓ Member ' + (data.member_existed ? 'actualizado' : 'creado') + ' exitosamente');
         closeSnapshotModal(captureId);
-        // Note: no reload - user can continue with other captures
+        console.log('[MemberHitBtn] Recargando página para mostrar cambios...');
+        window.location.reload();
       } else {
         console.error('[MemberHitBtn] ❌ Error:', data.errors || data.message);
         alert('❌ Error al crear Member:\n' + (data.errors ? (Array.isArray(data.errors) ? data.errors.join('\n') : data.errors) : data.message || 'Error desconocido'));

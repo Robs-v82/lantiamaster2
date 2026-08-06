@@ -1301,11 +1301,12 @@ class AgentController < ApplicationController
         Rails.logger.info("[create_member] │ ✓ Hit #{hit.id} asociado al Member")
       end
 
-      # Crear Note de auditoría
-      create_member_audit_note(existing_member, "Hit agregado desde DetentionCapture")
-
       Rails.logger.info("[create_member] └─ ✅ ÉXITO: Member existente actualizado")
       Rails.logger.info("")
+
+      # Marcar DetentionCapture como member_added
+      @capture.update(member_added: true)
+      Rails.logger.info("[create_member] ✓ DetentionCapture ID #{@capture.id} marcada como member_added = true")
 
       render json: {
         success: true,
@@ -1340,6 +1341,14 @@ class AgentController < ApplicationController
       criminal_link_id_value = org&.criminal_link_id
       Rails.logger.info("[create_member] │ ✓ criminal_link_id heredado de org: #{criminal_link_id_value || 'NINGUNO'}")
 
+      # Procesar alias (guardar como Array en campo alias del Member)
+      alias_array = if alias_raw.present?
+                      alias_raw.split(';').map(&:strip).reject(&:empty?)
+                    else
+                      []
+                    end
+      Rails.logger.info("[create_member] │ ✓ Alias procesados: #{alias_array.present? ? alias_array.join(', ') : 'ninguno'}")
+
       # Crear Member
       Rails.logger.info("[create_member] ├─ Creando record de Member en BD...")
       new_member = Member.new(
@@ -1351,17 +1360,9 @@ class AgentController < ApplicationController
         gender: gender_value,
         involved: involved_value,
         criminal_role: criminal_role_value,
-        criminal_link_id: criminal_link_id_value
+        criminal_link_id: criminal_link_id_value,
+        alias: alias_array
       )
-
-      # Agregar alias
-      if alias_raw.present?
-        alias_array = alias_raw.split(';').map(&:strip).reject(&:empty?)
-        new_member.alias_raw = alias_array.join(';')
-        Rails.logger.info("[create_member] │ ✓ Alias agregados: #{alias_array.join(', ')}")
-      else
-        Rails.logger.info("[create_member] │ ℹ️ Sin alias")
-      end
 
       if new_member.save
         Rails.logger.info("[create_member] │ ✓ Member guardado en BD (ID: #{new_member.id})")
@@ -1372,9 +1373,6 @@ class AgentController < ApplicationController
 
         # Aplicar rol en femenino si corresponde
         apply_feminine_role_if_needed(new_member)
-
-        # Crear Note de auditoría
-        create_member_audit_note(new_member, "Creado vía DetentionCapture")
 
         Rails.logger.info("[create_member] ├─ RESUMEN DE CREACIÓN:")
         Rails.logger.info("[create_member] │ ID: #{new_member.id}")
@@ -1387,6 +1385,10 @@ class AgentController < ApplicationController
         Rails.logger.info("[create_member] │ Criminal Link: #{new_member.criminal_link&.name}")
         Rails.logger.info("[create_member] └─ ✅ ÉXITO: Member creado exitosamente")
         Rails.logger.info("")
+
+        # Marcar DetentionCapture como member_added
+        @capture.update(member_added: true)
+        Rails.logger.info("[create_member] ✓ DetentionCapture ID #{@capture.id} marcada como member_added = true")
 
         render json: {
           success: true,
@@ -1402,19 +1404,6 @@ class AgentController < ApplicationController
         render json: { success: false, errors: new_member.errors.full_messages }
       end
     end
-  end
-
-  def create_member_audit_note(member, action)
-    user = current_user_safe rescue nil
-    user_name = user&.mail || "Sistema"
-
-    note = Note.create(
-      member_id: member.id,
-      story: "#{action} por #{user_name} el #{Time.current.strftime('%d/%m/%Y %H:%M')}"
-    )
-    Rails.logger.info("[audit] ✓ Note creada (ID: #{note.id}): #{action}")
-  rescue => e
-    Rails.logger.warn("[audit] ⚠️ Error al crear Note: #{e.message}")
   end
 
   def apply_feminine_role_if_needed(member)
@@ -1540,7 +1529,7 @@ class AgentController < ApplicationController
   def search_member_with_fake_identities(firstname, lastname1, lastname2)
     candidate = OpenStruct.new(firstname: firstname, lastname1: lastname1, lastname2: lastname2)
 
-    # Búsqueda EXACTA
+    # Búsqueda EXACTA: nombre principal exacto
     Rails.logger.info("[search] ▶ Búsqueda EXACTA: #{firstname} #{lastname1} #{lastname2}")
     exact_match = Member.find_by(firstname: firstname, lastname1: lastname1, lastname2: lastname2)
     if exact_match.present?
@@ -1549,36 +1538,42 @@ class AgentController < ApplicationController
     end
     Rails.logger.info("[search] ✗ Exacto no encontrado")
 
-    # Búsqueda FUZZY en Members activos
-    Rails.logger.info("[search] ▶ Búsqueda FUZZY en todos los Members...")
-    fuzzy_match = Member.all.find { |m| members_similar?(m, candidate) }
+    # Búsqueda FUZZY: en nombres principales (con filtro de nombres completos)
+    Rails.logger.info("[search] ▶ Búsqueda FUZZY en Members con nombres completos...")
+    fuzzy_match = Member.where.not(firstname: [nil, ''])
+                        .where.not(lastname1: [nil, ''])
+                        .where.not(lastname2: [nil, ''])
+                        .find do |m|
+                          members_similar?(m, candidate)
+                        end
     if fuzzy_match.present?
       Rails.logger.info("[search] ✓ FUZZY encontrado: #{fuzzy_match.id}")
       return fuzzy_match
     end
     Rails.logger.info("[search] ✗ Fuzzy no encontrado")
 
-    # Búsqueda en FAKE IDENTITIES
-    Rails.logger.info("[search] ▶ Búsqueda en FAKE IDENTITIES...")
+    # Búsqueda en FAKE IDENTITIES: valida contra identidades falsas existentes
+    Rails.logger.info("[search] ▶ Búsqueda en FAKE IDENTITIES con nombres completos...")
     fake_match = nil
     fake_search_count = 0
-    Member.all.each do |m|
-      next if m.fake_identities.blank?
-      m.fake_identities.each do |fake_id|
-        fake_search_count += 1
-        fake_candidate = OpenStruct.new(
-          firstname: fake_id.firstname,
-          lastname1: fake_id.lastname1,
-          lastname2: fake_id.lastname2
-        )
-        if members_similar?(fake_candidate, candidate)
-          Rails.logger.info("[search] ✓ FAKE IDENTITY encontrada: #{fake_id.firstname} #{fake_id.lastname1} #{fake_id.lastname2} → Member #{m.id}")
-          fake_match = m
-          break
-        end
+
+    FakeIdentity.where.not(firstname: [nil, ''])
+                .where.not(lastname1: [nil, ''])
+                .where.not(lastname2: [nil, ''])
+                .each do |fake_id|
+      fake_search_count += 1
+      fake_candidate = OpenStruct.new(
+        firstname: fake_id.firstname,
+        lastname1: fake_id.lastname1,
+        lastname2: fake_id.lastname2
+      )
+      if members_similar?(fake_candidate, candidate)
+        Rails.logger.info("[search] ✓ FAKE IDENTITY encontrada: #{fake_id.firstname} #{fake_id.lastname1} #{fake_id.lastname2} → Member #{fake_id.member_id}")
+        fake_match = fake_id.member
+        break
       end
-      break if fake_match.present?
     end
+
     if fake_match.nil?
       Rails.logger.info("[search] ✗ Fake identities no encontradas (#{fake_search_count} revisadas)")
     end

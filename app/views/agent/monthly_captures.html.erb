@@ -817,9 +817,13 @@
               <%= inst_icon.call(capture.otro).html_safe %>
             </td>
             <td class="inst-col" style="width: 18%; text-align: center; white-space: nowrap;">
-              <button class="btn-icon member-hit-btn" data-id="<%= capture.id %>" title="Crear Member y Hit">
-                <span class="material-icons">person_add</span>
-              </button>
+              <% if capture.member_added %>
+                <span class="material-icons" style="color: #ef4e50; font-size: 18px; cursor: default;" title="Member agregado">check_circle</span>
+              <% else %>
+                <button class="btn-icon member-hit-btn" data-id="<%= capture.id %>" title="Crear Member y Hit">
+                  <span class="material-icons">person_add</span>
+                </button>
+              <% end %>
               <button class="btn-icon edit-btn" data-id="<%= capture.id %>" title="Editar registro">
                 <span class="material-icons">edit</span>
               </button>
@@ -1044,13 +1048,13 @@
 
           <div class="snapshot-form-group">
             <label>Ubicación (Municipio/Estado)</label>
-            <input type="text" readonly value="<%= "#{capture.municipio}, #{capture.estado}" %>" style="background-color: #f5f5f5; cursor: not-allowed;">
+            <input type="text" readonly value="<%= ERB::Util.h("#{capture.municipio}, #{capture.estado}") %>" style="background-color: #f5f5f5; cursor: not-allowed;">
             <input type="hidden" id="snapshotFullCode_<%= capture.id %>" value="<%= ERB::Util.h(capture.full_code) %>">
           </div>
 
           <div class="snapshot-form-group">
             <label>Título del Hit (auto-generado)</label>
-            <input type="text" id="snapshotTitle_<%= capture.id %>" readonly value="<%= "#{capture.organization&.name || capture.organizacion} en #{capture.municipio}, #{capture.estado}" %>" style="background-color: #f5f5f5; cursor: not-allowed;">
+            <input type="text" id="snapshotTitle_<%= capture.id %>" readonly value="<%= ERB::Util.h("#{capture.organization&.name || capture.organizacion} en #{capture.municipio}, #{capture.estado}") %>" style="background-color: #f5f5f5; cursor: not-allowed;">
           </div>
 
           <div class="snapshot-form-group">
