@@ -198,6 +198,20 @@ class VictimsController < ApplicationController
 			@maps = true
 		end
 
+		if @my_freq_table[0] && @my_freq_table[0][:period]
+			period_sort_order = @my_freq_table[0][:period].map.with_index { |month, idx| [month.name, idx] }
+																				.sort_by { |name, idx| name }
+																				.map { |name, idx| idx }
+			sorted_periods = period_sort_order.map { |idx| @my_freq_table[0][:period][idx] }
+			@my_freq_table[0][:period] = sorted_periods
+			@my_freq_table[1..-1].each do |row|
+				if row[:freq]
+					sorted_freq = period_sort_order.map { |idx| row[:freq][idx] }
+					row[:freq] = sorted_freq
+				end
+			end
+		end
+
 		if session[:membership] < 2
 			@my_freq_table.insert(-2, Cookie.where(:category=>"victims").last.data[0][@paramsCookie[0]][@paramsCookie[1]][@paramsCookie[2]][-2])
 		end
@@ -308,6 +322,21 @@ class VictimsController < ApplicationController
 		}
 		totalHash[:total_total] = total_total
 		newTable.push(totalHash)
+
+		if newTable[0] && newTable[0][:period]
+			period_sort_order = newTable[0][:period].map.with_index { |month, idx| [month.name, idx] }
+																			  .sort_by { |name, idx| name }
+																			  .map { |name, idx| idx }
+			sorted_periods = period_sort_order.map { |idx| newTable[0][:period][idx] }
+			newTable[0][:period] = sorted_periods
+			newTable[1..-1].each do |row|
+				if row[:freq]
+					sorted_freq = period_sort_order.map { |idx| row[:freq][idx] }
+					row[:freq] = sorted_freq
+				end
+			end
+		end
+
 		return newTable
 	end
 
