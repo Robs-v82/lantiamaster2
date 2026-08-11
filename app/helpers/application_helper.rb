@@ -76,7 +76,7 @@ module ApplicationHelper
 		myMonths = []
 		years.each{|thisYear|
 			year = Year.find(thisYear["id"])
-			year.months.sort.each {|month|
+			year.months.sort_by { |month| month.name }.each {|month|
 			if  unit == "victims"
 				unless month.victims.empty?
 					myMonths.push(month)
@@ -88,7 +88,7 @@ module ApplicationHelper
 			end
 			}
 		}
-		return myMonths	
+		return myMonths
 	end
 
 	def get_regular_months

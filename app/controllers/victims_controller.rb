@@ -600,7 +600,7 @@ class VictimsController < ApplicationController
 	def load_victims
 		myFile = load_victims_params[:file]
 		if load_victims_params[:month].empty?
-			months = Year.where(:name=>load_victims_params[:year]).last.months.sort
+			months = Year.where(:name=>load_victims_params[:year]).last.months.sort_by { |month| month.name }
 			validDate = load_victims_params[:year]
 		else
 			myString = load_victims_params[:year] + "_" + load_victims_params[:month] 
