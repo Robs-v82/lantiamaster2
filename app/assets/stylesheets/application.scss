@@ -25,6 +25,41 @@ background-color: white;
   z-index: 1000;
 }
 
+.page-footer .row {
+  margin-bottom: 0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.page-footer .b-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.page-footer a {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.footer-copyright {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 !important;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.footer-copyright .b-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
 #state_filter_box a.disabled {
 	visibility: hidden;
 }
