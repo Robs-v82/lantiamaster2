@@ -186,6 +186,7 @@ Rails.application.routes.draw do
     post "agent/detentions/extract_batch",    to: "agent#extract_batch",    as: :extract_batch_agent_detentions
     post "agent/detentions/extract_url",      to: "agent#extract_url",      as: :extract_url_agent_detentions
     get  "agent/monthly_captures",            to: "agent#monthly_captures", as: :agent_monthly_captures
+    get  "agent/monthly_captures/export",     to: "agent#monthly_captures_export", as: :agent_monthly_captures_export
     post "agent/detention_captures/:id/create_hit", to: "agent#create_hit_from_capture", as: :create_hit_from_capture
     post "agent/detention_captures/:id/create_member", to: "agent#create_member_from_capture", as: :create_member_from_capture
     patch "agent/detention_captures/:id",     to: "agent#update_capture",   as: :update_agent_detention

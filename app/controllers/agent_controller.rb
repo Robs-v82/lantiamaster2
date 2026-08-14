@@ -968,6 +968,33 @@ class AgentController < ApplicationController
     end
   end
 
+  # ── Export monthly captures as CSV ─────────────────────────────────────────
+  def monthly_captures_export
+    @year = (params[:year] || Date.today.year).to_i
+    @month = (params[:month] || Date.today.month).to_i
+
+    begin
+      month_start = Date.new(@year, @month, 1)
+      month_end = month_start.end_of_month
+
+      @captures = DetentionCapture
+        .where(deleted_at: nil)
+        .where(incident_date: month_start..month_end)
+        .where(status: ['captured', 'validated', 'pending_review'])
+        .order(:incident_date)
+
+      csv_content = generate_detention_csv(@captures, @year, @month)
+
+      send_data csv_content,
+                filename: "Capturas_#{@year}_#{@month.to_s.rjust(2, '0')}.csv",
+                type: 'text/csv; charset=utf-8',
+                disposition: 'attachment'
+    rescue => e
+      Rails.logger.error("[Agent#monthly_captures_export] Error: #{e.class}: #{e.message}")
+      redirect_to agent_monthly_captures_path(year: @year, month: @month), alert: "Error al generar CSV: #{e.message}"
+    end
+  end
+
   def update_capture
     Rails.logger.info("[update_capture] ► INICIANDO - Captura ID: #{params[:id]}")
     Rails.logger.info("[update_capture] params.keys: #{params.keys.inspect}")
@@ -2181,6 +2208,87 @@ class AgentController < ApplicationController
       :sedena, :semar, :gn, :sscp, :fgr, :ssp_estatal, :fge_pgj,
       :policia_municipal, :otro
     )
+  end
+
+  def generate_detention_csv(captures, year, month)
+    CSV.generate(encoding: 'UTF-8', col_sep: ',') do |csv|
+      # ENCABEZADOS (32 columnas - formato Base Rogelio)
+      csv << [
+        'Intervención',
+        'Día',
+        'Mes',
+        'Año',
+        'Estado',
+        'INEGI',
+        'Municipio',
+        'Detenidos',
+        'Organización',
+        'Grupo afiliado',
+        'Nombre',
+        'Apellido Paterno',
+        'Apellido Materno',
+        'Alias',
+        'Género',
+        'Edad',
+        'Posición de liderazgo',
+        'Jefe regional',
+        'SEDENA',
+        'SEMAR',
+        'GN',
+        'SSCP',
+        'FGR',
+        'SSP-Estatal',
+        'FGE/PGJ',
+        'Policía municipal',
+        'Otro',
+        'Resumen',
+        'Fuente',
+        'Título nota',
+        'Consultor',
+        'Status'
+      ]
+
+      # DATOS (una fila por captura)
+      captures.each_with_index do |capture, index|
+        # Generar ID de Intervención en formato YYMMDDNN
+        intervention_id = "#{capture.incident_date.strftime('%y%m%d')}#{(index + 1).to_s.rjust(2, '0')}"
+
+        csv << [
+          intervention_id,                                    # Intervención
+          capture.incident_date.day,                          # Día
+          capture.incident_date.month,                        # Mes
+          capture.incident_date.year % 100,                   # Año (26, 25, etc)
+          capture.estado,                                     # Estado
+          capture.full_code,                                  # INEGI
+          capture.municipio,                                  # Municipio
+          capture.detenidos,                                  # Detenidos
+          capture.organization&.name || capture.organizacion, # Organización
+          capture.grupo_afiliado,                             # Grupo afiliado
+          capture.nombre,                                     # Nombre
+          capture.apellido_paterno,                           # Apellido Paterno
+          capture.apellido_materno,                           # Apellido Materno
+          capture.alias,                                      # Alias
+          capture.genero,                                     # Género
+          capture.edad,                                       # Edad
+          capture.rol,                                        # Posición de liderazgo
+          '',                                                 # Jefe regional (NO EXISTE)
+          capture.sedena ? '1' : '',                          # SEDENA (1 o vacío)
+          capture.semar ? '1' : '',                           # SEMAR
+          capture.gn ? '1' : '',                              # GN
+          capture.sscp ? '1' : '',                            # SSCP
+          capture.fgr ? '1' : '',                             # FGR
+          capture.ssp_estatal ? '1' : '',                     # SSP-Estatal
+          capture.fge_pgj ? '1' : '',                         # FGE/PGJ
+          capture.policia_municipal ? '1' : '',               # Policía municipal
+          capture.otro ? '1' : '',                            # Otro
+          '',                                                 # Resumen (NO EXISTE)
+          capture.source_url,                                 # Fuente
+          '',                                                 # Título nota (NO EXISTE)
+          '',                                                 # Consultor (NO EXISTE)
+          capture.status                                      # Status
+        ]
+      end
+    end
   end
 
   def extract_hit_from_url(url, claude_key)
