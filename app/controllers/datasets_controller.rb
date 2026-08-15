@@ -3761,6 +3761,19 @@ def create_easy_member
         involved: true
       ).where("start_date <= ? AND (end_date IS NULL OR end_date >= ?)", hit_date, hit_date).first
 
+      # 🔍 BÚSQUEDA 2 (NUEVA): Appointment como "Alcalde" en el mismo county y fecha, con involved=true
+      if alcalde.blank?
+        appointment_alcalde = Appointment.where("period @> ?::date", hit_date)
+          .where(role_id: alcalde_role&.id)
+          .where(county_id: county_id)
+          .joins(:member)
+          .where(members: { involved: true })
+          .includes(:member)
+          .first
+
+        alcalde = appointment_alcalde&.member if appointment_alcalde.present?
+      end
+
       if alcalde.present?
         myMember.update!(
           organization_id: alcalde.organization_id,
