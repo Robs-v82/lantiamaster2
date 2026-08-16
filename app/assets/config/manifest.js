@@ -4,4 +4,5 @@
 //= link monthly_captures.js
 //= link member_hit_creation.js
 //= link media_monitoring.js
+//= link criminal_members.js
 
