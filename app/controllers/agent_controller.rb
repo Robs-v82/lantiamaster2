@@ -434,6 +434,7 @@ class AgentController < ApplicationController
     return render json: { error: "SERPER_API_KEY no configurada." }, status: :service_unavailable if api_key.blank?
 
     results = []
+    query_results = {}
     mutex   = Mutex.new
 
     threads = SERPER_QUERIES_CRIMINAL_MEMBERS.map do |query|
@@ -452,9 +453,15 @@ class AgentController < ApplicationController
 
           res  = http.request(req)
           data = JSON.parse(res.body)
-          mutex.synchronize { results.concat(data["news"]) } if data["news"].is_a?(Array)
+          news = data["news"].is_a?(Array) ? data["news"] : []
+
+          mutex.synchronize do
+            results.concat(news)
+            query_results[query] = news.length
+          end
         rescue => e
           Rails.logger.error("[Agent#search_criminal_members] #{query.inspect} #{e.class}: #{e.message}")
+          mutex.synchronize { query_results[query] = 0 }
         end
       end
     end
@@ -463,7 +470,7 @@ class AgentController < ApplicationController
 
     seen   = {}
     unique = results.select { |a| a["link"] && seen[a["link"]] ? false : (seen[a["link"]] = true) }
-    render json: { articles: unique }
+    render json: { articles: unique, search_results: query_results }
   end
 
   def deduplicate

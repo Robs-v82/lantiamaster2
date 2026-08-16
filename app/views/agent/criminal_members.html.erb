@@ -163,6 +163,27 @@
   </div>
 
   <div id="status-msg"></div>
+
+  <%# ── Tabla de criterios de búsqueda ──────────────────────────────────── %>
+  <div id="criteria-section" style="display:none; margin-bottom:28px;">
+    <div style="font-family:'Poppins',sans-serif; font-size:13px; color:#555; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">
+      Criterios de búsqueda evaluados
+    </div>
+    <div style="max-width:900px; margin:0 auto;">
+      <table class="highlight" style="background:#fff; border:1px solid #b0b0b0; margin:0;">
+        <thead>
+          <tr>
+            <th style="width:70%;">Criterio</th>
+            <th style="width:15%; text-align:center;">Artículos</th>
+            <th style="width:15%; text-align:center;">Estado</th>
+          </tr>
+        </thead>
+        <tbody id="criteria-tbody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <div id="results-grid" class="news-grid"></div>
 
   <%# ── Etapa 2: Extracción (oculta hasta tener resultados) ─────────────── %>

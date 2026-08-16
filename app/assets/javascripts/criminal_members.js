@@ -32,6 +32,54 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .then(data => {
         searchResults = data.articles || [];
+        const searchResults_map = data.search_results || {};
+
+        // Renderizar tabla de criterios
+        const criteriaSection = document.getElementById('criteria-section');
+        const criteriaTbody = document.getElementById('criteria-tbody');
+
+        const queries = [
+          'empresario narco México vínculos',
+          'empresario lavador dinero México',
+          'prestanombres crimen organizado México',
+          'traficante dinero cartel México',
+          'alcalde vínculos crimen organizado México',
+          'funcionario corrupción narcotráfico México',
+          'gobernador vínculos cártel México',
+          'policía corrupción crimen organizado',
+          'dinero narcotráfico decomiso México',
+          'bienes incautados crimen organizado',
+          'operación financiera narcos México',
+          'cartel México',
+          'Cártel Jalisco Nueva Generación',
+          'Cártel de Sinaloa',
+          'Mayiza México',
+          'Chapitos México',
+          'CJNG México',
+          'Cárteles Unidos México',
+          'Cártel del Noreste',
+          'Familia Michoacana México',
+          'huachicol México',
+          'cobro de cuota México'
+        ];
+
+        criteriaTbody.innerHTML = queries.map(query => {
+          const count = searchResults_map[query] || 0;
+          const hasResults = count > 0;
+          const indicator = hasResults ? '✓' : '✗';
+          const indicatorColor = hasResults ? '#2e7d32' : '#aaa';
+          const rowBg = hasResults ? '#f9f9f9' : '#fafafa';
+
+          return `
+            <tr style="background:${rowBg};">
+              <td style="font-size:13px; color:#555;">${query}</td>
+              <td style="text-align:center; font-size:13px; font-weight:600; color:#333;">${count}</td>
+              <td style="text-align:center; font-size:18px; font-weight:bold; color:${indicatorColor};">${indicator}</td>
+            </tr>
+          `;
+        }).join('');
+
+        criteriaSection.style.display = 'block';
 
         if (searchResults.length === 0) {
           statusMsg.innerHTML = 'No se encontraron resultados.';
@@ -45,13 +93,14 @@ document.addEventListener('DOMContentLoaded', function() {
         grid.innerHTML = searchResults.map((result, idx) => {
           const link = result.link || '';
           const sourceDomain = result.source_domain || 'News';
+          const publishedDate = result.published_date || new Date().toLocaleDateString('es-MX');
           const title = result.title || '(Sin título)';
           const snippet = result.snippet || '(Sin descripción)';
 
           return `
             <div class="news-card" data-result-index="${idx}">
               <div class="card-source">${sourceDomain}</div>
-              <div class="card-date">${new Date().toLocaleDateString('es-MX')}</div>
+              <div class="card-date">${publishedDate}</div>
               <div class="card-title">${title}</div>
               <div class="card-snippet">${snippet}</div>
               <a href="${link}" target="_blank" rel="noopener" class="card-link">
