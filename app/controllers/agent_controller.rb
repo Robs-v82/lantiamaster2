@@ -20,35 +20,35 @@ class AgentController < ApplicationController
   # - Total: 21 queries
   SERPER_QUERIES_CRIMINAL_MEMBERS = [
     # ── Queries temáticas: Empresarios/Civiles (sin detención) ──────
-    "empresario narco México vínculos",
-    "empresario lavador dinero México",
-    "prestanombres crimen organizado México",
-    "traficante dinero cartel México",
+    "empresario narco vínculos",
+    "empresario lavador dinero",
+    "prestanombres crimen organizado",
+    "traficante dinero cartel",
 
     # ── Queries temáticas: Funcionarios/Autoridades (sin detención) ──
-    "alcalde vínculos crimen organizado México",
-    "funcionario corrupción narcotráfico México",
-    "gobernador vínculos cártel México",
+    "alcalde vínculos crimen organizado",
+    "funcionario corrupción narcotráfico",
+    "gobernador vínculos cártel",
     "policía corrupción crimen organizado",
 
     # ── Queries temáticas: Dinero/Activos ────────────────────────────
-    "dinero narcotráfico decomiso México",
+    "dinero narcotráfico decomiso",
     "bienes incautados crimen organizado",
-    "operación financiera narcos México",
+    "operación financiera narcos",
 
     # ── Queries por organizaciones (TODAS del dailySearchScript) ──────
     # 11 organizaciones:
-    "cartel México",                          # 1. cartel (genérico)
+    "cartel",                                 # 1. cartel (genérico)
     "Cártel Jalisco Nueva Generación",        # 2. Cártel Jalisco
     "Cártel de Sinaloa",                      # 3. Cártel de Sinaloa
-    "Mayiza México",                          # 4. Mayiza
-    "Chapitos México",                        # 5. Chapitos
-    "CJNG México",                            # 6. CJNG
-    "Cárteles Unidos México",                 # 7. Cárteles Unidos
+    "Mayiza",                                 # 4. Mayiza
+    "Chapitos",                               # 5. Chapitos
+    "CJNG",                                   # 6. CJNG
+    "Cárteles Unidos",                        # 7. Cárteles Unidos
     "Cártel del Noreste",                     # 8. Cártel del Noreste
-    "Familia Michoacana México",              # 9. Familia Michoacana
-    "huachicol México",                       # 10. huachicol
-    "cobro de cuota México"                   # 11. cobro de cuota
+    "Familia Michoacana",                     # 9. Familia Michoacana
+    "huachicol",                              # 10. huachicol
+    "cobro de cuota"                          # 11. cobro de cuota
   ].freeze
 
   # ── Extraction filters (DETENTIONS) ────────────────────────────────────────

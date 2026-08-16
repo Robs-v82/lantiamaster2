@@ -39,28 +39,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const criteriaTbody = document.getElementById('criteria-tbody');
 
         const queries = [
-          'empresario narco México vínculos',
-          'empresario lavador dinero México',
-          'prestanombres crimen organizado México',
-          'traficante dinero cartel México',
-          'alcalde vínculos crimen organizado México',
-          'funcionario corrupción narcotráfico México',
-          'gobernador vínculos cártel México',
+          'empresario narco vínculos',
+          'empresario lavador dinero',
+          'prestanombres crimen organizado',
+          'traficante dinero cartel',
+          'alcalde vínculos crimen organizado',
+          'funcionario corrupción narcotráfico',
+          'gobernador vínculos cártel',
           'policía corrupción crimen organizado',
-          'dinero narcotráfico decomiso México',
+          'dinero narcotráfico decomiso',
           'bienes incautados crimen organizado',
-          'operación financiera narcos México',
-          'cartel México',
+          'operación financiera narcos',
+          'cartel',
           'Cártel Jalisco Nueva Generación',
           'Cártel de Sinaloa',
-          'Mayiza México',
-          'Chapitos México',
-          'CJNG México',
-          'Cárteles Unidos México',
+          'Mayiza',
+          'Chapitos',
+          'CJNG',
+          'Cárteles Unidos',
           'Cártel del Noreste',
-          'Familia Michoacana México',
-          'huachicol México',
-          'cobro de cuota México'
+          'Familia Michoacana',
+          'huachicol',
+          'cobro de cuota'
         ];
 
         criteriaTbody.innerHTML = queries.map(query => {
@@ -71,10 +71,10 @@ document.addEventListener('DOMContentLoaded', function() {
           const rowBg = hasResults ? '#f9f9f9' : '#fafafa';
 
           return `
-            <tr style="background:${rowBg};">
-              <td style="font-size:13px; color:#555;">${query}</td>
-              <td style="text-align:center; font-size:13px; font-weight:600; color:#333;">${count}</td>
-              <td style="text-align:center; font-size:18px; font-weight:bold; color:${indicatorColor};">${indicator}</td>
+            <tr style="background:${rowBg}; height:32px;">
+              <td style="font-size:13px; color:#555; padding:6px 18px; vertical-align:middle;">${query}</td>
+              <td style="text-align:center; font-size:13px; font-weight:600; color:#333; padding:6px 18px; vertical-align:middle;">${count}</td>
+              <td style="text-align:center; font-size:16px; font-weight:bold; color:${indicatorColor}; padding:6px 18px; vertical-align:middle;">${indicator}</td>
             </tr>
           `;
         }).join('');
