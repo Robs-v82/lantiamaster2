@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Renderizar tarjetas
         const grid = document.getElementById('results-grid');
         grid.innerHTML = searchResults.map((result, idx) => {
-          const source = result.source || result.link || '';
-          const sourceDomain = source.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+          const link = result.link || '';
+          const sourceDomain = result.source_domain || 'News';
           const title = result.title || '(Sin título)';
           const snippet = result.snippet || '(Sin descripción)';
 
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="card-date">${new Date().toLocaleDateString('es-MX')}</div>
               <div class="card-title">${title}</div>
               <div class="card-snippet">${snippet}</div>
-              <a href="${source}" target="_blank" rel="noopener" class="card-link">
+              <a href="${link}" target="_blank" rel="noopener" class="card-link">
                 Ver artículo <i class="material-icons" style="font-size:14px;">open_in_new</i>
               </a>
             </div>
