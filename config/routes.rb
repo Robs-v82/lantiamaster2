@@ -185,6 +185,8 @@ Rails.application.routes.draw do
     post "agent/detentions/deduplicate",      to: "agent#deduplicate",      as: :deduplicate_agent_detentions
     post "agent/detentions/extract_batch",    to: "agent#extract_batch",    as: :extract_batch_agent_detentions
     post "agent/detentions/extract_url",      to: "agent#extract_url",      as: :extract_url_agent_detentions
+    get  "agent/criminal_members",            to: "agent#criminal_members", as: :agent_criminal_members
+    get  "agent/criminal_members/search",     to: "agent#search_criminal_members", as: :search_agent_criminal_members
     get  "agent/monthly_captures",            to: "agent#monthly_captures", as: :agent_monthly_captures
     get  "agent/monthly_captures/export",     to: "agent#monthly_captures_export", as: :agent_monthly_captures_export
     post "agent/detention_captures/:id/create_hit", to: "agent#create_hit_from_capture", as: :create_hit_from_capture

@@ -3,7 +3,7 @@ require 'csv'
 class AgentController < ApplicationController
   before_action :authenticate_terrorist_access
 
-  # ── Serper queries ────────────────────────────────────────────────────────
+  # ── Serper queries (DETENTIONS) ───────────────────────────────────────────
   SERPER_QUERIES = [
     "detienen líder cártel México",
     "capturan integrantes CJNG México operativo",
@@ -13,8 +13,49 @@ class AgentController < ApplicationController
     "operativo detienen célula criminal México"
   ].freeze
 
-  # ── Extraction filters ────────────────────────────────────────────────────
+  # ── Serper queries (CRIMINAL MEMBERS) ──────────────────────────────────────
+  # Notas:
+  # - Queries temáticas: ELIMINA toda mención de detenidos/capturas/procesamientos
+  # - Queries por organización: INCLUYE TODAS las 11 del dailySearchScript
+  # - Total: 21 queries
+  SERPER_QUERIES_CRIMINAL_MEMBERS = [
+    # ── Queries temáticas: Empresarios/Civiles (sin detención) ──────
+    "empresario narco México vínculos",
+    "empresario lavador dinero México",
+    "prestanombres crimen organizado México",
+    "traficante dinero cartel México",
+
+    # ── Queries temáticas: Funcionarios/Autoridades (sin detención) ──
+    "alcalde vínculos crimen organizado México",
+    "funcionario corrupción narcotráfico México",
+    "gobernador vínculos cártel México",
+    "policía corrupción crimen organizado",
+
+    # ── Queries temáticas: Dinero/Activos ────────────────────────────
+    "dinero narcotráfico decomiso México",
+    "bienes incautados crimen organizado",
+    "operación financiera narcos México",
+
+    # ── Queries por organizaciones (TODAS del dailySearchScript) ──────
+    # 11 organizaciones:
+    "cartel México",                          # 1. cartel (genérico)
+    "Cártel Jalisco Nueva Generación",        # 2. Cártel Jalisco
+    "Cártel de Sinaloa",                      # 3. Cártel de Sinaloa
+    "Mayiza México",                          # 4. Mayiza
+    "Chapitos México",                        # 5. Chapitos
+    "CJNG México",                            # 6. CJNG
+    "Cárteles Unidos México",                 # 7. Cárteles Unidos
+    "Cártel del Noreste",                     # 8. Cártel del Noreste
+    "Familia Michoacana México",              # 9. Familia Michoacana
+    "huachicol México",                       # 10. huachicol
+    "cobro de cuota México"                   # 11. cobro de cuota
+  ].freeze
+
+  # ── Extraction filters (DETENTIONS) ────────────────────────────────────────
   EXCLUDED_TITLE_WORDS   = %w[opinión opinion analisis análisis columna editorial].freeze
+
+  # ── Extraction filters (CRIMINAL MEMBERS) ──────────────────────────────────
+  EXCLUDED_TITLE_WORDS_CRIMINAL = [].freeze
   REQUIRED_SNIPPET_WORDS = %w[deteni captur abati arrest operativo asegurado asegura
                                aprehend imputad bloqueo narco cjng cartel cártel
                                elementos seguridad militares sedena fuerzas].freeze
@@ -22,6 +63,7 @@ class AgentController < ApplicationController
   THEFT_PHRASES          = ["robo de vehículo", "robo de vehiculo"].freeze
   CRIMEN_WORDS           = ["crimen organizado", "cartel", "cártel"].freeze
   EXCLUDED_DOMAINS       = %w[facebook.com].freeze
+  EXCLUDED_DOMAINS_CRIMINAL = %w[facebook.com twitter.com].freeze
 
   # ── Claude system prompt ──────────────────────────────────────────────────
   # ── Deduplication prompt ──────────────────────────────────────────────
@@ -245,11 +287,109 @@ class AgentController < ApplicationController
     moviendo "Sicario" al campo Rol (col 18) y dejando SEDENA vacío.
   PROMPT
 
+  # ── Claude system prompt (CRIMINAL MEMBERS) ────────────────────────────────
+  EXTRACTION_SYSTEM_PROMPT_CRIMINAL_MEMBERS = <<~PROMPT.strip.freeze
+    ⚠️ ⚠️ ⚠️ INSTRUCCIÓN CRÍTICA ABSOLUTA ⚠️ ⚠️ ⚠️
+
+    Eres especialista en extraer información sobre PERSONAS VINCULADAS
+    a crimen organizado desde artículos periodísticos mexicanos.
+
+    TU RESPUESTA DEBE SER ÚNICAMENTE UNO DE ESTOS CASOS:
+
+    CASO 1: Si el artículo describe una PERSONA con UN SEÑALAMIENTO
+            CONCRETO de vínculos a crimen organizado:
+      - Emite SOLO las líneas CSV (una por línea)
+      - Nada más. Ni análisis, ni explicaciones, ni razonamiento.
+
+      ✓ SEÑALAMIENTOS CONCRETOS válidos:
+        - "Fue detenido por presuntos vínculos a CJNG"
+        - "Le secuestraron equipos de comunicación de narcos"
+        - "Es operador de dinero para Cártel de Sinaloa"
+        - "Procesado por enriquecimiento ilícito del narcotráfico"
+        - "Empresa es prestanombres de cartel"
+        - "Alcalde con vínculos comprobados a organización criminal"
+
+    CASO 2: Si el artículo NO describe una persona específica O
+            NO hay señalamiento concreto de vínculos:
+      - Responde ÚNICAMENTE: DESCARTAR
+      - Una palabra. Nada más.
+
+      ❌ NO CALIFICA:
+        - "El narco es un problema en México" (sin persona específica)
+        - "Empresario donó a fundación" (sin vínculo concreto)
+        - "Presuntamente podría estar vinculado" (demasiado especulativo)
+        - "Se investiga a persona X" (sin señalamiento concreto)
+
+    EJEMPLOS DE LO QUE ESTÁ PROHIBIDO (respuestas INCORRECTAS):
+      ❌ "Analizando el artículo...después del análisis, los datos son..."
+      ❌ "Basándome en el contenido, encuentro..."
+      ❌ "El artículo menciona a Juan García, por lo que extraigo..."
+      ❌ Cualquier palabra antes del CSV
+      ❌ Cualquier palabra después del CSV
+      ❌ Múltiples oraciones o párrafos
+
+    RESPUESTAS CORRECTAS:
+      ✓ Juan,García,López,Empresario,CJNG,Guadalajara,30,M,...,URL
+      ✓ María,Rodríguez,Pérez,Alcalde,Sinaloa,Culiacán,...,URL
+      ✓ DESCARTAR
+
+    FORMATO OBLIGATORIO CON CITAS TEXTUALES:
+
+    Primero: BLOQUE DE CITAS (líneas que comienzan con ###CITA)
+    Luego: LÍNEAS CSV NORMALES (sin citas incrustadas)
+
+    ESTRUCTURA EXACTA REQUERIDA:
+    ###CITA nombre "Juan García López"
+    ###CITA ocupacion "empresario de Guadalajara"
+    ###CITA vinculo "vínculos con CJNG"
+    Juan,García,López,Empresario,CJNG,Guadalajara,30,M,...,URL
+
+    SI NO EXISTE CITA TEXTUAL PARA UN CAMPO:
+    ✓ NO ESCRIBAS ###CITA para ese campo
+    ✓ DEJA ESE CAMPO VACÍO en el CSV
+    ✓ Ejemplo: Si no aparece edad → no escribas ###CITA edad y deja campo vacío
+
+    VALIDACIÓN BACKEND - SE EJECUTARÁ AUTOMÁTICAMENTE:
+    El sistema buscará CADA cita (###CITA) dentro del texto original del artículo.
+    • CITA ENCONTRADA → Campo se acepta con su valor
+    • CITA NO ENCONTRADA → Campo se marca VACÍO, se registra en log
+    • SIN ###CITA PARA VALOR → Campo se marca VACÍO, se registra en log
+
+    ESTRUCTURA DE CAMPOS CSV (13 campos):
+    1. Nombre
+    2. Apellido Paterno
+    3. Apellido Materno
+    4. Ocupación/Rol
+    5. Organización
+    6. Estado/Ciudad
+    7. Edad
+    8. Género (M/F/X)
+    9. Tipo de vínculo (Operador/Empresario/Funcionario/Narco/Otro)
+    10. Documento/Acusación
+    11. Fecha del señalamiento (si está disponible)
+    12. Fuente (URL)
+    13. Notas adicionales
+
+    REGLAS CRÍTICAS:
+    - Si la nota NO describe una persona específica o no hay señalamiento concreto, responde ÚNICAMENTE: DESCARTAR
+    - No inventes datos. Si algo no está en la nota, deja la celda vacía
+    - Edad: SOLO completa si el texto menciona explícitamente un número (ej. "de 34 años", "tiene 28 años")
+    - Nombres en Title Case
+    - Ocupación: valores del catálogo si aplica, o descripción genérica (Empresario, Narco, Funcionario, Operador, Otro)
+    - Organización: nombre exacto de la organización criminal mencionada. Si no está claro, usa "No identificada"
+    - Tipo de vínculo: cómo se vincula a crimen organizado (Operador, Empresario, Funcionario, Narco, Otro)
+    - Documento/Acusación: qué tipo de documento o acusación (Detenido, Procesado, Imputado, Investigado, Decomiso, Etc)
+    - URL: siempre la URL completa de la nota
+  PROMPT
+
   # ═══════════════════════════════════════════════════════════════════════════
   # ACTIONS
   # ═══════════════════════════════════════════════════════════════════════════
 
   def detentions
+  end
+
+  def criminal_members
   end
 
   def search
@@ -278,6 +418,43 @@ class AgentController < ApplicationController
           mutex.synchronize { results.concat(data["news"]) } if data["news"].is_a?(Array)
         rescue => e
           Rails.logger.error("[Agent#search] #{query.inspect} #{e.class}: #{e.message}")
+        end
+      end
+    end
+
+    threads.each(&:join)
+
+    seen   = {}
+    unique = results.select { |a| a["link"] && seen[a["link"]] ? false : (seen[a["link"]] = true) }
+    render json: { articles: unique }
+  end
+
+  def search_criminal_members
+    api_key = serper_api_key
+    return render json: { error: "SERPER_API_KEY no configurada." }, status: :service_unavailable if api_key.blank?
+
+    results = []
+    mutex   = Mutex.new
+
+    threads = SERPER_QUERIES_CRIMINAL_MEMBERS.map do |query|
+      Thread.new do
+        begin
+          uri  = URI("https://google.serper.dev/news")
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl      = true
+          http.read_timeout = 10
+          http.open_timeout = 5
+
+          req = Net::HTTP::Post.new(uri)
+          req["X-API-KEY"]    = api_key
+          req["Content-Type"] = "application/json"
+          req.body = { q: query, tbs: "qdr:d", gl: "mx", hl: "es", num: 10 }.to_json
+
+          res  = http.request(req)
+          data = JSON.parse(res.body)
+          mutex.synchronize { results.concat(data["news"]) } if data["news"].is_a?(Array)
+        rescue => e
+          Rails.logger.error("[Agent#search_criminal_members] #{query.inspect} #{e.class}: #{e.message}")
         end
       end
     end
