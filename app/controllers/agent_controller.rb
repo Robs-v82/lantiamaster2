@@ -65,6 +65,13 @@ class AgentController < ApplicationController
   EXCLUDED_DOMAINS       = %w[facebook.com].freeze
   EXCLUDED_DOMAINS_CRIMINAL = %w[facebook.com twitter.com].freeze
 
+  # ── TLD exclusion (CRIMINAL MEMBERS) ───────────────────────────────────────
+  # Excluir artículos de dominios latinoamericanos (no .mx)
+  EXCLUDED_TLDS_LATIN_AMERICA = %w[
+    .ar .bo .br .cl .co .cr .cu .do .ec .sv .gf .gy .ht .hn .jm .ni .pa .py .pe .sr .uy .ve
+    .tt .bs .bz .bb .gd .lc .vc .ag .kn .dm .ai .bm .ky .tc .vg .ms
+  ].freeze
+
   # ── Claude system prompt ──────────────────────────────────────────────────
   # ── Deduplication prompt ──────────────────────────────────────────────
   DEDUPLICATION_PROMPT = <<~PROMPT.strip.freeze
@@ -456,7 +463,8 @@ class AgentController < ApplicationController
           news = data["news"].is_a?(Array) ? data["news"] : []
 
           mutex.synchronize do
-            results.concat(news)
+            news_with_query = news.map { |article| article.merge("matched_queries" => [query]) }
+            results.concat(news_with_query)
             query_results[query] = news.length
           end
         rescue => e
@@ -469,8 +477,38 @@ class AgentController < ApplicationController
     threads.each(&:join)
 
     seen   = {}
-    unique = results.select { |a| a["link"] && seen[a["link"]] ? false : (seen[a["link"]] = true) }
+    unique = results.inject([]) do |acc, a|
+      if a["link"] && seen[a["link"]]
+        existing = acc.find { |x| x["link"] == a["link"] }
+        if existing && a["matched_queries"]
+          existing["matched_queries"] = (existing["matched_queries"] + a["matched_queries"]).uniq
+        end
+      else
+        seen[a["link"]] = true
+        acc << a
+      end
+      acc
+    end
+
+    unique = filter_non_mexican_domains(unique)
     render json: { articles: unique, search_results: query_results }
+  end
+
+  # ── Filtro de dominios: excluir TLDs latinoamericanos (no .mx) ────────────
+  def filter_non_mexican_domains(articles)
+    articles.reject do |article|
+      link = article["link"].to_s.downcase
+      uri = URI.parse(link) rescue nil
+      next false if uri.nil? || uri.host.nil?
+
+      host = uri.host
+      # Obtener la terminación del dominio (última parte después del último punto)
+      # Ej: example.ar, example.com.mx
+      tld = "." + host.split(".")[-1]
+
+      # Rechazar si tiene TLD latinoamericano (pero NO .mx)
+      EXCLUDED_TLDS_LATIN_AMERICA.include?(tld) && tld != ".mx"
+    end
   end
 
   def deduplicate

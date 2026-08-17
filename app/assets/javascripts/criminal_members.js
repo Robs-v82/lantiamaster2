@@ -96,6 +96,13 @@ document.addEventListener('DOMContentLoaded', function() {
           const publishedDate = result.published_date || new Date().toLocaleDateString('es-MX');
           const title = result.title || '(Sin título)';
           const snippet = result.snippet || '(Sin descripción)';
+          const matchedQueries = result.matched_queries || [];
+
+          const keywordsHTML = matchedQueries.length > 0
+            ? `<div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+                 ${matchedQueries.map(q => `<span style="background:#f0f0f0; border:1px solid #ddd; border-radius:3px; padding:4px 8px; font-size:11px; color:#666;">${q}</span>`).join('')}
+               </div>`
+            : '';
 
           return `
             <div class="news-card" data-result-index="${idx}">
@@ -103,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="card-date">${publishedDate}</div>
               <div class="card-title">${title}</div>
               <div class="card-snippet">${snippet}</div>
+              ${keywordsHTML}
               <a href="${link}" target="_blank" rel="noopener" class="card-link">
                 Ver artículo <i class="material-icons" style="font-size:14px;">open_in_new</i>
               </a>
