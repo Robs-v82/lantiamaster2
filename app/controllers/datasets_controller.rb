@@ -152,7 +152,7 @@ class DatasetsController < ApplicationController
 	  @hits = hits
 	  @members = members
 	  @rackets = @state.rackets.distinct.order(:name)
-	  @link_types = ["Hermano","Esposo","Padre","Hijo","Abuelo","Nieto","Tio","Sobrino","Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado", "Suegro", "Yerno"]
+	  @link_types = ["Hermano","Esposo","Padre","Hijo","Abuelo","Nieto","Tio","Sobrino","Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado", "Suegro", "Yerno", "Asociado"]
 
 	  # Tabla por usuario
 	  por_usuario_raw = Hash.new { |h, k| h[k] = { hits: 0, miembros: Set.new } }
@@ -232,7 +232,8 @@ class DatasetsController < ApplicationController
 		  "Compadre" => "Comadre",
 		  "Cuñado" => "Cuñada",
 		  "Suegro" => "Suegra",
-		  "Yerno" => "Nuera"
+		  "Yerno" => "Nuera",
+		  "Asociado" => "Asociada"
 	  }
 
 	  # Asignar versión femenina si corresponde, o dejar el rol original
@@ -2794,7 +2795,7 @@ end
 		    Member.find(selected_id)
 		  end		
 
-		@link_types = ["Hermano","Esposo","Padre","Hijo","Abuelo","Nieto","Tio","Sobrino","Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado", "Suegro", "Yerno"]
+		@link_types = ["Hermano","Esposo","Padre","Hijo","Abuelo","Nieto","Tio","Sobrino","Cuñado","Primo","Compadre","Padrino", "Ahijado", "Enlace", "Abogado", "Defendido", "Jefe", "Colaborador","Compañero", "Allegado", "Suegro", "Yerno", "Asociado"]
 
 
 	end
