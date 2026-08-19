@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_08_06_181851) do
+ActiveRecord::Schema.define(version: 2026_08_19_120100) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -119,6 +119,18 @@ ActiveRecord::Schema.define(version: 2026_08_06_181851) do
     t.index ["sent_at"], name: "index_briefings_on_sent_at"
     t.index ["test_mode"], name: "index_briefings_on_test_mode"
     t.index ["year", "month_number", "report_type"], name: "idx_briefing_monthly_unique", unique: true, where: "((report_type)::text <> 'briefing_semanal'::text)"
+  end
+
+  create_table "bulk_query_runs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "csv_filename"
+    t.jsonb "invalid_rows_data", default: []
+    t.jsonb "valid_rows_data", default: []
+    t.jsonb "summary_stats", default: {}
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_at"], name: "index_bulk_query_runs_on_created_at"
+    t.index ["user_id"], name: "index_bulk_query_runs_on_user_id"
   end
 
   create_table "cities", force: :cascade do |t|
@@ -726,6 +738,8 @@ ActiveRecord::Schema.define(version: 2026_08_06_181851) do
     t.text "query_label_ciphertext"
     t.text "outcome_ciphertext"
     t.string "query_label_bidx"
+    t.bigint "bulk_query_run_id"
+    t.index ["bulk_query_run_id"], name: "index_queries_on_bulk_query_run_id"
     t.index ["member_id"], name: "index_queries_on_member_id"
     t.index ["organization_id"], name: "index_queries_on_organization_id"
     t.index ["query_label_bidx"], name: "index_queries_on_query_label_bidx"
@@ -950,6 +964,7 @@ ActiveRecord::Schema.define(version: 2026_08_06_181851) do
   add_foreign_key "appointments", "organizations"
   add_foreign_key "appointments", "roles"
   add_foreign_key "arrests", "events"
+  add_foreign_key "bulk_query_runs", "users"
   add_foreign_key "cities", "counties"
   add_foreign_key "cities", "counties", column: "core_county_id"
   add_foreign_key "cookies", "quarters"
@@ -997,6 +1012,7 @@ ActiveRecord::Schema.define(version: 2026_08_06_181851) do
   add_foreign_key "organizations", "organizations", column: "parent_id"
   add_foreign_key "posts", "accounts"
   add_foreign_key "quarters", "years"
+  add_foreign_key "queries", "bulk_query_runs"
   add_foreign_key "queries", "members"
   add_foreign_key "queries", "organizations"
   add_foreign_key "queries", "users", on_delete: :cascade

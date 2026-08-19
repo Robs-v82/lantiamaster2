@@ -1,0 +1,653 @@
+<% content_for :head_tags do %>
+  <style>
+    .bulk-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .bulk-header h5 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      color: #33333C;
+      margin: 0;
+    }
+    .bulk-btn {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      padding: 0 20px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    #upload-btn  { background-color: #EF4E50; }
+    #upload-btn:hover    { background-color: #d43e40; }
+    #extract-btn { background-color: #33333C; }
+    #extract-btn:hover   { background-color: #555; }
+    #download-btn { background-color: #2e7d32; }
+    #download-btn:hover  { background-color: #1b5e20; }
+    .bulk-btn:disabled  { background-color: #aaa !important; cursor: not-allowed; }
+
+    #status-msg {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 16px;
+      min-height: 20px;
+    }
+
+    #upload-section {
+      background: #f9f9f9;
+      border: 2px dashed #ddd;
+      padding: 16px 20px;
+      text-align: center;
+      margin: 0 auto 24px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      max-width: 400px;
+    }
+    #upload-section:hover {
+      background: #f0f0f0;
+      border-color: #EF4E50;
+    }
+    #upload-section.drag-over {
+      background: #ffe6e6;
+      border-color: #EF4E50;
+    }
+    #upload-section .upload-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    #upload-section .upload-icon i {
+      font-size: 32px;
+      color: #EF4E50;
+    }
+    #upload-section .upload-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      color: #33333C;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    #upload-section .upload-subtext {
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      color: #888;
+    }
+    #file-input {
+      display: none;
+    }
+
+    #results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+    .result-card {
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: box-shadow 0.2s;
+    }
+    .result-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.14); }
+
+    .bulk-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: bulk-spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes bulk-spin { to { transform: rotate(360deg); } }
+
+    #progress-area { margin: 16px 0; }
+    #progress-msg  { font-family: 'Poppins', sans-serif; font-size: 13px; color: #555; margin-bottom: 8px; }
+    #progress-bar-wrap {
+      background: #eee;
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    #progress-bar {
+      background: #EF4E50;
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 4px;
+    }
+
+    #summary-area h6 {
+      font-weight: 600;
+      color: #33333C;
+      margin: 0 0 12px 0;
+      font-size: 14px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { color: #555; }
+    .summary-value { font-weight: 600; color: #33333C; }
+    .summary-value.highlight { color: #EF4E50; }
+
+    .table-wrapper {
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      overflow: hidden;
+      max-height: 500px;
+      overflow-y: auto;
+      width: 100%;
+    }
+
+    #invalid-area {
+      margin-top: 24px;
+    }
+
+    #valid-area {
+      margin-top: 24px;
+    }
+
+    .query-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .query-table thead th {
+      background-color: #33333C;
+      color: white;
+      padding: 12px 10px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      border-bottom: 2px solid #222;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .query-table tbody tr {
+      border-bottom: 1px solid #e0e0e0;
+      transition: background-color 0.2s;
+    }
+
+    .query-table tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .query-table tbody td {
+      padding: 10px;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .table-section-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #33333C;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+
+    .table-legend {
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      padding: 12px;
+      background-color: #f9f9f9;
+      border-left: 4px solid #EF4E50;
+      line-height: 1.6;
+    }
+
+    .invalid-reason {
+      color: #EF4E50;
+      font-weight: 500;
+    }
+
+    .matches-count {
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    .query-table tbody tr {
+      background-color: #f9f9f9;
+    }
+
+    .query-table tbody tr.row-with-matches {
+      background-color: #FFF59D;
+    }
+
+    .download-icon {
+      display: inline-block;
+      cursor: pointer;
+      color: #EF4E50;
+      font-size: 18px;
+      margin-right: 8px;
+    }
+
+    .download-icon:hover {
+      color: #d43e40;
+    }
+
+    .name-cell-with-icon {
+      display: flex;
+      align-items: center;
+    }
+
+    .name-cell-padding {
+      padding-left: 26px;
+    }
+  </style>
+<% end %>
+
+<div class="b-inner-container" style="max-width: 1100px; margin: 0 auto; padding: 16px 8px;">
+
+  <%# ── Etapa 1: Carga de archivo ───────────────────────────────────────── %>
+  <div class="bulk-header">
+    <h5>Consultas múltiples — Miembros</h5>
+  </div>
+
+  <div id="status-msg"></div>
+
+  <%# ── Zona de carga ──────────────────────────────────────────────────── %>
+  <div id="upload-section">
+    <div class="upload-icon">
+      <i class="material-icons">upload_file</i>
+    </div>
+    <div class="upload-text">Subir CSV</div>
+    <div class="upload-subtext">Arrastra o haz clic</div>
+  </div>
+  <input type="file" id="file-input" accept=".csv" style="display:none;" />
+
+  <%# ── Botón de procesamiento ─────────────────────────────────────────── %>
+  <div style="display:flex; gap:8px; margin-bottom:24px; align-items:center;">
+    <button id="upload-btn" class="bulk-btn" data-upload-url="<%= upload_bulk_csv_path %>">
+      <i class="material-icons" style="font-size:18px;">publish</i>
+      Procesar CSV
+    </button>
+    <div id="download-area" style="display:none; gap:8px;"></div>
+  </div>
+
+  <div id="results-grid"></div>
+
+  <%# ── Etapa 2: Resultados (oculta hasta tener datos) ─────────────────── %>
+  <div id="results-section" style="display:none;">
+    <div id="summary-area" style="display:none; background: #f9f9f9; border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 24px; max-width: 550px;"></div>
+
+    <div id="invalid-area" style="display:none;"></div>
+
+    <div id="valid-area" style="display:none;"></div>
+  </div>
+
+</div>
+
+<script nonce="<%= csp_nonce %>">
+(function() {
+  const uploadSection = document.getElementById('upload-section');
+  const fileInput = document.getElementById('file-input');
+  const uploadBtn = document.getElementById('upload-btn');
+  const statusMsg = document.getElementById('status-msg');
+
+  // Activar input file al hacer clic en la zona
+  uploadSection.addEventListener('click', () => fileInput.click());
+
+  // Drag and drop
+  uploadSection.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadSection.classList.add('drag-over');
+  });
+
+  uploadSection.addEventListener('dragleave', () => {
+    uploadSection.classList.remove('drag-over');
+  });
+
+  uploadSection.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadSection.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      updateFileStatus();
+    }
+  });
+
+  // Actualizar estado del archivo
+  fileInput.addEventListener('change', updateFileStatus);
+
+  function updateFileStatus() {
+    const file = fileInput.files[0];
+    if (file) {
+      uploadSection.innerHTML = `
+        <div class="upload-icon">
+          <i class="material-icons" style="color:#2e7d32;">check_circle</i>
+        </div>
+        <div class="upload-text">${file.name}</div>
+        <div class="upload-subtext">${(file.size / 1024).toFixed(2)} KB</div>
+      `;
+      uploadBtn.disabled = false;
+    }
+  }
+
+  // Procesar CSV
+  uploadBtn.addEventListener('click', () => {
+    const file = fileInput.files[0];
+    if (!file) {
+      statusMsg.textContent = '❌ Por favor, selecciona un archivo.';
+      statusMsg.style.color = '#EF4E50';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    uploadBtn.disabled = true;
+    statusMsg.textContent = 'Validando créditos y procesando...';
+    statusMsg.style.color = '#888';
+
+    fetch(uploadBtn.dataset.uploadUrl, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      uploadBtn.disabled = false;
+      if (data.success) {
+        statusMsg.textContent = '✅ Consultas procesadas correctamente.';
+        statusMsg.style.color = '#2e7d32';
+        showSummary(data.summary, data.invalid_rows, data.results, data.invalid_truncated, data.results_truncated, data.invalid_total, data.results_total, data.bulk_query_run_id);
+      } else {
+        statusMsg.textContent = '❌ ' + (data.message || 'Error al procesar el archivo.');
+        statusMsg.style.color = '#EF4E50';
+      }
+    })
+    .catch(error => {
+      uploadBtn.disabled = false;
+      statusMsg.textContent = '❌ Error: ' + error.message;
+      statusMsg.style.color = '#EF4E50';
+      console.error('Error:', error);
+    });
+  });
+
+  function showSummary(summary, invalidRows, validResults, invalidTruncated, resultsTruncated, invalidTotal, resultsTotal, bulkQueryRunId) {
+    const resultsSection = document.getElementById('results-section');
+    const summaryArea = document.getElementById('summary-area');
+    const invalidArea = document.getElementById('invalid-area');
+    const validArea = document.getElementById('valid-area');
+    const downloadArea = document.getElementById('download-area');
+
+    resultsSection.style.display = 'block';
+
+    const formatDate = (dateStr) => {
+      if (!dateStr) return 'N/A';
+      const date = new Date(dateStr);
+      return date.toLocaleString('es-MX', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
+
+    const formatNumber = (num) => {
+      return num.toLocaleString('es-MX');
+    };
+
+    // Contenido del resumen
+    let summaryHtml = `
+      <h6>Resumen de Consulta Múltiple</h6>
+      <div class="summary-row">
+        <span class="summary-label">Total de filas en CSV:</span>
+        <span class="summary-value">${formatNumber(summary.total_csv_rows)}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Consultas efectivas realizadas:</span>
+        <span class="summary-value">${formatNumber(summary.effective_queries)}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Consultas con coincidencias:</span>
+        <span class="summary-value highlight">${formatNumber(summary.queries_with_matches)}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Consultas sin coincidencias:</span>
+        <span class="summary-value">${formatNumber(summary.queries_without_matches)}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Fecha/hora de carga:</span>
+        <span class="summary-value">${formatDate(summary.uploaded_at)}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Última actualización BD:</span>
+        <span class="summary-value">${formatDate(summary.dataset_last_updated_at)}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Total de registros en BD:</span>
+        <span class="summary-value">${formatNumber(summary.total_members_in_db)}</span>
+      </div>
+      ${summary.invalid_rows_count > 0 ? `
+        <div class="summary-row">
+          <span class="summary-label">Filas inválidas (no procesadas):</span>
+          <span class="summary-value">${formatNumber(summary.invalid_rows_count)}</span>
+        </div>
+      ` : ''}
+    `;
+
+    summaryArea.innerHTML = summaryHtml;
+    summaryArea.style.display = 'block';
+
+    // Contenido de consultas inválidas
+    if (invalidRows && invalidRows.length > 0) {
+      let invalidHtml = `<h6 style="margin-top: 0; margin-bottom: 16px;">Consultas Inválidas</h6>`;
+      invalidHtml += generateInvalidTable(invalidRows, invalidTruncated, invalidTotal);
+      invalidArea.innerHTML = invalidHtml;
+      invalidArea.style.display = 'block';
+    }
+
+    // Contenido de consultas válidas
+    if (validResults && validResults.length > 0) {
+      let validHtml = `<h6 style="margin-top: 0; margin-bottom: 16px;">Consultas Válidas</h6>`;
+      validHtml += `<div class="table-legend">
+        • <strong>Coincidencias:</strong> Número de registros de personas señaladas o personas expuestas que coinciden con los parámetros de consulta.<br>
+        • <strong>Probables homónimos:</strong> Estimación del número de mexicanos adultos con el nombre y apellidos consultados o alguna de sus variantes.
+      </div>`;
+      validHtml += generateValidTable(validResults, resultsTruncated, resultsTotal);
+      validArea.innerHTML = validHtml;
+      validArea.style.display = 'block';
+
+      // Event listener para descargar PDF - usar delegación
+      validArea.addEventListener('click', (e) => {
+        const downloadIcon = e.target.closest('.download-icon');
+        if (downloadIcon) {
+          e.preventDefault();
+          e.stopPropagation();
+          const queryId = downloadIcon.dataset.queryId;
+          console.log('Descargando PDF para query:', queryId);
+          window.location.href = `/bulk_member_queries/pdf/${queryId}`;
+        }
+      });
+    }
+
+    // Mostrar botón de descarga de resultados completos
+    if (bulkQueryRunId) {
+      downloadArea.style.display = 'flex';
+      downloadArea.innerHTML = `
+        <button id="download-results-btn" class="bulk-btn" style="background-color:#EF4E50;" data-url="/bulk_member_queries/results_pdf/${bulkQueryRunId}">
+          <i class="material-icons" style="font-size:18px;">download</i>
+          Descargar resultados
+        </button>
+      `;
+
+      // Event listener para el botón de descarga (dentro de nonce)
+      const downloadBtn = document.getElementById('download-results-btn');
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const url = downloadBtn.dataset.url;
+          window.location.href = url;
+        });
+      }
+    }
+  }
+
+  function generateInvalidTable(invalidRows, isTruncated, total) {
+    if (!invalidRows || invalidRows.length === 0) return '';
+
+    // Determinar modo basándose en los datos presentes
+    let firstInvalid = invalidRows[0];
+    let isSegmented = firstInvalid.firstname !== null || firstInvalid.lastname1 !== null || firstInvalid.lastname2 !== null;
+
+    let html = '<div class="table-wrapper"><table class="query-table" style="table-layout: fixed;"><thead><tr>';
+
+    if (isSegmented) {
+      html += '<th style="width: 15%;">Referencia</th><th style="width: 20%;">Nombre propio</th><th style="width: 20%;">Apellido paterno</th><th style="width: 20%;">Apellido materno</th><th style="width: 25%;">Criterio</th>';
+    } else {
+      html += '<th style="width: 20%;">Referencia</th><th style="width: 40%;">Nombre completo</th><th style="width: 40%;">Criterio</th>';
+    }
+
+    html += '</tr></thead><tbody>';
+
+    invalidRows.forEach(row => {
+      html += '<tr>';
+      if (isSegmented) {
+        html += `<td style="word-wrap: break-word;">${row.reference || ''}</td>`;
+        html += `<td style="word-wrap: break-word;">${row.firstname || ''}</td>`;
+        html += `<td style="word-wrap: break-word;">${row.lastname1 || ''}</td>`;
+        html += `<td style="word-wrap: break-word;">${row.lastname2 || ''}</td>`;
+        html += `<td style="word-wrap: break-word;"><span class="invalid-reason">${row.reason || ''}</span></td>`;
+      } else {
+        html += `<td style="word-wrap: break-word;">${row.reference || ''}</td>`;
+        html += `<td style="word-wrap: break-word;">${row.name || ''}</td>`;
+        html += `<td style="word-wrap: break-word;"><span class="invalid-reason">${row.reason || ''}</span></td>`;
+      }
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+
+    if (isTruncated) {
+      html += `<div style="font-size: 12px; color: #888; margin-top: 8px;">Mostrando 200 de ${total} consultas inválidas</div>`;
+    }
+
+    return html;
+  }
+
+  function getHomonymsEstimate(homoScore) {
+    if (homoScore === null || homoScore === undefined) return '';
+
+    if (homoScore < 1) return 'Nombre único';
+    if (homoScore < 2) return 'Sólo 1';
+    if (homoScore < 3) return 'Más de 2';
+    if (homoScore < 4) return 'Más de 3';
+    if (homoScore < 5) return 'Más de 4';
+    if (homoScore < 6) return 'Más de 5';
+    if (homoScore < 7) return 'Más de 6';
+    if (homoScore < 8) return 'Más de 7';
+    if (homoScore < 9) return 'Más de 8';
+    if (homoScore < 10) return 'Más de 9';
+    if (homoScore < 20) return 'Más de 10';
+    if (homoScore < 30) return 'Más de 20';
+    if (homoScore < 40) return 'Más de 30';
+    if (homoScore < 50) return 'Más de 40';
+    if (homoScore < 60) return 'Más de 50';
+    if (homoScore < 70) return 'Más de 60';
+    if (homoScore < 80) return 'Más de 70';
+    if (homoScore < 90) return 'Más de 80';
+    if (homoScore < 100) return 'Más de 90';
+    if (homoScore < 200) return 'Más de 100';
+    if (homoScore < 500) return 'Más de 200';
+    if (homoScore < 1000) return 'Más de 500';
+    return 'Más de 1000';
+  }
+
+  function generateValidTable(validResults, isTruncated, total) {
+    if (!validResults || validResults.length === 0) return '';
+
+    // Determinar modo basándose en los datos presentes
+    let firstValid = validResults[0];
+    let isSegmented = firstValid.mode === 'segmented' && (firstValid.firstname !== null || firstValid.lastname1 !== null || firstValid.lastname2 !== null);
+
+    let html = '<div class="table-wrapper"><table class="query-table" style="table-layout: fixed;"><thead><tr>';
+
+    if (isSegmented) {
+      html += '<th style="width: 12%;">Referencia</th><th style="width: 20%;">Nombre propio</th><th style="width: 20%;">Apellido paterno</th><th style="width: 20%;">Apellido materno</th><th style="width: 20%;">Probables homónimos</th><th style="width: 8%;">Coincidencias</th>';
+    } else {
+      html += '<th style="width: 20%;">Referencia</th><th style="width: 44%;">Nombre completo</th><th style="width: 28%;">Probables homónimos</th><th style="width: 8%;">Coincidencias</th>';
+    }
+
+    html += '</tr></thead><tbody>';
+
+    validResults.forEach(row => {
+      let rowClass = row.result_count > 0 ? ' class="row-with-matches"' : '';
+      html += `<tr${rowClass}>`;
+      let homonymsText = getHomonymsEstimate(row.homo_score);
+
+      if (isSegmented) {
+        html += `<td style="word-wrap: break-word;">${row.reference || ''}</td>`;
+        let nameCell = `<td style="word-wrap: break-word;">`;
+        if (row.result_count > 0) {
+          nameCell += `<span class="download-icon" data-query-id="${row.query_id}" title="Descargar PDF">
+            <i class="material-icons" style="font-size: 18px; vertical-align: middle;">download</i>
+          </span>`;
+          nameCell += `<span style="display: inline;">${row.firstname || ''}</span>`;
+        } else {
+          nameCell += `<span class="name-cell-padding">${row.firstname || ''}</span>`;
+        }
+        nameCell += `</td>`;
+        html += nameCell;
+        html += `<td style="word-wrap: break-word;">${row.lastname1 || ''}</td>`;
+        html += `<td style="word-wrap: break-word;">${row.lastname2 || ''}</td>`;
+        html += `<td style="word-wrap: break-word; color: #666;">${homonymsText}</td>`;
+        html += `<td><span class="matches-count">${row.result_count}</span></td>`;
+      } else {
+        html += `<td style="word-wrap: break-word;">${row.reference || ''}</td>`;
+        let nameCell = `<td style="word-wrap: break-word;">`;
+        if (row.result_count > 0) {
+          nameCell += `<span class="download-icon" data-query-id="${row.query_id}" title="Descargar PDF">
+            <i class="material-icons" style="font-size: 18px; vertical-align: middle;">download</i>
+          </span>`;
+          nameCell += `<span style="display: inline;">${row.name || ''}</span>`;
+        } else {
+          nameCell += `<span class="name-cell-padding">${row.name || ''}</span>`;
+        }
+        nameCell += `</td>`;
+        html += nameCell;
+        html += `<td style="word-wrap: break-word; color: #666;">${homonymsText}</td>`;
+        html += `<td><span class="matches-count">${row.result_count}</span></td>`;
+      }
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+
+    if (isTruncated) {
+      html += `<div style="font-size: 12px; color: #888; margin-top: 8px;">Mostrando 200 de ${total} consultas válidas</div>`;
+    }
+
+    return html;
+  }
+})();
+</script>

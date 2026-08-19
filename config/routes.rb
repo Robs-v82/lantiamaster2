@@ -207,6 +207,11 @@ Rails.application.routes.draw do
     patch "agent/media_hits/:id",             to: "agent#update_media_hit", as: :update_agent_media_hit
     delete "agent/media_hits/:id",            to: "agent#delete_media_hit", as: :delete_agent_media_hit
 
+    get  "bulk_member_queries/pdf/:id",          to: "bulk_queries#bulk_query_pdf", as: :bulk_query_pdf
+    get  "bulk_member_queries/results_pdf/:id", to: "bulk_queries#download_bulk_results_pdf", as: :download_bulk_results_pdf
+    get  "bulk_member_queries",                  to: "bulk_queries#index",       as: :bulk_member_queries
+    post "bulk_member_queries/upload",           to: "bulk_queries#upload_csv",  as: :upload_bulk_csv
+
     get  "organizations/admin", to: "organizations#admin"
     post "organizations/:id/set_search_level", to: "organizations#set_search_level", as: :set_org_search_level
     post "organizations/admin_create", to: "organizations#admin_create"
