@@ -19,6 +19,8 @@ class ReportMailer < ApplicationMailer
                      "Violencia del Crimen Organizado #{briefing.formatted_date} | Lantia Intelligence"
                    when 'reporte_prospectiva'
                      "Prospectiva #{briefing.formatted_date} | Lantia Intelligence"
+                   when 'reporte_especial'
+                     "Reporte Especial | Lantia Intelligence"
                    else
                      "Nuevo reporte | Lantia Intelligence"
                    end

@@ -7,6 +7,8 @@
              "VIOLENCIA DEL CRIMEN ORGANIZADO"
            when 'reporte_prospectiva'
              "PROSPECTIVA"
+           when 'reporte_especial'
+             "REPORTE ESPECIAL"
            else
              "NUEVO REPORTE"
            end %>
@@ -79,6 +81,10 @@
                   <% if @briefing.report_type == 'briefing_semanal' %>
                     <p style="color: #041F3A; font-weight: 600; margin: 0 0 15px 0; font-size: 14px;">
                       Esta semana desarrollamos los siguientes temas:
+                    </p>
+                  <% elsif @briefing.report_type == 'reporte_especial' %>
+                    <p style="color: #041F3A; font-weight: 600; margin: 0 0 15px 0; font-size: 14px;">
+                      Resumen:
                     </p>
                   <% else %>
                     <p style="color: #041F3A; font-weight: 600; margin: 0 0 15px 0; font-size: 14px;">
