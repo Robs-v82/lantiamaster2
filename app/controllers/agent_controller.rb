@@ -15,40 +15,74 @@ class AgentController < ApplicationController
 
   # ── Serper queries (CRIMINAL MEMBERS) ──────────────────────────────────────
   # Notas:
-  # - Queries temáticas: ELIMINA toda mención de detenidos/capturas/procesamientos
-  # - Queries por organización: INCLUYE TODAS las 11 del dailySearchScript
-  # - Total: 21 queries
+  # - Combo 1 (CJNG): CJNG OR "Cártel Jalisco" + palabra clave (7 queries)
+  # - Combo 2 (Sinaloa): "Cártel de Sinaloa" + palabra clave (7 queries)
+  # - Combo 3 (Crimen organizado): "Crimen organizado" + "México" + palabra clave (7 queries)
+  # - Combo 4 (Organizaciones): Nombre textual completo (9 queries)
+  # - Total: 30 queries estructuradas por combo
   SERPER_QUERIES_CRIMINAL_MEMBERS = [
-    # ── Queries temáticas: Empresarios/Civiles (sin detención) ──────
-    "empresario narco vínculos",
-    "empresario lavador dinero",
-    "prestanombres crimen organizado",
-    "traficante dinero cartel",
+    # ── COMBO 1: CJNG/Cártel Jalisco Nueva Generación (7 queries) ────────
+    "CJNG empresario -site:twitter.com -site:facebook.com",
+    "CJNG prestanombres -site:twitter.com -site:facebook.com",
+    "CJNG alcalde -site:twitter.com -site:facebook.com",
+    "CJNG funcionario -site:twitter.com -site:facebook.com",
+    "CJNG operador -site:twitter.com -site:facebook.com",
+    "CJNG lavador -site:twitter.com -site:facebook.com",
+    "CJNG secretario -site:twitter.com -site:facebook.com",
 
-    # ── Queries temáticas: Funcionarios/Autoridades (sin detención) ──
-    "alcalde vínculos crimen organizado",
-    "funcionario corrupción narcotráfico",
-    "gobernador vínculos cártel",
-    "policía corrupción crimen organizado",
+    # ── COMBO 2: Cártel de Sinaloa (7 queries) ──────────────────────────
+    '"Cártel de Sinaloa" empresario -site:twitter.com -site:facebook.com',
+    '"Cártel de Sinaloa" prestanombres -site:twitter.com -site:facebook.com',
+    '"Cártel de Sinaloa" alcalde -site:twitter.com -site:facebook.com',
+    '"Cártel de Sinaloa" funcionario -site:twitter.com -site:facebook.com',
+    '"Cártel de Sinaloa" operador -site:twitter.com -site:facebook.com',
+    '"Cártel de Sinaloa" lavador -site:twitter.com -site:facebook.com',
+    '"Cártel de Sinaloa" secretario -site:twitter.com -site:facebook.com',
 
-    # ── Queries temáticas: Dinero/Activos ────────────────────────────
-    "dinero narcotráfico decomiso",
-    "bienes incautados crimen organizado",
-    "operación financiera narcos",
+    # ── COMBO 3: Crimen organizado (7 queries) ──────────────────────────
+    '"Crimen organizado" México empresario -site:twitter.com -site:facebook.com',
+    '"Crimen organizado" México prestanombres -site:twitter.com -site:facebook.com',
+    '"Crimen organizado" México alcalde -site:twitter.com -site:facebook.com',
+    '"Crimen organizado" México funcionario -site:twitter.com -site:facebook.com',
+    '"Crimen organizado" México operador -site:twitter.com -site:facebook.com',
+    '"Crimen organizado" México lavador -site:twitter.com -site:facebook.com',
+    '"Crimen organizado" México secretario -site:twitter.com -site:facebook.com',
 
-    # ── Queries por organizaciones (TODAS del dailySearchScript) ──────
-    # 11 organizaciones:
-    "cartel",                                 # 1. cartel (genérico)
-    "Cártel Jalisco Nueva Generación",        # 2. Cártel Jalisco
-    "Cártel de Sinaloa",                      # 3. Cártel de Sinaloa
-    "Mayiza",                                 # 4. Mayiza
-    "Chapitos",                               # 5. Chapitos
-    "CJNG",                                   # 6. CJNG
-    "Cárteles Unidos",                        # 7. Cárteles Unidos
-    "Cártel del Noreste",                     # 8. Cártel del Noreste
-    "Familia Michoacana",                     # 9. Familia Michoacana
-    "huachicol",                              # 10. huachicol
-    "cobro de cuota"                          # 11. cobro de cuota
+    # ── COMBO 4: Organizaciones específicas por nombre textual (9 queries) ────
+    '"Familia Michoacana" -site:twitter.com -site:facebook.com',
+    '"Cárteles Unidos" -site:twitter.com -site:facebook.com',
+    '"Cártel del Noreste" -site:twitter.com -site:facebook.com',
+    '"Cártel de Juárez" -site:twitter.com -site:facebook.com',
+    '"Los Viagras" -site:twitter.com -site:facebook.com',
+    '"La Línea" -site:twitter.com -site:facebook.com',
+    '"Chapitos" -site:twitter.com -site:facebook.com',
+    '"Mayiza" -site:twitter.com -site:facebook.com',
+    '"Cártel del Golfo" -site:twitter.com -site:facebook.com'
+  ].freeze
+
+  # ── Whitelist de dominios confiables para CRIMINAL MEMBERS ─────────────────
+  ALLOWED_NEWS_DOMAINS_CRIMINAL_MEMBERS = [
+    "jornada.com.mx",
+    "infobae.com",
+    "proceso.com.mx",
+    "milenio.com",
+    "eluniversal.com.mx",
+    "reforma.com",
+    "eleconomista.com.mx",
+    "elfinanciero.com.mx",
+    "excelsior.com.mx",
+    "zetatijuana.com",
+    "sinembargo.mx",
+    "lasillarota.com",
+    "oem.com.mx",
+    "informador.mx",
+    "noroeste.com.mx",
+    "elnorte.com",
+    "elsiglodetorreon.com.mx",
+    "animalpolitico.com",
+    "wradio.com.mx",
+    "reporteindigo.com",
+    "aristeguinoticias.com"
   ].freeze
 
   # ── Extraction filters (DETENTIONS) ────────────────────────────────────────
@@ -442,11 +476,16 @@ class AgentController < ApplicationController
 
     results = []
     query_results = {}
+    query_combo_map = {}  # Mapear query → combo_type
     mutex   = Mutex.new
 
-    threads = SERPER_QUERIES_CRIMINAL_MEMBERS.map do |query|
+    threads = SERPER_QUERIES_CRIMINAL_MEMBERS.map.with_index do |query, index|
       Thread.new do
         begin
+          # Detectar combo_type por índice de query
+          combo_type = detect_combo_type(index)
+          query_combo_map[query] = combo_type
+
           uri  = URI("https://google.serper.dev/news")
           http = Net::HTTP.new(uri.host, uri.port)
           http.use_ssl      = true
@@ -456,26 +495,39 @@ class AgentController < ApplicationController
           req = Net::HTTP::Post.new(uri)
           req["X-API-KEY"]    = api_key
           req["Content-Type"] = "application/json"
-          req.body = { q: query, tbs: "qdr:d", gl: "mx", hl: "es", num: 10 }.to_json
+          # Cambios: tbs: "qdr:m" (último mes) y num: 5 (menos resultados, más precisión)
+          req.body = { q: query, tbs: "qdr:m", gl: "mx", hl: "es", num: 5 }.to_json
 
           res  = http.request(req)
           data = JSON.parse(res.body)
           news = data["news"].is_a?(Array) ? data["news"] : []
 
+          # Validar cada resultado contra reglas de combo
+          validated_news = news.select do |article|
+            validate_result_against_combo_rules(article, query, combo_type)
+          end
+
           mutex.synchronize do
-            news_with_query = news.map { |article| article.merge("matched_queries" => [query]) }
-            results.concat(news_with_query)
-            query_results[query] = news.length
+            news_with_metadata = validated_news.map do |article|
+              article.merge(
+                "matched_queries" => [query],
+                "combo_type" => combo_type,
+                "validation_status" => "valid"
+              )
+            end
+            results.concat(news_with_metadata)
+            query_results[query] = { total_returned: news.length, passed_validation: validated_news.length }
           end
         rescue => e
           Rails.logger.error("[Agent#search_criminal_members] #{query.inspect} #{e.class}: #{e.message}")
-          mutex.synchronize { query_results[query] = 0 }
+          mutex.synchronize { query_results[query] = { error: e.message } }
         end
       end
     end
 
     threads.each(&:join)
 
+    # Deduplicar resultados (mismo link = mergear queries)
     seen   = {}
     unique = results.inject([]) do |acc, a|
       if a["link"] && seen[a["link"]]
@@ -490,8 +542,96 @@ class AgentController < ApplicationController
       acc
     end
 
-    unique = filter_non_mexican_domains(unique)
+    # Filtrar por whitelist de dominios (solo noticias confiables)
+    unique = filter_allowed_news_domains_criminal(unique)
+
+    # Loguear resultados
+    Rails.logger.info("[Agent#search_criminal_members] RESUMEN: Total queries=#{SERPER_QUERIES_CRIMINAL_MEMBERS.length}, " +
+      "Total artículos encontrados=#{results.length}, Únicos después de dedup=#{unique.length}")
+
     render json: { articles: unique, search_results: query_results }
+  end
+
+  # ── Detector de combo_type por índice de query ────────────────────────────
+  def detect_combo_type(index)
+    case index
+    when 0..6    then :combo1_cjng
+    when 7..13   then :combo2_sinaloa
+    when 14..20  then :combo3_crimen_organizado
+    when 21..29  then :combo4_org_specific
+    else              :unknown
+    end
+  end
+
+  # ── Validador de resultados contra reglas por combo ──────────────────────
+  def validate_result_against_combo_rules(article, query, combo_type)
+    snippet = (article["snippet"].to_s + article["title"].to_s).downcase
+    snippet_normalized = I18n.transliterate(snippet)
+
+    case combo_type
+    when :combo1_cjng
+      # COMBO 1: Contiene (CJNG O "Cártel Jalisco") Y palabra_clave
+      has_org = snippet_normalized.include?("cjng") || snippet_normalized.include?("cartel jalisco")
+      keyword = extract_keyword_from_query(query)
+      has_keyword = keyword.present? && snippet_normalized.include?(keyword.downcase)
+      has_org && has_keyword
+
+    when :combo2_sinaloa
+      # COMBO 2: Contiene "Cártel de Sinaloa" Y palabra_clave
+      has_org = snippet_normalized.include?("cartel de sinaloa")
+      keyword = extract_keyword_from_query(query)
+      has_keyword = keyword.present? && snippet_normalized.include?(keyword.downcase)
+      has_org && has_keyword
+
+    when :combo3_crimen_organizado
+      # COMBO 3: Contiene "Crimen organizado" Y "México" Y palabra_clave
+      has_crimen = snippet_normalized.include?("crimen organizado")
+      has_mexico = snippet_normalized.include?("mexico")
+      keyword = extract_keyword_from_query(query)
+      has_keyword = keyword.present? && snippet_normalized.include?(keyword.downcase)
+      has_crimen && has_mexico && has_keyword
+
+    when :combo4_org_specific
+      # COMBO 4: Contiene nombre textual exacto de organización
+      org_names = [
+        "familia michoacana",
+        "carteles unidos",
+        "cartel del noreste",
+        "cartel de juarez",
+        "los viagras",
+        "la linea",
+        "chapitos",
+        "mayiza",
+        "cartel del golfo"
+      ]
+      org_names.any? { |org| snippet_normalized.include?(org) }
+
+    else
+      true
+    end
+  end
+
+  # ── Extractor de palabra clave de query ─────────────────────────────────
+  def extract_keyword_from_query(query)
+    keywords = %w[empresario prestanombres alcalde funcionario operador lavador secretario]
+    keywords.find { |kw| query.downcase.include?(kw) }
+  end
+
+  # ── Filtro de dominios: whitelist de noticias confiables ─────────────────
+  def filter_allowed_news_domains_criminal(articles)
+    articles.select do |article|
+      link = article["link"].to_s.downcase
+      uri = URI.parse(link) rescue nil
+      next false if uri.nil? || uri.host.nil?
+
+      host = uri.host.downcase
+      ALLOWED_NEWS_DOMAINS_CRIMINAL_MEMBERS.any? do |allowed_domain|
+        host == allowed_domain || host.end_with?(".#{allowed_domain}")
+      end
+    end
+  rescue => e
+    Rails.logger.warn("[Agent#filter_allowed_news_domains_criminal] Error: #{e.message}")
+    articles
   end
 
   # ── Filtro de dominios: excluir TLDs latinoamericanos (no .mx) ────────────
