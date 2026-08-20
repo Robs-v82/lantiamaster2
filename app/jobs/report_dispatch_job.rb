@@ -37,11 +37,18 @@ class ReportDispatchJob < ApplicationJob
         "[ReportDispatchJob] Briefing #{briefing.id} enviado en MODO PRUEBA a #{successful_count} usuarios (test_mode: true, pending_jobs: #{briefing.pending_dispatch_jobs})"
       )
       # Eliminar el Briefing solo después de que todos los jobs hayan terminado
+      # EXCEPTO para reporte_especial: preservar blob para descargas
       if briefing.pending_dispatch_jobs <= 0
-        briefing.destroy!
-        Rails.logger.info(
-          "[ReportDispatchJob] Briefing #{briefing.id} eliminado después de prueba (test_mode: true, todos los jobs completados)"
-        )
+        if briefing.special_report?
+          Rails.logger.info(
+            "[ReportDispatchJob] Briefing #{briefing.id} (reporte_especial) preservado para descargas (test_mode: true)"
+          )
+        else
+          briefing.destroy!
+          Rails.logger.info(
+            "[ReportDispatchJob] Briefing #{briefing.id} eliminado después de prueba (test_mode: true, todos los jobs completados)"
+          )
+        end
       end
     else
       briefing.update!(
