@@ -39,28 +39,43 @@ document.addEventListener('DOMContentLoaded', function() {
         const criteriaTbody = document.getElementById('criteria-tbody');
 
         const queries = [
-          'empresario narco vínculos',
-          'empresario lavador dinero',
-          'prestanombres crimen organizado',
-          'traficante dinero cartel',
-          'alcalde vínculos crimen organizado',
-          'funcionario corrupción narcotráfico',
-          'gobernador vínculos cártel',
-          'policía corrupción crimen organizado',
-          'dinero narcotráfico decomiso',
-          'bienes incautados crimen organizado',
-          'operación financiera narcos',
-          'cartel',
-          'Cártel Jalisco Nueva Generación',
-          'Cártel de Sinaloa',
-          'Mayiza',
-          'Chapitos',
-          'CJNG',
-          'Cárteles Unidos',
-          'Cártel del Noreste',
-          'Familia Michoacana',
-          'huachicol',
-          'cobro de cuota'
+          // ── COMBO 1: CJNG/Cártel Jalisco Nueva Generación (7 queries) ──
+          'CJNG empresario -site:twitter.com -site:facebook.com',
+          'CJNG prestanombres -site:twitter.com -site:facebook.com',
+          'CJNG alcalde -site:twitter.com -site:facebook.com',
+          'CJNG funcionario -site:twitter.com -site:facebook.com',
+          'CJNG operador -site:twitter.com -site:facebook.com',
+          'CJNG lavador -site:twitter.com -site:facebook.com',
+          'CJNG secretario -site:twitter.com -site:facebook.com',
+
+          // ── COMBO 2: Cártel de Sinaloa (7 queries) ──
+          '"Cártel de Sinaloa" empresario -site:twitter.com -site:facebook.com',
+          '"Cártel de Sinaloa" prestanombres -site:twitter.com -site:facebook.com',
+          '"Cártel de Sinaloa" alcalde -site:twitter.com -site:facebook.com',
+          '"Cártel de Sinaloa" funcionario -site:twitter.com -site:facebook.com',
+          '"Cártel de Sinaloa" operador -site:twitter.com -site:facebook.com',
+          '"Cártel de Sinaloa" lavador -site:twitter.com -site:facebook.com',
+          '"Cártel de Sinaloa" secretario -site:twitter.com -site:facebook.com',
+
+          // ── COMBO 3: Crimen organizado (7 queries) ──
+          '"Crimen organizado" México empresario -site:twitter.com -site:facebook.com',
+          '"Crimen organizado" México prestanombres -site:twitter.com -site:facebook.com',
+          '"Crimen organizado" México alcalde -site:twitter.com -site:facebook.com',
+          '"Crimen organizado" México funcionario -site:twitter.com -site:facebook.com',
+          '"Crimen organizado" México operador -site:twitter.com -site:facebook.com',
+          '"Crimen organizado" México lavador -site:twitter.com -site:facebook.com',
+          '"Crimen organizado" México secretario -site:twitter.com -site:facebook.com',
+
+          // ── COMBO 4: Organizaciones específicas por nombre (9 queries) ──
+          '"Familia Michoacana" -site:twitter.com -site:facebook.com',
+          '"Cárteles Unidos" -site:twitter.com -site:facebook.com',
+          '"Cártel del Noreste" -site:twitter.com -site:facebook.com',
+          '"Cártel de Juárez" -site:twitter.com -site:facebook.com',
+          '"Los Viagras" -site:twitter.com -site:facebook.com',
+          '"La Línea" -site:twitter.com -site:facebook.com',
+          '"Chapitos" -site:twitter.com -site:facebook.com',
+          '"Mayiza" -site:twitter.com -site:facebook.com',
+          '"Cártel del Golfo" -site:twitter.com -site:facebook.com'
         ];
 
         criteriaTbody.innerHTML = queries.map(query => {
