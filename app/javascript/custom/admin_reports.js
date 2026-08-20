@@ -171,6 +171,9 @@ $(function() {
         if (reportType === 'briefing_semanal') {
           introText = `Te enviamos adjunto el briefing semanal.`;
           summaryLegend = 'Esta semana desarrollamos los siguientes temas:';
+        } else if (reportType === 'reporte_especial') {
+          introText = `Te enviamos adjunto el reporte especial.`;
+          summaryLegend = 'Contenido del reporte:';
         } else {
           const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                              'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];

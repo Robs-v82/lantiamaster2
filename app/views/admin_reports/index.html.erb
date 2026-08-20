@@ -72,6 +72,7 @@
                   <option value="reporte_riesgo">Riesgo Social</option>
                   <option value="reporte_conflictividad">Violencia del Crimen Organizado</option>
                   <option value="reporte_prospectiva">Prospectiva</option>
+                  <option value="reporte_especial">Reporte Especial</option>
                 </select>
                 <label>Tipo de Reporte</label>
               </div>
@@ -219,6 +220,7 @@
                                       when 'reporte_riesgo' then "Riesgo"
                                       when 'reporte_conflictividad' then "Conflictividad"
                                       when 'reporte_prospectiva' then "Prospectiva"
+                                      when 'reporte_especial' then "Reporte Especial"
                                       else b.report_type
                                       end %>
                       <%= type_label %>

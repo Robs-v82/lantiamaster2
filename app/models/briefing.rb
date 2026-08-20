@@ -2,23 +2,23 @@ class Briefing < ApplicationRecord
   has_one_attached :pdf
 
   validates :report_type, inclusion: {
-    in: %w[reporte_riesgo reporte_conflictividad reporte_prospectiva briefing_semanal],
-    message: "debe ser uno de: reporte_riesgo, reporte_conflictividad, reporte_prospectiva, briefing_semanal"
+    in: %w[reporte_riesgo reporte_conflictividad reporte_prospectiva briefing_semanal reporte_especial],
+    message: "debe ser uno de: reporte_riesgo, reporte_conflictividad, reporte_prospectiva, briefing_semanal, reporte_especial"
   }
 
   validates :number, presence: true, if: proc { |b| b.report_type == 'briefing_semanal' }
   validates :number, uniqueness: { scope: [:year, :month_number], message: "de briefing ya existe" }, if: proc { |b| b.report_type == 'briefing_semanal' }
 
   validates :month_number, :year, presence: true,
-            if: proc { |b| b.report_type != 'briefing_semanal' }
+            if: proc { |b| !%w[briefing_semanal reporte_especial].include?(b.report_type) }
 
   validates :month_number, inclusion: { in: 1..12 },
-            if: proc { |b| b.report_type != 'briefing_semanal' }
+            if: proc { |b| !%w[briefing_semanal reporte_especial].include?(b.report_type) }
 
   validates :report_type,
             uniqueness: { scope: [:month_number, :year],
                           message: "ya existe un reporte de este tipo para ese mes/año" },
-            if: proc { |b| b.report_type != 'briefing_semanal' }
+            if: proc { |b| !%w[briefing_semanal reporte_especial].include?(b.report_type) }
 
   scope :sent, -> { where.not(sent_at: nil) }
   scope :pending, -> { where(sent_at: nil) }
@@ -60,6 +60,10 @@ class Briefing < ApplicationRecord
 
   def monthly_report?
     %w[reporte_riesgo reporte_conflictividad reporte_prospectiva].include?(report_type)
+  end
+
+  def special_report?
+    report_type == 'reporte_especial'
   end
 
   def attachment_field_for_month
