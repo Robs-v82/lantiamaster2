@@ -778,6 +778,18 @@ select {
 
 .sidenav li > a {
 	line-height: 20 px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: flex-start !important;
+	min-height: 40px !important;
+}
+
+.sidenav #user-links .divider {
+	margin: 8px 0 !important;
+}
+
+.sidenav .collapsible-body a {
+	font-size: 17px !important;
 }
 
 .sidenav .user-view {

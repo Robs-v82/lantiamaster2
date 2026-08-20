@@ -198,3 +198,25 @@ Para features que generan output en múltiples formatos:
 ---
 
 **Si violas estas reglas:** Rompes confianza y puedes causar daño en producción. SIEMPRE reusa código análogo, SIEMPRE verifica completitud, SIEMPRE valida pre-producción, NUNCA hagas commits sin visto bueno explícito.
+
+---
+
+## 🔐 ACCESO A PRODUCCIÓN
+
+### Conexión SSH al Servidor EC2
+
+Para conectar al servidor de producción en AWS, ejecuta desde el directorio raíz (`/`) de esta computadora:
+
+```bash
+ssh -i "Lantiamaster2025.pem" ubuntu@ec2-18-118-85-206.us-east-2.compute.amazonaws.com
+```
+
+**Requisitos:**
+- Ejecutar desde el directorio raíz de la computadora
+- Tener la clave privada `Lantiamaster2025.pem` disponible en el directorio desde el que ejecutas
+- Acceso a la región `us-east-2` de AWS
+
+**⚠️ CRÍTICO:**
+- No cambiar credenciales sin documentación explícita
+- No compartir esta clave privada
+- No commitear esta información sensible al repositorio

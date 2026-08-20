@@ -23,9 +23,7 @@
       <div class="user-view background paletton-grey"></div>
     </li>
 
-    <div id="user-links white-text" class="paletton-red">
-      <br>
-
+    <div id="user-links" class="paletton-red white-text">
       <li class="white-text p20 semi-slim">
         <a class="left-min-margin p20 semi-slim preloader-trigger" href="/frontpage">
           <i class="material-icons white-text left-extra-margin">home</i>
@@ -50,43 +48,53 @@
                 <ul style="margin:0; padding:0;">
                   <li>
                     <a class="white-text p20 semi-slim preloader-trigger"
-                       style="display:block; padding: 12px 18px;"
+                       style="display:block; padding: 8px 18px;"
                        href="/users/admin">Ver usuarios</a>
                   </li>
                   <li>
                     <a class="white-text p20 semi-slim preloader-trigger"
-                       style="display:block; padding: 12px 18px;"
+                       style="display:block; padding: 8px 18px;"
                        href="/users/edit">Editar usuarios</a>
                   </li>
                   <li>
                     <a class="white-text p20 semi-slim preloader-trigger"
-                       style="display:block; padding: 12px 18px;"
+                       style="display:block; padding: 8px 18px;"
                        href="/users/new">Crear usuarios</a>
                   </li>
                   <li>
                     <a class="white-text p20 semi-slim preloader-trigger"
-                       style="display:block; padding: 12px 18px;"
+                       style="display:block; padding: 8px 18px;"
                        href="/organizations/admin">Organizaciones</a>
                   </li>
                   <li>
                     <a class="white-text p20 semi-slim preloader-trigger"
-                       style="display:block; padding: 12px 18px;"
+                       style="display:block; padding: 8px 18px;"
                        href="/datasets/easy_hits">Agregar hits</a>
                   </li>
                   <li>
                     <a class="white-text p20 semi-slim preloader-trigger"
-                       style="display:block; padding: 12px 18px;"
+                       style="display:block; padding: 8px 18px;"
                        href="/datasets/easy_members">Agregar members</a>
                   </li>
                   <li>
                     <a class="white-text p20 semi-slim preloader-trigger"
-                       style="display:block; padding: 12px 18px;"
+                       style="display:block; padding: 8px 18px;"
                        href="/members/audit">Auditoría</a>
                   </li>
                   <li>
                     <a class="white-text p20 semi-slim preloader-trigger"
-                       style="display:block; padding: 12px 18px;"
+                       style="display:block; padding: 8px 18px;"
                        href="/admin/reportes">Cargar reportes</a>
+                  </li>
+                  <li>
+                    <a class="white-text p20 semi-slim preloader-trigger"
+                       style="display:block; padding: 8px 18px;"
+                       href="/agent/detentions">Monitor arrestos</a>
+                  </li>
+                  <li>
+                    <a class="white-text p20 semi-slim preloader-trigger"
+                       style="display:block; padding: 8px 18px;"
+                       href="/agent/criminal_members">Monitor compliance</a>
                   </li>
                 </ul>
               </div>
@@ -94,7 +102,6 @@
           </ul>
         </li>
         <div class="divider"></div>
-        <br>
       <% end %>
 
       <%# PANEL (siempre que la org tenga search_panel) %>
@@ -105,7 +112,6 @@
           </a>
         </li>
         <div class="divider"></div>
-        <br>
       <% end %>
 
       <%# =========================
@@ -139,9 +145,7 @@
           <% end %>
         <% end %>
 
-        <br>
         <div class="divider"></div>
-        <br>
 
         <% if u && u.irco_access == false %>
           <li class="paletton-light-red-text p20 semi-slim">
@@ -161,14 +165,10 @@
           <% end %>
         <% end %>
 
-        <br>
-
         <% if session[:membership].to_i > 3 %>
           <div class="divider"></div>
-          <br>
           <li><a class="left-min-margin white-text p20 semi-slim" href="/datasets/downloads" target="_blank">ARCHIVO LANTIA</a></li>
           <li><a class="left-min-margin white-text p20 semi-slim" href="/guide_4.pdf" target="_blank">MANUAL</a></li>
-          <br>
         <% end %>
 
       <% end %> <%# /unless panel_only %>
