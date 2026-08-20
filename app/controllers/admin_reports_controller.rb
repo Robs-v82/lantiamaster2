@@ -43,7 +43,7 @@ class AdminReportsController < ApplicationController
         success: true,
         summary: result.summary,
         report_type: briefing.report_type,
-        formatted_date: briefing.formatted_date,
+        formatted_date: briefing.formatted_date || "",
         briefing_id: briefing.id
       }
     else
@@ -55,8 +55,11 @@ class AdminReportsController < ApplicationController
     render json: { error: e.message }, status: :unprocessable_entity
   rescue PG::UniqueViolation => e
     Rails.logger.error("[AdminReportsController#upload] Uniqueness violation - #{e.message}")
-    error_msg = if report_type == 'briefing_semanal'
+    error_msg = case report_type
+                when 'briefing_semanal'
                   "Ya existe un briefing con ese número"
+                when 'reporte_especial'
+                  "Error procesando el reporte"
                 else
                   "Ya existe un reporte de este tipo para ese mes/año"
                 end
@@ -71,7 +74,7 @@ class AdminReportsController < ApplicationController
       id: @briefing.id,
       summary: @briefing.summary,
       report_type: @briefing.report_type,
-      formatted_date: @briefing.formatted_date,
+      formatted_date: @briefing.formatted_date || "",
       user_count: calculate_recipient_count
     }
   end
@@ -138,7 +141,7 @@ class AdminReportsController < ApplicationController
       success: true,
       briefing_id: briefing.id,
       report_type: briefing.report_type,
-      formatted_date: briefing.formatted_date,
+      formatted_date: briefing.formatted_date || "",
       recipients_count: recipients_count,
       recipients_emails: recipients_emails,
       test_mode: test_mode,
@@ -174,6 +177,13 @@ class AdminReportsController < ApplicationController
         month_number: params[:month]&.to_i,
         year: params[:year]&.to_i,
         report_type: report_type
+      )
+    when 'reporte_especial'
+      Briefing.new(
+        number: nil,
+        month_number: nil,
+        year: nil,
+        report_type: 'reporte_especial'
       )
     else
       raise "Tipo de reporte inválido: #{report_type}"

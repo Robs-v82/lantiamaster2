@@ -23,7 +23,7 @@ class Briefing < ApplicationRecord
   scope :sent, -> { where.not(sent_at: nil) }
   scope :pending, -> { where(sent_at: nil) }
   scope :by_type, ->(type) { where(report_type: type) }
-  scope :recent, -> { order(year: :desc, month_number: :desc) }
+  scope :recent, -> { order(Arel.sql("year DESC NULLS LAST, month_number DESC NULLS LAST, id DESC")) }
 
   def test_emails_array
     return [] if test_emails.blank?
@@ -51,10 +51,12 @@ class Briefing < ApplicationRecord
   end
 
   def month_name
+    return nil if month_number.blank?
     I18n.t("date.month_names")[month_number]
   end
 
   def formatted_date
+    return nil if month_number.blank? || year.blank?
     "#{month_name} de #{year}"
   end
 

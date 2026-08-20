@@ -60,6 +60,13 @@ class ReportMailer < ApplicationMailer
         only_path: false,
         host: Rails.application.config.action_mailer.default_url_options[:host]
       )
+    when 'reporte_especial'
+      # Para reportes especiales, usar el PDF como briefing_semanal
+      Rails.application.routes.url_helpers.rails_blob_url(
+        @briefing.pdf,
+        only_path: false,
+        host: Rails.application.config.action_mailer.default_url_options[:host]
+      )
     when 'reporte_riesgo', 'reporte_conflictividad', 'reporte_prospectiva'
       # Para reportes mensuales, si existe Month asociado, usar su URL
       month = find_associated_month
