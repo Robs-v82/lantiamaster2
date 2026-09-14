@@ -1247,6 +1247,13 @@ end
     return myString
   end
 
+  def profile
+    @user = User.find(session[:user_id])
+    unless @user.member&.organization.present?
+      redirect_to '/intro', alert: 'No tienes una organización asignada.'
+    end
+  end
+
   def frontpage
     previousYears = [
       {:year=>"2007",:victims=>2826},
@@ -1282,7 +1289,7 @@ end
 
     @countyMapData = Cookie.where(:category=>"api").last.data[0][:countyVictimsMap]
 
-    render :layout => false 
+    render :layout => false
   end
 
    def send_file

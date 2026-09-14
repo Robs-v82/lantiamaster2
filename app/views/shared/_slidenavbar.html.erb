@@ -28,6 +28,11 @@
         <a class="left-min-margin p20 semi-slim preloader-trigger" href="/frontpage">
           <i class="material-icons white-text left-extra-margin">home</i>
         </a>
+        <% if u&.member&.organization.present? %>
+          <a class="left-min-margin p20 semi-slim preloader-trigger" href="/organizations/profile">
+            <i class="material-icons white-text left-extra-margin">account_circle</i>
+          </a>
+        <% end %>
         <a class="left-min-margin p20 semi-slim preloader-trigger" href="/organizations/logout">
           <i class="material-icons white-text left-extra-margin tooltipped" data-tooltip="Cerrar sesión">power_settings_new</i>
         </a>

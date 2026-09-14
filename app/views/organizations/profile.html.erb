@@ -1,0 +1,39 @@
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener('DOMContentLoaded', function() {
+    var tooltipped = document.querySelectorAll('.tooltipped');
+    M.Tooltip.init(tooltipped);
+  });
+</script>
+
+<div class="b-container">
+  <h5 style="margin-left: 16px;">Perfil de usuario</h5>
+
+  <div class="row">
+    <div class="col s12 m9 l6">
+      <table class="highlight z-depth-1">
+        <tbody>
+          <tr>
+            <td><strong>Nombre:</strong></td>
+            <td><%= user_full_name(@user).presence || "—" %></td>
+          </tr>
+          <tr>
+            <td><strong>ID:</strong></td>
+            <td><%= @user.id %></td>
+          </tr>
+          <tr>
+            <td><strong>Correo:</strong></td>
+            <td><%= @user.mail || "—" %></td>
+          </tr>
+          <tr>
+            <td><strong>Organización:</strong></td>
+            <td><%= user_org_name(@user).presence || "—" %></td>
+          </tr>
+          <tr>
+            <td><strong>Vigencia:</strong></td>
+            <td><%= user_membership_expiration(@user).presence || "Sin suscripción activa" %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

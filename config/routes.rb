@@ -46,6 +46,7 @@ Rails.application.routes.draw do
     get 'password' => 'organizations#password'
     get 'organizations/logout' => 'organizations#logout'
     post 'organizations/login' => 'organizations#login'
+    get 'organizations/profile' => 'organizations#profile'
     get 'intro' => 'users#intro'
     get 'organizations/main' => 'organizations#main'
     post 'counties/getCounties' => 'counties#getCounties'
