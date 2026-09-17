@@ -102,7 +102,8 @@ class Briefing < ApplicationRecord
   private
 
   def find_or_create_month
-    quarter = Quarter.joins(:year).where(years: { name: year.to_s }).first
+    quarter_num = ((month_number - 1) / 3) + 1
+    quarter = Quarter.joins(:year).where(years: { name: year.to_s }).where("name LIKE ?", "%Q#{quarter_num}%").first
     quarter ||= create_quarter_for_year
 
     return nil unless quarter
