@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_08_19_120100) do
+ActiveRecord::Schema.define(version: 2026_09_29_152802) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -628,6 +628,18 @@ ActiveRecord::Schema.define(version: 2026_08_19_120100) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "ofac_candidates", force: :cascade do |t|
+    t.string "ofac_name", null: false
+    t.integer "status", default: 0
+    t.bigint "organization_id"
+    t.integer "search_attempts", default: 0
+    t.text "notes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["ofac_name"], name: "index_ofac_candidates_on_ofac_name", unique: true
+    t.index ["organization_id"], name: "index_ofac_candidates_on_organization_id"
+  end
+
   create_table "organization_towns", force: :cascade do |t|
     t.integer "town_id"
     t.integer "organization_id"
@@ -1005,6 +1017,7 @@ ActiveRecord::Schema.define(version: 2026_08_19_120100) do
   add_foreign_key "members", "organizations"
   add_foreign_key "members", "roles"
   add_foreign_key "months", "quarters"
+  add_foreign_key "ofac_candidates", "organizations"
   add_foreign_key "organizations", "counties"
   add_foreign_key "organizations", "leagues", column: "mainleague_id"
   add_foreign_key "organizations", "leagues", column: "subleague_id"
