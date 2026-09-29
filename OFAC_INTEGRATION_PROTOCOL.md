@@ -67,30 +67,57 @@ RAILS_ENV=production bundle exec rails runner scripts/ofacUpdate.rb
 
 ### 2.1.1 Búsqueda Individual de Candidato (OBLIGATORIO)
 
-**Objetivo:** Localizar fuente de verificación (noticia, documento oficial) que mencione al candidato OFAC
+**Objetivo:** Localizar fuente de verificación (noticia, documento oficial) que mencione al candidato OFAC con validación rigurosa
 
-**Proceso de búsqueda (2-5 intentos según sea necesario):**
+**🚨 CRÍTICO:** Usar SIEMPRE el nombre textual EXACTO como aparece en el listado OFAC. Nunca parafrasear ni abreviar.
 
-1. **Búsqueda por nombre completo:**
-   - Query 1: `"{OFAC_FIRSTNAME} {OFAC_LASTNAME1} {OFAC_LASTNAME2}" designado OFAC`
-   - Query 2: `"{OFAC_FIRSTNAME} {OFAC_LASTNAME1}" CJNG/Sinaloa/cartel`
-   - Query 3: `"{OFAC_LASTNAME1} {OFAC_LASTNAME2}" narco/criminal`
+**Proceso de búsqueda (hasta 5 intentos según sea necesario):**
 
-2. **Búsqueda en BD (Hit ya existente):**
-   ```ruby
-   Hit.where("LOWER(plain_text) LIKE ?", "%#{nombre_lower}%").limit(5)
-   ```
+**PASO 1: Búsqueda abierta en internet - Nombre completo + "cartel"**
+```
+Query: "{OFAC_NOMBRE_EXACTO}" cartel
+Ejemplo: "Maria Del Rosario Garcia" cartel
+```
+- Objetivo: Encontrar fuentes que mencionen el nombre COMPLETO con contexto criminal explícito
+- Criterio éxito: Hit contiene:
+  - ✅ Nombre completo EXACTO del OFAC list
+  - ✅ Palabra "cartel" (explícita)
+  - ✅ Ubicación identificable
+  - ✅ Fuente confiable (OFAC, Treasury, noticias oficiales)
 
-3. **Criterios de validación:**
-   - ✅ Fuente menciona explícitamente el nombre COMPLETO
-   - ✅ Contexto criminal claro (cartel, OFAC, designación, narco)
-   - ✅ Medio confiable (periódicos, OFAC, fuentes oficiales)
-   - ✅ Fecha cercana a designación OFAC
+**PASO 2: Si PASO 1 falla → Búsqueda con OFAC**
+```
+Query: "{OFAC_NOMBRE_EXACTO}" OFAC
+Ejemplo: "Maria Del Rosario Garcia" OFAC
+```
+- Objetivo: Encontrar designaciones OFAC oficiales
+- Criterio éxito: Hit cumple todas las validaciones rigurosas (nombres + ubicación + organización)
 
-4. **Si no hay hit existente después de 3 intentos:**
-   - Registrar en `OfacCandidate.create!(ofac_name: "...", status: "not_found", search_attempts: 3, notes: "Sin fuente disponible")`
-   - Marcar como no utilizable
-   - Continuar con siguiente candidato
+**PASO 3: Si PASO 2 falla → Búsqueda solo nombre completo**
+```
+Query: "{OFAC_NOMBRE_EXACTO}" Mexico narco
+Ejemplo: "Maria Del Rosario Garcia" Mexico narco
+```
+- Objetivo: Último intento con búsqueda abierta
+- Criterio éxito: Hit cumple TODAS las validaciones rigurosas
+
+**PASO 4: Si PASO 3 falla → Registrar como no identificable**
+```ruby
+OfacCandidate.create!(
+  ofac_name: "{OFAC_NOMBRE_EXACTO}",
+  status: :not_found,
+  search_attempts: 3,
+  notes: "Tras 3 intentos de búsqueda, no se encontró fuente que cumpliera validaciones rigurosas"
+)
+```
+
+**Validaciones rigurosas (OBLIGATORIAS):**
+- ✅ Nombre COMPLETO EXACTO del OFAC list aparece en plain_text
+- ✅ Ubicación explícita en plain_text (municipio/estado)
+- ✅ Organización mencionada explícitamente (ej: "Cartel de Sinaloa")
+- ✅ Fuente confiable (OFAC, Treasury, periódico oficial)
+
+**Si validaciones fallan → NO crear Hit, pasar al PASO siguiente**
 
 ---
 
@@ -968,7 +995,8 @@ puts member.birthday            # "1997-06-28"
 | 1.2 | 2026-09-29 | **CRÍTICO:** Paso 2.5.5 (Validar Nombre Exacto OFAC); error #7 (omisión "Geovanni"); corrección Member 171717 |
 | 1.3 | 2026-09-29 | Protocolo de búsqueda individual (2.1.1-2.1.3); OfacCandidate model; identificación automática de organización |
 | 1.4 | 2026-09-29 | Validación de ubicación crítica (2.3.1); error #9 (Zapopan inventado); documentación de town/county hierarchy |
-| **2.0** | **2026-09-29** | **🚨 PROTOCOLO ROBUSTO IMPLEMENTADO:** Validador imposible de saltarse (2.1.4 refactorizado + 2.1.6 Checklist); errors #8-#10 documentados; Hit #6002 corregido a Culiacán; script `ofac_source_validator.rb` integrado; validación BLOQUEA Member.create! si falla |
+| 2.0 | 2026-09-29 | **🚨 PROTOCOLO ROBUSTO:** Validador imposible de saltarse (2.1.4 + 2.1.6 Checklist); errors #8-#10; script `ofac_source_validator.rb`; validación BLOQUEA Member.create! |
+| **2.1** | **2026-09-29** | **🚨 BÚSQUEDA ESTRATIFICADA (2.1.1 refactorizado):** 3 pasos de búsqueda en internet ANTES de BD; Paso 1: nombre+"cartel", Paso 2: nombre+"OFAC", Paso 3: nombre solo; criterios validación rigurosos (nombres exactos OFAC + ubicación + organización explícitas); OfacCandidate "not_found" si fallan todos los intentos |
 
 ---
 
