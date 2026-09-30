@@ -85,10 +85,14 @@ class ReportMailer < ApplicationMailer
   def find_associated_month
     return nil unless @briefing.monthly_report?
 
-    Quarter.joins(:year)
+    quarter_num = ((@briefing.month_number - 1) / 3) + 1
+    quarter = Quarter.joins(:year)
       .where(years: { name: @briefing.year.to_s })
+      .where("quarters.name LIKE ?", "%Q#{quarter_num}%")
       .first
-      &.months
-      &.find_by(name: "#{@briefing.year}_#{@briefing.month_number.to_s.rjust(2, '0')}")
+
+    return nil unless quarter
+
+    quarter.months.find_by(name: "#{@briefing.year}_#{@briefing.month_number.to_s.rjust(2, '0')}")
   end
 end
