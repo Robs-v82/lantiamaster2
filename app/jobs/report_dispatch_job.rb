@@ -25,6 +25,9 @@ class ReportDispatchJob < ApplicationJob
           "[ReportDispatchJob] Error enviando a #{user.mail}: #{e.class} - #{e.message}"
         )
       end
+
+      # Agregar delay entre emails para evitar rate limiting de SMTP
+      sleep(0.5)
     end
 
     # Decrementar el contador de jobs pendientes
