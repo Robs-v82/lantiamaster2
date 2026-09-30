@@ -56,8 +56,20 @@ class ReportSummarizerService
       }.to_json
 
       res = http.request(req)
+      Rails.logger.debug("[ReportSummarizerService] HTTP Response Status: #{res.code}")
+
+      if res.code != "200"
+        Rails.logger.error("[ReportSummarizerService] Error HTTP #{res.code}: #{res.body}")
+        @error = "Error en llamada a Claude API: HTTP #{res.code}"
+        return self
+      end
+
       body = JSON.parse(res.body)
       @summary = extract_summary(body)
+      self
+    rescue JSON::ParserError => e
+      @error = "Error al parsear respuesta JSON: #{e.message}"
+      Rails.logger.error("[ReportSummarizerService] #{@error}")
       self
     rescue => e
       @error = "Error al generar resumen: #{e.class} - #{e.message}"
@@ -86,7 +98,24 @@ class ReportSummarizerService
   end
 
   def extract_summary(response)
+    # Log la respuesta completa para diagnóstico
+    Rails.logger.debug("[ReportSummarizerService] Respuesta API completa: #{response.inspect}")
+
+    # Verificar si hay error en la respuesta
+    if response.is_a?(Hash) && response["error"]
+      @error = "Error de API Claude: #{response["error"]["message"]}"
+      Rails.logger.error("[ReportSummarizerService] #{@error}")
+      return ""
+    end
+
     summary = response.dig("content", 0, "text") || ""
+
+    if summary.blank?
+      @error = "Claude retornó contenido vacío. Respuesta: #{response.inspect}"
+      Rails.logger.error("[ReportSummarizerService] #{@error}")
+      return ""
+    end
+
     # Normalizar espaciado: reducir múltiples saltos de línea a un solo salto
     normalized = summary.gsub(/\n(\s*\n)+/, "\n").strip
     Rails.logger.info("[ReportSummarizerService] Resumen normalizado de Claude (primeros 500 chars): #{normalized[0..500].inspect}")
@@ -95,8 +124,25 @@ class ReportSummarizerService
 
   def anthropic_api_key
     key_file = Rails.root.join("..", "..", "shared", "config", "anthropic_api_key").expand_path
-    ENV["ANTHROPIC_API_KEY"].presence ||
-      Rails.application.credentials.dig(:anthropic, :api_key) ||
-      (File.read(key_file).strip if File.exist?(key_file))
+
+    # Intentar obtener la clave en orden de precedencia
+    key = ENV["ANTHROPIC_API_KEY"].presence
+    Rails.logger.debug("[ReportSummarizerService] ENV[ANTHROPIC_API_KEY] disponible: #{key.present?}")
+
+    unless key
+      key = Rails.application.credentials.dig(:anthropic, :api_key)
+      Rails.logger.debug("[ReportSummarizerService] credentials[:anthropic][:api_key] disponible: #{key.present?}")
+    end
+
+    unless key
+      if File.exist?(key_file)
+        key = File.read(key_file).strip
+        Rails.logger.debug("[ReportSummarizerService] Clave cargada desde archivo: #{key_file}")
+      else
+        Rails.logger.warn("[ReportSummarizerService] Archivo de clave no encontrado: #{key_file}")
+      end
+    end
+
+    key
   end
 end
