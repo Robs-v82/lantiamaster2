@@ -257,4 +257,10 @@ Rails.application.routes.draw do
     post '/duplicates/:id/unmark', to: 'duplicates#unmark_duplicate', as: :unmark_duplicate
     get '/duplicates/export_report', to: 'duplicates#export_report', as: :duplicates_export_report
 
+    # OFAC Pipeline
+    get  "/ofac/index",          to: "ofac#index",          as: :ofac_index
+    post "/ofac/execute",        to: "ofac#execute",        as: :ofac_execute
+    post "/ofac/discard",        to: "ofac#discard",        as: :ofac_discard
+    post "/ofac/create_member",  to: "ofac#create_member",  as: :ofac_create_member
+
 end

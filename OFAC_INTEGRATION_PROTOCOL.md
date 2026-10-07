@@ -232,21 +232,130 @@ unless found_locations.any?
 end
 ```
 
-**PASO 5: Validación de TOWN_ID Específico (OBLIGATORIO)**
+**PASO 5: Validación Geográfica ROBUSTA - Infalible (OBLIGATORIO) 🚨**
+
+**CRÍTICO:** Este paso PREVIENE errores como Hit #6015 (asignado a Aguascalientes cuando menciona Sinaloa).
+
 ```ruby
+# ===============================================
+# 1. EXTRAER ubicaciones explícitas del plain_text
+# ===============================================
+plain_text = hit.plain_text
+
+# Ubicaciones conocidas: estados y municipios principales
+locations_dict = {
+  # Estados
+  "sinaloa" => "Sinaloa",
+  "jalisco" => "Jalisco",
+  "sonora" => "Sonora",
+  "nuevo león" => "Nuevo León",
+  "nuevo leon" => "Nuevo León",
+  "baja california" => "Baja California",
+  "quintana roo" => "Quintana Roo",
+  "guanajuato" => "Guanajuato",
+  "michoacán" => "Michoacán",
+  "michoacan" => "Michoacán",
+  "aguascalientes" => "Aguascalientes",
+  # Municipios (Sinaloa)
+  "culiacán" => "Culiacán",
+  "culiacan" => "Culiacán",
+  # Municipios (Jalisco)
+  "guadalajara" => "Guadalajara",
+  "zapopan" => "Zapopan",
+  # Municipios (Sonora)
+  "hermosillo" => "Hermosillo",
+  # Otros
+  "méxico" => "México",
+  "ciudad de méxico" => "México",
+  "cdmx" => "México"
+}
+
+# Normalizar y extraer ubicaciones mencionadas
+plain_text_normalized = plain_text
+  .mb_chars.normalize(:nfd)
+  .encode('ASCII', replace: '')
+  .downcase
+
+locations_found = []
+locations_dict.each do |key, display_name|
+  if plain_text_normalized.include?(key)
+    locations_found << display_name unless locations_found.include?(display_name)
+  end
+end
+
+unless locations_found.any?
+  raise "❌ NO hay ubicaciones válidas en plain_text del Hit ##{hit.id}"
+end
+
+puts "📍 Ubicaciones encontradas en plain_text: #{locations_found.join(', ')}"
+
+# ===============================================
+# 2. VALIDAR town_id CONTRA BD
+# ===============================================
 town = Town.find(hit.town_id)
 county = town.county
+state = county.state
 
-# town_id DEBE corresponder a una ubicación EXPLÍCITA en el plain_text
-# y DEBE ser el "Sin definir" ESPECÍFICO del municipio (NO genérico)
-unless town.name == "Sin definir" || (town.id == 1569 && town.name == "México")
-  raise "❌ town_id #{hit.town_id} no es válido"
+# Normalizar nombres de BD para comparación
+county_normalized = county.name
+  .mb_chars.normalize(:nfd)
+  .encode('ASCII', replace: '')
+  .downcase.strip
+
+state_normalized = state.name
+  .mb_chars.normalize(:nfd)
+  .encode('ASCII', replace: '')
+  .downcase.strip
+
+puts "\n🗺️  BD Asignada:"
+puts "   Town: #{town.name} (#{town.id})"
+puts "   County: #{county.name} (normalizado: #{county_normalized})"
+puts "   State: #{state.name} (normalizado: #{state_normalized})"
+
+# ===============================================
+# 3. VALIDACIÓN INFALIBLE
+# ===============================================
+validation_passed = false
+locations_found.each do |location|
+  location_norm = location
+    .mb_chars.normalize(:nfd)
+    .encode('ASCII', replace: '')
+    .downcase.strip
+  
+  # ¿Coincide con County o State?
+  if location_norm == county_normalized || location_norm == state_normalized
+    validation_passed = true
+    puts "\n✅ VALIDACIÓN EXITOSA: '#{location}' coincide con #{county.name}, #{state.name}"
+    break
+  end
 end
 
-# Verificar coherencia entre ubicación en texto y town_id asignado
-unless found_locations.any? { |loc| county.name.downcase.include?(loc.split.first) }
-  warn "⚠️ Ubicación en texto no coincide perfectamente con town_id asignado"
+unless validation_passed
+  raise "❌ VALIDACIÓN GEOGRÁFICA FALLIDA\n" \
+        "   Hit #{hit.id} menciona: #{locations_found.join(', ')}\n" \
+        "   Pero town_id #{hit.town_id} pertenece a: #{county.name}, #{state.name}\n" \
+        "   ➜ Town_id INCORRECTO. Asigna un town de #{locations_found.first} (país="Sin definir") o revisa plain_text"
 end
+
+puts "✅ Town_id #{hit.town_id} es geográficamente VÁLIDO para este Hit"
+```
+
+**Regla de Oro:**
+> El `town_id` DEBE corresponder EXACTAMENTE a una ubicación EXPLÍCITA en el plain_text.
+> No hay excepciones, no hay asunciones. La validación normalizará acentos pero exigirá match geográfico exacto.
+
+**Ejemplo - CORRECTO:**
+```
+Plain text menciona: "Culiacán, Sinaloa"
+Town ID asignado: 146826 (Culiacán, Sinaloa)
+Resultado: ✅ PASS
+```
+
+**Ejemplo - INCORRECTO (como Hit #6015):**
+```
+Plain text menciona: "Culiacán, Sinaloa y Hermosillo"
+Town ID asignado: 145264 (Calvillo, Aguascalientes)
+Resultado: ❌ FAIL - Error detectado, Hit bloqueado
 ```
 
 **Script automatizado que ejecuta TODOS estos pasos:**

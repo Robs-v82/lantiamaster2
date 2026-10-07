@@ -1,0 +1,390 @@
+<script nonce="<%= csp_nonce %>">
+  document.addEventListener('DOMContentLoaded', function() {
+    var tooltipped = document.querySelectorAll('.tooltipped');
+    M.Tooltip.init(tooltipped);
+
+    var modals = document.querySelectorAll('.modal');
+    M.Modal.init(modals);
+  });
+</script>
+
+<div class="b-container">
+  <h5>OFAC Pipeline</h5>
+  <p class="grey-text">Procesamiento automatizado de candidatos OFAC mediante búsqueda web e inteligencia artificial</p>
+
+  <!-- Sección de Ejecución -->
+  <div class="row" style="margin-top: 30px;">
+    <div class="col s12 m6">
+      <div class="card z-depth-1">
+        <div class="card-content">
+          <span class="card-title">
+            <i class="material-icons left">play_circle_filled</i>Ejecutar OFAC
+          </span>
+          <p style="margin-top: 15px; line-height: 1.6;">
+            Ejecuta el pipeline OFAC (PASOS 1-9) para procesar el siguiente candidato disponible.
+            El proceso incluye búsqueda web, extracción de datos con IA y validación de requisitos críticos.
+          </p>
+        </div>
+        <div class="card-action">
+          <button id="execute-ofac-btn" class="btn waves-effect waves-light paletton-red white-text"
+                  style="width: 100%; margin: 0;">
+            <i class="material-icons left">play_arrow</i>OFAC
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Última Ejecución -->
+    <div class="col s12 m6">
+      <div class="card z-depth-1">
+        <div class="card-content">
+          <span class="card-title">
+            <i class="material-icons left">info</i>Última Ejecución
+          </span>
+          <% if @last_execution && @last_execution[:timestamp] %>
+            <p><strong>Timestamp:</strong> <%= @last_execution[:timestamp].is_a?(String) ? @last_execution[:timestamp] : @last_execution[:timestamp].strftime("%Y-%m-%d %H:%M:%S") %></p>
+            <p><strong>Candidato:</strong> <%= @last_execution[:candidate] %></p>
+            <p><strong>Hit ID:</strong> <%= @last_execution[:hit][:id] %></p>
+            <p><strong>Estado:</strong> <span class="badge red white-text">Completado</span></p>
+          <% else %>
+            <p class="grey-text">No hay ejecuciones previas</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Área de Resultados (inicialmente oculta) -->
+  <div id="results-section" style="display: none; margin-top: 30px;">
+    <h6>Resultados del Procesamiento</h6>
+
+    <!-- Tablas lado a lado -->
+    <div class="row" style="margin-top: 20px;">
+      <!-- Tabla 1: HIT VALIDADO (izquierda) -->
+      <div class="col s12 m6">
+        <h6 style="color: #d32f2f; margin-bottom: 10px;">
+          <i class="material-icons tiny" style="position: relative; top: 3px;">newspaper</i>
+          HIT VALIDADO
+        </h6>
+      <table class="highlight z-depth-1">
+        <tbody>
+          <tr>
+            <td style="width: 30%; font-weight: bold;">Legacy ID</td>
+            <td id="hit-legacy-id">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Fuente</td>
+            <td style="text-align: center;">
+              <a id="hit-link-btn" href="#" target="_blank" style="margin-left: 10px; text-decoration: none; color: inherit;">
+                <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Fecha del evento</td>
+            <td id="hit-date">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Ubicación</td>
+            <td id="hit-location">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Plain text</td>
+            <td id="hit-plain-text">—</td>
+          </tr>
+          <tr>
+            <td colspan="2" style="padding-top: 15px;">
+              <strong>Fragmento inicial:</strong><br>
+              <div id="hit-fragment" style="margin-top: 10px; font-size: 12px; background-color: #f5f5f5; padding: 10px; border-radius: 3px; max-height: 150px; overflow-y: auto;">
+                —
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <!-- Tabla 2: MEMBER A CREAR (derecha) -->
+      <div class="col s12 m6">
+        <h6 style="color: #d32f2f; margin-bottom: 10px;">
+          <i class="material-icons tiny" style="position: relative; top: 3px;">person</i>
+          MEMBER A CREAR
+        </h6>
+      <table class="highlight z-depth-1">
+        <tbody>
+          <tr>
+            <td style="width: 30%; font-weight: bold;">Nombre Completo</td>
+            <td id="member-fullname">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">  - Firstname</td>
+            <td id="member-firstname">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">  - Lastname1</td>
+            <td id="member-lastname1">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">  - Lastname2</td>
+            <td id="member-lastname2">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Alias extraídos</td>
+            <td id="member-alias">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Género estimado</td>
+            <td id="member-gender">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Rol propuesto</td>
+            <td id="member-role">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">  Descripción</td>
+            <td id="member-role-desc">—</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">Organización</td>
+            <td id="member-organization">—</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- Información de Validación -->
+    <div style="margin-top: 30px; padding: 15px; background-color: #e3f2fd; border-left: 4px solid #1976d2; border-radius: 3px;">
+      <p style="margin: 0;">
+        <i class="material-icons tiny" style="position: relative; top: 3px;">info</i>
+        <strong style="margin-left: 5px;">Información de Validación</strong>
+      </p>
+      <p style="margin-top: 10px; margin-bottom: 0; font-size: 13px;">
+        Los datos mostrados arriba han sido procesados y validados por el pipeline OFAC (PASOS 1-9).
+        Revisa cuidadosamente cada campo antes de proceder a crear el Member en la base de datos.
+      </p>
+    </div>
+
+    <!-- PASO 10: Botones de Acción -->
+    <div style="margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap;">
+      <button id="btn-discard" type="button" class="btn waves-effect waves-light paletton-red white-text" style="flex: 1; min-width: 200px;">
+        <i class="material-icons left">delete</i>Descarta nombre OFAC
+      </button>
+      <button id="btn-retry" type="button" class="btn waves-effect waves-light grey white-text" style="flex: 1; min-width: 200px;">
+        <i class="material-icons left">refresh</i>Reintentar
+      </button>
+      <button id="btn-load-member" type="button" class="btn waves-effect waves-light paletton-red white-text" style="flex: 1; min-width: 200px;">
+        <i class="material-icons left">check_circle</i>Cargar member
+      </button>
+    </div>
+  </div>
+
+  <!-- Indicador de Carga -->
+  <div id="loading-indicator" style="display: none; margin-top: 30px; text-align: center;">
+    <div class="preloader-wrapper big active">
+      <div class="spinner-layer spinner-red-only">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top: 15px; color: #666;">Ejecutando pipeline OFAC...</p>
+  </div>
+
+  <!-- Mensajes de Error -->
+  <div id="error-message" style="display: none; margin-top: 30px; padding: 15px; background-color: #ffebee; border-left: 4px solid #c62828; border-radius: 3px;">
+    <p style="margin: 0; color: #c62828;">
+      <i class="material-icons tiny" style="position: relative; top: 3px;">error</i>
+      <strong style="margin-left: 5px;">Error</strong>
+    </p>
+    <p id="error-text" style="margin-top: 10px; margin-bottom: 0; font-size: 13px;">
+      —
+    </p>
+  </div>
+</div>
+
+<script nonce="<%= csp_nonce %>">
+  document.getElementById('execute-ofac-btn').addEventListener('click', function() {
+    executeOfac();
+  });
+
+  function executeOfac() {
+    const btn = document.getElementById('execute-ofac-btn');
+    const loading = document.getElementById('loading-indicator');
+    const results = document.getElementById('results-section');
+    const error = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+
+    // Limpiar estados previos
+    results.style.display = 'none';
+    error.style.display = 'none';
+    btn.disabled = true;
+
+    // Mostrar carga
+    loading.style.display = 'block';
+
+    // Enviar solicitud al servidor
+    fetch('<%= ofac_execute_path %>', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      loading.style.display = 'none';
+      btn.disabled = false;
+
+      if (data.success) {
+        displayResults(data);
+        results.style.display = 'block';
+      } else {
+        errorText.textContent = data.error || 'Error desconocido al ejecutar OFAC';
+        error.style.display = 'block';
+      }
+    })
+    .catch(err => {
+      loading.style.display = 'none';
+      btn.disabled = false;
+      errorText.textContent = 'Error de conexión: ' + err.message;
+      error.style.display = 'block';
+    });
+  }
+
+  function displayResults(data) {
+    // HIT VALIDADO
+    document.getElementById('hit-legacy-id').textContent = data.hit.legacy_id || '—';
+    const linkBtn = document.getElementById('hit-link-btn');
+    if (data.hit.link) {
+      linkBtn.href = data.hit.link;
+      linkBtn.classList.remove('disabled');
+    } else {
+      linkBtn.href = '#';
+      linkBtn.classList.add('disabled');
+    }
+    document.getElementById('hit-date').textContent = data.hit.date || '—';
+    document.getElementById('hit-location').textContent = data.hit.location || '—';
+    document.getElementById('hit-plain-text').textContent = '✅ ' + data.plain_text_length + ' caracteres';
+    document.getElementById('hit-fragment').textContent = data.plain_text_fragment || '—';
+
+    // MEMBER A CREAR
+    const names = data.candidate.split(' ');
+    const firstname = names.slice(0, -2).join(' ');
+    const lastname1 = names[names.length - 2];
+    const lastname2 = names[names.length - 1];
+
+    document.getElementById('member-fullname').textContent = data.candidate;
+    document.getElementById('member-firstname').textContent = firstname || '—';
+    document.getElementById('member-lastname1').textContent = lastname1 || '—';
+    document.getElementById('member-lastname2').textContent = lastname2 || '—';
+
+    // Convertir aliases a cadena separada por punto y coma (patrón easy_members)
+    const aliasesDisplay = data.alias_array && data.alias_array.length > 0 ?
+      data.alias_array.join('; ') : '(sin alias)';
+    const memberAliasEl = document.getElementById('member-alias');
+    memberAliasEl.textContent = aliasesDisplay;
+    // Guardar como cadena separada por punto y coma
+    memberAliasEl.dataset.aliases = data.alias_array && data.alias_array.length > 0 ?
+      data.alias_array.join(';') : '';
+
+    const genderText = data.gender ? `${data.gender} (${data.gender_source}, ${data.gender_confidence}%)` : '—';
+    const memberGenderEl = document.getElementById('member-gender');
+    memberGenderEl.textContent = genderText;
+    memberGenderEl.dataset.gender = data.gender || 'DESCONOCIDO';
+
+    document.getElementById('member-role').textContent = data.role || '—';
+    document.getElementById('member-role-desc').textContent = '(' + getRoleDescription(data.role) + ')';
+    document.getElementById('member-organization').textContent = data.organization || '—';
+  }
+
+  function getRoleDescription(role) {
+    const descriptions = {
+      'Autoridad cooptada': 'Trabajadores del sector público vinculados',
+      'Líder': 'Primer nivel en la estructura criminal',
+      'Operador': 'Segundo nivel u operativo',
+      'Socio': 'Sector privado (empresarios, lavadores, etc.)',
+      'Sin definir': 'Rol no definido'
+    };
+    return descriptions[role] || 'Rol no definido';
+  }
+
+  // PASO 10: Botones de Acción
+  document.getElementById('btn-discard').addEventListener('click', function() {
+    const candidate = document.getElementById('member-fullname').textContent;
+    if (confirm('¿Estás seguro de que deseas descartar este nombre OFAC?')) {
+      fetch('<%= ofac_discard_path %>', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ candidate: candidate })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Nombre descartado. Recargando...');
+          location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      })
+      .catch(err => alert('Error: ' + err.message));
+    }
+  });
+
+  document.getElementById('btn-retry').addEventListener('click', function() {
+    document.getElementById('execute-ofac-btn').click();
+  });
+
+  document.getElementById('btn-load-member').addEventListener('click', function() {
+    const candidate = document.getElementById('member-fullname').textContent;
+    const firstname = document.getElementById('member-firstname').textContent;
+    const lastname1 = document.getElementById('member-lastname1').textContent;
+    const lastname2 = document.getElementById('member-lastname2').textContent;
+    const memberAliasEl = document.getElementById('member-alias');
+    // Leer aliases como cadena separada por punto y coma (patrón easy_members)
+    const aliasesRaw = memberAliasEl.dataset.aliases || '';
+    const memberGenderEl = document.getElementById('member-gender');
+    const provisionalGender = memberGenderEl.dataset.gender || 'DESCONOCIDO';
+    const roleName = document.getElementById('member-role').textContent;
+    const organization = document.getElementById('member-organization').textContent;
+    const hitLegacyId = document.getElementById('hit-legacy-id').textContent;
+
+    fetch('<%= ofac_create_member_path %>', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        candidate: candidate,
+        firstname: firstname,
+        lastname1: lastname1,
+        lastname2: lastname2,
+        alias_raw: aliasesRaw,
+        role_name: roleName,
+        organization: organization,
+        legacy_id: hitLegacyId,
+        provisional_gender: provisionalGender
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Member cargado exitosamente. Recargando...');
+        location.href = '<%= ofac_index_path %>';
+      } else {
+        alert('Error: ' + data.error);
+      }
+    })
+    .catch(err => alert('Error: ' + err.message));
+  });
+</script>

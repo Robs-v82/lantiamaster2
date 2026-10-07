@@ -4,6 +4,9 @@ require "open-uri"
 require "fileutils"
 require "digest"
 
+# Cargar ambiente de Rails
+require_relative "../config/environment"
+
 BASE = "https://www.treasury.gov/ofac/downloads"
 
 FILES = {
