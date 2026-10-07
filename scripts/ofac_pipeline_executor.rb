@@ -45,6 +45,12 @@ module OfacPipeline
   def self.get_all_timings
     @timings
   end
+
+  def self.load_anthropic_api_key
+    key_file = File.expand_path("../../shared/config/anthropic_api_key", __dir__)
+    ENV["ANTHROPIC_API_KEY"].presence ||
+      (File.read(key_file).strip if File.exist?(key_file))
+  end
 end
 
 class OfacPipeline::UpdateError < StandardError; end
@@ -513,7 +519,7 @@ class OfacPipeline::Step2
   # IMPORTANTE: Siempre intenta extraer la fecha. Si falla, el Hit mantendrá Date.today como fallback
   def self.extract_date_with_claude(plain_text)
     begin
-      api_key = ENV["ANTHROPIC_API_KEY"]
+      api_key = OfacPipeline.load_anthropic_api_key
       unless api_key
         puts "     ⚠️  ANTHROPIC_API_KEY no configurada, retorna nil para fallback"
         return nil
@@ -600,7 +606,7 @@ class OfacPipeline::Step2
   # PASO 4: Extraer ubicación real del artículo usando Claude
   def self.extract_location_with_claude(plain_text, current_town_id)
     begin
-      api_key = ENV["ANTHROPIC_API_KEY"]
+      api_key = OfacPipeline.load_anthropic_api_key
       unless api_key
         puts "     ⚠️  ANTHROPIC_API_KEY no configurada"
         return current_town_id
@@ -824,7 +830,7 @@ class OfacPipeline::Step2
 
   # Obtener API Key de múltiples ubicaciones (como en diagnose_claude_api.rb)
   def self.get_anthropic_api_key
-    api_key_env = ENV["ANTHROPIC_API_KEY"].presence
+    api_key_env = OfacPipeline.load_anthropic_api_key
     api_key_creds = Rails.application.credentials.dig(:anthropic, :api_key)
     api_key_file = begin
       key_file = Rails.root.join("..", "..", "shared", "config", "anthropic_api_key").expand_path
@@ -873,7 +879,7 @@ class OfacPipeline::Step3
 
   def self.extract_date_with_claude(plain_text)
     begin
-      api_key = ENV["ANTHROPIC_API_KEY"]
+      api_key = OfacPipeline.load_anthropic_api_key
       unless api_key
         puts "⚠️  ANTHROPIC_API_KEY no configurada"
         return nil
@@ -974,7 +980,7 @@ class OfacPipeline::Step4
 
   def self.extract_location_with_claude(plain_text, current_town_id)
     begin
-      api_key = ENV["ANTHROPIC_API_KEY"]
+      api_key = OfacPipeline.load_anthropic_api_key
       unless api_key
         return current_town_id
       end
@@ -2042,7 +2048,7 @@ class OfacPipeline::StepGender
   end
 
   def self.estimate_gender_with_claude(firstname)
-    api_key = ENV['ANTHROPIC_API_KEY']
+    api_key = OfacPipeline.load_anthropic_api_key
     return nil if api_key.blank?
 
     prompt = %{

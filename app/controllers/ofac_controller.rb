@@ -285,7 +285,7 @@ class OfacController < ApplicationController
   end
 
   def estimate_gender_with_claude(firstname)
-    api_key = ENV['ANTHROPIC_API_KEY']
+    api_key = anthropic_api_key
     return nil if api_key.blank?
 
     prompt = %{
@@ -503,6 +503,13 @@ class OfacController < ApplicationController
         error: "Error creando member: #{e.message}"
       }, status: :unprocessable_entity
     end
+  end
+
+  def anthropic_api_key
+    key_file = Rails.root.join("..", "..", "shared", "config", "anthropic_api_key").expand_path
+    ENV["ANTHROPIC_API_KEY"].presence ||
+      Rails.application.credentials.dig(:anthropic, :api_key) ||
+      (File.read(key_file).strip if File.exist?(key_file))
   end
 
   private
