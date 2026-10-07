@@ -22,6 +22,10 @@ class OfacController < ApplicationController
 
   def execute
     begin
+      # Obtener API keys necesarias y pasarlas al script
+      ENV["SERPER_API_KEY"] = serper_api_key
+      ENV["ANTHROPIC_API_KEY"] = anthropic_api_key
+
       # Ejecutar el script principal del pipeline OFAC
       script_path = Rails.root.join('scripts', 'ofac_pipeline_main.rb')
 
@@ -513,6 +517,13 @@ class OfacController < ApplicationController
     key_file = Rails.root.join("..", "..", "shared", "config", "anthropic_api_key").expand_path
     ENV["ANTHROPIC_API_KEY"].presence ||
       Rails.application.credentials.dig(:anthropic, :api_key) ||
+      (File.read(key_file).strip if File.exist?(key_file))
+  end
+
+  def serper_api_key
+    key_file = Rails.root.join("..", "..", "shared", "config", "serper_api_key").expand_path
+    ENV["SERPER_API_KEY"].presence ||
+      Rails.application.credentials.dig(:serper, :api_key) ||
       (File.read(key_file).strip if File.exist?(key_file))
   end
 
