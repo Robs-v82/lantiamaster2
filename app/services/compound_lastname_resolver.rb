@@ -48,7 +48,7 @@ class CompoundLastnameResolver
   # ============================================================
   def self.ask_claude(lastname_tokens, firstname)
     combined = lastname_tokens.join(" ")
-    api_key = ENV["ANTHROPIC_API_KEY"]
+    api_key = load_anthropic_api_key
 
     unless api_key
       Rails.logger.warn("CompoundLastnameResolver: ANTHROPIC_API_KEY no configurada")
@@ -151,5 +151,15 @@ class CompoundLastnameResolver
 
   def self.normalize_and_capitalize(text)
     I18n.transliterate(text.to_s.strip).split.map(&:capitalize).join(" ")
+  end
+
+  # ============================================================
+  # Cargar API Key (con 3 niveles de fallback)
+  # ============================================================
+  def self.load_anthropic_api_key
+    key_file = Rails.root.join("..", "..", "shared", "config", "anthropic_api_key").expand_path
+    ENV["ANTHROPIC_API_KEY"].presence ||
+      Rails.application.credentials.dig(:anthropic, :api_key) ||
+      (File.read(key_file).strip if File.exist?(key_file))
   end
 end
