@@ -509,11 +509,11 @@ class OfacController < ApplicationController
         member.hits << hit
       end
 
-      # Ejecutar script de actualización OFAC
-      script_path = Rails.root.join("scripts", "ofacUpdate.rb")
-      Rails.logger.info("[OfacController#create_member] Ejecutando ofacUpdate.rb...")
-      system("cd #{Rails.root} && bundle exec ruby #{script_path} >> log/ofac_update.log 2>&1")
-      Rails.logger.info("[OfacController#create_member] ofacUpdate.rb completado")
+      # Ejecutar script de actualización OFAC para este Member específico
+      script_path = Rails.root.join("scripts", "ofac_update_member.rb")
+      Rails.logger.info("[OfacController#create_member] Ejecutando ofac_update_member.rb para Member #{member.id}...")
+      system("cd #{Rails.root} && bundle exec rails runner #{script_path} #{member.id} >> log/ofac_update.log 2>&1")
+      Rails.logger.info("[OfacController#create_member] ofac_update_member.rb completado")
 
       # Limpiar sesión
       session[:last_ofac_execution] = nil
