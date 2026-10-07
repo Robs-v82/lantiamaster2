@@ -275,15 +275,14 @@
     document.getElementById('hit-fragment').textContent = data.plain_text_fragment || '—';
 
     // MEMBER A CREAR
-    const names = data.candidate.split(' ');
-    const firstname = names.slice(0, -2).join(' ');
-    const lastname1 = names[names.length - 2];
-    const lastname2 = names[names.length - 1];
+    const firstname = data.firstname || '—';
+    const lastname1 = data.lastname1 || '—';
+    const lastname2 = data.lastname2 || '—';
 
     document.getElementById('member-fullname').textContent = data.candidate;
-    document.getElementById('member-firstname').textContent = firstname || '—';
-    document.getElementById('member-lastname1').textContent = lastname1 || '—';
-    document.getElementById('member-lastname2').textContent = lastname2 || '—';
+    document.getElementById('member-firstname').textContent = firstname;
+    document.getElementById('member-lastname1').textContent = lastname1;
+    document.getElementById('member-lastname2').textContent = lastname2;
 
     // Convertir aliases a cadena separada por punto y coma (patrón easy_members)
     const aliasesDisplay = data.alias_array && data.alias_array.length > 0 ?

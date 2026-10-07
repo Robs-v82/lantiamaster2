@@ -64,6 +64,9 @@ class OfacController < ApplicationController
         session[:last_ofac_execution] = {
           timestamp: Time.now,
           candidate: result[:candidate],
+          firstname: result[:firstname],
+          lastname1: result[:lastname1],
+          lastname2: result[:lastname2],
           hit: result[:hit],
           organization: result[:organization],
           alias_array: result[:alias_array],
@@ -78,6 +81,9 @@ class OfacController < ApplicationController
         response_data = {
           success: true,
           candidate: result[:candidate],
+          firstname: result[:firstname],
+          lastname1: result[:lastname1],
+          lastname2: result[:lastname2],
           hit: result[:hit],
           organization: result[:organization],
           alias_array: result[:alias_array],
@@ -165,9 +171,22 @@ class OfacController < ApplicationController
         fragment_match = output.match(/Fragmento inicial:\s*(.+?)\.\.\./m)
         plain_text_fragment = fragment_match ? fragment_match[1].strip : ""
 
+        # Extraer componentes del nombre ya parseados por el script
+        firstname_match = output.match(/- Firstname:\s*(.+?)(?:\n|$)/)
+        firstname = firstname_match ? firstname_match[1].strip : ""
+
+        lastname1_match = output.match(/- Lastname1:\s*(.+?)(?:\n|$)/)
+        lastname1 = lastname1_match ? lastname1_match[1].strip : ""
+
+        lastname2_match = output.match(/- Lastname2:\s*(.+?)(?:\n|$)/)
+        lastname2 = lastname2_match ? lastname2_match[1].strip : ""
+
         {
           success: true,
           candidate: candidate_name,
+          firstname: firstname,
+          lastname1: lastname1,
+          lastname2: lastname2,
           hit_id: hit_id,
           hit: {
             id: hit_id,
