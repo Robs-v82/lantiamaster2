@@ -88,9 +88,11 @@ class OfacController < ApplicationController
         Rails.logger.info("[OfacController] Response alias_array: #{response_data[:alias_array].inspect} (class: #{response_data[:alias_array].class})")
         render json: response_data
       else
+        error_msg = result[:error] || "Error ejecutando el pipeline OFAC"
+        Rails.logger.error("[OfacController#execute] Pipeline falló: #{error_msg}")
         render json: {
           success: false,
-          error: result[:error] || "Error ejecutando el pipeline OFAC"
+          error: error_msg
         }, status: :unprocessable_entity
       end
     rescue => e
@@ -181,6 +183,8 @@ class OfacController < ApplicationController
         }
       else
         error_msg = extract_error_from_output(output)
+        Rails.logger.error("[OfacController#parse_ofac_output] Pipeline no completó exitosamente")
+        Rails.logger.error("[OfacController#parse_ofac_output] Output últimas 500 chars: #{output[-500..-1]}")
         {
           success: false,
           error: error_msg || "El pipeline OFAC no completó exitosamente"
