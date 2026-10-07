@@ -51,6 +51,12 @@ module OfacPipeline
     ENV["ANTHROPIC_API_KEY"].presence ||
       (File.read(key_file).strip if File.exist?(key_file))
   end
+
+  def self.load_serper_api_key
+    key_file = File.expand_path("../../shared/config/serper_api_key", __dir__)
+    ENV["SERPER_API_KEY"].presence ||
+      (File.read(key_file).strip if File.exist?(key_file))
+  end
 end
 
 class OfacPipeline::UpdateError < StandardError; end
@@ -456,9 +462,9 @@ class OfacPipeline::Step2
   # Buscar en internet usando WebSearch (herramienta integrada en Claude Code)
   # Buscar en Serper (Google Search API)
   def self.search_web(query)
-    api_key = ENV["SERPER_API_KEY"]
+    api_key = OfacPipeline.load_serper_api_key
     unless api_key
-      raise OfacPipeline::UpdateError, "SERPER_API_KEY no configurada en .env"
+      raise OfacPipeline::UpdateError, "SERPER_API_KEY no configurada en .env o archivo"
     end
 
     begin
