@@ -87,7 +87,7 @@ begin
 
   # Log resultado PASO 5
   if paso5_result && paso5_result[:found]
-    Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: Org=#{paso5_result[:cartel]&.name} | Conf=#{paso5_result[:confidence]}% | Match=#{paso5_result[:match_type]} | Field=#{paso5_result[:field]} | Value=#{paso5_result[:value]}")
+    Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: Claude extrajo '#{paso5_result[:claude_organization_name]}' → Match BD '#{paso5_result[:organization].name}' (ID: #{paso5_result[:organization_id]}, Confianza: #{paso5_result[:confidence]}%)")
   else
     Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: ❌ NO SE IDENTIFICÓ ORGANIZACIÓN")
   end

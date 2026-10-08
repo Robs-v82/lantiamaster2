@@ -22,6 +22,8 @@ class OfacController < ApplicationController
 
   def execute
     begin
+      clear_ofac_session
+
       # Obtener API keys necesarias y pasarlas al script
       ENV["SERPER_API_KEY"] = serper_api_key
       ENV["ANTHROPIC_API_KEY"] = anthropic_api_key
@@ -64,14 +66,17 @@ class OfacController < ApplicationController
         session[:last_ofac_execution] = {
           timestamp: Time.now,
           candidate: result[:candidate],
-          hit: result[:hit],
+          hit: {
+            id: result[:hit][:id],
+            date: result[:hit][:date],
+            location: result[:hit][:location]
+          },
           organization: result[:organization],
           alias_array: result[:alias_array],
           role: result[:role],
           gender: gender_result[:gender],
           gender_source: gender_result[:source],
-          gender_confidence: gender_result[:confidence],
-          plain_text_length: result[:plain_text_length]
+          gender_confidence: gender_result[:confidence]
         }
 
         response_data = {
@@ -86,9 +91,7 @@ class OfacController < ApplicationController
           role: result[:role],
           gender: result[:gender] || "DESCONOCIDO",
           gender_source: result[:gender_source] || "fallback",
-          gender_confidence: result[:gender_confidence] || 0,
-          plain_text_length: result[:plain_text_length],
-          plain_text_fragment: result[:plain_text_fragment]
+          gender_confidence: result[:gender_confidence] || 0
         }
         Rails.logger.info("[OfacController] ✅ PIPELINE EXITOSO")
         Rails.logger.info("[OfacController] Candidato: #{result[:candidate]}")
@@ -113,6 +116,10 @@ class OfacController < ApplicationController
         error: "Error ejecutando OFAC: #{e.message}"
       }, status: :unprocessable_entity
     end
+  end
+
+  def clear_ofac_session
+    session.delete(:last_ofac_execution) if session[:last_ofac_execution].present?
   end
 
   private

@@ -1374,242 +1374,54 @@ class OfacPipeline::Step5
     [match_percentage, 0].max
   end
 
-  # Extraer palabras clave del texto (4+ caracteres, sin stopwords)
-  # Optimización: reduce el espacio de búsqueda en fuzzy matching
-  def self.extract_keywords(text)
-    return [] if text.blank?
-
-    # Stopwords comunes en español e inglés
-    stopwords = %w[el la los las de del a an and or the is are in on at to for with by from as of the a an and or but in on at to by for from with as is are have has had do does did would could should may might must can will shall]
-
-    text.downcase
-      .gsub(/[^a-záéíóúñ\s]/i, '')  # Solo letras, acentos y espacios
-      .split(/\s+/)
-      .select { |word| word.length >= 4 && !stopwords.include?(word) }
-      .uniq
-  end
-
-  # Buscar vinculación con cartel en el catálogo (OPTIMIZADO)
-  # Estrategia de dos fases:
-  # FASE 1 (FAST PATH): Búsqueda exacta de palabras clave
-  # FASE 2 (FALLBACK): Fuzzy matching selectivo solo si FASE 1 falla
-  def self.identify_cartel_link(plain_text)
-    cartels = get_cartel_catalog.where.not(name: "La Oficina")
-    return nil if cartels.blank? || plain_text.blank?
-
-    # Log detalles de búsqueda
-    Rails.logger.info("[PASO 5 DEBUG] Cárteles después de exclusiones: #{cartels.count}")
-
-    text_normalized = normalize_name(plain_text)
-    keywords = extract_keywords(plain_text)
-    Rails.logger.info("[PASO 5 DEBUG] Keywords extraídas: #{keywords.join(', ')}")
-    matches = []
-
-    # ============================================================
-    # FASE 1: FAST PATH - Búsqueda exacta de palabras clave
-    # (Muy rápido, alta confianza)
-    # ============================================================
-    cartels.each do |cartel|
-      # Búsqueda exacta: nombre principal
-      cartel_name_norm = normalize_name(cartel.name)
-      if text_normalized.include?(cartel_name_norm)
-        matches << {
-          cartel: cartel,
-          confidence: 100,
-          match_type: :name_exact,
-          field: :name,
-          value: cartel.name,
-          phase: :exact
-        }
-        next  # Ya encontramos match de alta confianza, saltar fuzzy
-      end
-
-      # Búsqueda de palabras clave en nombre
-      if keywords.any? { |kw| cartel_name_norm.include?(kw) }
-        matches << {
-          cartel: cartel,
-          confidence: 95,
-          match_type: :name_keyword,
-          field: :name,
-          value: cartel.name,
-          phase: :exact
-        }
-        next
-      end
-
-      # Búsqueda exacta: alias
-      if cartel.alias.present?
-        cartel.alias.each do |alias_name|
-          next if alias_name.blank?
-          alias_norm = normalize_name(alias_name)
-
-          if text_normalized.include?(alias_norm)
-            matches << {
-              cartel: cartel,
-              confidence: 95,
-              match_type: :alias_exact,
-              field: :alias,
-              value: alias_name,
-              phase: :exact
-            }
-            next
-          end
-
-          # Búsqueda de palabras clave en alias
-          if keywords.any? { |kw| alias_norm.include?(kw) }
-            matches << {
-              cartel: cartel,
-              confidence: 90,
-              match_type: :alias_keyword,
-              field: :alias,
-              value: alias_name,
-              phase: :exact
-            }
-            next
-          end
-        end
-      end
-
-      # Búsqueda exacta: legacy names
-      if cartel.legacy_names.present?
-        cartel.legacy_names.each do |legacy_name|
-          next if legacy_name.blank?
-          legacy_norm = normalize_name(legacy_name)
-
-          if text_normalized.include?(legacy_norm)
-            matches << {
-              cartel: cartel,
-              confidence: 90,
-              match_type: :legacy_exact,
-              field: :legacy_names,
-              value: legacy_name,
-              phase: :exact
-            }
-            next
-          end
-
-          # Búsqueda de palabras clave en legacy names
-          if keywords.any? { |kw| legacy_norm.include?(kw) }
-            matches << {
-              cartel: cartel,
-              confidence: 85,
-              match_type: :legacy_keyword,
-              field: :legacy_names,
-              value: legacy_name,
-              phase: :exact
-            }
-            next
-          end
-        end
-      end
-    end
-
-    # Si FASE 1 encontró matches, retorna el mejor
-    if matches.any? { |m| m[:phase] == :exact }
-      best_match = matches.select { |m| m[:phase] == :exact }.max_by { |m| m[:confidence] }
-      return best_match
-    end
-
-    # ============================================================
-    # FASE 2: FALLBACK - Fuzzy matching SELECTIVO
-    # (Solo si FASE 1 falla, más lento pero confiable)
-    # ============================================================
-    cartels.each do |cartel|
-      # Fuzzy match SOLO con palabras clave del texto
-      keywords.each do |keyword|
-        # Nombre principal
-        score = similarity_score(keyword, cartel.name)
-        if score >= 85
-          matches << {
-            cartel: cartel,
-            confidence: score,
-            match_type: :name_fuzzy_keyword,
-            field: :name,
-            value: cartel.name,
-            phase: :fuzzy
-          }
-        end
-
-        # Alias
-        if cartel.alias.present?
-          cartel.alias.each do |alias_name|
-            next if alias_name.blank?
-            score = similarity_score(keyword, alias_name)
-            if score >= 85
-              matches << {
-                cartel: cartel,
-                confidence: score,
-                match_type: :alias_fuzzy_keyword,
-                field: :alias,
-                value: alias_name,
-                phase: :fuzzy
-              }
-            end
-          end
-        end
-
-        # Legacy names
-        if cartel.legacy_names.present?
-          cartel.legacy_names.each do |legacy_name|
-            next if legacy_name.blank?
-            score = similarity_score(keyword, legacy_name)
-            if score >= 80
-              matches << {
-                cartel: cartel,
-                confidence: score,
-                match_type: :legacy_fuzzy_keyword,
-                field: :legacy_names,
-                value: legacy_name,
-                phase: :fuzzy
-              }
-            end
-          end
-        end
-      end
-    end
-
-    return nil if matches.empty?
-
-    # Log matches encontrados
-    exact_matches = matches.select { |m| m[:phase] == :exact }
-    fuzzy_matches = matches.select { |m| m[:phase] == :fuzzy }
-    Rails.logger.info("[PASO 5 DEBUG] FASE 1 (Exacta): #{exact_matches.count} matches")
-    Rails.logger.info("[PASO 5 DEBUG] FASE 2 (Fuzzy): #{fuzzy_matches.count} matches")
-
-    # Retornar el match con mayor confianza
-    best_match = matches.max_by { |m| m[:confidence] }
-    Rails.logger.info("[PASO 5 DEBUG] MEJOR MATCH SELECCIONADO: #{best_match[:cartel].name} (confianza: #{best_match[:confidence]}%)")
-    best_match
-  end
-
   def self.execute!(hit)
     begin
-      puts "\n🤖 PASO 5: Validando vinculación con cartel en catálogo..."
+      puts "\n🤖 PASO 5: Identificando organización criminal vinculada..."
+      puts "=" * 60
+
+      plain_text = hit.plain_text.to_s
+
+      if plain_text.blank? || plain_text.length < 100
+        puts "   ⚠️  plain_text insuficiente para identificación"
+        return {
+          found: false,
+          organization: nil,
+          confidence: 0
+        }
+      end
 
       OfacPipeline.start_timer("PASO 5 (Total)")
-      OfacPipeline.start_timer("Step5: Búsqueda (Phase 1 + Phase 2)")
-      cartel_match = identify_cartel_link(hit.plain_text)
-      OfacPipeline.end_timer("Step5: Búsqueda (Phase 1 + Phase 2)")
 
-      if cartel_match && cartel_match[:confidence] >= 80
-        puts "   ✅ Vinculación encontrada: #{cartel_match[:cartel].name}"
-        puts "      Confianza: #{cartel_match[:confidence]}%"
-        puts "      Campo: #{cartel_match[:field]}"
-        puts "      Valor coincidente: '#{cartel_match[:value]}'"
-        puts "      Tipo match: #{cartel_match[:match_type]}"
+      # Identificar organización con Claude
+      organization_result = identify_organization_with_claude(plain_text)
+
+      if organization_result[:found] && organization_result[:organization]
+        claude_extraction = organization_result[:claude_organization_name]
+        matched_org_name = organization_result[:organization].name
+        matched_org_id = organization_result[:organization].id
+        confidence = organization_result[:confidence]
+        text_mention = organization_result[:text_mention]
+
+        puts "   ✅ Organización identificada: #{matched_org_name}"
+        puts "      Claude extrajo: '#{claude_extraction}'"
+        puts "      Match en BD: '#{matched_org_name}' (ID: #{matched_org_id})"
+        puts "      Confianza: #{confidence}%"
+        puts "      Mención en texto: '#{text_mention}'"
 
         OfacPipeline.end_timer("PASO 5 (Total)")
+
         return {
           found: true,
-          organization: cartel_match[:cartel],
-          organization_id: cartel_match[:cartel].id,
-          confidence: cartel_match[:confidence],
-          match_type: cartel_match[:match_type],
-          field: cartel_match[:field],
-          value: cartel_match[:value]
+          organization: organization_result[:organization],
+          organization_id: matched_org_id,
+          confidence: confidence,
+          match_type: :claude_identification,
+          field: :claude_analysis,
+          value: text_mention,
+          claude_organization_name: claude_extraction
         }
       else
-        puts "   ❌ Sin vinculación detectada con cártel del catálogo"
+        puts "   ❌ Sin organización criminal identificada"
         OfacPipeline.end_timer("PASO 5 (Total)")
         return {
           found: false,
@@ -1620,8 +1432,186 @@ class OfacPipeline::Step5
 
     rescue => e
       puts "   ❌ Error en PASO 5: #{e.class} #{e.message}"
-      nil
+      return {
+        found: false,
+        organization: nil,
+        confidence: 0
+      }
     end
+  end
+
+  def self.identify_organization_with_claude(plain_text)
+    api_key = OfacPipeline::Step2.get_anthropic_api_key
+
+    unless api_key
+      puts "   ⚠️  ANTHROPIC_API_KEY no encontrada, retornando resultado vacío"
+      return { found: false, organization: nil }
+    end
+
+    clean_text = clean_html_from_text(plain_text)[0, 8000]
+    organizations = get_available_organizations
+
+    prompt = build_organization_identification_prompt(
+      text: clean_text,
+      organizations: organizations
+    )
+
+    begin
+      uri = URI("https://api.anthropic.com/v1/messages")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.read_timeout = 30
+      http.open_timeout = 10
+
+      req = Net::HTTP::Post.new(uri)
+      req["x-api-key"] = api_key
+      req["anthropic-version"] = "2023-06-01"
+      req["content-type"] = "application/json"
+      req.body = {
+        model: "claude-sonnet-4-6",
+        max_tokens: 800,
+        messages: [{ role: "user", content: prompt }]
+      }.to_json
+
+      res = http.request(req)
+      res_body = JSON.parse(res.body)
+
+      if res.code.to_i != 200
+        puts "   ⚠️  Claude error (#{res.code}): #{res_body.dig("error", "message")}"
+        return { found: false, organization: nil }
+      end
+
+      content = res_body["content"]
+      text_block = content.is_a?(Array) ? content.find { |c| c["type"] == "text" } : nil
+      response_text = text_block&.dig("text").to_s.strip
+
+      return { found: false, organization: nil } if response_text.blank?
+
+      json_match = response_text.match(/\{.*\}/m)
+      return { found: false, organization: nil } unless json_match
+
+      claude_response = JSON.parse(json_match[0])
+
+      return { found: false, organization: nil } unless claude_response["organization_name"].present?
+
+      organization = find_organization_fuzzy(claude_response["organization_name"])
+
+      if organization
+        return {
+          found: true,
+          organization: organization,
+          claude_organization_name: claude_response["organization_name"],
+          confidence: claude_response["confidence"].to_i,
+          text_mention: claude_response["text_excerpt"]
+        }
+      else
+        puts "   ⚠️  Claude identificó '#{claude_response["organization_name"]}' pero no existe en BD"
+        return { found: false, organization: nil }
+      end
+
+    rescue JSON::ParserError => e
+      puts "   ⚠️  Error al parsear respuesta de Claude: #{e.message}"
+      return { found: false, organization: nil }
+    rescue StandardError => e
+      puts "   ⚠️  Error en llamada a Claude: #{e.class} #{e.message}"
+      return { found: false, organization: nil }
+    end
+  end
+
+  def self.build_organization_identification_prompt(text:, organizations:)
+    org_list = organizations.map { |org| "- #{org.name}" }.join("\n")
+
+    <<~PROMPT
+      TAREA CRÍTICA: Identificar la organización criminal principal mencionada en un texto.
+
+      CONTEXTO:
+      Estás analizando un artículo de noticias sobre detenciones, operaciones DEA, o investigaciones
+      criminales. Tu tarea es identificar qué ORGANIZACIÓN CRIMINAL es el sujeto principal o está
+      directamente vinculada con la persona/evento descrito.
+
+      ORGANIZACIONES CRIMINALES CONOCIDAS EN LA BD:
+      #{org_list}
+
+      INSTRUCCIONES:
+      1. LEE el texto completo y ENTIENDE el contexto
+      2. IDENTIFICA qué organización criminal es mencionada como:
+         - La organización principal (la que encabeza la operación, el ataque, etc.)
+         - La organización a la que pertenece la persona
+         - La organización que se beneficia de la actividad
+         - La organización que está siendo investigada
+      3. IGNORA referencias incidentales (ej: "Oficina de Control de Activos Extranjeros" es OFAC, no cartel)
+      4. NORMALIZA el nombre encontrado:
+         - Si el texto dice "Tren de Aragua" o "tren de aragua" o "TREN DE ARAGUA" → busca variantes en la BD
+         - Si el texto dice "Cártel de Sinaloa" o "cartel de sinaloa" → normaliza a como esté en la BD
+         - Ignora mayúsculas, minúsculas, acentos
+      5. VALIDA que la organización identificada esté en la lista anterior
+      6. EXTRAE una cita breve (máx 100 caracteres) donde se menciona la organización
+
+      ESTRUCTURA DEL TEXTO:
+      El texto comienza con información sobre detenciones/operaciones y menciona personas
+      vinculadas a organizaciones. BUSCA DÓNDE APARECE EL NOMBRE DE LA ORGANIZACIÓN
+      y el CONTEXTO inmediato donde se menciona.
+
+      TEXTO A ANALIZAR:
+      ---
+      #{text}
+      ---
+
+      RESPONDE ÚNICAMENTE EN JSON (sin explicación adicional):
+      {
+        "organization_name": "Nombre de la organización encontrada",
+        "confidence": número entre 0-100,
+        "text_excerpt": "fragmento del texto donde se menciona (máx 100 caracteres)",
+        "reasoning": "por qué es esta la organización principal"
+      }
+
+      Si NO encuentras una organización clara o si solo hay referencias incidentales a "Oficina":
+      {
+        "organization_name": null,
+        "confidence": 0,
+        "text_excerpt": "",
+        "reasoning": "no se encontró organización criminal claramente vinculada"
+      }
+    PROMPT
+  end
+
+  def self.find_organization_fuzzy(name)
+    return nil if name.blank?
+
+    normalized_name = normalize_name(name)
+    organizations = get_cartel_catalog
+
+    organizations.each do |org|
+      org_normalized = normalize_name(org.name)
+      if org_normalized == normalized_name
+        return org
+      end
+    end
+
+    best_match = nil
+    best_score = 0
+
+    organizations.each do |org|
+      org_normalized = normalize_name(org.name)
+      score = similarity_score(normalized_name, org_normalized)
+      if score > best_score && score >= 75
+        best_match = org
+        best_score = score
+      end
+    end
+
+    best_match
+  end
+
+  def self.get_available_organizations
+    get_cartel_catalog.where.not(name: "La Oficina")
+  end
+
+  def self.clean_html_from_text(text)
+    clean = text.gsub(/<[^>]*>/m, '')
+    clean = clean.gsub(/\s+/, ' ')
+    clean = clean.gsub(/^(Menu|Mostrar|Estados|Secciones|Suplementos|Abrir en|Opens in|Share|Compartir).*?(?=\n|\s{2,})/i, '')
+    clean.strip
   end
 end
 
