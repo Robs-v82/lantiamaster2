@@ -1398,12 +1398,11 @@ class OfacPipeline::Step5
     return nil if cartels.blank? || plain_text.blank?
 
     # Log detalles de búsqueda
-    puts "\n   [PASO 5 DEBUG] Cárteles en catálogo (total): #{OfacPipeline::Step5.get_cartel_catalog.count}"
     puts "   [PASO 5 DEBUG] Cárteles después de exclusiones: #{cartels.count}"
 
     text_normalized = normalize_name(plain_text)
     keywords = extract_keywords(plain_text)
-    puts "   [PASO 5 DEBUG] Keywords extraídas: #{keywords.inspect}"
+    puts "   [PASO 5 DEBUG] Keywords extraídas: #{keywords.join(', ')}"
     matches = []
 
     # ============================================================

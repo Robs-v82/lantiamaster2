@@ -38,8 +38,8 @@ begin
 
   # Log candidato
   puts "\n📌 CANDIDATO IDENTIFICADO:"
-  puts "   Nombre: #{candidate.firstname} #{candidate.lastname1} #{candidate.lastname2}".strip
-  puts "   OFAC ID: #{candidate.legacy_id}"
+  puts "   Nombre: #{candidate[:firstname]} #{candidate[:lastname1]} #{candidate[:lastname2]}".strip
+  puts "   OFAC ID: #{candidate[:legacy_id]}"
 
   # ============================================================
   # PASO 2: Buscar Hit con WebSearch

@@ -93,12 +93,10 @@ class OfacController < ApplicationController
         Rails.logger.info("[OfacController] ✅ PIPELINE EXITOSO")
         Rails.logger.info("[OfacController] Candidato: #{result[:candidate]}")
         Rails.logger.info("[OfacController] Nombres extraídos: #{result[:firstname]} | #{result[:lastname1]} | #{result[:lastname2]}")
-        Rails.logger.info("[OfacController] Hit ID: #{response_data[:hit][:id]}")
-        Rails.logger.info("[OfacController] Hit Link: #{response_data[:hit][:link]}")
-        Rails.logger.info("[OfacController] Organización Identificada: #{response_data[:organization]}")
+        Rails.logger.info("[OfacController] Hit ID: #{response_data[:hit][:id] rescue 'N/A'}")
+        Rails.logger.info("[OfacController] Hit Link: #{response_data[:hit][:link] rescue 'N/A'}")
+        Rails.logger.info("[OfacController] Organización Identificada: #{response_data[:organization]&.name || response_data[:organization]}")
         Rails.logger.info("[OfacController] Género: #{response_data[:gender]} (confianza: #{response_data[:gender_confidence]}%)")
-        Rails.logger.info("[OfacController] Response hit data: #{response_data[:hit].inspect}")
-        Rails.logger.info("[OfacController] Response alias_array: #{response_data[:alias_array].inspect} (class: #{response_data[:alias_array].class})")
         render json: response_data
       else
         error_msg = result[:error] || "Error ejecutando el pipeline OFAC"
