@@ -1448,13 +1448,20 @@ class OfacPipeline::Step5
       return { found: false, organization: nil }
     end
 
+    puts "   📝 Limpiando HTML del texto..."
     clean_text = clean_html_from_text(plain_text)[0, 8000]
-    organizations = get_available_organizations
+    puts "      Texto limpio: #{clean_text.length} caracteres"
 
+    puts "   📚 Obteniendo organizaciones disponibles..."
+    organizations = get_available_organizations
+    puts "      Total organizaciones en catálogo: #{organizations.count}"
+
+    puts "   🔨 Construyendo prompt para Claude..."
     prompt = build_organization_identification_prompt(
       text: clean_text,
       organizations: organizations
     )
+    puts "      Prompt construido: #{prompt.length} caracteres"
 
     begin
       uri = URI("https://api.anthropic.com/v1/messages")
@@ -1473,8 +1480,10 @@ class OfacPipeline::Step5
         messages: [{ role: "user", content: prompt }]
       }.to_json
 
+      puts "   🔌 Llamando a Claude API..."
       res = http.request(req)
       res_body = JSON.parse(res.body)
+      puts "      Respuesta: código HTTP #{res.code}"
 
       if res.code.to_i != 200
         puts "   ⚠️  Claude error (#{res.code}): #{res_body.dig("error", "message")}"
@@ -1484,19 +1493,26 @@ class OfacPipeline::Step5
       content = res_body["content"]
       text_block = content.is_a?(Array) ? content.find { |c| c["type"] == "text" } : nil
       response_text = text_block&.dig("text").to_s.strip
+      puts "      Response text length: #{response_text.length} caracteres"
 
       return { found: false, organization: nil } if response_text.blank?
 
+      puts "   🔍 Parseando JSON de respuesta..."
       json_match = response_text.match(/\{.*\}/m)
       return { found: false, organization: nil } unless json_match
 
       claude_response = JSON.parse(json_match[0])
+      puts "      Claude extrajo organización: '#{claude_response["organization_name"]}'"
+      puts "      Confianza reported por Claude: #{claude_response["confidence"]}%"
+      puts "      Excerpt: '#{claude_response["text_excerpt"]}'"
 
       return { found: false, organization: nil } unless claude_response["organization_name"].present?
 
+      puts "   🔎 Buscando organización en BD con fuzzy matching..."
       organization = find_organization_fuzzy(claude_response["organization_name"])
 
       if organization
+        puts "      ✅ Encontrada en BD: '#{organization.name}' (ID: #{organization.id})"
         return {
           found: true,
           organization: organization,
@@ -1505,15 +1521,19 @@ class OfacPipeline::Step5
           text_mention: claude_response["text_excerpt"]
         }
       else
+        puts "      ❌ NO encontrada en BD"
         puts "   ⚠️  Claude identificó '#{claude_response["organization_name"]}' pero no existe en BD"
         return { found: false, organization: nil }
       end
 
     rescue JSON::ParserError => e
-      puts "   ⚠️  Error al parsear respuesta de Claude: #{e.message}"
+      puts "   ⚠️  Error al parsear respuesta de Claude: #{e.class}"
+      puts "      Mensaje: #{e.message}"
       return { found: false, organization: nil }
     rescue StandardError => e
-      puts "   ⚠️  Error en llamada a Claude: #{e.class} #{e.message}"
+      puts "   ⚠️  Error en llamada a Claude: #{e.class}"
+      puts "      Mensaje: #{e.message}"
+      puts "      Backtrace: #{e.backtrace&.first(3)&.join(' | ')}"
       return { found: false, organization: nil }
     end
   end
