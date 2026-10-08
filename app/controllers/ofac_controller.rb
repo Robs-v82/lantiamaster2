@@ -78,7 +78,10 @@ class OfacController < ApplicationController
             date: result[:hit][:date],
             location: result[:hit][:location]
           },
-          organization: result[:organization],
+          organization: result[:organization] ? {
+            id: result[:organization].id,
+            name: result[:organization].name
+          } : nil,
           alias_array: result[:alias_array],
           role: result[:role],
           gender: gender_result[:gender],
@@ -93,7 +96,10 @@ class OfacController < ApplicationController
           lastname1: result[:lastname1],
           lastname2: result[:lastname2],
           hit: result[:hit],
-          organization: result[:organization],
+          organization: result[:organization] ? {
+            id: result[:organization].id,
+            name: result[:organization].name
+          } : nil,
           alias_array: result[:alias_array],
           role: result[:role],
           gender: result[:gender] || "DESCONOCIDO",
@@ -105,13 +111,7 @@ class OfacController < ApplicationController
         Rails.logger.info("[OfacController] Nombres extraídos: #{result[:firstname]} | #{result[:lastname1]} | #{result[:lastname2]}")
         Rails.logger.info("[OfacController] Hit ID: #{response_data[:hit][:id] rescue 'N/A'}")
         Rails.logger.info("[OfacController] Hit Link: #{response_data[:hit][:link] rescue 'N/A'}")
-        org_display = if response_data[:organization].is_a?(Organization)
-                        response_data[:organization].name
-                      elsif response_data[:organization].present?
-                        response_data[:organization].to_s
-                      else
-                        "No identificada"
-                      end
+        org_display = response_data[:organization]&.dig('name') || "No identificada"
         Rails.logger.info("[OfacController] Organización Identificada: #{org_display}")
         Rails.logger.info("[OfacController] Género: #{response_data[:gender]} (confianza: #{response_data[:gender_confidence]}%)")
         render json: response_data
