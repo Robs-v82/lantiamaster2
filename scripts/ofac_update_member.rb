@@ -151,13 +151,37 @@ def split_name(name)
 
   if clean.include?(",")
     last, first = clean.split(",", 2)
-    last_tokens = normalize(last).split
-    first_tokens = normalize(first).split
+    last_normalized = normalize(last)
+    first_normalized = normalize(first)
+
+    # Split en tokens
+    last_tokens = last_normalized.split
+
+    # Preposiciones españolas que típicamente van con el siguiente token
+    prepositions = ["de", "del", "da", "la", "el"]
+
+    # Agrupar preposiciones con el siguiente token
+    grouped_last = []
+    i = 0
+    while i < last_tokens.length
+      current = last_tokens[i]
+
+      # Si es preposición y hay siguiente token, combina ambos
+      if prepositions.include?(current) && i + 1 < last_tokens.length
+        grouped_last << "#{current} #{last_tokens[i + 1]}"
+        i += 2
+      else
+        grouped_last << current
+        i += 1
+      end
+    end
+
+    first_tokens = first_normalized.split
 
     {
       firstname: first_tokens.join(" "),
-      lastname1: last_tokens[0],
-      lastname2: last_tokens[1]
+      lastname1: grouped_last[0],
+      lastname2: grouped_last[1]
     }
   else
     tokens = normalize(clean).split
