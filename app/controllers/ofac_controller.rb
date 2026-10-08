@@ -454,8 +454,9 @@ class OfacController < ApplicationController
         return render json: { success: false, error: "Rol inválido" }, status: :unprocessable_entity
       end
 
-      # Obtener objeto Organization por nombre
-      org = Organization.find_by(name: organization_name)
+      # Obtener objeto Organization por nombre (case-insensitive con fallback fuzzy)
+      org = Organization.where("LOWER(name) = LOWER(?)", organization_name).first ||
+            Organization.where("LOWER(name) ILIKE LOWER(?)", "%#{organization_name}%").first
       unless org.present?
         return render json: { success: false, error: "Organización inválida" }, status: :unprocessable_entity
       end

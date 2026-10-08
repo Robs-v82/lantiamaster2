@@ -300,7 +300,14 @@
 
     document.getElementById('member-role').textContent = data.role || '—';
     document.getElementById('member-role-desc').textContent = '(' + getRoleDescription(data.role) + ')';
-    document.getElementById('member-organization').textContent = data.organization || '—';
+
+    if (data.organization) {
+      document.getElementById('member-organization').textContent = data.organization.name;
+      document.getElementById('member-organization').dataset.organizationName = data.organization.name;
+    } else {
+      document.getElementById('member-organization').textContent = '—';
+      document.getElementById('member-organization').dataset.organizationName = '';
+    }
   }
 
   function getRoleDescription(role) {
@@ -354,7 +361,7 @@
     const memberGenderEl = document.getElementById('member-gender');
     const provisionalGender = memberGenderEl.dataset.gender || 'DESCONOCIDO';
     const roleName = document.getElementById('member-role').textContent;
-    const organization = document.getElementById('member-organization').textContent;
+    const organization = document.getElementById('member-organization').dataset.organizationName || 'Sin definir';
     const hitLegacyId = document.getElementById('hit-legacy-id').textContent;
 
     fetch('<%= ofac_create_member_path %>', {
