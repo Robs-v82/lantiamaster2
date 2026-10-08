@@ -37,9 +37,7 @@ begin
   end
 
   # Log candidato
-  puts "\n📌 CANDIDATO IDENTIFICADO:"
-  puts "   Nombre: #{candidate[:firstname]} #{candidate[:lastname1]} #{candidate[:lastname2]}".strip
-  puts "   OFAC ID: #{candidate[:legacy_id]}"
+  Rails.logger.info("[OFAC PIPELINE] 📌 CANDIDATO IDENTIFICADO: #{candidate[:firstname]} #{candidate[:lastname1]} #{candidate[:lastname2]} (OFAC ID: #{candidate[:legacy_id]})".strip)
 
   # ============================================================
   # PASO 2: Buscar Hit con WebSearch
@@ -54,11 +52,7 @@ begin
   end
 
   # Log Hit encontrado
-  puts "\n📌 HIT ENCONTRADO:"
-  puts "   ID: #{hit.id}"
-  puts "   Título: #{hit.title}"
-  puts "   Link: #{hit.link}"
-  puts "   Texto (chars): #{hit.plain_text&.length || 0}"
+  Rails.logger.info("[OFAC PIPELINE] 📌 HIT ENCONTRADO: ID=#{hit.id} | Título=#{hit.title} | Link=#{hit.link} | Chars=#{hit.plain_text&.length || 0}")
 
   # ============================================================
   # PASO 3: Extraer Fecha con Claude
@@ -92,15 +86,10 @@ begin
   paso5_result = OfacPipeline::Step5.execute!(hit)
 
   # Log resultado PASO 5
-  puts "\n📌 PASO 5 - RESULTADO:"
   if paso5_result && paso5_result[:found]
-    puts "   Organización Identificada: #{paso5_result[:cartel]&.name || 'N/A'}"
-    puts "   Confianza: #{paso5_result[:confidence]}%"
-    puts "   Tipo de Match: #{paso5_result[:match_type]}"
-    puts "   Campo: #{paso5_result[:field]}"
-    puts "   Valor encontrado: #{paso5_result[:value]}"
+    Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: Org=#{paso5_result[:cartel]&.name} | Conf=#{paso5_result[:confidence]}% | Match=#{paso5_result[:match_type]} | Field=#{paso5_result[:field]} | Value=#{paso5_result[:value]}")
   else
-    puts "   ❌ NO SE IDENTIFICÓ ORGANIZACIÓN"
+    Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: ❌ NO SE IDENTIFICÓ ORGANIZACIÓN")
   end
 
   # ============================================================
