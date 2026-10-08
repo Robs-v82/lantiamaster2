@@ -479,7 +479,7 @@ class OfacPipeline::Step2
       req["Content-Type"] = "application/json"
       req.body = {
         q: query,
-        tbs: "qdr:m",    # Último mes
+        # tbs removido: permite búsqueda sin límite de tiempo (10+ años)
         gl: "mx",        # México
         hl: "es",        # Español
         num: 10          # 10 resultados
