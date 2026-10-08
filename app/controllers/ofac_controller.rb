@@ -34,6 +34,13 @@ class OfacController < ApplicationController
       # Capturar la salida del script
       output = `cd #{Rails.root} && ruby #{script_path} 2>&1`
 
+      # Loguear TODAS las líneas del output del subprocess en production.log
+      Rails.logger.info("[OFAC SUBPROCESS OUTPUT START]")
+      output.split("\n").each do |line|
+        Rails.logger.info("[SUBPROCESS] #{line}") if line.present?
+      end
+      Rails.logger.info("[OFAC SUBPROCESS OUTPUT END]")
+
       # Parsear la salida para extraer los datos de las tablas
       result = parse_ofac_output(output)
 
