@@ -1394,7 +1394,7 @@ class OfacPipeline::Step5
   # FASE 1 (FAST PATH): Búsqueda exacta de palabras clave
   # FASE 2 (FALLBACK): Fuzzy matching selectivo solo si FASE 1 falla
   def self.identify_cartel_link(plain_text)
-    cartels = get_cartel_catalog
+    cartels = get_cartel_catalog.where.not(name: "La Oficina")
     return nil if cartels.blank? || plain_text.blank?
 
     text_normalized = normalize_name(plain_text)
