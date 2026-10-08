@@ -5,7 +5,13 @@ require "json"
 class CompoundLastnameResolver
   def self.resolve(lastname_tokens, firstname)
     return nil if lastname_tokens.blank? || lastname_tokens.empty?
-    return { lastname1: lastname_tokens[0], lastname2: lastname_tokens[1] } if lastname_tokens.size <= 2
+    if lastname_tokens.size <= 2
+      return {
+        lastname1: normalize_and_capitalize(lastname_tokens[0]),
+        lastname2: normalize_and_capitalize(lastname_tokens[1]),
+        source: "simple"
+      }
+    end
 
     # Apellidos compuestos: aplicar estrategia de 4 niveles
     result = find_in_database(lastname_tokens, firstname) ||
