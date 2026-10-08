@@ -105,7 +105,14 @@ class OfacController < ApplicationController
         Rails.logger.info("[OfacController] Nombres extraídos: #{result[:firstname]} | #{result[:lastname1]} | #{result[:lastname2]}")
         Rails.logger.info("[OfacController] Hit ID: #{response_data[:hit][:id] rescue 'N/A'}")
         Rails.logger.info("[OfacController] Hit Link: #{response_data[:hit][:link] rescue 'N/A'}")
-        Rails.logger.info("[OfacController] Organización Identificada: #{response_data[:organization]&.name || response_data[:organization]}")
+        org_display = if response_data[:organization].is_a?(Organization)
+                        response_data[:organization].name
+                      elsif response_data[:organization].present?
+                        response_data[:organization].to_s
+                      else
+                        "No identificada"
+                      end
+        Rails.logger.info("[OfacController] Organización Identificada: #{org_display}")
         Rails.logger.info("[OfacController] Género: #{response_data[:gender]} (confianza: #{response_data[:gender_confidence]}%)")
         render json: response_data
       else
@@ -159,7 +166,18 @@ class OfacController < ApplicationController
 
         # Extraer organización
         organization_match = output.match(/Organización:\s*(.+?)\s*\(Confianza/)
-        organization = organization_match ? organization_match[1].strip : "N/A"
+        organization_name = organization_match ? organization_match[1].strip : nil
+        organization = nil
+
+        if organization_name.present?
+          # Buscar el objeto Organization en la BD usando el nombre extraído
+          organization = Organization.where("LOWER(name) = LOWER(?)", organization_name).first
+          # Si no encuentra coincidencia exacta, intentar búsqueda fuzzy
+          unless organization
+            # Búsqueda normalizada con ILIKE para PostgreSQL
+            organization = Organization.where("LOWER(name) ILIKE LOWER(?)", "%#{organization_name}%").first
+          end
+        end
 
         # Extraer Alias
         alias_match = output.match(/Alias:\s*(.+?)(?:\n|$)/)
