@@ -1324,7 +1324,7 @@ end
 class OfacPipeline::Step5
   # Obtener catálogo de cárteles (Sector SCIAN 98)
   def self.get_cartel_catalog
-    Sector.where(scian2: 98).last&.organizations&.where(active: true)&.uniq || []
+    Sector.where(scian2: 98).last&.organizations&.where(active: true)&.distinct || Organization.none
   end
 
   # Normalizar nombre para comparación
