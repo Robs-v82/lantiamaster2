@@ -64,9 +64,6 @@ class OfacController < ApplicationController
         session[:last_ofac_execution] = {
           timestamp: Time.now,
           candidate: result[:candidate],
-          firstname: result[:firstname],
-          lastname1: result[:lastname1],
-          lastname2: result[:lastname2],
           hit: result[:hit],
           organization: result[:organization],
           alias_array: result[:alias_array],
