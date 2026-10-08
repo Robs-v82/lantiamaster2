@@ -71,8 +71,7 @@ class OfacController < ApplicationController
           gender: gender_result[:gender],
           gender_source: gender_result[:source],
           gender_confidence: gender_result[:confidence],
-          plain_text_length: result[:plain_text_length],
-          plain_text_fragment: result[:plain_text_fragment]
+          plain_text_length: result[:plain_text_length]
         }
 
         response_data = {
