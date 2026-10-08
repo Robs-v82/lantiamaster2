@@ -1397,8 +1397,13 @@ class OfacPipeline::Step5
     cartels = get_cartel_catalog.where.not(name: "La Oficina")
     return nil if cartels.blank? || plain_text.blank?
 
+    # Log detalles de búsqueda
+    puts "\n   [PASO 5 DEBUG] Cárteles en catálogo (total): #{OfacPipeline::Step5.get_cartel_catalog.count}"
+    puts "   [PASO 5 DEBUG] Cárteles después de exclusiones: #{cartels.count}"
+
     text_normalized = normalize_name(plain_text)
     keywords = extract_keywords(plain_text)
+    puts "   [PASO 5 DEBUG] Keywords extraídas: #{keywords.inspect}"
     matches = []
 
     # ============================================================
@@ -1566,8 +1571,15 @@ class OfacPipeline::Step5
 
     return nil if matches.empty?
 
+    # Log matches encontrados
+    exact_matches = matches.select { |m| m[:phase] == :exact }
+    fuzzy_matches = matches.select { |m| m[:phase] == :fuzzy }
+    puts "   [PASO 5 DEBUG] FASE 1 (Exacta): #{exact_matches.count} matches"
+    puts "   [PASO 5 DEBUG] FASE 2 (Fuzzy): #{fuzzy_matches.count} matches"
+
     # Retornar el match con mayor confianza
     best_match = matches.max_by { |m| m[:confidence] }
+    puts "   [PASO 5 DEBUG] MEJOR MATCH SELECCIONADO: #{best_match[:cartel].name} (confianza: #{best_match[:confidence]}%)"
     best_match
   end
 

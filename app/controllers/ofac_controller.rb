@@ -90,6 +90,13 @@ class OfacController < ApplicationController
           plain_text_length: result[:plain_text_length],
           plain_text_fragment: result[:plain_text_fragment]
         }
+        Rails.logger.info("[OfacController] ✅ PIPELINE EXITOSO")
+        Rails.logger.info("[OfacController] Candidato: #{result[:candidate]}")
+        Rails.logger.info("[OfacController] Nombres extraídos: #{result[:firstname]} | #{result[:lastname1]} | #{result[:lastname2]}")
+        Rails.logger.info("[OfacController] Hit ID: #{response_data[:hit][:id]}")
+        Rails.logger.info("[OfacController] Hit Link: #{response_data[:hit][:link]}")
+        Rails.logger.info("[OfacController] Organización Identificada: #{response_data[:organization]}")
+        Rails.logger.info("[OfacController] Género: #{response_data[:gender]} (confianza: #{response_data[:gender_confidence]}%)")
         Rails.logger.info("[OfacController] Response hit data: #{response_data[:hit].inspect}")
         Rails.logger.info("[OfacController] Response alias_array: #{response_data[:alias_array].inspect} (class: #{response_data[:alias_array].class})")
         render json: response_data
