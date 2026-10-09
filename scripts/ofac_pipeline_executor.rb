@@ -582,11 +582,10 @@ class OfacPipeline::Step2
       # Parsear y validar rango de fechas
       extracted = Date.parse(date_str_clean)
       today = Date.today
-      one_year_ago = today - 365
 
-      # Validar que no sea fecha futura ni muy antigua
-      if extracted > today || extracted < one_year_ago
-        puts "     ⚠️  Fecha fuera de rango: #{extracted}"
+      # Validar que no sea fecha futura (fechas antigüas son válidas)
+      if extracted > today
+        puts "     ⚠️  Fecha futura: #{extracted}"
         return nil
       end
 
@@ -930,9 +929,8 @@ class OfacPipeline::Step3
 
       extracted = Date.parse(date_str_clean)
       today = Date.today
-      one_year_ago = today - 365
 
-      if extracted > today || extracted < one_year_ago
+      if extracted > today
         return nil
       end
 
