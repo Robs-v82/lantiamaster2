@@ -189,7 +189,7 @@ class OfacController < ApplicationController
         role = role_match ? role_match[1].strip : "Sin definir"
 
         # Extraer Legacy ID del Hit
-        legacy_id_match = output.match(/Legacy ID\s*│\s*([A-Z0-9_]+)/)
+        legacy_id_match = output.match(/Legacy ID\s*│\s*([A-Za-z0-9_-]+)/)
         legacy_id = legacy_id_match ? legacy_id_match[1].strip : nil
 
         # Extraer Link
