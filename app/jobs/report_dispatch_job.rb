@@ -27,7 +27,7 @@ class ReportDispatchJob < ApplicationJob
       end
 
       # Agregar delay entre emails para evitar rate limiting de SMTP
-      sleep(0.5)
+      sleep(2)
     end
 
     # Decrementar el contador de jobs pendientes
