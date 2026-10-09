@@ -154,26 +154,70 @@ def split_name(name)
     last_normalized = normalize(last)
     first_normalized = normalize(first)
 
-    # Split en tokens
     last_tokens = last_normalized.split
-
-    # Preposiciones españolas que típicamente van con el siguiente token
     prepositions = ["de", "del", "da", "la", "el"]
 
-    # Agrupar preposiciones con el siguiente token
+    # PARTE 1: AGRUPAMIENTO MEJORADO
+    # Cuando encuentres preposición, agrupa:
+    # - todas las preposiciones consecutivas
+    # - LUEGO la siguiente palabra
     grouped_last = []
     i = 0
     while i < last_tokens.length
       current = last_tokens[i]
 
-      # Si es preposición y hay siguiente token, combina ambos
-      if prepositions.include?(current) && i + 1 < last_tokens.length
-        grouped_last << "#{current} #{last_tokens[i + 1]}"
-        i += 2
+      if prepositions.include?(current)
+        group = current
+        i += 1
+
+        # Continúa con preposiciones/artículos consecutivos
+        while i < last_tokens.length && prepositions.include?(last_tokens[i])
+          group += " #{last_tokens[i]}"
+          i += 1
+        end
+
+        # Agrupa la palabra que sigue
+        if i < last_tokens.length
+          group += " #{last_tokens[i]}"
+          i += 1
+        end
+
+        grouped_last << group
       else
         grouped_last << current
         i += 1
       end
+    end
+
+    # PARTE 2: POST-PROCESAMIENTO BIDIRECCIONAL
+    # Si hay 3+ grupos, combina inteligentemente
+    if grouped_last.length >= 3
+      new_grouped = []
+      i = 0
+
+      while i < grouped_last.length
+        current_group = grouped_last[i]
+        has_prep_current = prepositions.any? { |p| current_group.include?(" #{p} ") || current_group.start_with?(p) }
+
+        if i + 1 < grouped_last.length
+          next_group = grouped_last[i + 1]
+          has_prep_next = prepositions.any? { |p| next_group.include?(" #{p} ") || next_group.start_with?(p) }
+
+          # Combina si: actual tiene prep y siguiente es palabra, O actual es palabra y siguiente tiene prep
+          if (has_prep_current && !has_prep_next) || (!has_prep_current && has_prep_next)
+            new_grouped << "#{current_group} #{next_group}"
+            i += 2
+          else
+            new_grouped << current_group
+            i += 1
+          end
+        else
+          new_grouped << current_group
+          i += 1
+        end
+      end
+
+      grouped_last = new_grouped
     end
 
     first_tokens = first_normalized.split
