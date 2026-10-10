@@ -197,15 +197,28 @@
     <p style="margin-top: 15px; color: #666;">Ejecutando pipeline OFAC...</p>
   </div>
 
-  <!-- Mensajes de Error -->
-  <div id="error-message" style="display: none; margin-top: 30px; padding: 15px; background-color: #ffebee; border-left: 4px solid #c62828; border-radius: 3px;">
-    <p style="margin: 0; color: #c62828;">
-      <i class="material-icons tiny" style="position: relative; top: 3px;">error</i>
-      <strong style="margin-left: 5px;">Error</strong>
-    </p>
-    <p id="error-text" style="margin-top: 10px; margin-bottom: 0; font-size: 13px;">
-      —
-    </p>
+  <!-- Mensajes de Error CON BOTONES DE ACCIÓN -->
+  <div id="error-section" style="display: none; margin-top: 30px;">
+    <!-- Mensaje de error -->
+    <div id="error-message" style="padding: 15px; background-color: #ffebee; border-left: 4px solid #c62828; border-radius: 3px;">
+      <p style="margin: 0; color: #c62828;">
+        <i class="material-icons tiny" style="position: relative; top: 3px;">error</i>
+        <strong style="margin-left: 5px;">Error en Validación</strong>
+      </p>
+      <p id="error-text" style="margin-top: 10px; margin-bottom: 0; font-size: 13px;">
+        —
+      </p>
+    </div>
+
+    <!-- Botones en caso de fallo (SOLO Descartar + Reintentar) -->
+    <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+      <button id="btn-discard-error" type="button" class="btn waves-effect waves-light paletton-red white-text" style="flex: 1; min-width: 200px;">
+        <i class="material-icons left">delete</i>Descarta nombre OFAC
+      </button>
+      <button id="btn-retry-error" type="button" class="btn waves-effect waves-light grey white-text" style="flex: 1; min-width: 200px;">
+        <i class="material-icons left">refresh</i>Reintentar
+      </button>
+    </div>
   </div>
 </div>
 
@@ -218,12 +231,12 @@
     const btn = document.getElementById('execute-ofac-btn');
     const loading = document.getElementById('loading-indicator');
     const results = document.getElementById('results-section');
-    const error = document.getElementById('error-message');
+    const errorSection = document.getElementById('error-section');
     const errorText = document.getElementById('error-text');
 
     // Limpiar estados previos
     results.style.display = 'none';
-    error.style.display = 'none';
+    errorSection.style.display = 'none';
     btn.disabled = true;
 
     // Mostrar carga
@@ -247,14 +260,18 @@
         results.style.display = 'block';
       } else {
         errorText.textContent = data.error || 'Error desconocido al ejecutar OFAC';
-        error.style.display = 'block';
+        // Guardar candidato en data-attribute si está disponible
+        if (data.candidate) {
+          errorSection.dataset.candidate = data.candidate;
+        }
+        errorSection.style.display = 'block';
       }
     })
     .catch(err => {
       loading.style.display = 'none';
       btn.disabled = false;
       errorText.textContent = 'Error de conexión: ' + err.message;
-      error.style.display = 'block';
+      errorSection.style.display = 'block';
     });
   }
 
@@ -392,5 +409,39 @@
       }
     })
     .catch(err => alert('Error: ' + err.message));
+  });
+
+  // Botones en caso de FALLO (Error)
+  document.getElementById('btn-discard-error').addEventListener('click', function() {
+    const errorSection = document.getElementById('error-section');
+    const candidate = errorSection.dataset.candidate;
+    if (!candidate) {
+      alert('Error: No se pudo obtener el nombre del candidato');
+      return;
+    }
+    if (confirm('¿Estás seguro de que deseas descartar este nombre OFAC?')) {
+      fetch('<%= ofac_discard_path %>', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ candidate: candidate })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Nombre descartado. Recargando...');
+          location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      })
+      .catch(err => alert('Error: ' + err.message));
+    }
+  });
+
+  document.getElementById('btn-retry-error').addEventListener('click', function() {
+    document.getElementById('execute-ofac-btn').click();
   });
 </script>

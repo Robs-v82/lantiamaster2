@@ -118,10 +118,12 @@ class OfacController < ApplicationController
       else
         error_msg = result[:error] || "Error ejecutando el pipeline OFAC"
         Rails.logger.error("[OfacController#execute] Pipeline falló: #{error_msg}")
-        render json: {
+        response_data = {
           success: false,
           error: error_msg
-        }, status: :unprocessable_entity
+        }
+        response_data[:candidate] = result[:candidate] if result[:candidate].present?
+        render json: response_data, status: :unprocessable_entity
       end
     rescue => e
       Rails.logger.error("[OfacController#execute] #{e.class} - #{e.message}")
@@ -140,12 +142,12 @@ class OfacController < ApplicationController
 
   def parse_ofac_output(output)
     begin
+      # EXTRAER CANDIDATO SIEMPRE (incluso en caso de error)
+      candidate_match = output.match(/Candidato:\s*(.+?)(?:\n|$)/)
+      candidate_name = candidate_match ? candidate_match[1].strip : nil
+
       # Verificar si el script ejecutó exitosamente
       if output.include?("PASOS 1-9 COMPLETADOS EXITOSAMENTE")
-
-        # Extraer datos del candidato
-        candidate_match = output.match(/Candidato:\s*(.+?)(?:\n|$)/)
-        candidate_name = candidate_match ? candidate_match[1].strip : "Desconocido"
 
         # Extraer Hit ID
         hit_id_match = output.match(/Hit ID:\s*(\d+)/)
@@ -243,7 +245,8 @@ class OfacController < ApplicationController
         Rails.logger.error("[OfacController#parse_ofac_output] Output últimas 500 chars: #{output[-500..-1]}")
         {
           success: false,
-          error: error_msg || "El pipeline OFAC no completó exitosamente"
+          error: error_msg || "El pipeline OFAC no completó exitosamente",
+          candidate: candidate_name
         }
       end
     rescue => e
@@ -261,13 +264,42 @@ class OfacController < ApplicationController
     elsif output.include?("No se encontró Hit válido")
       "No se encontró artículo válido en la búsqueda"
     elsif output.include?("PASO 6 FALLÓ")
-      "Validación fallida en PASO 6 - Requisitos críticos no cumplidos"
+      error_type = extract_paso6_error_type(output)
+      generate_paso6_error_message(error_type)
     elsif output.include?("ERROR")
       error_match = output.match(/ERROR:\s*(.+?)(?:\n|$)/)
       error_match ? error_match[1].strip : "Error no especificado en el pipeline"
     else
       nil
     end
+  end
+
+  def extract_paso6_error_type(output)
+    if output.include?("NO_CARTEL_MATCH")
+      :no_cartel_match
+    elsif output.include?("INVALID_DATE")
+      :invalid_date
+    elsif output.include?("INVALID_LOCATION")
+      :invalid_location
+    elsif output.include?("INVALID_ROLE")
+      :invalid_role
+    elsif output.include?("INVALID_ALIAS")
+      :invalid_alias
+    else
+      :unknown_paso6_error
+    end
+  end
+
+  def generate_paso6_error_message(error_type)
+    messages = {
+      no_cartel_match: "Validación fallida: La persona no está vinculada a ninguna organización en el catálogo.",
+      invalid_date: "Validación fallida: No se pudo extraer una fecha válida del artículo.",
+      invalid_location: "Validación fallida: No se pudo identificar una ubicación válida en México.",
+      invalid_role: "Validación fallida: No se pudo determinar un rol válido para la persona.",
+      invalid_alias: "Validación fallida: No se pudieron extraer alias válidos del artículo.",
+      unknown_paso6_error: "Validación fallida en PASO 6 - Requisitos críticos no cumplidos"
+    }
+    messages[error_type] || messages[:unknown_paso6_error]
   end
 
   public
