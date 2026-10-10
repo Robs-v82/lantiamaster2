@@ -348,7 +348,7 @@
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
         },
-        body: JSON.stringify({ candidate: candidate })
+        body: JSON.stringify({ candidate: candidate, error_reason: null })
       })
       .then(response => response.json())
       .then(data => {
@@ -415,6 +415,7 @@
   document.getElementById('btn-discard-error').addEventListener('click', function() {
     const errorSection = document.getElementById('error-section');
     const candidate = errorSection.dataset.candidate;
+    const errorReason = document.getElementById('error-text').textContent;
     if (!candidate) {
       alert('Error: No se pudo obtener el nombre del candidato');
       return;
@@ -426,7 +427,7 @@
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
         },
-        body: JSON.stringify({ candidate: candidate })
+        body: JSON.stringify({ candidate: candidate, error_reason: errorReason })
       })
       .then(response => response.json())
       .then(data => {

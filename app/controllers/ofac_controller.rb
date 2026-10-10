@@ -433,16 +433,24 @@ class OfacController < ApplicationController
   # PASO 10: Descartar nombre OFAC
   def discard
     candidate = params[:candidate]
+    error_reason = params[:error_reason]
 
     if candidate.blank?
       return render json: { success: false, error: "Candidato no especificado" }, status: :unprocessable_entity
     end
 
     begin
+      # Construir notas según contexto: error vs éxito
+      if error_reason.present?
+        notes = "Descartado por usuario en #{Time.now} - Razón: #{error_reason}"
+      else
+        notes = "Descartado por usuario en #{Time.now}"
+      end
+
       OfacCandidate.create!(
         ofac_name: candidate,
         status: 3,  # "not_found" enum
-        notes: "Descartado por usuario en #{Time.now}"
+        notes: notes
       )
 
       render json: { success: true, message: "Nombre descartado exitosamente" }
