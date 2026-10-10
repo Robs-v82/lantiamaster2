@@ -258,8 +258,12 @@
       if (data.success) {
         displayResults(data);
         results.style.display = 'block';
+        // Mostrar botones de éxito
+        document.getElementById('btn-discard').style.display = '';
+        document.getElementById('btn-retry').style.display = '';
+        document.getElementById('btn-load-member').style.display = '';
       } else {
-        // En error, mostrar información disponible + error
+        // En error: tablas (si hay datos) + error + 2 botones de error
         // Orden: tablas arriba, error abajo
 
         // Mostrar información disponible si existe
@@ -269,6 +273,11 @@
         } else {
           results.style.display = 'none';
         }
+
+        // OCULTAR botones de éxito en error
+        document.getElementById('btn-discard').style.display = 'none';
+        document.getElementById('btn-retry').style.display = 'none';
+        document.getElementById('btn-load-member').style.display = 'none';
 
         // Mostrar error (siempre)
         errorText.textContent = data.error || 'Error desconocido al ejecutar OFAC';
@@ -292,7 +301,8 @@
     if (data.hit) {
       document.getElementById('hit-legacy-id').textContent = data.hit.legacy_id || '—';
       const linkBtn = document.getElementById('hit-link-btn');
-      if (data.hit.link) {
+      // Validar que el link sea válido (no null, no empty, no 'null')
+      if (data.hit.link && data.hit.link.trim() !== '' && data.hit.link !== 'null') {
         linkBtn.href = data.hit.link;
         linkBtn.classList.remove('disabled');
       } else {

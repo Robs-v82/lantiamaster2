@@ -278,7 +278,7 @@ class OfacController < ApplicationController
         legacy_id = legacy_id_match ? legacy_id_match[1].strip : nil
 
         link_match = output.match(/Fuente \(Link\)\s*│\s*(.+?)(?:\n|$)/)
-        link = link_match ? link_match[1].strip : nil
+        link = link_match ? link_match[1].strip.presence : nil
 
         plain_text_match = output.match(/Plain text válido\s*│\s*✅\s*(\d+)\s*caracteres/)
         plain_text_length = plain_text_match ? plain_text_match[1].to_i : 0
