@@ -92,6 +92,12 @@ begin
     Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: ❌ NO SE IDENTIFICÓ ORGANIZACIÓN")
   end
 
+  # Imprimir tabla del HIT después de PASO 5, antes de PASO 6
+  # Esto asegura que la información está disponible incluso si PASO 6 falla
+  puts "\n📰 HIT VALIDADO (Información después de PASO 5)"
+  puts "-" * 100
+  OfacPipeline::Step6.print_hit_table(hit)
+
   # ============================================================
   # PASO 6: Validación Final de Requisitos Críticos
   # ============================================================
