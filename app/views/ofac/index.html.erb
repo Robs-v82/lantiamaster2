@@ -259,6 +259,18 @@
         displayResults(data);
         results.style.display = 'block';
       } else {
+        // En error, mostrar información disponible + error
+        // Orden: tablas arriba, error abajo
+
+        // Mostrar información disponible si existe
+        if (data.candidate || data.hit) {
+          displayResults(data);
+          results.style.display = 'block';
+        } else {
+          results.style.display = 'none';
+        }
+
+        // Mostrar error (siempre)
         errorText.textContent = data.error || 'Error desconocido al ejecutar OFAC';
         // Guardar candidato en data-attribute si está disponible
         if (data.candidate) {
@@ -276,27 +288,34 @@
   }
 
   function displayResults(data) {
-    // HIT VALIDADO
-    document.getElementById('hit-legacy-id').textContent = data.hit.legacy_id || '—';
-    const linkBtn = document.getElementById('hit-link-btn');
-    if (data.hit.link) {
-      linkBtn.href = data.hit.link;
-      linkBtn.classList.remove('disabled');
-    } else {
-      linkBtn.href = '#';
-      linkBtn.classList.add('disabled');
+    // HIT VALIDADO (con manejo de datos faltantes)
+    if (data.hit) {
+      document.getElementById('hit-legacy-id').textContent = data.hit.legacy_id || '—';
+      const linkBtn = document.getElementById('hit-link-btn');
+      if (data.hit.link) {
+        linkBtn.href = data.hit.link;
+        linkBtn.classList.remove('disabled');
+      } else {
+        linkBtn.href = '#';
+        linkBtn.classList.add('disabled');
+      }
+      document.getElementById('hit-date').textContent = data.hit.date || '—';
+      document.getElementById('hit-location').textContent = data.hit.location || '—';
+      // Mostrar plain text length si existe
+      if (data.plain_text_length && data.plain_text_length > 0) {
+        document.getElementById('hit-plain-text').textContent = '✅ ' + data.plain_text_length + ' caracteres';
+      } else {
+        document.getElementById('hit-plain-text').textContent = '—';
+      }
+      document.getElementById('hit-fragment').textContent = data.plain_text_fragment || '—';
     }
-    document.getElementById('hit-date').textContent = data.hit.date || '—';
-    document.getElementById('hit-location').textContent = data.hit.location || '—';
-    document.getElementById('hit-plain-text').textContent = '✅ ' + data.plain_text_length + ' caracteres';
-    document.getElementById('hit-fragment').textContent = data.plain_text_fragment || '—';
 
-    // MEMBER A CREAR
+    // MEMBER A CREAR (con manejo de datos faltantes)
     const firstname = data.firstname || '—';
     const lastname1 = data.lastname1 || '—';
     const lastname2 = data.lastname2 || '—';
 
-    document.getElementById('member-fullname').textContent = data.candidate;
+    document.getElementById('member-fullname').textContent = data.candidate || '—';
     document.getElementById('member-firstname').textContent = firstname;
     document.getElementById('member-lastname1').textContent = lastname1;
     document.getElementById('member-lastname2').textContent = lastname2;

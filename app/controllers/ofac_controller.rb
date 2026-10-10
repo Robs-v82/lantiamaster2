@@ -118,11 +118,27 @@ class OfacController < ApplicationController
       else
         error_msg = result[:error] || "Error ejecutando el pipeline OFAC"
         Rails.logger.error("[OfacController#execute] Pipeline falló: #{error_msg}")
+
         response_data = {
           success: false,
           error: error_msg
         }
+
+        # Incluir toda la información disponible incluso en error
         response_data[:candidate] = result[:candidate] if result[:candidate].present?
+        response_data[:firstname] = result[:firstname] if result[:firstname].present?
+        response_data[:lastname1] = result[:lastname1] if result[:lastname1].present?
+        response_data[:lastname2] = result[:lastname2] if result[:lastname2].present?
+
+        if result[:hit].present?
+          response_data[:hit] = result[:hit]
+        end
+
+        response_data[:alias_array] = result[:alias_array] if result[:alias_array].present?
+        response_data[:role] = result[:role] if result[:role].present?
+        response_data[:plain_text_length] = result[:plain_text_length] if result[:plain_text_length].present?
+        response_data[:plain_text_fragment] = result[:plain_text_fragment] if result[:plain_text_fragment].present?
+
         render json: response_data, status: :unprocessable_entity
       end
     rescue => e
@@ -243,10 +259,70 @@ class OfacController < ApplicationController
         error_msg = extract_error_from_output(output)
         Rails.logger.error("[OfacController#parse_ofac_output] Pipeline no completó exitosamente")
         Rails.logger.error("[OfacController#parse_ofac_output] Output últimas 500 chars: #{output[-500..-1]}")
+
+        # Extraer TODA la información disponible incluso en error
+        # (Los PASOS 1-5 ya completaron, así que tenemos la info disponible)
+        hit_id_match = output.match(/Hit ID:\s*(\d+)/)
+        hit_id = hit_id_match ? hit_id_match[1] : nil
+
+        title_match = output.match(/Título:\s*(.+?)\.{3}/)
+        hit_title = title_match ? title_match[1].strip : nil
+
+        date_match = output.match(/Fecha:\s*(\d{4}-\d{2}-\d{2})/)
+        date = date_match ? date_match[1] : nil
+
+        location_match = output.match(/Ubicación:\s*(.+?)(?:\n|$)/)
+        location = location_match ? location_match[1].strip : nil
+
+        legacy_id_match = output.match(/Legacy ID\s*│\s*([A-Za-z0-9_-]+)/)
+        legacy_id = legacy_id_match ? legacy_id_match[1].strip : nil
+
+        link_match = output.match(/Fuente \(Link\)\s*│\s*(.+?)(?:\n|$)/)
+        link = link_match ? link_match[1].strip : nil
+
+        plain_text_match = output.match(/Plain text válido\s*│\s*✅\s*(\d+)\s*caracteres/)
+        plain_text_length = plain_text_match ? plain_text_match[1].to_i : 0
+
+        fragment_match = output.match(/Fragmento inicial:\s*(.+?)\.\.\./m)
+        plain_text_fragment = fragment_match ? fragment_match[1].strip : nil
+
+        firstname_match = output.match(/- Firstname:\s*(.+?)(?:\n|$)/)
+        firstname = firstname_match ? firstname_match[1].strip : nil
+
+        lastname1_match = output.match(/- Lastname1:\s*(.+?)(?:\n|$)/)
+        lastname1 = lastname1_match ? lastname1_match[1].strip : nil
+
+        lastname2_match = output.match(/- Lastname2:\s*(.+?)(?:\n|$)/)
+        lastname2 = lastname2_match ? lastname2_match[1].strip : nil
+
+        alias_match = output.match(/Alias:\s*(.+?)(?:\n|$)/)
+        alias_text = alias_match ? alias_match[1].strip : "No identificados"
+        alias_array = alias_text == "No identificados" ? [] : alias_text.split(/[,;]/).map(&:strip)
+
+        role_match = output.match(/Rol:\s*(.+?)\s*\(Confianza/)
+        role = role_match ? role_match[1].strip : nil
+
         {
           success: false,
           error: error_msg || "El pipeline OFAC no completó exitosamente",
-          candidate: candidate_name
+          candidate: candidate_name,
+          firstname: firstname,
+          lastname1: lastname1,
+          lastname2: lastname2,
+          hit: {
+            id: hit_id,
+            title: hit_title,
+            date: date,
+            location: location,
+            legacy_id: legacy_id,
+            link: link,
+            plain_text_length: plain_text_length,
+            fragment: plain_text_fragment
+          },
+          alias_array: alias_array,
+          role: role,
+          plain_text_length: plain_text_length,
+          plain_text_fragment: plain_text_fragment
         }
       end
     rescue => e
