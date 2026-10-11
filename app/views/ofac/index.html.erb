@@ -154,7 +154,7 @@
     </div>
 
     <!-- Información de Validación -->
-    <div style="margin-top: 30px; padding: 15px; background-color: #e3f2fd; border-left: 4px solid #1976d2; border-radius: 3px;">
+    <div id="validation-info-section" style="margin-top: 30px; padding: 15px; background-color: #e3f2fd; border-left: 4px solid #1976d2; border-radius: 3px;">
       <p style="margin: 0;">
         <i class="material-icons tiny" style="position: relative; top: 3px;">info</i>
         <strong style="margin-left: 5px;">Información de Validación</strong>
@@ -278,6 +278,9 @@
         document.getElementById('btn-discard').style.display = 'none';
         document.getElementById('btn-retry').style.display = 'none';
         document.getElementById('btn-load-member').style.display = 'none';
+
+        // OCULTAR mensaje de validación en error (es engañoso decir que fue validado por PASOS 1-9 si falló en PASO 6)
+        document.getElementById('validation-info-section').style.display = 'none';
 
         // Mostrar error (siempre)
         errorText.textContent = data.error || 'Error desconocido al ejecutar OFAC';
