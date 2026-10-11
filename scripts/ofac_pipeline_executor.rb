@@ -1317,6 +1317,27 @@ class OfacPipeline::Step6
       return { success: false, candidate_name: candidate[:fullname], primary_cause: "TECHNICAL_ERROR", attempt: 2 }
     end
   end
+
+  def self.print_hit_table(hit)
+    puts format_row("Legacy ID", hit.legacy_id)
+    puts format_row("Fuente (Link)", hit.link)
+    puts format_row("Fecha del evento", hit.date)
+    location = if hit.town.present?
+                 "#{hit.town.county&.name}, #{hit.town.county&.state&.name}"
+               else
+                 "—"
+               end
+    puts format_row("Ubicación", location)
+    puts format_row("Plain text válido", "✅ #{hit.plain_text.length} caracteres")
+    puts "\nFragmento inicial:"
+    puts "  #{hit.plain_text[0, 350]}..."
+  end
+
+  private
+
+  def self.format_row(label, value)
+    "  #{label.ljust(30)}│ #{value}"
+  end
 end
 
 class OfacPipeline::Step5
