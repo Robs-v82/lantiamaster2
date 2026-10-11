@@ -2150,8 +2150,6 @@ class OfacPipeline::Step9
     puts "\n" + "=" * 100
   end
 
-  private
-
   def self.print_hit_table(hit)
     puts format_row("Legacy ID", hit.legacy_id)
     puts format_row("Fuente (Link)", hit.link)
