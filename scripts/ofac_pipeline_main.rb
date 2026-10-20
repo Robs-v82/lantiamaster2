@@ -52,7 +52,7 @@ begin
     puts "🔄 Intentando retry_search (búsqueda sin 'Cartel' + web general fallback)..."
     puts "=" * 100
 
-    paso6_result = OfacPipeline::Step2.retry_search(candidate, attempt: 2)
+    paso6_result = OfacPipeline::Step6.retry_search(candidate, attempt: 2)
 
     if paso6_result.is_a?(Hash) && paso6_result[:success]
       puts "\n✅ retry_search completó exitosamente"
