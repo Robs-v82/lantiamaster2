@@ -1422,7 +1422,10 @@ class OfacPipeline::Step6
           organization_id = cartel_match[:organization_id] if cartel_match && cartel_match[:found]
 
           # PASO 6 REINTENTADO (Validación)
-          return validate_and_retry(candidate, hit, organization_id, was_existing_hit: was_existing_hit_reintento, attempt: 2)
+          validation_result = validate_and_retry(candidate, hit, organization_id, was_existing_hit: was_existing_hit_reintento, attempt: 2)
+          if validation_result[:success]
+            return validation_result
+          end
 
         rescue => e
           puts "   ❌ Error inesperado procesando: #{e.class} #{e.message}"
@@ -1521,7 +1524,10 @@ class OfacPipeline::Step6
             cartel_match = OfacPipeline::Step5.execute!(hit)
             organization_id = cartel_match[:organization_id] if cartel_match && cartel_match[:found]
 
-            return validate_and_retry(candidate, hit, organization_id, was_existing_hit: was_existing_hit_reintento, attempt: 2)
+            validation_result = validate_and_retry(candidate, hit, organization_id, was_existing_hit: was_existing_hit_reintento, attempt: 2)
+            if validation_result[:success]
+              return validation_result
+            end
 
           rescue => e
             puts "   ❌ Error inesperado procesando: #{e.class} #{e.message}"
