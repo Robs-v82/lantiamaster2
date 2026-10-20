@@ -2368,61 +2368,76 @@ if __FILE__ == $0
   paso2_result = OfacPipeline::Step2.execute!(candidate)
 
   if paso2_result.nil?
-    puts "\n⚠️  PASO 2 no encontró Hit válido"
-    exit 0
-  end
+    puts "\n⚠️  PASO 2 no encontró Hit válido en búsqueda inicial"
+    puts "🔄 Intentando retry_search (búsqueda sin 'Cartel' + web general fallback)..."
+    puts "=" * 80
 
-  hit = paso2_result[:hit]
-  was_existing_hit = paso2_result[:was_existing_hit]
+    paso6_result = OfacPipeline::Step2.retry_search(candidate, attempt: 2)
 
-  # PASO 3: Extraer fecha con Claude
-  puts "\n🤖 PASO 3: Extrayendo fecha con Claude..."
-  updated_date = OfacPipeline::Step2.extract_date_with_claude(hit.plain_text)
+    # retry_search retorna un hash con success: true/false
+    # Si success, paso6_result ya incluye todo hasta PASO 6 completado
+    if !paso6_result.is_a?(Hash) || !paso6_result[:success]
+      puts "\n❌ retry_search tampoco encontró artículos válidos"
+      exit 0
+    end
 
-  if updated_date
-    hit.update!(date: updated_date)
-    hit.reload
-    puts "✅ Fecha extraída: #{updated_date}"
+    puts "\n✅ retry_search completó exitosamente"
+    # paso6_result ya contiene el resultado de PASO 6
+    # Saltamos directamente a PASO 7 (alias extraction)
   else
-    fallback_date = Date.today
-    hit.update!(date: fallback_date)
-    puts "⚠️  Claude no pudo extraer fecha, usando fallback Date.today: #{fallback_date}"
+    # PASO 2 fue exitoso
+    hit = paso2_result
+    was_existing_hit = false
+
+    # PASO 3: Extraer fecha con Claude
+    puts "\n🤖 PASO 3: Extrayendo fecha con Claude..."
+    updated_date = OfacPipeline::Step2.extract_date_with_claude(hit.plain_text)
+
+    if updated_date
+      hit.update!(date: updated_date)
+      hit.reload
+      puts "✅ Fecha extraída: #{updated_date}"
+    else
+      fallback_date = Date.today
+      hit.update!(date: fallback_date)
+      puts "⚠️  Claude no pudo extraer fecha, usando fallback Date.today: #{fallback_date}"
+    end
+
+    # PASO 4: Extraer ubicación con Claude
+    puts "\n🤖 PASO 4: Extrayendo ubicación con Claude..."
+    updated_town_id = OfacPipeline::Step2.extract_location_with_claude(hit.plain_text, hit.town_id)
+
+    if updated_town_id && updated_town_id != hit.town_id
+      hit.update!(town_id: updated_town_id)
+      hit.reload
+      puts "✅ Ubicación actualizada"
+    else
+      puts "⚠️  Ubicación sin cambios o error"
+    end
+
+    # PASO 5: Validar vinculación con cartel
+    puts "\n🤖 PASO 5: Validando vinculación con cartel..."
+    cartel_match = OfacPipeline::Step5.execute!(hit)
+
+    # Capturar organization_id para próximos pasos
+    organization_id = nil
+    if cartel_match && cartel_match[:found]
+      organization_id = cartel_match[:organization_id]
+      puts "✅ Cartel identificado: #{cartel_match[:organization].name} (Confianza: #{cartel_match[:confidence]}%)"
+      puts "   Organization ID (temporal): #{organization_id}"
+    else
+      puts "⚠️  No se identificó cartel en el catálogo"
+    end
+
+    # PASO 6: Validación final con reintentos
+    paso6_result = OfacPipeline::Step6.validate_and_retry(
+      candidate,
+      hit,
+      organization_id,
+      was_existing_hit: was_existing_hit,
+      attempt: 1
+    )
   end
-
-  # PASO 4: Extraer ubicación con Claude
-  puts "\n🤖 PASO 4: Extrayendo ubicación con Claude..."
-  updated_town_id = OfacPipeline::Step2.extract_location_with_claude(hit.plain_text, hit.town_id)
-
-  if updated_town_id && updated_town_id != hit.town_id
-    hit.update!(town_id: updated_town_id)
-    hit.reload
-    puts "✅ Ubicación actualizada"
-  else
-    puts "⚠️  Ubicación sin cambios o error"
-  end
-
-  # PASO 5: Validar vinculación con cartel
-  puts "\n🤖 PASO 5: Validando vinculación con cartel..."
-  cartel_match = OfacPipeline::Step5.execute!(hit)
-
-  # Capturar organization_id para próximos pasos
-  organization_id = nil
-  if cartel_match && cartel_match[:found]
-    organization_id = cartel_match[:organization_id]
-    puts "✅ Cartel identificado: #{cartel_match[:organization].name} (Confianza: #{cartel_match[:confidence]}%)"
-    puts "   Organization ID (temporal): #{organization_id}"
-  else
-    puts "⚠️  No se identificó cartel en el catálogo"
-  end
-
-  # PASO 6: Validación final con reintentos
-  paso6_result = OfacPipeline::Step6.validate_and_retry(
-    candidate,
-    hit,
-    organization_id,
-    was_existing_hit: was_existing_hit,
-    attempt: 1
-  )
 
   if paso6_result[:success]
     puts "\n" + "=" * 80
