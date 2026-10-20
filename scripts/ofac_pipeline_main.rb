@@ -45,78 +45,100 @@ begin
   puts "\n📡 PASO 2: Buscar Evidencia de Cartel"
   puts "=" * 100
   hit = OfacPipeline::Step2.execute!(candidate)
+  skip_pasos_3_to_6 = false
 
   if hit.nil?
-    puts "\n❌ No se encontró Hit válido en PASO 2"
-    exit 1
+    puts "\n⚠️  PASO 2 no encontró Hit válido en búsqueda inicial"
+    puts "🔄 Intentando retry_search (búsqueda sin 'Cartel' + web general fallback)..."
+    puts "=" * 100
+
+    paso6_result = OfacPipeline::Step2.retry_search(candidate, attempt: 2)
+
+    if paso6_result.is_a?(Hash) && paso6_result[:success]
+      puts "\n✅ retry_search completó exitosamente"
+      # retry_search ya ejecutó PASOS 2-6, extraer datos
+      hit = paso6_result[:hit]
+      organization_id = paso6_result[:organization_id]
+      organization = Organization.find_by(id: organization_id) if organization_id
+      skip_pasos_3_to_6 = true
+    else
+      puts "\n❌ retry_search tampoco encontró artículos válidos"
+      exit 1
+    end
   end
 
   # Log Hit encontrado
   Rails.logger.info("[OFAC PIPELINE] 📌 HIT ENCONTRADO: ID=#{hit.id} | Título=#{hit.title} | Link=#{hit.link} | Chars=#{hit.plain_text&.length || 0}")
 
   # ============================================================
-  # PASO 3: Extraer Fecha con Claude
+  # PASOS 3-6: Solo ejecutar si NO vinimos de retry_search
+  # (retry_search ya ejecutó estos pasos)
   # ============================================================
-  puts "\n📅 PASO 3: Extraer Fecha con Claude"
-  puts "=" * 100
-  paso3_result = OfacPipeline::Step3.execute!(hit)
-  hit.reload  # Recargar Hit con los datos actualizados de PASO 3
+  unless skip_pasos_3_to_6
+    # ============================================================
+    # PASO 3: Extraer Fecha con Claude
+    # ============================================================
+    puts "\n📅 PASO 3: Extraer Fecha con Claude"
+    puts "=" * 100
+    paso3_result = OfacPipeline::Step3.execute!(hit)
+    hit.reload  # Recargar Hit con los datos actualizados de PASO 3
 
-  if paso3_result.nil?
-    puts "⚠️  PASO 3 completado con fallback"
+    if paso3_result.nil?
+      puts "⚠️  PASO 3 completado con fallback"
+    end
+
+    # ============================================================
+    # PASO 4: Extraer Ubicación con Claude
+    # ============================================================
+    puts "\n📍 PASO 4: Extraer Ubicación con Claude"
+    puts "=" * 100
+    paso4_result = OfacPipeline::Step4.execute!(hit)
+    hit.reload  # Recargar Hit con los datos actualizados de PASO 4
+
+    if paso4_result.nil?
+      puts "⚠️  PASO 4 completado con fallback"
+    end
+
+    # ============================================================
+    # PASO 5: Validar Cartel en Catálogo
+    # ============================================================
+    puts "\n🏢 PASO 5: Validar Vinculación con Cartel en Catálogo"
+    puts "=" * 100
+    paso5_result = OfacPipeline::Step5.execute!(hit)
+
+    # Log resultado PASO 5
+    if paso5_result && paso5_result[:found]
+      Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: Claude extrajo '#{paso5_result[:claude_organization_name]}' → Match BD '#{paso5_result[:organization].name}' (ID: #{paso5_result[:organization_id]}, Confianza: #{paso5_result[:confidence]}%)")
+    else
+      Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: ❌ NO SE IDENTIFICÓ ORGANIZACIÓN")
+    end
+
+    # ============================================================
+    # PASO 6: Validación Final de Requisitos Críticos
+    # ============================================================
+    puts "\n" + "=" * 100
+    organization_id = paso5_result && paso5_result[:found] ? paso5_result[:organization_id] : nil
+    organization = paso5_result && paso5_result[:found] ? paso5_result[:organization] : nil
+
+    paso6_result = OfacPipeline::Step6.validate_and_retry(
+      candidate,
+      hit,
+      organization_id,
+      was_existing_hit: false
+    )
+
+    if !paso6_result[:success]
+      puts "\n❌ PASO 6 FALLÓ - FLUJO TERMINADO"
+      puts "Causa: #{paso6_result[:primary_cause]}"
+      exit 1
+    end
   end
 
-  # ============================================================
-  # PASO 4: Extraer Ubicación con Claude
-  # ============================================================
-  puts "\n📍 PASO 4: Extraer Ubicación con Claude"
-  puts "=" * 100
-  paso4_result = OfacPipeline::Step4.execute!(hit)
-  hit.reload  # Recargar Hit con los datos actualizados de PASO 4
-
-  if paso4_result.nil?
-    puts "⚠️  PASO 4 completado con fallback"
-  end
-
-  # ============================================================
-  # PASO 5: Validar Cartel en Catálogo
-  # ============================================================
-  puts "\n🏢 PASO 5: Validar Vinculación con Cartel en Catálogo"
-  puts "=" * 100
-  paso5_result = OfacPipeline::Step5.execute!(hit)
-
-  # Log resultado PASO 5
-  if paso5_result && paso5_result[:found]
-    Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: Claude extrajo '#{paso5_result[:claude_organization_name]}' → Match BD '#{paso5_result[:organization].name}' (ID: #{paso5_result[:organization_id]}, Confianza: #{paso5_result[:confidence]}%)")
-  else
-    Rails.logger.info("[OFAC PIPELINE] 📌 PASO 5 RESULTADO: ❌ NO SE IDENTIFICÓ ORGANIZACIÓN")
-  end
-
-  # Imprimir tabla del HIT después de PASO 5, antes de PASO 6
-  # Esto asegura que la información está disponible incluso si PASO 6 falla
-  puts "\n📰 HIT VALIDADO (Información después de PASO 5)"
+  # Imprimir tabla del HIT después de PASO 5/PASO 6, FUERA del unless
+  # Esto asegura que se imprima siempre, tanto si venimos de retry_search como si no
+  puts "\n📰 HIT VALIDADO (Información después de PASO 5/6)"
   puts "-" * 100
   OfacPipeline::Step6.print_hit_table(hit)
-
-  # ============================================================
-  # PASO 6: Validación Final de Requisitos Críticos
-  # ============================================================
-  puts "\n" + "=" * 100
-  organization_id = paso5_result && paso5_result[:found] ? paso5_result[:organization_id] : nil
-  organization = paso5_result && paso5_result[:found] ? paso5_result[:organization] : nil
-
-  paso6_result = OfacPipeline::Step6.validate_and_retry(
-    candidate,
-    hit,
-    organization_id,
-    was_existing_hit: false
-  )
-
-  if !paso6_result[:success]
-    puts "\n❌ PASO 6 FALLÓ - FLUJO TERMINADO"
-    puts "Causa: #{paso6_result[:primary_cause]}"
-    exit 1
-  end
 
   # ============================================================
   # PASO 7: Extraer Alias con Claude
