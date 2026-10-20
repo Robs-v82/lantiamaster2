@@ -1316,12 +1316,13 @@ class OfacPipeline::Step6
       puts "   Query: #{search_query}"
 
       search_results = OfacPipeline::Step2.search_web(search_query)
+      search_source = "Google News"
 
-      # Fallback a búsqueda WEB GENERAL si Google News retorna 0 resultados
       if search_results.empty?
         puts "\n⚠️  Google News: 0 resultados"
-        puts "📡 Intentando búsqueda WEB GENERAL (fallback)..."
+        puts "📡 Intentando búsqueda WEB GENERAL (fallback por 0 resultados)..."
         search_results = OfacPipeline::Step2.search_web_general(search_query)
+        search_source = "Web General"
       end
 
       if search_results.empty?
@@ -1329,10 +1330,12 @@ class OfacPipeline::Step6
         return { success: false, candidate_name: candidate[:fullname], primary_cause: "NO_HIT_FOUND", attempt: 2 }
       end
 
-      puts "\n📰 Resultados encontrados: #{search_results.size}"
+      puts "\n📰 Resultados encontrados en #{search_source}: #{search_results.size}"
 
       # Procesar resultados (igual que PASO 2 original)
       hit = nil
+      valid_hit_found = false
+
       search_results.each_with_index do |result, idx|
         puts "\n[#{idx + 1}] Procesando: #{result[:title]}"
 
@@ -1431,7 +1434,106 @@ class OfacPipeline::Step6
         end
       end
 
-      # No se encontró Hit válido en el reintento
+      # Si llegó aquí desde Google News sin encontrar Hit válido, intentar Web General
+      if search_source == "Google News"
+        puts "\n⚠️  Google News: #{search_results.length} resultados, pero TODOS fallaron al procesar"
+        puts "📡 Intentando búsqueda WEB GENERAL (fallback por fallos de procesamiento)..."
+
+        search_results = OfacPipeline::Step2.search_web_general(search_query)
+
+        if search_results.empty?
+          puts "\n❌ Web General: 0 resultados"
+          return { success: false, candidate_name: candidate[:fullname], primary_cause: "NO_HIT_FOUND", attempt: 2 }
+        end
+
+        puts "\n📰 Resultados encontrados en Web General: #{search_results.size}"
+
+        # Procesar resultados de Web General con el mismo flujo
+        search_results.each_with_index do |result, idx|
+          puts "\n[#{idx + 1}] Procesando: #{result[:title]}"
+
+          url = result[:url].to_s.strip
+          next if url.blank?
+
+          existing_hit = Hit.find_by(link: url)
+          was_existing_hit_reintento = existing_hit.present?
+
+          if was_existing_hit_reintento
+            hit = existing_hit
+            puts "   ℹ️  Hit preexistente (ID: #{hit.id}) - Reutilizando"
+          else
+            begin
+              hit = Hit.create!(
+                date: Date.today,
+                title: result[:title][0, 255],
+                link: url,
+                town_id: OfacPipeline::Step2.resolve_location(result[:description].to_s, "")[:town_id],
+                user_id: User.first&.id || 1,
+                legacy_id: "OFAC_#{SecureRandom.hex(8).upcase}"
+              )
+              puts "   ✅ Hit creado (ID: #{hit.id})"
+            rescue => e
+              puts "   ❌ Error: #{e.message}"
+              next
+            end
+          end
+
+          begin
+            fetcher_result = OfacPipeline::Step2.capture_plain_text_with_details(hit)
+
+            if !fetcher_result[:success]
+              puts "   ❌ No se pudo capturar contenido: #{fetcher_result[:error]}"
+              if !was_existing_hit_reintento
+                hit.destroy!
+              end
+              next
+            end
+
+            if fetcher_result[:plain_text].blank? || fetcher_result[:plain_text].length < 800
+              puts "   ❌ plain_text no válido (#{fetcher_result[:plain_text]&.length || 0} chars)"
+              if !was_existing_hit_reintento
+                hit.destroy!
+              end
+              next
+            end
+
+            hit.update!(plain_text: fetcher_result[:plain_text])
+            puts "   ✅ plain_text capturado"
+
+            unless OfacPipeline::Step2.candidate_appears_in_text?(candidate, hit.plain_text)
+              puts "   ❌ Candidato #{candidate[:fullname]} NO aparece en el plain_text"
+              if !was_existing_hit_reintento
+                hit.destroy!
+              end
+              next
+            end
+
+            puts "   ✅ Candidato validado en plain_text"
+
+            extracted_date = OfacPipeline::Step2.extract_date_with_claude(hit.plain_text)
+            hit.update!(date: extracted_date || Date.today)
+            puts "   ✅ Fecha extraída"
+
+            updated_town_id = OfacPipeline::Step2.extract_location_with_claude(hit.plain_text, hit.town_id)
+            hit.update!(town_id: updated_town_id) if updated_town_id
+            puts "   ✅ Ubicación extraída"
+
+            cartel_match = OfacPipeline::Step5.execute!(hit)
+            organization_id = cartel_match[:organization_id] if cartel_match && cartel_match[:found]
+
+            return validate_and_retry(candidate, hit, organization_id, was_existing_hit: was_existing_hit_reintento, attempt: 2)
+
+          rescue => e
+            puts "   ❌ Error inesperado procesando: #{e.class} #{e.message}"
+            if hit.persisted? && !was_existing_hit_reintento
+              hit.destroy!
+            end
+            next
+          end
+        end
+      end
+
+      # No se encontró Hit válido en el reintento (ni en Google News ni en Web General)
       puts "\n❌ No se pudo encontrar Hit válido en el reintento"
       return { success: false, candidate_name: candidate[:fullname], primary_cause: "NO_HIT_FOUND", attempt: 2 }
 
