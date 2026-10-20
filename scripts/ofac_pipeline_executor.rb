@@ -533,6 +533,67 @@ class OfacPipeline::Step2
     end
   end
 
+  # Búsqueda WEB GENERAL (fallback cuando Google News retorna 0 resultados)
+  # Usa endpoint /search en lugar de /news para obtener resultados web amplios
+  def self.search_web_general(query)
+    api_key = OfacPipeline.load_serper_api_key
+    unless api_key
+      raise OfacPipeline::UpdateError, "SERPER_API_KEY no configurada en .env o archivo"
+    end
+
+    begin
+      uri = URI("https://google.serper.dev/search")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.read_timeout = 10
+      http.open_timeout = 5
+
+      req = Net::HTTP::Post.new(uri)
+      req["X-API-KEY"] = api_key
+      req["Content-Type"] = "application/json"
+      req.body = {
+        q: query,
+        gl: "mx",        # México
+        hl: "es",        # Español
+        num: 10          # 10 resultados
+      }.to_json
+
+      puts "\n   📡 Enviando request a Serper (WEB GENERAL)..."
+      puts "   URL: #{uri}"
+      puts "   Body: #{req.body}"
+
+      res = http.request(req)
+
+      puts "\n   📍 Response Status: #{res.code}"
+      puts "   📍 Response Body (COMPLETO):"
+      puts "   #{res.body}"
+
+      data = JSON.parse(res.body)
+
+      puts "\n   📊 Datos parseados:"
+      puts "   Total keys: #{data.keys}"
+      puts "   organic key present?: #{data.key?("organic")}"
+      puts "   organic value: #{data["organic"].inspect[0..200]}"
+
+      if data["organic"].is_a?(Array)
+        puts "   ✅ Organic es un Array con #{data["organic"].size} resultados"
+        data["organic"].map do |article|
+          {
+            title: article["title"],
+            url: article["link"],
+            description: article["snippet"]
+          }
+        end
+      else
+        puts "   ⚠️  Organic no es un Array o está vacío"
+        []
+      end
+    rescue => e
+      puts "\n   ❌ Exception: #{e.class}: #{e.message}"
+      raise OfacPipeline::UpdateError, "Error en búsqueda Serper (web general): #{e.message}"
+    end
+  end
+
   # PASO 3: Extraer fecha real del artículo usando Claude
   # IMPORTANTE: Siempre intenta extraer la fecha. Si falla, el Hit mantendrá Date.today como fallback
   def self.extract_date_with_claude(plain_text)
@@ -1256,8 +1317,15 @@ class OfacPipeline::Step6
 
       search_results = OfacPipeline::Step2.search_web(search_query)
 
+      # Fallback a búsqueda WEB GENERAL si Google News retorna 0 resultados
       if search_results.empty?
-        puts "\n❌ No hay artículos disponibles en el reintento"
+        puts "\n⚠️  Google News: 0 resultados"
+        puts "📡 Intentando búsqueda WEB GENERAL (fallback)..."
+        search_results = OfacPipeline::Step2.search_web_general(search_query)
+      end
+
+      if search_results.empty?
+        puts "\n❌ No hay artículos disponibles en el reintento (ni en News ni en Web General)"
         return { success: false, candidate_name: candidate[:fullname], primary_cause: "NO_HIT_FOUND", attempt: 2 }
       end
 
