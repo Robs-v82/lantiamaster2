@@ -833,6 +833,15 @@ class OfacPipeline::Step2
       HitSnapshotFetcher.call!(hit, require_members: false)
       hit.reload
 
+      # Si plain_text está vacío después de intentar capturar, es un fallo
+      if hit.plain_text.blank?
+        return {
+          success: false,
+          plain_text: nil,
+          error: "HitSnapshotFetcher retornó plain_text vacío (sitio bloqueado o no accesible)"
+        }
+      end
+
       return {
         success: true,
         plain_text: hit.plain_text,
