@@ -183,7 +183,7 @@ class OfacController < ApplicationController
         location = location_match ? location_match[1].strip : "N/A"
 
         # Extraer organización
-        organization_match = output.match(/Organización:\s*(.+?)\s*\(Confianza/)
+        organization_match = output.match(/Organización\s*│\s*(.+?)(?:\n|$)/)
         organization_name = organization_match ? organization_match[1].strip : nil
         organization = nil
 
