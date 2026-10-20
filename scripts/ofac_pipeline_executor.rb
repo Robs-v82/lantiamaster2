@@ -387,12 +387,12 @@ class OfacPipeline::Step2
         # Capturar plain_text (OBLIGATORIO)
         begin
           OfacPipeline.start_timer("Step2: HitSnapshotFetcher (capturar plain_text)")
-          HitSnapshotFetcher.call!(hit, require_members: false)
-          hit.reload
+          fetcher_result = capture_plain_text_with_details(hit)
           OfacPipeline.end_timer("Step2: HitSnapshotFetcher (capturar plain_text)")
 
-          if hit.plain_text.blank? || hit.plain_text.length < 800
-            puts "   ❌ plain_text no válido (#{hit.plain_text&.length || 0} chars)"
+          # Si la captura falló técnicamente, pasar al siguiente resultado
+          if !fetcher_result[:success]
+            puts "   ❌ No se pudo capturar contenido: #{fetcher_result[:error]}"
             # NUNCA destruir un Hit preexistente
             if !was_existing_hit
               hit.destroy!
@@ -400,7 +400,19 @@ class OfacPipeline::Step2
             next
           end
 
-          puts "   ✅ plain_text capturado (#{hit.plain_text.length} chars)"
+          # Si el plain_text está vacío o es muy corto, pasar al siguiente
+          if fetcher_result[:plain_text].blank? || fetcher_result[:plain_text].length < 800
+            puts "   ❌ plain_text no válido (#{fetcher_result[:plain_text]&.length || 0} chars)"
+            # NUNCA destruir un Hit preexistente
+            if !was_existing_hit
+              hit.destroy!
+            end
+            next
+          end
+
+          # Guardar plain_text en la BD
+          hit.update!(plain_text: fetcher_result[:plain_text])
+          puts "   ✅ plain_text capturado (#{fetcher_result[:plain_text].length} chars)"
 
           # VALIDACIÓN CRÍTICA: ¿Aparece el candidato en el texto?
           unless candidate_appears_in_text?(candidate, hit.plain_text)
@@ -432,7 +444,7 @@ class OfacPipeline::Step2
           return hit
 
         rescue => e
-          puts "   ❌ Error capturando plain_text: #{e.message}"
+          puts "   ❌ Error inesperado capturando plain_text: #{e.class} #{e.message}"
           # NUNCA destruir un Hit preexistente
           if hit.persisted? && !was_existing_hit
             hit.destroy!
@@ -811,6 +823,28 @@ class OfacPipeline::Step2
     end
 
     { town_id: town.id, info: info }
+  end
+
+  # ============================================================
+  # Capturar plain_text con manejo de errores detallado
+  # ============================================================
+  def self.capture_plain_text_with_details(hit)
+    begin
+      HitSnapshotFetcher.call!(hit, require_members: false)
+      hit.reload
+
+      return {
+        success: true,
+        plain_text: hit.plain_text,
+        error: nil
+      }
+    rescue => e
+      return {
+        success: false,
+        plain_text: nil,
+        error: "#{e.class}: #{e.message}"
+      }
+    end
   end
 
   # ============================================================
@@ -1256,11 +1290,11 @@ class OfacPipeline::Step6
 
         # Capturar plain_text
         begin
-          HitSnapshotFetcher.call!(hit, require_members: false)
-          hit.reload
+          fetcher_result = OfacPipeline::Step2.capture_plain_text_with_details(hit)
 
-          if hit.plain_text.blank? || hit.plain_text.length < 800
-            puts "   ❌ plain_text no válido"
+          # Si la captura falló técnicamente, pasar al siguiente resultado
+          if !fetcher_result[:success]
+            puts "   ❌ No se pudo capturar contenido: #{fetcher_result[:error]}"
             # NUNCA destruir un Hit preexistente
             if !was_existing_hit_reintento
               hit.destroy!
@@ -1268,6 +1302,18 @@ class OfacPipeline::Step6
             next
           end
 
+          # Si el plain_text está vacío o es muy corto, pasar al siguiente
+          if fetcher_result[:plain_text].blank? || fetcher_result[:plain_text].length < 800
+            puts "   ❌ plain_text no válido (#{fetcher_result[:plain_text]&.length || 0} chars)"
+            # NUNCA destruir un Hit preexistente
+            if !was_existing_hit_reintento
+              hit.destroy!
+            end
+            next
+          end
+
+          # Guardar plain_text en la BD
+          hit.update!(plain_text: fetcher_result[:plain_text])
           puts "   ✅ plain_text capturado"
 
           # VALIDACIÓN CRÍTICA: ¿Aparece el candidato en el texto?
@@ -1299,7 +1345,7 @@ class OfacPipeline::Step6
           return validate_and_retry(candidate, hit, organization_id, was_existing_hit: was_existing_hit_reintento, attempt: 2)
 
         rescue => e
-          puts "   ❌ Error procesando: #{e.message}"
+          puts "   ❌ Error inesperado procesando: #{e.class} #{e.message}"
           # NUNCA destruir un Hit preexistente
           if hit.persisted? && !was_existing_hit_reintento
             hit.destroy!
