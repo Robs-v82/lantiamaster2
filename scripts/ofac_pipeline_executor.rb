@@ -1235,12 +1235,14 @@ class OfacPipeline::Step6
         puts "   ✓ Ubicación: #{hit.town&.county&.name}, #{hit.town&.county&.state&.name}"
         puts "   ✓ Organización ID: #{organization_id}"
         puts "\n→ Procediendo a PASO 7"
-        return {
+        result = {
           success: true,
           candidate: candidate,
           hit: hit,
           organization_id: organization_id
         }
+        puts "[DEBUG Step6] Retornando resultado con organization_id: #{result[:organization_id].inspect}"
+        return result
       end
 
       # Si falló y es el primer intento → Reintentar
@@ -1421,10 +1423,12 @@ class OfacPipeline::Step6
           # PASO 5 REINTENTADO
           cartel_match = OfacPipeline::Step5.execute!(hit)
           organization_id = cartel_match[:organization_id] if cartel_match && cartel_match[:found]
+          puts "[DEBUG retry_search] PASO 5 encontró organization_id: #{organization_id.inspect}"
 
           # PASO 6 REINTENTADO (Validación)
           validation_result = validate_and_retry(candidate, hit, organization_id, was_existing_hit: was_existing_hit_reintento, attempt: 2)
           if validation_result[:success]
+            puts "[DEBUG retry_search] Retornando validation_result con organization_id: #{validation_result[:organization_id].inspect}"
             return validation_result
           end
 
@@ -2547,6 +2551,10 @@ if __FILE__ == $0
       was_existing_hit: was_existing_hit,
       attempt: 1
     )
+
+    # DEBUG: Imprimir paso6_result completo para diagnóstico
+    puts "\n[DEBUG] paso6_result keys: #{paso6_result.keys.inspect}"
+    puts "[DEBUG] paso6_result[:organization_id]: #{paso6_result[:organization_id].inspect}"
   end
 
   if paso6_result[:success]
@@ -2561,7 +2569,9 @@ if __FILE__ == $0
     )
 
     # PASO 8: Determinar rol
+    puts "[DEBUG] Buscando organización con id: #{paso6_result[:organization_id].inspect}"
     organization = Organization.unscoped.find_by(id: paso6_result[:organization_id]) if paso6_result[:organization_id]
+    puts "[DEBUG] Organización encontrada: #{organization&.name || 'NIL'} (ID: #{organization&.id || 'NIL'})"
     paso8_result = OfacPipeline::Step8.execute!(
       paso6_result[:candidate],
       paso6_result[:hit],
