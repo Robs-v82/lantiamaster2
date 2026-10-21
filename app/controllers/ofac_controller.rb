@@ -69,24 +69,13 @@ class OfacController < ApplicationController
         result[:gender_source] = gender_result[:source]
         result[:gender_confidence] = gender_result[:confidence]
 
-        # Guardar en sesión para mostrar en index
+        # Guardar SOLO lo mínimo en sesión (para evitar CookieOverflow)
+        # La información COMPLETA se devuelve en response_data JSON
         session[:last_ofac_execution] = {
           timestamp: Time.now,
           candidate: result[:candidate],
-          hit: {
-            id: result[:hit][:id],
-            date: result[:hit][:date],
-            location: result[:hit][:location]
-          },
-          organization: result[:organization] ? {
-            id: result[:organization].id,
-            name: result[:organization].name
-          } : nil,
-          alias_array: result[:alias_array],
-          role: result[:role],
-          gender: gender_result[:gender],
-          gender_source: gender_result[:source],
-          gender_confidence: gender_result[:confidence]
+          hit_id: result[:hit_id],
+          status: 'completado'
         }
 
         response_data = {

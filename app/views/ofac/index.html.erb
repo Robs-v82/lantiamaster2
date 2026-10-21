@@ -44,8 +44,8 @@
           <% if @last_execution && @last_execution[:timestamp] %>
             <p><strong>Timestamp:</strong> <%= @last_execution[:timestamp].is_a?(String) ? @last_execution[:timestamp] : @last_execution[:timestamp].strftime("%Y-%m-%d %H:%M:%S") %></p>
             <p><strong>Candidato:</strong> <%= @last_execution[:candidate] %></p>
-            <p><strong>Hit ID:</strong> <%= @last_execution[:hit][:id] %></p>
-            <p><strong>Estado:</strong> <span class="badge red white-text">Completado</span></p>
+            <p><strong>Hit ID:</strong> <%= @last_execution[:hit_id] %></p>
+            <p><strong>Estado:</strong> <span class="badge red white-text"><%= @last_execution[:status].capitalize %></span></p>
           <% else %>
             <p class="grey-text">No hay ejecuciones previas</p>
           <% end %>
