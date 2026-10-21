@@ -1335,6 +1335,7 @@ class OfacPipeline::Step6
       # Procesar resultados (igual que PASO 2 original)
       hit = nil
       valid_hit_found = false
+      organization_id = nil
 
       search_results.each_with_index do |result, idx|
         puts "\n[#{idx + 1}] Procesando: #{result[:title]}"
@@ -2559,7 +2560,7 @@ if __FILE__ == $0
     )
 
     # PASO 8: Determinar rol
-    organization = Organization.find_by(id: paso6_result[:organization_id])
+    organization = Organization.unscoped.find_by(id: paso6_result[:organization_id]) if paso6_result[:organization_id]
     paso8_result = OfacPipeline::Step8.execute!(
       paso6_result[:candidate],
       paso6_result[:hit],
