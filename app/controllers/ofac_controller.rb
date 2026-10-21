@@ -31,8 +31,8 @@ class OfacController < ApplicationController
       # Ejecutar el script principal del pipeline OFAC
       script_path = Rails.root.join('scripts', 'ofac_pipeline_main.rb')
 
-      # Capturar la salida del script
-      output = `cd #{Rails.root} && ruby #{script_path} 2>&1`
+      # Capturar la salida del script con RAILS_ENV explícito
+      output = `cd #{Rails.root} && RAILS_ENV=#{Rails.env} ruby #{script_path} 2>&1`
 
       # Loguear TODAS las líneas del output del subprocess en production.log
       Rails.logger.info("[OFAC SUBPROCESS OUTPUT START]")

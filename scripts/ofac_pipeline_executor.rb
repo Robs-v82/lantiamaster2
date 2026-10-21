@@ -1767,6 +1767,7 @@ class OfacPipeline::Step5
         return {
           found: true,
           organization: organization,
+          organization_id: organization.id,
           claude_organization_name: claude_response["organization_name"],
           confidence: claude_response["confidence"].to_i,
           text_mention: claude_response["text_excerpt"]
