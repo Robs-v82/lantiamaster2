@@ -151,8 +151,11 @@ class OfacController < ApplicationController
       candidate_match = output.match(/Candidato:\s*(.+?)(?:\n|$)/)
       candidate_name = candidate_match ? candidate_match[1].strip : nil
 
-      # Verificar si el script ejecutó exitosamente
-      if output.include?("PASOS 1-9 COMPLETADOS EXITOSAMENTE")
+      # Verificar si el script completó (exitosamente O con fallo controlado)
+      script_completed = output.include?("[OFAC SUBPROCESS OUTPUT END]")
+      success_complete = output.include?("PASOS 1-9 COMPLETADOS EXITOSAMENTE")
+
+      if success_complete
 
         # Extraer Hit ID
         hit_id_match = output.match(/Hit ID:\s*(\d+)/)
@@ -245,10 +248,12 @@ class OfacController < ApplicationController
           plain_text_length: plain_text_length,
           plain_text_fragment: plain_text_fragment
         }
-      else
+      elsif script_completed
+        # Script completó pero con fallo controlado (ej: NO_CARTEL_MATCH, INVALID_DATE, etc)
+        # Extraer mensaje de error específico
         error_msg = extract_error_from_output(output)
-        Rails.logger.error("[OfacController#parse_ofac_output] Pipeline no completó exitosamente")
-        Rails.logger.error("[OfacController#parse_ofac_output] Output últimas 500 chars: #{output[-500..-1]}")
+        Rails.logger.warn("[OfacController#parse_ofac_output] Pipeline completó con fallo controlado: #{error_msg}")
+        Rails.logger.info("[OfacController#parse_ofac_output] Candidato: #{candidate_name}")
 
         # Extraer TODA la información disponible incluso en error
         # (Los PASOS 1-5 ya completaron, así que tenemos la info disponible)
@@ -313,6 +318,16 @@ class OfacController < ApplicationController
           role: role,
           plain_text_length: plain_text_length,
           plain_text_fragment: plain_text_fragment
+        }
+      else
+        # Script no completó - verdadero error/crash
+        error_msg = extract_error_from_output(output)
+        Rails.logger.error("[OfacController#parse_ofac_output] Script no completó correctamente")
+        Rails.logger.error("[OfacController#parse_ofac_output] Output últimas 500 chars: #{output[-500..-1]}")
+
+        {
+          success: false,
+          error: error_msg || "El pipeline OFAC no completó exitosamente"
         }
       end
     rescue => e
