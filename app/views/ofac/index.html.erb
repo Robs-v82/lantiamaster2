@@ -258,10 +258,32 @@
       if (data.success) {
         displayResults(data);
         results.style.display = 'block';
-        // Mostrar botones de éxito
-        document.getElementById('btn-discard').style.display = '';
-        document.getElementById('btn-retry').style.display = '';
-        document.getElementById('btn-load-member').style.display = '';
+
+        // Validar que la organización haya sido identificada
+        // Si no hay organización, no se puede crear un Member válido
+        if (!data.organization || !data.organization.name) {
+          // Organización no identificada - mostrar error pero mantener datos visibles
+          errorText.textContent = 'Advertencia: No se identificó una organización criminal vinculada. El Member requiere una organización válida en la base de datos para poder ser creado.';
+
+          // OCULTAR botón de "Cargar member" pero mantener otros botones
+          document.getElementById('btn-discard').style.display = '';
+          document.getElementById('btn-retry').style.display = '';
+          document.getElementById('btn-load-member').style.display = 'none';
+
+          // OCULTAR mensaje de validación (no se completó exitosamente sin organización)
+          document.getElementById('validation-info-section').style.display = 'none';
+
+          // Mostrar sección de error
+          errorSection.style.display = 'block';
+        } else {
+          // Organización identificada correctamente - mostrar todos los botones
+          document.getElementById('btn-discard').style.display = '';
+          document.getElementById('btn-retry').style.display = '';
+          document.getElementById('btn-load-member').style.display = '';
+
+          // OCULTAR sección de error
+          errorSection.style.display = 'none';
+        }
       } else {
         // En error: tablas (si hay datos) + error + 2 botones de error
         // Orden: tablas arriba, error abajo

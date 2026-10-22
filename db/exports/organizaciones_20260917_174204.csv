@@ -1,0 +1,668 @@
+NOMBRE,ESTATUS,NOMBRES ALTERNOS,SIGLAS,TIPO,SUBTIPO,LÍDER,ORIGEN,ALIANZAS,CONFLICTOS,Narcotráfico,Narcomenudeo,Extorsión (extorsión presencial cobro de derecho de piso y secuestro-levantones),Mercado Ilícito de Hidrocarburos (MIH),Trata y tráfico de personas,Tráfico de armas (profesionales de la violencia – sicarios),Robo de ferrocarril,Robo a transportista (camión articulado -robo a transporte público),"Delitos contra fauna-flora silvestre (tala clandestina, pesca y minería ilegal, tráfico de especies animales y vegetales)","Contrabando de mercancías (productos apócrifos, medicinas, bienes culturales)",Lavado de dinero (participación en el mercado formal con empresas fachada o como profesionales de la violencia para empresarios),Fraude,"Actos de terrorismo (coches bomba, explosivos en establecimientos comerciales como sucursales bancarias, amenazas y homicidio de activistas y periodistas)",Vandalismo (daño sistemático a infraestructura urbana),Robo a comercio (robo bancario-negocio),Robo a casa habitación,Robo de vehículo (robo a transeúnte),Piratería (robo a embarcaciones o plataformas petroleras),Autogobierno penitenciario (control de la cárcel por medio de la extorsión)
+Cártel de Sinaloa,Activa,Cártel del Pacífico; Los Sinaloas,CDS,Cártel,"",Cártel de Guadalajara,Cártel de Guadalajara,Banda del Hindú; Cártel de Cancún; Cártel de Santa Rosa de Lima; El Tren de Aragua; Fuerzas Especiales Grupo Sombra; Gpo. Flechas Operativa M.Z.; La Bandera; La Bhardwaj; La Empresa; La Nueva Familia Michoacana; Los Colombianos; Los Hernández Salas; Los Pía; Los Rodos NCI; Los Talibanes,Cártel Chiapas y Guatemala; Cártel Jalisco Nueva Generación; Cártel de San Juan Chamula; Cártel de Tijuana Nueva Generación; Cártel del Golfo; El Machete; El Maíz; Fuerzas Armadas Apache; Fuerzas Especiales Mexicles; La Línea; Los Autónomos; Los Bournes; Los Deltas; Los Hades; Los Herrera; Los Linces; Los Memos (de Sonora y Durango); Los Piña; Los RR; Los Viejos Aztecas; Los Zetas Vieja Escuela; Machete de la Chapiza; Mara Salvatrucha; Organización criminal de la familia Meza Flores,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,0,1
+Cártel Jalisco Nueva Generación,Activa,Las Cuatro Letras; Pura Gente del Señor Mencho; La Órden de la M; Jaliscos; Cártel del Mencho,CJNG,Cártel,"",Los Valencia,Los Valencia,Banda de El Mamer; Banda de El Toñín; CJNG-CIDA; Chapitos-CJNG; Cártel Independiente de Acapulco; Cártel de Juchitán; Cártel de Sinaloa (Los Guzmán); Cártel de Tláhuac; Cártel de la Virgen; Cártel del Golfo; Cártel del Poniente; El Cártel del Primo; El Machete; Federación Morelense; Fuerzas Especiales Unión; Grupo Reacción; Guerreros Unidos; La Chokiza; La Luz del Mundo; La Línea; La Mafia Filipina; La Oficina; La Tecampanera; Los Acapulco; Los Autónomos; Los Blancos de Troya; Los Canchola; Los Ciriles; Los Durango; Los Erres; Los Fabiola; Los Filippini; Los Granados; Los Herrera; Los Huistas; Los Metros; Los Pelones; Los Primos; Los Rodolfos; Los Rodríguez; Los Tequileros; Los Tlacos; Machete de la Chapiza; Mafia Filipini,Autodefensas Guardia por la Paz; Banda del Tigre; Comandante Teto; Cártel Gente Nueva Salazar; Cártel La Nueva Familia; Cártel Nueva Plaza; Cártel de Caborca; Cártel de Cancún; Cártel de Ensenada; Cártel de los Alemanes; Cártel de Los Arellano Félix; Cártel de Los Maestros; Cártel de Los Reyes; Cártel de Santa Rosa de Lima; Cártel de Sinaloa; Cártel de Tepalcatepec; Cártel de Zicuirán; Cártel de la Costa; Cártel del Camaleón; Cártel del Noreste; Cárteles Unidos; El 30; Fuerzas Especiales Grupo Sombra; Fuerzas Especiales del Charro; Gente Nueva; Gpo. Flechas Operativa M.Z.; Grupo Bravo; Grupo X; Guardia Michoacana; La Bandera; La Familia Michoacana; La Gente de Aquiles; La Nueva Empresa; La Nueva Familia Michoacana; La Reserva del Más Loco; La Unión León; Las Leches; Los Arzate; Los Caballeros Templarios; Los Chuckys; Los Colombianos; Los Correa; Los Escorpiones; Los Garibay; Los Gopes; Los Maldonado; Los Mezcales; Los Motonetos; Los Pía; Los R4; Los Rojos; Los Rusos; Los Talibanes; Los Tena; Los Tercios; Los Venados; Los Zorros; Los de Siempre; Organización del Compa Playa; Pueblos Unidos Contra la Delincuencia; Pájaro Sierra; Sangre Brava Morelense; Tropa del Infierno; Cártel de Sinaloa (Los Zambada); Los Marros; Los Carranza; Los Pescados; Los Viagra; Operativa MZ; La Venada,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1
+Cárteles Unidos,Activa,Pueblos Unidos,CU,Mafia,Célula,Cártel de Sinaloa,La Resistencia,Cártel de Santa Rosa de Lima; Cártel de Sinaloa (Los Zambada); Cártel de Zicuirán; Cártel del Camaleón; El 30; Fuerzas Especiales del Charro; La Reserva del Más Loco; Los Blancos de Troya,Comando XXIII; Cártel Jalisco Nueva Generación; Cártel Zicuirán Nueva Generación; Equipo del Justiciero del Pueblo; Fuerzas Especiales Mencho; Los Caballeros Templarios; Los Colombianos; Los Deltas; Los Guerreros; Los RR; Los Viagra,1,0,1,0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0
+Los Ciclones,Activa,Los Ciclones CDG; Cártel del Golfo; Grupo Escorpión,"",Mafia,Escisión,Cártel del Golfo,Cártel del Golfo,Los Escorpiones,Cártel del Golfo Nueva Era; Las Panteras; Los Metros; Rojos (Tamaulipas),1,1,1,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+La Oficina,Activa,"","",Mafia,"",Organización criminal de la familia Meza Flores,Cártel de Los Beltrán Leyva,Cártel Jalisco Nueva Generación; Cártel del Golfo; La Nueva Familia Michoacana; Los Mazatlecos; Los Zetas Vieja Escuela,"",1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+El 30,Activa,"","",Mafia,Brazo armado,Cártel de Sinaloa (Los Zambada),La Oficina,Cárteles Unidos; Fuerzas Especiales del Charro,Cártel Jalisco Nueva Generación; Cártel de Sinaloa (Los Guzmán),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cuinis,Activa,Organización criminal de la familia González Valencia,"",Mafia,Célula,Cártel Jalisco Nueva Generación,Los Valencia,"","",0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+Cártel de Tijuana Nueva Generación,Activa,"",CTNG,Mafia,Célula,Cártel Jalisco Nueva Generación,Cártel Jalisco Nueva Generación,La Línea,Cártel de Los Arellano Félix; Cártel de Los Beltrán Leyva; Cártel de Sinaloa,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Arzate,Activa,Familia Arzate; Los Aquiles,"",Mafia,Célula,Cártel de Sinaloa (Los Zambada),Cártel de Sinaloa,Cártel de Los Arellano Félix; Los Rusos; Los Zorros,Cártel Jalisco Nueva Generación; Cártel de Sinaloa (Los Guzmán); Los Escorpiones; Los Metros; Los Zetas Vieja Escuela,1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,0,0
+Cártel de Los Arellano Félix,Activa,Cártel de Tijuana; Los Aretes; Los Benjamines,CAF,Mafia,"",Cártel de Guadalajara,Cártel de Guadalajara,Los Arzate; Organización criminal de la familia Meza Flores,Cártel Jalisco Nueva Generación; Cártel de Caborca; Cártel de Sinaloa (Los Guzmán); Cártel de Tijuana Nueva Generación; La Línea; La Nueva Familia Michoacana; Los Caballeros Templarios; Los Mazatlecos; Los Venados; Los Viagra; Los Viejos Aztecas; Los Zetas Vieja Escuela; Los Zorros,1,1,1,1,1,1,0,0,0,0,1,0,1,0,0,0,1,0,0
+Organización criminal de la familia Meza Flores,Activa,"","",Banda,"",Cártel de Los Beltrán Leyva,Cártel de Los Beltrán Leyva,Cártel de Los Arellano Félix,Cártel de Sinaloa,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Venados,Activa,"","",Mafia,Brazo armado,Los Arzate,"",Cártel de Sinaloa (Los Zambada),Cártel Jalisco Nueva Generación; Cártel de Los Arellano Félix; Cártel de Sinaloa (Los Guzmán); Los Burros,1,1,1,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Los Zetas Vieja Escuela,Activa,Vieja Escuela; La Vieja Escuela; Los Zetas Vieja Escuela; Pura Guardia Vieja; Zetas Z; Vieja Guardia Z,"",Mafia,Escisión,Los Zetas,Los Zetas,Grupo Pantera; La Oficina,Cártel Independiente de Acapulco; Cártel de los Alemanes; Cártel de Los Arellano Félix; Cártel de Los Beltrán Leyva; Cártel de San Juan Chamula; Cártel de Sinaloa; Cártel del Golfo; Cártel del Noreste; Los Arzate; Los Escorpiones; Los Metros; Mara Salvatrucha,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,0,0
+Cártel del Noreste,Activa,"",CDN,Cártel,Escisión,Los Zetas,Los Zetas,Cártel de Sinaloa (Los Zambada); Gente Nueva,Cártel Jalisco Nueva Generación; Cártel de los Alemanes; Cártel de Los Maestros; Cártel del Golfo; Grupo Bravo; La Nueva Familia Michoacana; Los Costales; Los Guerrero; Los Metros; Los Rodos; Los Rodos NCI; Los Zetas Vieja Escuela,1,1,1,1,1,1,0,1,1,1,1,1,0,0,0,0,1,0,0
+Los Nuevos Aztecas,Activa,La Empresa,"",Banda,Pandilla,Los Aztecas,Los Aztecas,La Línea; Los Cardenales; Los Carnales,Familia Núñez Meza; La Empresa; Los Artistas Asesinos; Los Cabrera; Los Mexicles,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Ántrax,Activa,"","",Mafia,Brazo armado,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Nueva Familia Michoacana,Activa,"",LNFM,Cártel,"",Cárteles Unidos,La Familia Michoacana,Cártel de Santa Rosa de Lima; Cártel de Sinaloa; Fuerza Guerrerense; Guardia Michoacana; Guerrero Nueva Generación; La Chokiza; La Oficina; Los Arreola; Los Rodríguez; Sindicato Bicentenario; Unión de Sindicatos y Organizaciones Nacionales,Comando XXIII; Cártel Jalisco Nueva Generación; Cártel Michoacán Nueva Generación; Cártel Zicuirán Nueva Generación; Cártel de Los Arellano Félix; Cártel del Noreste; Cártel del Sur; Doble B; Equipo del Justiciero del Pueblo; Federación Guerrerense; Grupo X-CJNG; La Tecampanera; La Unión Tepito; Los Ardillos; Los Correa; Los Guerreros; Los Jaliscos; Los Linos; Los Mazos; Los Negros; Los Tlacos; Los Viagra; Los de Siempre; Unión Morelense; Los Toscano,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,0,1
+Los Viagra,Activa,Organización criminal de la familia Sierra Santana,"",Mafia,"","","",Los Blancos de Troya; Cártel de Los Reyes,Comando XXIII; Cártel de Los Arellano Félix; Cártel de Tepalcatepec; Cárteles Unidos; La Nueva Familia Michoacana; Los Caballeros Templarios; Cártel Jalisco Nueva Generación,1,1,1,1,0,1,1,0,1,0,0,1,1,0,0,0,1,0,0
+Los Blancos de Troya,Activa,Los Troyanos,"",Banda,Brazo armado,"","",Cártel Jalisco Nueva Generación; Cártel Michoacán Nueva Generación; Cártel de la Virgen; Cárteles Unidos; Los Caballeros Templarios; Los Viagra; Cártel de Los Reyes,Cártel de Tepalcatepec,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Barrio 18,Activa,"",M-18,Mafia,Pandilla,"","","",Mara Salvatrucha,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Cartel de San Juan Chamula,Activa,Cártel del Caracol;  Cártel Chamula,"",Banda,"","","","","",0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Fuerzas Especiales Grupo Sombra,Activa,Mafia Veracruzana; Grupo Sombra; Comando Fantasma,FEGS,Banda,Escisión,La Nueva Mafia Veracruz,Cártel del Golfo,Cártel de Santa Rosa de Lima; Cártel de Sinaloa; Cártel del Golfo; Los Piña,Cártel Jalisco Nueva Generación; Gente Nueva; Gestora,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,1
+Mara Salvatrucha,Activa,Maras; M-13; MS13,M-13,Mafia,Pandilla,"","","",Barrio 18; Cártel Chiapas y Guatemala; Cártel de Los Beltrán Leyva; Cártel de Sinaloa; Los Huistas; Los Motonetos; Los Zetas Vieja Escuela,1,1,1,0,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0
+Cártel del Nuevo Imperio,Activa,"","",Mafia,Escisión,Cártel de Sinaloa (Los Guzmán),Los Dámaso,"",Los Malportados,1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,0,1,0,0
+Cártel de Tláhuac,Activa,"",TLH,Mafia,Escisión,La Familia Michoacana,La Familia Michoacana,Cártel Jalisco Nueva Generación; Los Tanzanios,La Unión Tepito; Los Maceros; Los Rodolfos,1,1,1,1,1,1,0,1,1,1,0,1,0,0,0,0,1,0,0
+La Ronda 88,Activa,"",LR88,Banda,Pandilla,La Unión Tepito,La Unión Tepito,"",La Unión Tepito,0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+La Unión Tepito,Activa,La U; La Unión; Cártel Chilango,"",Mafia,"",Cártel de Tepito,Cártel de Tepito,Cártel de Santa Rosa de Lima; La Nueva Alianza; Los Canchola; Los Discos; Los Istolinques; Los Linos; Los Tepiteños; Emprende Coin,Cártel de Tláhuac; Fuerza Anti-Unión Tepito; La Nueva Familia Michoacana; La Ronda 88; Los Balta; Los Fortis de la Unión Tepito; Los Fortiz; Los Guerrero 4; Los Rodolfos; Los Tanzanios; Sindicato Libertad; Los Tapones; Los Oaxacos,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1
+Fuerza Anti-Unión Tepito,Activa,La Unión Tepito Nueva Generación; Cártel Nueva Generación Tepito; La Rosa Nueva,"",Mafia,Célula,Cártel Jalisco Nueva Generación,La Unión Tepito; Cártel de Tepito,Los Balta,La Unión Tepito; Los Sinaloas,1,1,1,0,0,1,0,0,0,0,0,1,0,0,1,1,1,0,0
+Los Canchola,Activa,Los Malcriados; Tercera Acción Destructiva; Los Malcriados 3AD,3AD,Banda,"",La Unión Tepito,La Unión Tepito,Cártel Jalisco Nueva Generación; La Unión Tepito,Los Cuervos,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Güeros,Activa,Los Maceros; Los Mamados; Cártel del H,"",Banda,Pandilla,"","",Los Rodolfos,Los Gastones; Los Oaxacos,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Marcopolos,Activa,Los Marcopolocos,"",Banda,"",La Unión Tepito,La Unión Tepito,"","",0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0
+Los Oaxacos,Activa,"","",Mafia,Pandilla,"","","",Los Güeros; La Unión Tepito,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Rodolfos,Activa,Los Güeros,"",Mafia,"","","",Cártel Jalisco Nueva Generación; Los Güeros,Banda del Niñote; Cártel de Tláhuac; La Unión Tepito; Los Maceros; Los Molina,0,1,1,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,0
+Los Rudos,Activa,Los Rudos Chicos; Los Rudos Grandes,"",Mafia,Pandilla,"","","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Sinaloas,Activa,"","",Mafia,Célula,Cártel de Sinaloa (Los Guzmán),"","",Fuerza Anti-Unión Tepito,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Tanzanios,Activa,"","",Banda,Pandilla,"","",Cártel de Tláhuac; Los Duques,La Unión Tepito,1,1,1,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Los Molina,Activa,"","",Mafia,Pandilla,"","","",Los Rodolfos,0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Sindicato Libertad,Activa,Confederación Libertad de Trabadores de México; Empresarios Unidos,"",Mafia,"","","",Cártel de Juchitán; Guerreros Unidos,La Unión Tepito,0,1,1,1,0,1,0,0,1,0,1,0,0,0,0,0,0,0,0
+Los Salazar,Activa,Cártel Independiente de Sonora; Zalazar; Los Salaz,"",Mafia,Célula,Cártel de Sinaloa,"","",Cártel de Sinaloa (Los Guzmán); La Barredora; La Línea; La Plaza; Los Deltas; Los Pelones; Los Reyes; Los Rusos; Los Salgueiro; Mata Salas,1,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,0,1
+Los Artistas Asesinos,Activa,Doble A; AA; Los Doblados,AA,Banda,Pandilla,Familia Núñez Meza,"",Cártel de Caborca; Los Cabrera,Cártel de Sinaloa (Los Zambada); Fuerzas Especiales Mexicles; La Empresa; La Línea; Los Mexicles; Los Nuevos Aztecas; Los Viejos Aztecas,0,1,1,0,1,1,0,0,0,0,0,0,0,0,1,1,1,0,1
+Los Bournes,Activa,"","",Mafia,"",La Línea,Los Paredes,"",Cártel de Sinaloa; Nuevo Cártel del Tigre,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Mexicles,Activa,"","",Banda,Pandilla,Familia Núñez Meza,"",Cártel de Sinaloa (Los Guzmán); La Empresa; La Línea,Fuerzas Especiales Mexicles; Los Artistas Asesinos; Los Nuevos Aztecas; Los Viejos Aztecas,1,1,1,0,1,1,0,0,0,0,0,0,0,0,1,1,1,0,1
+Los Paredes,Activa,Cártel de Los Pesados de Apson,"",Banda,Célula,"","",Cártel de Caborca; Familia Meza Osorio; Nuevo Cártel Independiente de Sonora,Cártel de Sinaloa (Los Guzmán); Los Linces,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Salgueiro,Activa,Gente Nueva de Los Salgueiro,"",Banda,Brazo armado,Cártel de Sinaloa,"",Cártel de Sinaloa (Los Guzmán); Familia Núñez Meza; Los Reyes,Familia Meza Osorio; Los Salazar; La Línea,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+La Línea,Activa,Nuevo Cártel de Juárez,NCDJ,Mafia,Escisión,Cártel de Juárez,Cártel de Juárez,Banda de La Dueña; Cártel Jalisco Nueva Generación; Cártel López; Cártel de Tijuana Nueva Generación; El Tren de Aragua; Los Arellanes; Los Mexicles; Los Nuevos Aztecas; Los Viejos Aztecas; Fuerzas Especiales Mexicles; Los Cholos,Cártel de Los Arellano Félix; Cártel de Sinaloa; Familia Meza Osorio; Familia Núñez Meza; Gente Nueva; Los Artistas Asesinos; Los Cabrera; Los Jaguares; Los Salazar; Nuevo Cártel del Tigre; Los Salgueiro; Cártel de Sinaloa (Los Zambada),1,1,1,0,1,1,0,0,1,1,1,0,1,1,0,0,1,0,0
+Los Cabrera,Activa,Cabrera Sarabia,"",Mafia,Brazo armado,"","",Confederación Autónoma de Trabajadores y Empleados de México; Gente Nueva; Los Artistas Asesinos; Los CabreraMZ; Los Caimanes; Los Ruachos; Cártel de Sinaloa (Los Zambada),Cártel de Sinaloa (Los Guzmán); Familia Núñez Meza; La Línea; Los Mazatlecos; Los Nuevos Aztecas; Fuerzas Especiales Unión,1,1,1,1,1,1,0,0,0,0,1,1,0,0,0,0,1,0,0
+Los Mazatlecos,Activa,Cártel de Guasave,"",Mafia,"",Cártel de Los Beltrán Leyva,Cártel de Los Beltrán Leyva,Cártel de Sinaloa (Los Zambada); La Oficina,Cártel de Los Arellano Félix; Cártel de Sinaloa (Los Guzmán); Grupo del Guano; Los Cabrera,1,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Cártel de Santa Rosa de Lima,Activa,"",CSRL,Mafia,Escisión,Los Zetas,Los Zetas,Cártel de Sinaloa; Cártel del Golfo; Cárteles Unidos; Fuerzas Especiales Grupo Sombra; La Nueva Familia Michoacana; La Unión Tepito; Las Leches; Los Escorpiones; Paramilitares Colombianos,Cártel Gente Nueva Salazar; Cártel Jalisco Nueva Generación; Cártel La Nueva Familia; Cártel Nueva Plaza; Cártel de Sinaloa (Los Guzmán); Grupo Élite; Los Deltas; Los RR,1,1,1,1,0,1,1,1,0,1,1,0,1,0,0,0,1,0,0
+Grupo Élite,Activa,Grupo Élite del Cártel Jalisco Nueva Generación (CJNG),"",Mafia,Brazo armado,Cártel Jalisco Nueva Generación,"","",Cártel de Santa Rosa de Lima,1,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Unión León,Activa,"","",Banda,"",Cárteles Unidos,"",El Tren de Aragua,Cártel Jalisco Nueva Generación,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Durango,Activa,"","",Banda,Pandilla,Cártel de Sinaloa,"",Cártel Jalisco Nueva Generación,"",0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Metros,Activa,Los Metros CDG; Cártel del Golfo; Los de la Galleta,"",Mafia,Escisión,Cártel del Golfo,Cártel del Golfo,Cártel Jalisco Nueva Generación; Cártel de los Alemanes; Cártel del Golfo Nueva Era,Cártel de Sinaloa (Los Zambada); Cártel del Noreste; Las Panteras; Los Arzate; Los Ciclones; Los Escorpiones; Los Rodos NCI; Los Rojos; Los Zetas Vieja Escuela; Rojos (Tamaulipas),1,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0
+Los Deltas,Activa,Deltas Q. Roo CJNG; Operativas Jaguar; Deltas Operativo Jaguar; Los Deltas Operativa Jaguar,"",Mafia,Brazo armado,Cártel Jalisco Nueva Generación,"","",Cártel de Santa Rosa de Lima; Cártel de Sinaloa; Cártel de Tepalcatepec; Cárteles Unidos; Los Pelones; Los Salazar,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Tepalcatepec,Activa,Cártel del Abuelo,"",Mafia,Brazo armado,Cárteles Unidos,"",Cártel de Los Reyes; La Reserva del Más Loco; Los Caballeros Templarios,Cártel Jalisco Nueva Generación; Cártel Michoacán Nueva Generación; Cártel de la Virgen; Los Blancos de Troya; Los Deltas; Los Viagra,1,1,1,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0
+Cártel del Sur,Activa,Cártel de la Sierra del Sur; Cártel de la Sierra; Sierra Unida Revolucionaria; Los Marquina,SUR,Mafia,"","","",Guerreros Unidos; Los Ardillos; Los Rojos; Los Tlacos,La Nueva Familia Michoacana; Los Jaliscos,1,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Cártel Independiente de Acapulco,Activa,La Ciudadanía de Acapulco; El Pueblo de Acapulco; Los Capuchinos; Los Virus,CIDA,Mafia,Escisión,Cártel de Los Beltrán Leyva,Cártel de Los Beltrán Leyva,CJNG-CIDA; Cártel Jalisco Nueva Generación; Flor Imperial,Los Rusos; Los Rusos (de Guerrero); Los Zetas Vieja Escuela,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gente Nueva,Activa,Pura Gente Nueva; Los Independientes,PGN,Mafia,Brazo armado,Cártel de Sinaloa,Los Salgueiro,Cártel del Noreste; Los Cabrera; Los Cahuira; Los Cazadores; Los Jaguares; Nuevo Cártel del Tigre,Cártel Jalisco Nueva Generación; Fuerzas Especiales Grupo Sombra; La Línea; Los Mexicanos; Los Tercios; Los Tlacos,1,1,1,1,0,1,0,0,0,0,1,0,1,0,0,0,1,0,0
+Guardia Guerrerense,Activa,Fuerzas Especiales Guardia Guerrerense; Ejidos Nuevos de Guerrero; Caballeros Templarios Guerrero,"",Banda,Escisión,Los Caballeros Templarios,Los Caballeros Templarios,"","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Guerreros Unidos,Activa,"",GU,Mafia,Escisión,Cártel de Los Beltrán Leyva,Cártel de Los Beltrán Leyva,Cártel Jalisco Nueva Generación; Cártel del Sur; Los Colombianos; Sindicato Libertad,La Tecampanera; Los Rojos; Los Tlacos; Sangre Brava Morelense; Sangre Nueva Guerrerense,1,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Los Añorve,Activa,Cártel de Cuajinicuilapa,"",Banda,"","","","","",1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Ardillos,Activa,Cártel de la Sierra,"",Mafia,"",Cártel de Los Beltrán Leyva,Cártel de Los Beltrán Leyva,Cártel del Sur; Federación Guerrerense; Los Rojos,La Nueva Familia Michoacana; Los Jaliscos; Los Rusos; Los Rusos (de Guerrero); Los Tlacos,1,1,1,0,0,1,0,1,1,0,0,0,1,0,0,0,1,0,0
+Los Arreola,Activa,"","",Banda,Brazo armado,La Nueva Empresa,Guardia Guerrerense,La Nueva Familia Michoacana,"",1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Carrillo Salmerón,Activa,Los Carrillo,"",Banda,"",Cártel de Sinaloa,Cártel del Golfo,"","",1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Granados,Activa,"","",Banda,Escisión,Cártel de Los Beltrán Leyva,Cártel de Los Beltrán Leyva,Cártel Jalisco Nueva Generación,Guerrero Nueva Generación; Los Rodríguez,1,1,1,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0
+Los Rojos,Activa,Cártel de Tlacotepec; Cártel de El Nencho; Los Jefes; Cártel del Fantasma; Cártel de la Sierra; El Señor de Los Caballos,"",Mafia,Escisión,Cárteles Unidos,Cártel de Los Beltrán Leyva,Cártel del Sur; Don Agus; Los Ardillos; Los Linos; Sangre Brava Morelense,Comando Tlahuica; Cártel Jalisco Nueva Generación; Guerreros Unidos; Los Acapulco; Los Metros; Los de Siempre,1,1,1,1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0
+Los Tequileros,Activa,"","",Banda,Escisión,Guerreros Unidos,Guerreros Unidos,Cártel Jalisco Nueva Generación,"",1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Sangre Nueva Guerrerense,Activa,Nueva Sangre,SNG,Banda,"",Los Viagra,"","",Guerreros Unidos,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Hades,Activa,Cártel de Palmillas,"",Mafia,Pandilla,Cártel Jalisco Nueva Generación,"","",Cártel de Sinaloa,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Pepes,Activa,Los Jokers,"",Mafia,Pandilla,"","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel Nueva Plaza,Activa,Cártel Jalisco Nueva Plaza; Cártel del 2; Cártel de Los Cholos,CJNP,Mafia,Escisión,Cártel de Sinaloa (Los Zambada),Cártel Jalisco Nueva Generación,Las Leches,Cártel Gente Nueva Salazar; Cártel Jalisco Nueva Generación; Cártel La Nueva Familia; Cártel de Santa Rosa de Lima; Cártel de Sinaloa (Los Guzmán),1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Maldonado,Activa,Los Caballeros Templarios Estado de México; Comando de la M,"",Banda,Escisión,"","",La Nueva Empresa,Cártel Jalisco Nueva Generación,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel Zicuirán Nueva Generación,Activa,Cártel de Zicuirán,CZNG,Banda,Brazo armado,Cártel Jalisco Nueva Generación,Cártel Jalisco Nueva Generación,"",Cárteles Unidos; La Nueva Familia Michoacana,1,0,1,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Tena,Activa,Gente del Tena,"",Banda,"",Cárteles Unidos,Los Caballeros Templarios,La Reserva del Más Loco,Cártel Jalisco Nueva Generación,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Comando Tlahuica,Activa,Los Tlahuica,"",Mafia,Pandilla,"","","",Los Rojos,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Colombianos,Activa,Cártel de los Colombianos; Balsas,"",Mafia,Célula,"","",Cártel de Sinaloa; Guerreros Unidos,Cártel Jalisco Nueva Generación; Cárteles Unidos; La Nueva Empresa; Los Linos,0,1,1,0,1,1,0,0,0,0,0,1,0,0,1,1,1,0,0
+Los Linos,Activa,"","",Banda,"",Cárteles Unidos,Guerreros Unidos,La Unión Tepito; Los Rojos; Los de Siempre,La Nueva Familia Michoacana; Los Colombianos,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Banda de los Rólex,Activa,"","",Mafia,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+Cártel Independiente de Nuevo Léon,Activa,Cártel Independiente; Los Billys,"",Banda,"",Los Zetas,Los Zetas,"","",1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+Tropa del Infierno,Activa,"","",Banda,Brazo armado,Cártel del Noreste,"","",Cártel Jalisco Nueva Generación,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Juchitán,Activa,Organización criminal de la familia Terán,"",Banda,"","","",Cártel Jalisco Nueva Generación; Sindicato Libertad,"",0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Oaxaca,Activa,Cártel del Istmo; Organización criminal de la familia Díaz Parada,"",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Piña,Activa,"","",Mafia,Célula,Cártel Jalisco Nueva Generación,"",Fuerzas Especiales Grupo Sombra,Cártel de Sinaloa; Organización del Compa Playa; Pueblos Unidos Contra la Delincuencia,1,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Diablos,Activa,Amigo Revolucionario No. 7,"",Banda,Brazo armado,Los Negros,"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Negros,Activa,"","",Mafia,Célula,Cártel Jalisco Nueva Generación,"","",La Nueva Familia Michoacana,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Sangre Nueva Zeta,Activa,Zetas Sangre Nueva,"",Mafia,Escisión,Los Zetas,Los Zetas,"",Banda de El Mamer,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Banda de El Loco Téllez,Activa,El Loco,"",Banda,"","","","",Hermanos Pérez Juan,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0
+Banda de El Toñín,Activa,"","",Banda,"","","",Cártel Jalisco Nueva Generación,Banda de El Mamer,0,0,1,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0
+Cártel del Poniente,Activa,Cártel de la Laguna; Cártel Independiente Laguna,CDP,Banda,Brazo armado,Cártel de Sinaloa (Los Guzmán),Cártel de Los Beltrán Leyva,Cártel Jalisco Nueva Generación,Cártel de Sinaloa (Los Zambada),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Michoacanos,Activa,"","",Mafia,"","","","","",0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Banda de El Mamer,Activa,"","",Mafia,"",Los Zetas,Los Zetas,Cártel Jalisco Nueva Generación,Banda de El Toñín; Sangre Nueva Zeta,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0
+Grupo Pantera,Activa,"","",Banda,Brazo armado,Cártel Jalisco Nueva Generación,"",Los Zetas Vieja Escuela,Los Escorpiones,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Barredora,Activa,La Venuda; La Mera Verga; Operativa Barredora,"",Mafia,Brazo armado,Cártel Jalisco Nueva Generación,Cártel de Los Beltrán Leyva,"",Cártel de Sinaloa (Los Zambada); Los Cazadores; Los Salazar,1,1,1,1,1,1,0,1,0,0,1,1,1,1,1,1,1,0,0
+Los Pelones,Activa,"","",Mafia,Escisión,Cártel de Sinaloa (Los Guzmán),Cártel del Golfo,Cártel Jalisco Nueva Generación; Los Deltas (Los Guzmán); Los Osos,Los Cebús; Los Compich; Los Deltas; Los Rusos; Los Salazar,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Talibanes,Activa,"","",Mafia,Escisión,Los Zetas,Los Zetas,Cártel de Sinaloa,Cártel Jalisco Nueva Generación,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Ninis,Activa,"","",Banda,Brazo armado,Cártel de Sinaloa (Los Guzmán),"",Cártel de Ensenada,Cártel de Sinaloa (Los Zambada); Los Rusos,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Los Ruelas Torres,Activa,"","",Banda,"",Cártel de Los Beltrán Leyva,"","","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Rusos,Activa,"","",Mafia,Brazo armado,Cártel de Sinaloa (Los Zambada),"",Los Arzate; Los Piscacha; Los Zorros,Cártel Independiente de Acapulco; Cártel Jalisco Nueva Generación; Cártel de Caborca; Cártel de Sinaloa (Los Guzmán); Cártel del Mar; Los Ardillos; Los Garibay; Los Ninis; Los Pelones; Los Salazar; Mata Salas,1,1,1,0,1,1,0,0,1,0,1,0,0,0,0,0,1,0,1
+Los Escorpiones,Activa,CDG-Escorpiones; Los Escorpions; Grupo Escorpión,"",Mafia,Escisión,Cártel del Golfo,Cártel del Golfo,Cártel Gente Nueva Salazar; Cártel de Santa Rosa de Lima; Los Ciclones,Cártel Jalisco Nueva Generación; Grupo Pantera; Las Panteras; Los Arzate; Los Metros; Los Zetas Vieja Escuela; Rojos (Tamaulipas),1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,1,0,0
+Los Hechiceros,Activa,Los Brujos,"",Mafia,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0
+Los 35-Z,Activa,Z-35,"",Banda,"",Los Zetas Vieja Escuela,Los Zetas,"","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Epitacio,Activa,"","",Banda,"",Cártel de Oaxaca,"","","",1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Nuevo Cártel del Tigre,Activa,Gente Nueva del Tigre; El Tigre; Gente del Tigre,"",Banda,Brazo armado,Cártel de Sinaloa (Los Zambada),"",Gente Nueva,Cártel de Sinaloa (Los Guzmán); La Línea; Los Bournes,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0
+Los Cazadores,Activa,Los Chuveteros; Gente Nueva del Cazador; Los Cazadores de Altar,"",Banda,Brazo armado,Los Salazar,Los Paleteros,Cártel de Sinaloa (Los Guzmán); Gente Nueva; Los Deltas (Los Guzmán); Nuevo Cártel Independiente de Sonora,Cártel de Caborca; La Barredora; Los Demonios,1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Demonios,Activa,Los Gilos; Los Siete Demonios; Banda de Sosa Canizales; Los Gigios,"",Mafia,Brazo armado,Cártel de Sinaloa (Los Zambada),Los Jabalines,"",Cártel de Caborca; Los Cazadores,1,1,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Los Páez,Activa,Los Paleteros,"",Banda,Célula,Cártel de Caborca,"","",Cártel de Sinaloa (Los Guzmán); Cártel de Sinaloa (Los Zambada),1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Erres,Activa,Los Pelones; R-4,"",Mafia,Brazo armado,Cártel de Sinaloa,"",Cártel Jalisco Nueva Generación,"",0,1,1,0,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0
+Los Tlacos,Activa,Cártel de Tlacotepec; Cártel de la Sierra,"",Mafia,Brazo armado,Los Rojos,Cártel del Sur,Cártel Jalisco Nueva Generación; Cártel del Sur; Federación Guerrerense; Federación Morelense,Gente Nueva; Guerrero Nueva Generación; Guerreros Unidos; La Bandera; La Nueva Familia Michoacana; Los Ardillos; Los Jaliscos,1,1,1,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0
+Cártel de la Virgen,Activa,Cártel de Acahuato,"",Banda,"",Los Viagra,Los Viagra,Cártel Jalisco Nueva Generación; Los Blancos de Troya; Los Caballeros Templarios,Cártel de Tepalcatepec,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Guerreros,Activa,"","",Banda,Brazo armado,Cártel Jalisco Nueva Generación,"","",Cárteles Unidos; La Nueva Familia Michoacana,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo X,Activa,"","",Banda,Brazo armado,Fuerzas Especiales Grupo Sombra,"","",Cártel Jalisco Nueva Generación; Los Correa,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Pueblos Unidos Contra la Delincuencia,Activa,"",PUCD,Mafia,Brazo armado,Gente Nueva,"","",Cártel Jalisco Nueva Generación; Los Piña,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Triada China,Activa,"","",Banda,"","","","","",1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Mafia de Analco,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,0,0
+Los Chupones,Activa,El Chupón,"",Banda,"",Los Negros,"","",Los Toscano,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Colorados,Activa,"","",Banda,Pandilla,"","","","",0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0
+Los Jarochos,Activa,"","",Banda,Pandilla,"","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Juniors,Activa,Los Platas,"",Banda,Pandilla,Cártel Jalisco Nueva Generación,"","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Panes,Activa,"","",Banda,Pandilla,"","","","",0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0
+Los Valencia,Activa,Cártel del Milenio,"",Mafia,"","","","","",1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Zúñiga,Activa,"","",Banda,Pandilla,"","","","",0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0
+Las Mojarras,Activa,"","",Banda,"",La Nueva Empresa,Los Maceros,"","",0,0,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Banda de la Explorer,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de los Alemanes,Activa,"","",Banda,Escisión,Los Zetas Vieja Escuela,Los Zetas Vieja Escuela,Los Metros,Cártel Jalisco Nueva Generación; Cártel del Noreste; Los Zetas Vieja Escuela,1,0,1,1,1,1,0,1,0,0,1,0,0,0,0,0,1,0,1
+Los Chuckys,Activa,Operativa Coahuila; Operativa 35; Batallon 35,"",Mafia,Brazo armado,Cártel del Noreste,"","",Cártel Jalisco Nueva Generación; Cártel de Sinaloa (Los Guzmán),1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1
+Cártel de Cancún,Activa,"","",Mafia,"","","",Cártel de Sinaloa,Cártel Jalisco Nueva Generación,0,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Marros,Activa,Los M; Los M1,"",Banda,Brazo armado,Cártel de Santa Rosa de Lima,"","",Cártel Jalisco Nueva Generación,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Ensenada,Activa,"","",Banda,"",Los Escudero,Cártel de Los Cabos,Cártel de Sinaloa (Los Guzmán); Los Ninis,Cártel Jalisco Nueva Generación,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel del Mar,Activa,"","",Banda,"",Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa (Los Zambada); Los Rusos,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Los Correa,Activa,Cártel de Los Correa; Cártel de los Cristaleros,"",Banda,"","","",La Nueva Empresa,Cártel Jalisco Nueva Generación; Grupo X; Grupo X-CJNG; La Nueva Familia Michoacana,1,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0,1,0,0
+Cártel de Los Reyes,Activa,"","",Banda,Brazo armado,Cárteles Unidos,"",Cártel de Tepalcatepec; Los Viagra; Los Blancos de Troya,Los Caballeros Templarios; Cártel Jalisco Nueva Generación,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Especiales Mencho,Activa,"",CJNG-FEM,Banda,Brazo armado,Cártel Jalisco Nueva Generación,"","",Cárteles Unidos,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Garibay,Activa,"","",Banda,"",Cártel de Sinaloa,"","",Cártel Jalisco Nueva Generación; Los Rusos,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cártel de Caborca,Activa,Organización criminal de la familia Caro Quintero,"",Mafia,"",Cártel de Sonora,Cártel de Sonora,Cártel de Sinaloa (Los Zambada); Los Artistas Asesinos; Los Hermanos Sánchez; Los Jaguares; Los Números; Los Paredes,Cártel Jalisco Nueva Generación; Cártel de Los Arellano Félix; Cártel de Sinaloa (Los Guzmán); La Nueva Alianza; Los Cazadores; Los Deltas (Los Guzmán); Los Demonios; Los Rusos; Los Rusos (de Guerrero); Cártel de la Costa (Yucatán),1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,0,1
+La Plaza,Activa,"","",Banda,Brazo armado,Cártel de Caborca,"",Mata Salas,Los Salazar,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Linces,Activa,"","",Banda,Brazo armado,La Línea,"","",Cártel de Sinaloa; Los Jaguares; Los Paredes,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Bandera,Activa,Gente Nueva de La Bandera; Cártel de la Bandera; La Bandera de Iguala,"",Banda,Escisión,Gente Nueva,Guerreros Unidos,Cártel de Sinaloa,Cártel Jalisco Nueva Generación; Los Tlacos,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Tecampanera,Activa,Hermanos R; Policía Comunitaria de la Tecampanera,"",Banda,Escisión,Guerreros Unidos,Guerreros Unidos,Cártel Jalisco Nueva Generación,Guerreros Unidos; La Nueva Familia Michoacana,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Gpo. Flechas Operativa M.Z.,Activa,Grupo Flechas Operativa Mayo Zambada,"",Mafia,Brazo armado,Cártel de Sinaloa (Los Zambada),"",Cártel de Sinaloa,Cártel Jalisco Nueva Generación; Cártel de Sinaloa (Los Guzmán),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Julios,Activa,Sindicato Julio Sánchez Vargas,"",Mafia,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0
+La Gente de Aquiles,Activa,"","",Mafia,Brazo armado,Los Arzate,"",Cártel de Sinaloa (Los Zambada),Cártel Jalisco Nueva Generación; Cártel de Sinaloa (Los Guzmán),1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda del Chore,Activa,"","",Banda,Escisión,Cártel de Sinaloa (Los Guzmán),Cártel de Cancún,Los Cebús,Cártel de Sinaloa (Los Zambada),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cholos,Activa,"","",Banda,Pandilla,"","",La Línea,"",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Tepiteños,Activa,Gente Nueva,"",Banda,Pandilla,Cártel de Sinaloa,"",La Unión Tepito,"",1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Chacones,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Compich,Activa,"","",Banda,Pandilla,Cártel de Sinaloa (Los Guzmán),"",Los Cebús,Los Osos; Los Pelones,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Catalinos,Activa,"","",Mafia,"","","","","",0,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Pueblos Unidos,Activa,Los Emes,"",Mafia,"",La Barredora,"",Cártel de Sinaloa (Los Guzmán),"",0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Sindicato 22 de Octubre,Activa,"","",Mafia,Escisión,Sindicato Libertad,Sindicato Libertad,La Nueva Empresa; Unión de Sindicatos y Organizaciones Nacionales,"",0,1,1,0,0,1,0,0,1,0,0,1,0,0,0,0,1,0,0
+Los Toscano,Activa,"","",Banda,"","","","",Los Chupones; La Nueva Familia Michoacana,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1
+Los Aparicio,Activa,Los Huazulcos,"",Mafia,"",Los Negros,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Banda de Los Gota a Gota,Activa,"","",Mafia,"","","",Machete de la Chapiza,"",0,1,1,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1
+Banda de Los Pelones,Activa,"","",Banda,Pandilla,"","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0
+La Madame,Activa,"","",Mafia,Pandilla,"","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Balta,Activa,"","",Banda,Escisión,La Unión Tepito,La Unión Tepito,Fuerza Anti-Unión Tepito,La Unión Tepito,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Benjas,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Pájaro Sierra,Activa,Cártel de Altozano; Los Sierra,"",Banda,Escisión,Cártel Jalisco Nueva Generación,Cártel Jalisco Nueva Generación,"",Cártel Jalisco Nueva Generación,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Machete,Activa,Los Machetes,"",Banda,"","","",Cártel Jalisco Nueva Generación,Cártel de Sinaloa,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Herrera,Activa,"","",Banda,Pandilla,"","",Cártel Jalisco Nueva Generación,Cártel de Sinaloa,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,0,1,0,0
+Los Motonetos,Activa,Los Apá,"",Banda,Brazo armado,Cártel de San Juan Chamula,Cártel de San Juan Chamula,"",Autodefensas de San Cristóbal; Cártel Chiapas y Guatemala; Cártel Jalisco Nueva Generación; Los Huistas; Mara Salvatrucha,1,1,1,0,1,1,0,0,1,0,0,0,1,0,1,0,1,0,0
+Los Mezcales,Activa,Cártel Independiente de Colima,"",Banda,Célula,Cártel de Juárez,Cártel de Juárez,Cártel de Sinaloa (Los Zambada),Cártel Jalisco Nueva Generación,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1
+Grupo del Guano,Activa,Gente del Guano; Los Guanos,G.D.G.,Mafia,"",Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa (Los Zambada); Los Mazatlecos,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel del Golfo,Activa,"",CDG,Cártel,"","","",Cártel Jalisco Nueva Generación; Cártel de Santa Rosa de Lima; Fuerzas Especiales Grupo Sombra; La Oficina; Los Gálvez; Los Primos,Cártel de Sinaloa; Cártel del Noreste; Los Zetas Vieja Escuela; Cártel de Sinaloa (Los Guzmán),1,1,1,1,1,1,0,1,1,1,1,0,1,0,0,0,1,0,0
+Los Acapulco,Activa,"","",Banda,Brazo armado,Guerreros Unidos,Guerreros Unidos,Cártel Jalisco Nueva Generación,Los Rojos,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Chuchas,Activa,La familia de los Rodríguez,"",Banda,Pandilla,"","","",La Familia Vara Dávila; Los Netos; Los Panales,0,0,1,0,0,1,0,1,1,0,0,0,0,0,0,0,1,0,0
+Los Panales,Activa,"","",Banda,Pandilla,"","","",La Familia Vara Dávila; Los Chuchas; Los Netos,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0,0,1,0,0
+Los Huistas,Activa,Cártel de Los Huistas,"",Banda,"","","",Cártel Jalisco Nueva Generación,Cártel Chiapas y Guatemala; Los Motonetos; Mara Salvatrucha,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Nueva Alianza,Activa,"","",Mafia,"",Cártel Jalisco Nueva Generación,La Unión Tepito,La Unión Tepito,Cártel de Caborca; Los Peluches,0,1,1,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Los Gastones,Activa,"","",Mafia,Brazo armado,Cártel de Tláhuac,"","",Los Güeros; Los Maceros,1,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Los Hermanos Sánchez,Activa,Cártel de los Hermanoz Sánchez,"",Mafia,Célula,La Nueva Familia Michoacana,"",Cártel de Caborca,"",1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Los Mazos,Activa,"","",Mafia,Pandilla,"","","",La Nueva Familia Michoacana,0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0
+Cártel de Zicuirán,Activa,La Huacana,"",Banda,"",Cártel de Sinaloa,Cártel Zicuirán Nueva Generación,Cárteles Unidos,Comando XXIII; Cártel Jalisco Nueva Generación,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo X-CJNG,Activa,"","",Banda,Brazo armado,Cártel Jalisco Nueva Generación,"","",La Nueva Familia Michoacana; Los Correa,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cártel de la Costa,Activa,"","",Banda,Célula,Cártel de Caborca,"","",Cártel Jalisco Nueva Generación,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Reyes,Activa,"","",Banda,Pandilla,Cártel de Sinaloa,Los Salgueiro,Los Salgueiro,Los Salazar,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+Los Bonitos,Activa,"","",Mafia,Pandilla,"","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Fortiz,Activa,Los Fortis,"",Banda,"",Fuerza Anti-Unión Tepito,"","",La Unión Tepito,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de la Unión Huasteca,Activa,"","",Banda,"","","","","",1,0,1,0,1,1,0,1,0,0,0,0,0,0,0,0,1,0,0
+Cártel de Los Beltrán Leyva,Activa,Organización Criminal de Los Beltrán Leyva,OCBL,Mafia,"",Los Valencia,Los Valencia,"",Cártel de San Juan Chamula; Cártel de Sinaloa (Los Zambada); Cártel de Tijuana Nueva Generación; Los Zetas Vieja Escuela; Mara Salvatrucha,1,1,1,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Cártel de Los Cabos,Activa,Los Cabos,"",Mafia,Célula,Cártel de Sinaloa (Los Zambada),"","","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda Montachoques,Activa,"","",Mafia,Pandilla,"","","","",0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+Cártel Chiapas y Guatemala,Activa,"",CCYG,Mafia,Célula,Cártel Jalisco Nueva Generación,"",El Maíz; Kaibiles,Cártel de Sinaloa; Los Huistas; Los Motonetos; Mara Salvatrucha,1,1,1,0,1,1,0,0,0,0,0,0,1,0,0,0,1,0,1
+Cártel de Juárez,Activa,"","",Banda,"","","","",Cártel de Sinaloa (Los Guzmán),1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel Michoacán Nueva Generación,Activa,"",CMNG,Mafia,Brazo armado,Cártel Jalisco Nueva Generación,Cártel Jalisco Nueva Generación,Los Blancos de Troya,Cártel de Tepalcatepec; La Nueva Familia Michoacana; Los Caballeros Templarios,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0
+Cártel Tabasco Nueva Generación,Activa,"",CTNG,Banda,"",Cártel Jalisco Nueva Generación,La Barredora,"","",0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Comandante Teto,Activa,Guardia Comunal,"",Banda,"","","","",Cártel Jalisco Nueva Generación,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Don Agus,Activa,"","",Banda,"","","",Los Rojos,"",0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+El Maíz,Activa,Mano Izquierda,CCYG,Banda,Brazo armado,Cártel Jalisco Nueva Generación,"",Cártel Chiapas y Guatemala,Cártel de Sinaloa,1,1,1,0,1,1,0,1,0,0,0,0,1,0,0,0,0,0,0
+Familia Valencia Salgado,Activa,"","",Banda,"","","","","",1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Especiales del Ranchero,Activa,"","",Banda,Célula,Cártel de Sinaloa,"",Cabo 24,"",1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gente Nueva del Jaguar,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo Iris,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Kabiles,Activa,"","",Banda,Brazo armado,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Empresa,Activa,Los Nuevos Aztecas,"",Mafia,Brazo armado,La Línea,Los Viejos Aztecas,Cártel de Sinaloa; El Tren de Aragua; Los Mexicles,Cártel de Sinaloa (Los Zambada); Los Artistas Asesinos; Los Nuevos Aztecas,1,1,1,0,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0
+La Familia Vara Dávila,Activa,"","",Banda,"","","","",Los Chuchas; Los Netos; Los Panales,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,1,0,0
+Las Panteras,Activa,"","",Banda,Escisión,Cártel del Golfo,Cártel del Golfo,"",Los Ciclones; Los Escorpiones; Los Metros; Rojos (Tamaulipas),1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Arellanes,Activa,"","",Banda,"",Cártel de Sinaloa,"",La Línea; Los Ramoncillos,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Areneros,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Caballeros de Élite,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Caballeros Templarios,Activa,La Reserva de El Más Loco,FCT,Mafia,"",La Familia Michoacana,La Familia Michoacana,Cártel de Tepalcatepec; Cártel de la Virgen; Los Blancos de Troya; La Venada,Cártel Jalisco Nueva Generación; Cártel Michoacán Nueva Generación; Cártel de Los Arellano Félix; Cárteles Unidos; Grupo Reacción; La Familia Michoacana; Los Viagra; Cártel de Los Reyes,1,1,1,1,0,1,0,0,0,0,1,0,1,0,0,0,1,0,0
+Los Cabezones,Activa,"","",Banda,Célula,Cártel de Sinaloa,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cenobios,Activa,"","",Banda,"","","","",Los Tinajero,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cinco,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Cinco del Cerro,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Cuervos,Activa,"","",Mafia,Pandilla,"","","",Los Canchola,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Diablitos,Activa,"","",Banda,Pandilla,Cártel del Nuevo Imperio,"","","",0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0
+Los Gordos,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,0,0
+Los Herederos,Activa,Cártel de Teocaltihe,"",Banda,Brazo armado,Cártel de Sinaloa,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Hijos del Diablo,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los JJR,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Justicieros,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Lampones,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0
+Los Maceros,Activa,"","",Banda,"","","","",Cártel de Tláhuac; Los Gastones; Los Rodolfos,0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Metro,Activa,"","",Banda,Escisión,Los Caballeros Templarios,Los Caballeros Templarios,"","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Reyes (de Chihuahua),Activa,"","",Banda,"",Cártel de Sinaloa,"","",Los Cheyenes,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Rodos,Activa,Los Rodos NCI; Los Negros,"",Banda,"","","","",Cártel del Noreste,0,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Rodos NCI,Activa,"","",Banda,"","","",Cártel de Sinaloa,Cártel del Noreste; Los Metros,0,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Sierra,Activa,"","",Banda,"",Los Zetas Vieja Escuela,Los Zetas Vieja Escuela,"","",0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Vengadores,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Mafia China,Activa,"","",Mafia,"","","","","",0,1,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+Nuevo Cártel de Juárez,Activa,"",NCJ,Mafia,Escisión,Cártel de Juárez,Cártel de Juárez,"","",1,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Operativa MZ,Activa,Grupo Flecha de Zacatecas,"",Mafia,Brazo armado,Cártel de Sinaloa (Los Zambada),"","",Cártel Jalisco Nueva Generación,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Organización criminal de Juvenal Jiménez Loza,Activa,"","",Mafia,Pandilla,"","","","",0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+Señor del Valle,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Banda de los Ortiz,Activa,Los Ortices,"",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda del Niñote,Activa,"","",Banda,"","","","",Los Rodolfos,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+Banda Roba Niños,Activa,"","",Mafia,"","","","","",0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Cuautla,Activa,La Rata,"",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Sinaloa (Los Guzmán),Activa,Los Chapitos; Los Menores; Los Guzmán; Los Chapos; La Chapiza,CDS,Cártel,Escisión,Cártel de Sinaloa,Cártel de Sinaloa,Chapitos-CJNG; Cártel Independiente de La Laguna; Cártel Jalisco Nueva Generación; Cártel de Ensenada; Fuerzas Especiales Unión; Hells Angels Motorcycle Club; Los Alfa; Los Cazadores; Los Fantasmas; Los Mexicles; Los Mochomitos; Los Ponchis; Los Salgueiro; Organización de los Hernández Salas; Pueblos Unidos; H1A1,Cártel Nueva Plaza; Cártel de Caborca; Cártel de Juárez; Cártel de Los Arellano Félix; Cártel de Santa Rosa de Lima; Cártel de Sinaloa (Los Zambada); El 00; El 30; El Flaco; El Güero Pulseras; El Limón; Gente Nueva del Jaguar; Gpo. Flechas Operativa M.Z.; La Gente de Aquiles; Los Arzate; Los Cabrera; Los Chuckys; Los Deltas (Los Guzmán); Los Gigios; Los Mazatlecos; Los Paredes; Los Rusos; Los Salazar; Los Tamales; Los Valenzuela; Los Venados; Los Zorros; Los Ántrax; Nuevo Cártel del Tigre; Cártel del Golfo; Los Páez,1,1,1,1,1,1,0,1,1,1,1,0,1,0,0,0,1,0,1
+Cártel de Sinaloa (Los Zambada),Activa,Los Mayos,MZ,Cártel,Escisión,Cártel de Sinaloa,Cártel de Sinaloa,Cártel de Caborca; Cártel del Noreste; Cárteles Unidos; La Gente de Aquiles; Los Bonfiles; Los Cabrera; Los Mazatlecos; Los Venados; Los Zorros; Los Mezcales,Banda del Chore; Cártel de Los Beltrán Leyva; Cártel de Sinaloa (Los Guzmán); Cártel del Mar; Cártel del Poniente; Don Lemo; El 15; El 40; El Señor de la V; Fuerzas Especiales Unión; Grupo del Guano; La Barredora; La Empresa; Los Artistas Asesinos; Los Chimales; Los Chivos; Los Metros; Los Ninis; La Línea; Cártel Jalisco Nueva Generación; Los Páez,1,1,1,1,1,1,0,0,1,0,1,0,1,0,0,0,1,0,1
+El Alacrán,Activa,"","",Banda,"",Cártel de Sinaloa (Los Zambada),"","","",1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Tren de Aragua,Activa,"","",Mafia,"","","",Cártel de Sinaloa; La Empresa; La Línea; La Unión León,"",1,1,1,0,1,1,0,0,0,1,1,1,0,0,1,0,1,0,0
+Fuerzas Especiales Avendaño,Activa,"",FEA,Banda,Célula,Cártel de Sinaloa (Los Guzmán),Cártel de Sinaloa,"","",1,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Fuerzas Especiales Unión,Activa,"","",Mafia,Brazo armado,"","",Cártel Jalisco Nueva Generación; Cártel de Sinaloa (Los Guzmán),Cártel de Sinaloa (Los Zambada); Los Cabrera,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo Bravo,Activa,"","",Banda,Célula,Los Escorpiones,Cártel del Golfo,"",Cártel Jalisco Nueva Generación; Cártel del Noreste,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Grupo Calavera,Activa,Comando Calavera,"",Mafia,Brazo armado,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo Campechanos Unidos,Activa,"",GCU,Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Guerrero Nueva Generación,Activa,Gente Nueva Guerrero; Grupo Gente Nueva,GNG,Banda,Célula,Cártel Jalisco Nueva Generación,"",La Nueva Familia Michoacana; Los Rodríguez,Los Granados; Los Tlacos,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1
+Hells Angels Motorcycle Club,Activa,"","",Banda,Pandilla,"","",Cártel de Sinaloa (Los Guzmán),"",1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Borregos,Activa,"","",Banda,Brazo armado,Cártel de Tláhuac,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cheyos,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Costales,Activa,"","",Banda,Pandilla,"","","",Cártel del Noreste,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Rodríguez,Activa,"","",Banda,Escisión,Cártel de Los Beltrán Leyva,Cártel de Los Beltrán Leyva,Cártel Jalisco Nueva Generación; Guerrero Nueva Generación; La Nueva Familia Michoacana,Los Granados,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Roques,Activa,Los Vara,"",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Tapaneros,Activa,"","",Banda,"","","","","",0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Mata Salas,Activa,"","",Banda,Brazo armado,Cártel de Sinaloa (Los Guzmán),Cártel de Sinaloa,La Plaza,Los Fantasmas; Los Rusos; Los Salazar,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Organización Sindical Unión 300,Activa,Los 300; Sindicato Los 300; Unión 300,"",Mafia,"","","","","",0,1,1,0,0,1,0,0,0,0,0,1,0,1,0,0,1,0,0
+Sindicato Bicentenario,Activa,"","",Banda,Célula,"","",La Nueva Familia Michoacana,"",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+UJ40,Activa,"","",Mafia,Brazo armado,La Unión Tepito,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda de El Perro,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda del Güero Fresa,Activa,"","",Mafia,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cártel de los Lichos,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel Independiente de La Laguna,Activa,"","",Mafia,"","","",Cártel de Sinaloa (Los Guzmán),"",1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Diaz Pantoja,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Doble B,Activa,"","",Banda,"",La Tecampanera,La Tecampanera,"",La Nueva Familia Michoacana,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Buchanas,Activa,"","",Mafia,"","","","","",0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Cheturo,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Diablo,Activa,"","",Mafia,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Hermanos Bonques,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+La Mano con Ojos,Activa,"","",Banda,"",Cártel de Los Beltrán Leyva,"","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Nueva Mafia Veracruz,Activa,"","",Banda,Brazo armado,Fuerzas Especiales Grupo Sombra,Cártel del Golfo,"","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Yayiza,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Chehuis,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cítricos,Activa,"",NCDJ,Banda,Célula,La Línea,Cártel de Juárez,"","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Comanches,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Coyunda,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Jaliscos,Activa,"","",Banda,"","","","",Cártel del Sur; La Nueva Familia Michoacana; Los Ardillos; Los Tlacos,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Macheteros de Querétaro,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Mochomitos,Activa,Linces,"",Banda,"",Cártel de Los Beltrán Leyva,Cártel de Los Beltrán Leyva,Cártel de Sinaloa (Los Guzmán),"",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Paisas,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Palacios,Activa,"","",Banda,"",Cártel de Sinaloa,"","","",0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Los Pilos,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Quemados,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Terán,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda del Burras Prietas,Activa,"","",Mafia,"","","","","",0,0,0,0,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0
+Cártel 2 de Abril,Activa,Los Palillos,"",Mafia,"",Fuerza Anti-Unión Tepito,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+CJNG-CIDA,Activa,"","",Banda,"","","",Cártel Independiente de Acapulco; Cártel Jalisco Nueva Generación; Flor Imperial,"",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+El Botanas,Activa,"","",Banda,"","","","","",1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Güero Palma,Activa,"","",Banda,"","","","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Armadas Apache,Activa,Las Flechas,FAA,Banda,"","","","",Cártel de Sinaloa,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Especiales del Charro,Activa,"",F.E.CHA,Mafia,Célula,"","",Cárteles Unidos; El 30,Cártel Jalisco Nueva Generación,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo Fantasma,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo Reacción,Activa,"","",Banda,"","","",Cártel Jalisco Nueva Generación,Los Caballeros Templarios,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Condesa,Activa,"","",Banda,Célula,La Unión Tepito,"","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Familia Inzunza,Activa,"","",Mafia,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Gente del Gavilán,Activa,Los Gavilanes,"",Banda,"",Cártel de Sinaloa (Los Guzmán),"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Chilangos (EDOMEX),Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Chilangos (Quintana Roo),Activa,"","",Mafia,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+Los Chimales,Activa,Los Chimalis,"",Banda,Brazo armado,Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa (Los Zambada),1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Los de Siempre,Activa,Los Maya; Los Mayas,"",Mafia,"",Guerreros Unidos,Guerreros Unidos,La Nueva Empresa; Los Linos,Cártel Jalisco Nueva Generación; La Nueva Familia Michoacana; Los Rojos,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,0,1,0,0
+Los Deltas (Los Guzmán),Activa,Los Durangos; Grupo Delta; Fracción 3 del Sector Norte; Gente Nueva de Altar,"",Mafia,Brazo armado,"","",Los Cazadores; Los Pelones,Cártel de Caborca; Cártel de Sinaloa (Los Guzmán),1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Guerrero (CJNG),Activa,"","",Banda,"",Cártel Jalisco Nueva Generación,"","","",0,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Mandilones,Activa,"","",Banda,"","","","","",0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Maseros,Activa,"","",Banda,"",Cártel de Sinaloa (Los Zambada),"","","",1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Merolicos,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Orea,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0
+Los Titoles,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Valenzuela,Activa,"","",Banda,Escisión,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Organización de Pueblos Evangélicos de los Altos de Chiapas,Activa,"",OPEACH,Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cártel de Los Maestros,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","",Cártel Jalisco Nueva Generación; Cártel del Noreste,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Chapito,Activa,"","",Banda,Célula,Cártel de Los Arellano Félix,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Federación Morelense,Activa,"","",Banda,"","","",Cártel Jalisco Nueva Generación; Trébol; Unión de Sindicatos y Organizaciones Nacionales; Los Tlacos,"",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Grupo Élite Delictivo de Reacción Inmediata (GEDDRI),Activa,"",GEDDRI,Banda,Brazo armado,Cártel Jalisco Nueva Generación,"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Chokiza,Activa,"","",Banda,"",Unión de Sindicatos y Organizaciones Nacionales,"",Cártel Jalisco Nueva Generación; La Nueva Familia Michoacana,"",0,1,1,0,0,1,0,0,1,0,0,1,0,0,0,0,1,0,0
+La Mosca,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Abelardos,Activa,"","",Mafia,"","","","","",0,0,1,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0
+Los Amigos,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Gopes,Activa,"","",Banda,Célula,La Barredora,"","",Cártel Jalisco Nueva Generación,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Gorilas,Activa,"","",Banda,"",Cártel de Sinaloa (Los Guzmán),"","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Jordan,Activa,"","",Mafia,Célula,Cártel de Sinaloa (Los Guzmán),"","","",0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0
+Los Panchitos (de Michoacán),Activa,"","",Banda,"",Cártel Jalisco Nueva Generación,Cártel Jalisco Nueva Generación,"","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Tamales,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Nuevo Cártel Independiente de Sonora,Activa,"","",Banda,"",Cártel de Sinaloa (Los Guzmán),Cártel de Sinaloa (Los Guzmán),Los Cazadores; Los Paredes,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Rojos (Tamaulipas),Activa,"","",Banda,Escisión,Cártel del Golfo,Cártel del Golfo,"",Las Panteras; Los Ciclones; Los Escorpiones; Los Metros,1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Familia Michoacana,Activa,"","",Mafia,"","","","",Cártel Jalisco Nueva Generación; Los Caballeros Templarios,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Chivos,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa (Los Zambada),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda de El Charmin,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda de El Cochambre,Activa,"","",Banda,"",Confederación Joven de México,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda de La Negra,Activa,"","",Banda,"","","","","",0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+Banda del Chiflagoras,Activa,"","",Mafia,Pandilla,"","","","",1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda del Comandante Cromo,Activa,Cártel de Oaxaca; Cártel del Itsmo; Organización criminal de la familia Díaz Parada,"",Mafia,"",Cártel de Juchitán,"",Cártel San Luis Rey; Cártel del Renco,"",1,1,1,0,1,1,0,1,0,1,1,0,1,0,0,0,1,0,0
+Banda del Costeño,Activa,"","",Mafia,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Banda del Coyote,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda del Enjambre,Activa,"","",Banda,Célula,Los de Siempre,"","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Banda del Tío Ale,Activa,Banda del Tío M,"",Banda,"","","","","",0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+Banda La Reina del Oriente,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda Oaxaca,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cártel de Puebla,Activa,"","",Banda,"","","",Gente Nueva del Sur,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel del Despojo (Oaxaca),Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Cártel del Gaschicoleo,Activa,"","",Banda,"","","","","",0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+Cártel del Golfo Nueva Era,Activa,"","",Banda,Escisión,Cártel del Golfo,Cártel del Golfo,Los Metros,Los Ciclones,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel Gente Nueva Salazar,Activa,Gente Nueva Salazar,"",Mafia,"",Gente Nueva,Gente Nueva,Los Escorpiones,Cártel Jalisco Nueva Generación; Cártel La Nueva Familia; Cártel Nueva Plaza; Cártel de Santa Rosa de Lima,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cártel La Nueva Familia,Activa,"","",Banda,"","","","",Cártel Gente Nueva Salazar; Cártel Jalisco Nueva Generación; Cártel Nueva Plaza; Cártel de Santa Rosa de Lima,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel López,Activa,"","",Banda,"","","",La Línea,"",0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cárteles Unidos Salazar – MF,Activa,"","",Banda,"",Cártel de Sinaloa (Los Zambada),"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Chapitos-CJNG,Activa,"","",Mafia,"","","",Cártel Jalisco Nueva Generación; Cártel de Sinaloa (Los Guzmán),"",0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Clan de los Elenes,Activa,"","",Banda,"",Cártel de Sinaloa (Los Guzmán),"","","",1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+Don Checo,Activa,"","",Mafia,"","","","","",0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Don Lemo,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa (Los Zambada),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El 00,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El 15,Activa,"","",Banda,Brazo armado,Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa (Los Zambada),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El 20,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El 40,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa (Los Zambada),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Ciclón,Activa,"","",Banda,"","","","","",0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Flaco,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Galletas,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Güero Pulseras,Activa,"","",Banda,Brazo armado,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Komander,Activa,"","",Banda,Pandilla,"","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Limón,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Mamer,Activa,"","",Banda,"","","","","",0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Papi,Activa,"","",Banda,"","","","","",0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Tacho,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+El Yogurt,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Flor Imperial,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"",CJNG-CIDA; Cártel Independiente de Acapulco,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Frente Popular 14 de Junio,Activa,"","",Banda,Pandilla,"","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Especiales el Tío Lako,Activa,"","",Mafia,"",Cártel Jalisco Nueva Generación,Los Guerreros,"","",1,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Especiales Pelucas,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Guzmán),"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gente Nueva del Sur,Activa,"","",Banda,Célula,"","",Cártel de Puebla,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gestión y Organización Popular Emiliano Zapata (GOPEZ),Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+GMS,Activa,"","",Banda,"",Cártel de Tláhuac,"","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Kalimba,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Empresa (Edomex),Activa,Los Macas; Los Cor,"",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+La Familia,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Flecha,Activa,"","",Mafia,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Las Gordas,Activa,"","",Banda,"","","","","",1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Las Goteras,Activa,"","",Mafia,Pandilla,"","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Aldos,Activa,"","",Mafia,Brazo armado,Cártel de Sinaloa (Los Zambada),"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Alfa,Activa,"","",Banda,Brazo armado,Los Salazar,"",Cártel de Sinaloa (Los Guzmán),"",1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1
+Los Amarillos,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Antenas,Activa,"","",Banda,Célula,Los Salazar,"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Autónomos,Activa,"","",Banda,"","","",Cártel Jalisco Nueva Generación,Cártel de Sinaloa,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Bigus,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Bukanas,Activa,"","",Mafia,Célula,"","","","",1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,0,0
+Los CabreraMZ,Activa,"","",Mafia,Célula,Cártel de Sinaloa (Los Zambada),"",Los Cabrera,"",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Chapos,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Chimalacos,Activa,"","",Banda,Célula,Los Tlacos,"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Conchos,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Conejitos,Activa,"","",Mafia,Célula,Organización Sindical Unión 300,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0
+Los de Casa,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Duques,Activa,"","",Banda,"","","",Los Tanzanios,"",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+Los Estúpidos,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Fantasmas,Activa,"","",Banda,Célula,Los Salazar,Cártel de Sinaloa,Cártel de Sinaloa (Los Guzmán),Mata Salas,1,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,1
+Los Gemelos,Activa,"","",Mafia,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Gigios,Activa,Demonios-Mayos,"",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","",Cártel de Sinaloa (Los Guzmán),1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Gordos (CDMX),Activa,"","",Banda,Pandilla,"","","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Gregori,Activa,"","",Banda,Célula,La Unión Tepito,Cártel de Tepito,"","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Greñas,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Güeritos,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Guzmán),"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Hortelanos,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Istolinques,Activa,"","",Banda,"","","",La Unión Tepito,"",1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Ivanes,Activa,"","",Mafia,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Jaliacos,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Jasso,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Malvados Alto Voltaje,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Masse,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Memos (de Sonora y Durango),Activa,"","",Mafia,Célula,Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Negros de Chamula,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Nenes Team,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Números,Activa,"","",Mafia,"","","",Cártel de Caborca,"",1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Peñafieles,Activa,"","",Mafia,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Pescados,Activa,Los Zacapuxtlas,"",Banda,Pandilla,"","","",Cártel Jalisco Nueva Generación,0,1,1,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0
+Los Piscacha,Activa,"","",Banda,"","","",Los Rusos,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Pizzeros,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Ponchis,Activa,"","",Banda,Brazo armado,Los Salazar,"",Cártel de Sinaloa (Los Guzmán),"",1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1
+Los Purinas,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Richis,Activa,Los Richies,"",Banda,"","","","","",0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Ruachos,Activa,"","",Banda,"",Cártel de Sinaloa (Los Zambada),"",Los Cabrera,"",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Solas,Activa,Los H,"",Mafia,Escisión,"","","",Los H (Hidalgo),0,1,1,1,0,1,0,1,0,0,0,1,0,0,0,0,0,0,0
+Los Souverbielle,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0
+Los Yerena,Activa,"","",Banda,Célula,Los Canchola,"","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Yuyis,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Narco Karma,Activa,El Karma,"",Banda,Pandilla,Cártel de Sinaloa,"","","",0,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0
+Operativa La Barredora del CJNG,Activa,"","",Banda,Brazo armado,Cártel Jalisco Nueva Generación,Cártel de Los Beltrán Leyva,"","",0,1,1,0,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0
+R8,Activa,"","",Banda,Célula,"","","","",1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Sindicato Nacional 25 de Marzo,Activa,"","",Banda,"","","",Unión de Sindicatos y Organizaciones Nacionales; Piperos de Ecatepec y Estado de México,"",0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0
+Tláloc,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,0,1,1,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0
+Unión de Sindicatos y Organizaciones Nacionales (USON),Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+XL,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Confederación Autónoma de Trabajadores y Empleados de México,Activa,"",CATEM,Mafia,"","","",Los Cabrera,"",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Asociación Civil Grupo Fortaleza,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Cártel de los Bastidas,Activa,"","",Banda,Escisión,Cártel de Sinaloa,Cártel de Sinaloa,"","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Quintana Roo,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Ejército Purépecha de Libertad Michoacana,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Meka,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo Cobra,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Eurekas,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Guzmán),"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Gansos,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Intocables,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Mariachis,Activa,"","",Banda,Pandilla,"","","","",0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0
+Los Pacas,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Unión Morelense,Activa,"","",Banda,"","","","",La Nueva Familia Michoacana,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Primos,Activa,"","",Mafia,"","","",Cártel Jalisco Nueva Generación; Cártel del Golfo,"",1,0,0,1,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0
+11 de Marzo,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+16 Poniente y 3 Norte,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+5 de Mayo,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda del Yoyo,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cártel de San Juan Chamula,Activa,Cártel del Caracol; Cártel Chamula,"",Banda,"","","","",Cártel de Los Beltrán Leyva; Cártel de Sinaloa; Los Ratones; Los Zetas Vieja Escuela,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Cártel Inmobiliario,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+Cártel San Luis Rey,Activa,"","",Banda,"","","",Banda del Comandante Cromo,"",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Chico Humo y su Banda,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Comando Ajusco,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+Confederación Autónoma de Trabajadores y Empleados de México (CATEM),Activa,"",CATEM,Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerza 2000,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gestora,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","",Fuerzas Especiales Grupo Sombra,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+H1A1,Activa,"","",Mafia,Célula,La Nueva Familia Michoacana,"",Cártel de Sinaloa (Los Guzmán),"",1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Alfas (CJNG),Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Caimanes,Activa,"","",Banda,"","","",Los Cabrera,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cheches,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Malportados,Activa,"","",Banda,Escisión,Los Dámaso,Los Dámaso,"",Cártel del Nuevo Imperio,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Richard,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0
+Los Señores de Morelia,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Skinny,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Toluqueños,Activa,Los Chorizos,"",Banda,"","","","","",1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Torrijos,Activa,"","",Banda,"","","","","",0,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+M4,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Alianza Mexicana de Organizaciones Sociales (AMOS),Activa,"","",Banda,Pandilla,"","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda de La Dueña,Activa,"","",Mafia,"","","",La Línea,"",0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cabo 24,Activa,"","",Banda,Célula,Cártel de Sinaloa,"",Fuerzas Especiales del Ranchero,"",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Santero,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Luz del Mundo,Activa,"","",Mafia,"","","",Cártel Jalisco Nueva Generación,"",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+La Nueva Era,Activa,"","",Banda,Brazo armado,La Unión Tepito,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Unión Carrillo,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Pepas,Activa,La Pepa,"",Banda,Pandilla,"","","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Rugrats,Activa,"","",Banda,Brazo armado,Cártel de Sinaloa (Los Guzmán),"","","",1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Trébol,Activa,CJNG-El Trébol,"",Banda,Célula,Cártel Jalisco Nueva Generación,"",Federación Morelense,"",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Unión de Sindicatos y Organizaciones Nacionales,Activa,"",USON,Mafia,"","","",Federación Morelense; La Nueva Familia Michoacana; Sindicato 22 de Octubre; Sindicato Nacional 25 de Marzo; Unión de Líderes Independientes para los Problemas Sociales; Piperos de Ecatepec y Estado de México; Agrupación Silvano Pedraza,"",0,1,1,1,0,1,0,0,1,0,0,1,0,0,0,0,1,0,0
+"Alianza de Autotransportistas, Comerciantes y Anexas de México “ACME”",Activa,"",ACME,Banda,"","","","","",0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+Cártel Independiente (EDOMEX),Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Comandante Diablo,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0,1,0,0
+Cuatro Letras,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Dalen,Activa,"","",Mafia,"","","","","",1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Don Luis,Activa,"","",Banda,"",Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Cártel del Primo,Activa,"","",Banda,"","","",Cártel Jalisco Nueva Generación,"",0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+El Speed,Activa,"","",Banda,"",Cártel Jalisco Nueva Generación,"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Kaibiles,Activa,"","",Banda,Brazo armado,Cártel Jalisco Nueva Generación,"",Cártel Chiapas y Guatemala,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Bhardwaj,Activa,"","",Mafia,"","","",Cártel de Sinaloa,"",1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+Los Caltencos,Activa,"","",Banda,"","","",Los Tepeacas,"",0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cheyenes,Activa,"","",Banda,"","","","",Los Reyes (de Chihuahua),0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0
+Los Chiquitos,Activa,"","",Banda,"",Cártel Jalisco Nueva Generación,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los del Cerco CJNG,Activa,"","",Banda,"",Cártel Jalisco Nueva Generación,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Guasones,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Guerrero de Ocotlán,Activa,"","",Banda,"",Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Lolos,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Mondragón,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Tepeacas,Activa,"","",Banda,"","","",Los Caltencos,"",0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Bam Bam,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Cagueros,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel del Renco,Activa,"","",Banda,"","","",Banda del Comandante Cromo,"",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Chucho Macedo,Activa,"","",Mafia,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Confederación de Trabajadores de México,Activa,"",CTM,Banda,"","","","","",0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Confederación Internacional de Trabajadores,Activa,"",CIT - FITO,Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Confederación Joven de México,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Del Ángel Axel,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Del Sacro,Activa,"","",Banda,"","","","","",0,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0
+EL Babay,Activa,"","",Banda,"",Cártel de Sinaloa (Los Zambada),"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Kevin,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+El Pancho Tamaulipeco,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Señor de las Montañas,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Señor de la V,Activa,"","",Banda,"",Cártel de Sinaloa (Los Guzmán),"","",Cártel de Sinaloa (Los Zambada),0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Emprende Coin,Activa,"","",Banda,"","","",La Unión Tepito,"",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Federación Internacional de Trabajadoras y Trabajadores Asalariados de México,Activa,"",FITTAM,Banda,"","","","","",0,1,1,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0
+Gestión y Organización Popular Emiliano Zapata,Activa,"",GOPEZ,Mafia,"","","","","",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Grupo Élite Delictivo de Reacción Inmediata,Activa,"",GEDDRI,Banda,Brazo armado,Cártel Jalisco Nueva Generación,"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Grupo Hysa,Activa,"",HOCG,Mafia,"","","","","",0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+Grupo Independiente La Quiringua,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Chepa,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Las Rubín,Activa,"","",Banda,Pandilla,"","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Berry,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Bolillos,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cannabis,Activa,"",CJNG,Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Carnales,Activa,"","",Banda,Pandilla,"","",Los Nuevos Aztecas,"",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Chocorroles,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Fariseos,Activa,"","",Banda,Célula,Los Cabrera,Los Cabrera,"","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Ferrari,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Los Guerrileros,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los H (Hidalgo),Activa,"","",Mafia,"","","","",Los Solas,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Keos,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Marmolejo,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Medina,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Negros (CDMX),Activa,"","",Mafia,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Pantera (EDOMEX),Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Pitufos,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0
+Los Pumas,Activa,"","",Banda,Escisión,Los Jaguares,Los Jaguares,"","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Revueltas,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Tilicos,Activa,Los Saldívar,"",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Metepec Omoda,Activa,"","",Mafia,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+Mundo,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Organización Criminal del Yeicob,Activa,"","",Mafia,"","","","","",1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Panteoneros,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Red Internacional Ryan Wedding,Activa,"","",Mafia,"","","","","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Sahagún y Saavedra,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0
+Sindicatos Unidos por la Transformación de México,Activa,"",SUTMEX,Banda,"","","","","",0,1,1,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0
+Somos Maya,Activa,Los Mayas; Somos Fuertes,"",Banda,"","","","","",0,1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Tiburones,Activa,"","",Banda,Brazo armado,Cártel de Sinaloa (Los Guzmán),"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Toño Tennis,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Banda de Juan Venegas,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cabo 27,Activa,"","",Banda,Célula,Cártel de Sinaloa,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Mar,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0
+Crazy Group,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gente Delos,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Golden Roma,Activa,"","",Banda,Célula,La Chokiza,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Banda de la Gata,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Plaga,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Lobo,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Burros,Activa,"","",Mafia,Célula,Cártel de Sinaloa (Los Guzmán),"","",Los Venados,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Canos,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cholos de la Sur 13,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Crazys,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los del Norte,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Ferchos,Activa,Los Fer,"",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Interian,Activa,"","",Mafia,Célula,Cártel de Caborca,"","","",0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Los Kena,Activa,"","",Banda,Célula,La Unión Tepito,"","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Lavadora,Activa,"","",Mafia,Célula,Cártel Jalisco Nueva Generación,"","","",0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0
+Los Oaxacos (Baja California),Activa,"",CDS,Banda,"",Cártel de Sinaloa,"","","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Orejones,Activa,"","",Mafia,Célula,La Unión Tepito,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Palapas,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Portales,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Monas,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Movimiento Unificado de Gaseros de la Zona Oriente,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Secta Lev Tahor,Activa,"","",Banda,"","","","","",0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Agrupación Silvano Pedraza,Activa,"",ASIP,Banda,Célula,Sindicato Nacional 25 de Marzo,"",Unión de Sindicatos y Organizaciones Nacionales,"",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de la Costa (Yucatán),Activa,"","",Mafia,Escisión,Los Epitacio,Los Epitacio,"",Cártel de Caborca,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+De la México 83,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Especiales del R1,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Bárcenas,Activa,"","",Banda,"","","","","",0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Carranza,Activa,"","",Banda,"","","","",Cártel Jalisco Nueva Generación,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Emos,Activa,"","",Banda,"",La Nueva Familia Michoacana,"","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los González,Activa,"","",Banda,"","","","","",0,0,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Israeles,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Locos Adams,Activa,"","",Mafia,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Roba Rolex,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Operativa Ranger,Activa,"","",Banda,Célula,Los Ciclones,"","","",1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Organización criminal de hackers Chronus,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Pueblo Unido,Activa,La Empresa,"",Banda,"",Cártel de Sinaloa,"","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Sindicato Progresista de Trabajadores Libertad (Los Carbarin),Activa,"","",Mafia,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Alianza de Autotransportistas, Comerciantes y Anexas de México",Activa,"",ACME,Banda,"","","","","",0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+Alianza Mexicana de Organizaciones Sociales,Activa,"",AMOS,Banda,Pandilla,"","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Banda de El Abuelo,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda de El Mono,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda del Fresa,Activa,"","",Mafia,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+Banda del Gori,Activa,"","",Mafia,"","","","","",0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda El Pelón del Sur,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Banda La Reina del Sur,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel de Mario Millet,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0
+Cártel Inmobiliario (Tijuana),Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cártel Inmobiliario (Veracruz),Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+Cobra,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cochos,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Comandante R24,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Zambada),"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Creypass-Finvia,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+El 19,Activa,"","",Banda,Célula,Cártel de Sinaloa (Los Guzmán),"","","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+El Animal,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+El Caballito,Activa,"","",Mafia,"","","","","",0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0
+El Payaso,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Fuerza Zacatecana,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Especiales de Chuta,Activa,"",FECH,Banda,Célula,Los Mazatlecos,"","","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fuerzas Especiales del Kateo,Activa,"",FEK,Banda,Brazo armado,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gente del Güero Pin,Activa,Gente del Güero Pink,GDGP,Banda,Célula,Cártel de Sinaloa (Los Guzmán),"","","",1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Gente del Jardinero,Activa,"","",Mafia,Célula,Cártel Jalisco Nueva Generación,"","","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Guliver,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Célula Zaragoza,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Cofradía,Activa,"","",Banda,"",Operativa La Barredora del CJNG,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Empresa (Morelos),Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Empresa (Oaxaca),Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+La Madam,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Las Flechas,Activa,"","",Mafia,Célula,Los Cabrera,"","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Lic. Vallarta,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1
+Los Besucones,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Blancos,Activa,"","",Banda,"","","","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Bogueto,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Cabos,Activa,"","",Banda,Brazo armado,Cártel Jalisco Nueva Generación,"","","",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Caica,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Casas,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Charangas,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Chetos,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0
+Los Chimecos,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+Los Chimuelos,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Chuecos,Activa,"","",Banda,Pandilla,"","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Cuijes,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Erres (CJNG),Activa,"","",Mafia,Célula,Cártel Jalisco Nueva Generación,"","","",0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Faraones,Activa,"","",Mafia,"","","","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1
+Los Fortis,Activa,Los Fortiz,"",Banda,"",Fuerza Anti-Unión Tepito,"","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Frijolitos,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Furcios,Activa,"","",Banda,"","","","","",0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0
+Los Glum,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Ingobernables,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Lobos (Ecuador),Activa,"","",Banda,Célula,"","","","",1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Manzanos,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Morelenses,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Morris,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Músicos,Activa,"","",Banda,"",Los Mazatlecos,"","","",1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Pájaros,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Pelones (EDOMEX),Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Pericos,Activa,"","",Mafia,"","","","","",0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Petrofactureros,Activa,"","",Mafia,"","","","","",0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0
+Los Pochotes,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
+Los Poshcos,Activa,"","",Banda,"","","","","",0,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0
+Los Quinteros,Activa,"","",Mafia,Célula,Cártel Jalisco Nueva Generación,"","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Quitero Muñoz,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Rey,Activa,"","",Mafia,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Rulos,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+Los Soto Jiménez,Activa,"","",Mafia,"","","","","",0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+Los Tapones,Activa,"","",Banda,"","","","",La Unión Tepito,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Volteados,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Los Yayos,Activa,"","",Banda,"","","","","",0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los ZigZag,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+Macas,Activa,Los Cor,"",Mafia,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Mafia Cubano - Americana,Activa,"","",Banda,"","","","","",0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Olmos Fragoso,Activa,"","",Banda,"","","","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+Operativa Delta,Activa,"","",Mafia,Célula,Cártel Jalisco Nueva Generación,"","","",1,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+Organización de Tráfico de Drogas González Peñuelas,Activa,"","",Banda,"","","","","",1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Organización János Balla,Activa,"","",Banda,"","","","","",1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Pura Gente Nueva de los Zetas,Activa,"","",Banda,Célula,Cártel Jalisco Nueva Generación,"","","",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Sabina,Activa,"","",Banda,"","","","","",0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Unión de Líderes Independientes para los Problemas Sociales,Activa,"",ULIDEPS,Mafia,"","","",Unión de Sindicatos y Organizaciones Nacionales,"",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Viudas Negras,Activa,"","",Banda,"","","","","",0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0
+Banda del Vaquero,Activa,"","",Banda,"","","","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Deluxe Cars,Activa,"","",Banda,Pandilla,"","","","",0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+La Venada,Activa,"","",Banda,Célula,Cártel de Los Reyes,"",Los Caballeros Templarios,Cártel Jalisco Nueva Generación,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Abasolo,Activa,"","",Banda,Pandilla,"","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Bubus,Activa,"","",Banda,"","","","","",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Criminales,Activa,"","",Mafia,Célula,Cártel de Santa Rosa de Lima,"","","",0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Licenciados,Activa,"","",Banda,"",Los Valencia,Los Valencia,"","",0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Macetas,Activa,"","",Banda,"","","","","",0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0
+Los Patos (CDMX),Activa,"","",Banda,"","","","","",0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Los Totoys,Activa,"","",Banda,"","","","","",1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+Piperos de Ecatepec y Estado de México,Activa,"","",Banda,"","","",Unión de Sindicatos y Organizaciones Nacionales; Sindicato Nacional 25 de Marzo,"",0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0
+Red Javier Cuna Morales,Activa,"","",Mafia,"","","","","",0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0

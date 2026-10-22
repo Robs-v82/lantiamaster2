@@ -61,6 +61,19 @@ begin
       organization_id = paso6_result[:organization_id]
       organization = Organization.find_by(id: organization_id) if organization_id
       skip_pasos_3_to_6 = true
+
+      # Crear paso5_result equivalente para que el resumen funcione correctamente
+      # (En el reintento, PASO 5 se ejecutó dentro de retry_search)
+      if organization_id
+        paso5_result = {
+          found: true,
+          organization: organization,
+          organization_id: organization_id,
+          confidence: 0  # Reintento no tiene confianza de Claude disponible
+        }
+      else
+        paso5_result = { found: false }
+      end
     else
       puts "\n❌ retry_search tampoco encontró artículos válidos"
       exit 1

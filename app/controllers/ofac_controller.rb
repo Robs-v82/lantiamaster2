@@ -176,7 +176,8 @@ class OfacController < ApplicationController
         organization_name = organization_match ? organization_match[1].strip : nil
         organization = nil
 
-        if organization_name.present?
+        # Validar que el nombre no sea un placeholder ("—" indica no identificada)
+        if organization_name.present? && organization_name != "—"
           # Buscar el objeto Organization en la BD usando el nombre extraído
           organization = Organization.where("LOWER(name) = LOWER(?)", organization_name).first
           # Si no encuentra coincidencia exacta, intentar búsqueda fuzzy
