@@ -152,8 +152,12 @@ class OfacController < ApplicationController
       candidate_name = candidate_match ? candidate_match[1].strip : nil
 
       # Verificar si el script completó (exitosamente O con fallo controlado)
-      script_completed = output.include?("[OFAC SUBPROCESS OUTPUT END]")
+      # Casos:
+      # 1. Script terminó exitosamente: contiene "PASOS 1-9 COMPLETADOS EXITOSAMENTE"
+      # 2. Script terminó con fallo controlado: contiene "retry_search tampoco encontró" o "PASO 6 FALLÓ"
+      # 3. Script crasheó: no contiene ninguno de los anteriores
       success_complete = output.include?("PASOS 1-9 COMPLETADOS EXITOSAMENTE")
+      controlled_failure = output.include?("retry_search tampoco encontró") || output.include?("PASO 6 FALLÓ")
 
       if success_complete
 
@@ -248,8 +252,9 @@ class OfacController < ApplicationController
           plain_text_length: plain_text_length,
           plain_text_fragment: plain_text_fragment
         }
-      elsif script_completed
+      elsif controlled_failure
         # Script completó pero con fallo controlado (ej: NO_CARTEL_MATCH, INVALID_DATE, etc)
+        # El script ejecutó `exit 1` después del mensaje de error
         # Extraer mensaje de error específico
         error_msg = extract_error_from_output(output)
         Rails.logger.warn("[OfacController#parse_ofac_output] Pipeline completó con fallo controlado: #{error_msg}")
