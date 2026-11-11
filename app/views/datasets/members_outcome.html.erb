@@ -830,7 +830,7 @@
         <% end %>
 
           <tr>
-            <th style="vertical-align: top;">
+            <th style="vertical-align: top; width: 50%;">
               <div class="col s12 grayText hits-title">Actividad/menciones</div>
               <ul style="margin: 0; list-style-type: none; padding-left: 0; font-weight: 300;">
                 
@@ -867,13 +867,20 @@
                   <% base_hits.each do |hit| %>
                     <li style="margin-bottom: 6px;">
                     
-                    <% if hit.link.present? %>
-                      <a href="<%= hit.link %>" target="_blank" style="margin-left: 10px; text-decoration: none; color: inherit;">
-                        <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
-                      </a>
-                    <% else %>
-                      <span style="display: inline-block; width: 24px; margin-right: 8px;"></span>
-                    <% end %>
+                    <span class="hit-icon-slot" style="display: inline-block; width: 24px; vertical-align: middle;">
+                      <% if hit.link.present? %>
+                        <a href="<%= hit.link %>" target="_blank" style="text-decoration: none; color: inherit;">
+                          <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
+                        </a>
+                      <% end %>
+                    </span>
+                    <span class="hit-icon-slot" style="display: inline-block; width: 24px; vertical-align: middle;">
+                      <% if hit.pdf.attached? && hit.pdf.content_type == "application/pdf" %>
+                        <a href="<%= rails_blob_path(hit.pdf, disposition: "inline") %>" target="_blank" style="text-decoration: none;">
+                          <%= image_tag "pdf_icon.png", style: "width: 20px; height: 20px; vertical-align: middle;" %>
+                        </a>
+                      <% end %>
+                    </span>
 
                       <span class="hit-meta">
                         <span class="hit-date"><%= hit.date.strftime("%d/%m/%y") %></span>
@@ -899,13 +906,20 @@
                     <!-- aquí va EXACTAMENTE el mismo <li> que ya tienes para imprimir un hit -->
 
                     <li style="margin-bottom: 6px;">
-                    <% if hit.link.present? %>
-                      <a href="<%= hit.link %>" target="_blank" style="margin-left: 10px; text-decoration: none; color: inherit;">
-                        <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
-                      </a>
-                    <% else %>
-                      <span style="display: inline-block; width: 24px; margin-right: 8px;"></span>
-                    <% end %>
+                    <span class="hit-icon-slot" style="display: inline-block; width: 24px; vertical-align: middle;">
+                      <% if hit.link.present? %>
+                        <a href="<%= hit.link %>" target="_blank" style="text-decoration: none; color: inherit;">
+                          <i class="material-icons" style="font-size: 20px; vertical-align: middle;">open_in_new</i>
+                        </a>
+                      <% end %>
+                    </span>
+                    <span class="hit-icon-slot" style="display: inline-block; width: 24px; vertical-align: middle;">
+                      <% if hit.pdf.attached? && hit.pdf.content_type == "application/pdf" %>
+                        <a href="<%= rails_blob_path(hit.pdf, disposition: "inline") %>" target="_blank" style="text-decoration: none;">
+                          <%= image_tag "pdf_icon.png", style: "width: 20px; height: 20px; vertical-align: middle;" %>
+                        </a>
+                      <% end %>
+                    </span>
 
                       <span class="hit-meta">
                         <span class="hit-date"><%= hit.date.strftime("%d/%m/%y") %></span>
@@ -925,8 +939,8 @@
 
               </ul>
             </th>
-            <td>
-              <div id="map-container-<%= member.id %>" style="height: 280px; max-width: 450px;"></div>
+            <td style="width: 50%;">
+              <div id="map-container-<%= member.id %>" style="height: 280px; width: 100%;"></div>
             </td>
           </tr>
           
