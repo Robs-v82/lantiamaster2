@@ -718,6 +718,21 @@ module ApplicationHelper
 		if session[:destinations]
 			session.delete(:destinations)
 		end
+		if session[:message]
+			session.delete(:message)
+		end
+		if session[:load_success]
+			session.delete(:load_success)
+		end
+		if session[:easy_member_attempts]
+			session.delete(:easy_member_attempts)
+		end
+		if session[:easy_hit_attempts]
+			session.delete(:easy_hit_attempts)
+		end
+		if session[:ignored_conflicts]
+			session.delete(:ignored_conflicts)
+		end
 	end
 	
 	def clear_member_session			
