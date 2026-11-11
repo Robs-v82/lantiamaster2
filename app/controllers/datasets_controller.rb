@@ -18,7 +18,7 @@ class DatasetsController < ApplicationController
 	layout false, only: [:year_victims, :state_victims, :county_victims, :county_victims_map]
 	after_action :remove_load_message, only: [:load, :terrorist_panel]
 	before_action :require_recent_auth, only: [:members_outcome]
-	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome]
+	before_action :authenticate_panel_access, only: [:members_search, :members_query, :members_outcome, :hit_text]
 	before_action :authenticate_terrorist_access, only: [:terrorist_search, :terrorist_panel, :easy_hits, :create_easy_hit, :state_members, :clear_members, :clear_state_members]
 
 	def audit_member
@@ -548,6 +548,15 @@ class DatasetsController < ApplicationController
 			@keyRolegroups.push(memberGroup)
 		}
 		session.delete(:query_id) # ← limpia después de usar
+	end
+
+	def hit_text
+		@hit = Hit.find_by(id: params[:hit_id])
+		@member = Member.find_by(id: params[:member_id])
+		unless @hit && @member && @member.hits.exists?(@hit.id) && helpers.hit_text_matches_member?(@hit, @member)
+			return redirect_to "/datasets/members_outcome"
+		end
+		@back_path = "/datasets/members_outcome"
 	end
 
 	def members_outcome_pdf

@@ -1,0 +1,168 @@
+<style>
+  .manual-container{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 18px 15px;
+    color: #33333C;
+    font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+
+  .manual-card{
+    background: #FFFFFF;
+    border-radius: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: calc(100vh - 380px);
+    min-height: 320px;
+  }
+
+  .manual-header{
+    padding: 0 0 12px;
+  }
+
+  .manual-title {
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    color: #33333C;
+  }
+
+  .manual-body-panel{
+    flex: 1;
+    overflow: auto;
+    border: 1px solid rgba(51, 51, 60, .14);
+    padding: 20px 22px 26px;
+    box-shadow:
+      inset 0 3px 7px rgba(0,0,0,.14),
+      inset 0 -2px 5px rgba(0,0,0,.08),
+      inset 0 1px 0 rgba(255,255,255,.62);
+  }
+
+  .manual-body {
+    font-size: 16px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .hit-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    margin-bottom: 18px;
+  }
+
+  .hit-info-table th {
+    font-weight: bold;
+    width: 180px;
+    vertical-align: top;
+    padding: 8px 8px 8px 0;
+    border-top: 2px solid #33333C;
+  }
+
+  .hit-info-table td {
+    padding: 8px 0;
+    border-top: 2px solid #33333C;
+  }
+
+  .docs-layout {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .docs-nav {
+    position: sticky;
+    top: 160px;
+    padding: 12px 10px;
+  }
+
+  .docs-nav a {
+    display: block;
+    padding: 9px 10px 9px 14px;
+    margin: 2px 0;
+    color: #ef4e50;
+    text-decoration: none;
+    border: none !important;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .docs-nav a:hover {
+    background: transparent !important;
+  }
+
+  @media (max-width: 900px) {
+    .docs-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .docs-nav {
+      position: static;
+    }
+
+    .manual-card {
+      height: auto;
+      min-height: 0;
+    }
+
+    .manual-body-panel {
+      max-height: 60vh;
+    }
+  }
+</style>
+
+<div class="manual-container">
+  <div class="docs-layout">
+    <div class="docs-nav">
+      <a href="<%= @back_path %>"><i class="material-icons" style="vertical-align: middle;">arrow_back</i> RESULTADOS</a>
+    </div>
+
+    <div>
+      <div class="manual-header">
+        <h1 class="manual-title">TEXTO ORIGINAL</h1>
+      </div>
+
+      <table class="hit-info-table">
+        <tr>
+          <th>Miembro:</th>
+          <td><%= [@member.firstname, @member.lastname1, @member.lastname2].reject(&:blank?).join(" ") %></td>
+        </tr>
+        <tr>
+          <th>Fecha:</th>
+          <td><%= @hit.date.present? ? @hit.date.strftime("%d/%m/%Y") : "Sin especificar" %></td>
+        </tr>
+        <tr>
+          <th>Ubicación:</th>
+          <td>
+            <% county = @hit.town.county %>
+            <% unless county.name == "Sin definir" %>
+              <%= county.name %>,
+            <% end %>
+            <%= county.state.shortname %>
+          </td>
+        </tr>
+        <tr>
+          <th>Enlace original:</th>
+          <td>
+            <% if @hit.link.present? %>
+              <a href="<%= @hit.link %>" target="_blank" rel="noopener"><%= @hit.link %></a>
+            <% else %>
+              Sin enlace
+            <% end %>
+          </td>
+        </tr>
+      </table>
+
+      <div class="manual-card z-depth-0">
+        <div class="manual-body-panel">
+          <div class="manual-body"><%= highlight_member_names(@hit.plain_text, @member) %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

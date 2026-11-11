@@ -839,13 +839,15 @@
                   show_related_hits = (member.involved == false && relaciones.any?)
 
                   base_hits = member.hits.order(date: :desc).to_a
+                  hit_owner = {}
+                  base_hits.each { |h| hit_owner[h.id] = member }
 
                   related_hits =
                     if show_related_hits
                       seen_links = base_hits.map(&:link).compact
 
                       others = relaciones.map { |rel| rel.member_a_id == member.id ? rel.member_b : rel.member_a }.compact.uniq
-                      rel_hits = others.flat_map { |m| m.hits.to_a }
+                      rel_hits = others.flat_map { |m| m.hits.to_a.each { |h| hit_owner[h.id] ||= m } }
 
                       # sólo hits con link y que no existan ya en el member
                       rel_hits = rel_hits.select { |h| h.link.present? && !seen_links.include?(h.link) }
@@ -878,6 +880,10 @@
                       <% if hit.pdf.attached? && hit.pdf.content_type == "application/pdf" %>
                         <a href="<%= rails_blob_path(hit.pdf, disposition: "inline") %>" target="_blank" style="text-decoration: none;">
                           <%= image_tag "pdf_icon.png", style: "width: 20px; height: 20px; vertical-align: middle;" %>
+                        </a>
+                      <% elsif hit_text_matches_member?(hit, hit_owner[hit.id]) %>
+                        <a href="<%= hit_text_path(hit_id: hit.id, member_id: hit_owner[hit.id].id) %>" title="Ver texto del hit" style="text-decoration: none; color: inherit;">
+                          <i class="material-icons" style="font-size: 20px; vertical-align: middle;">text_snippet</i>
                         </a>
                       <% end %>
                     </span>
@@ -917,6 +923,10 @@
                       <% if hit.pdf.attached? && hit.pdf.content_type == "application/pdf" %>
                         <a href="<%= rails_blob_path(hit.pdf, disposition: "inline") %>" target="_blank" style="text-decoration: none;">
                           <%= image_tag "pdf_icon.png", style: "width: 20px; height: 20px; vertical-align: middle;" %>
+                        </a>
+                      <% elsif hit_text_matches_member?(hit, hit_owner[hit.id]) %>
+                        <a href="<%= hit_text_path(hit_id: hit.id, member_id: hit_owner[hit.id].id) %>" title="Ver texto del hit" style="text-decoration: none; color: inherit;">
+                          <i class="material-icons" style="font-size: 20px; vertical-align: middle;">text_snippet</i>
                         </a>
                       <% end %>
                     </span>

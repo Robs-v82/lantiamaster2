@@ -134,6 +134,7 @@ Rails.application.routes.draw do
     get 'datasets/state_members/:code' => 'datasets#state_members'
     post 'datasets/members_query'
     get 'datasets/members_outcome'
+    get 'datasets/hit_text/:hit_id/:member_id' => 'datasets#hit_text', as: :hit_text
     post '/web_scrape', to: 'datasets#web_scrape', as: :web_scrape
     post '/datasets/download_scraped_links', to: 'datasets#download_scraped_links', as: :download_scraped_links
     # get 'datasets/:type/:cell' => 'datasets#sort'
