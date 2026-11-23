@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_09_29_152802) do
+ActiveRecord::Schema.define(version: 2026_11_23_220000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
@@ -217,6 +217,8 @@ ActiveRecord::Schema.define(version: 2026_09_29_152802) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "organization_id"
     t.boolean "member_added", default: false
+    t.boolean "possible_duplicate", default: false, null: false
+    t.text "possible_duplicate_note"
     t.index ["capture_date"], name: "index_detention_captures_on_capture_date"
     t.index ["capture_hash"], name: "index_detention_captures_on_capture_hash"
     t.index ["estado", "municipio", "incident_date"], name: "idx_dc_estado_municipio_date"

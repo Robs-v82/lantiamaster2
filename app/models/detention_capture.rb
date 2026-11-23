@@ -39,13 +39,14 @@ class DetentionCapture < ApplicationRecord
       .strip
   end
 
-  def self.find_duplicates(capture)
+  def self.find_duplicates(capture, name_only: true)
     week_start = capture.incident_date - 6.days
     week_end = capture.incident_date + 6.days
 
     norm_nombre = normalize_name(capture.nombre)
     norm_apellido = normalize_name(capture.apellido_paterno)
     norm_alias = normalize_name(capture.alias)
+    norm_municipio = normalize_name(capture.municipio)
 
     duplicates = where.not(id: capture.id).where(estado: capture.estado)
 
@@ -56,7 +57,8 @@ class DetentionCapture < ApplicationRecord
         record: other,
         norm_nombre: normalize_name(other.nombre),
         norm_apellido: normalize_name(other.apellido_paterno),
-        norm_alias: normalize_name(other.alias)
+        norm_alias: normalize_name(other.alias),
+        norm_municipio: normalize_name(other.municipio)
       }
     end
 
@@ -80,8 +82,37 @@ class DetentionCapture < ApplicationRecord
         dup_record.nombre, dup_record.apellido_paterno, dup_record.apellido_materno
       )
 
-      exact_name_apellido || only_name || alias_match || partial_match
+      # Criterio 5: Mismo nombre y mismo municipio, cuando solo uno de los dos tiene apellido paterno
+      same_municipio = norm_municipio.present? && dup[:norm_municipio] == norm_municipio
+      name_only_match = name_only && same_municipio &&
+                        norm_nombre.present? && dup[:norm_nombre] == norm_nombre &&
+                        (norm_apellido.blank? != dup[:norm_apellido].blank?)
+
+      exact_name_apellido || only_name || alias_match || partial_match || name_only_match
     end.map { |dup| dup[:record] }
+  end
+
+  # Registros activos del mismo estado/municipio, a ±6 días, creados ANTES de este lote.
+  # Son los posibles duplicados de un registro nuevo que todavía no se ha guardado.
+  def self.possible_duplicates_for(estado:, municipio:, incident_date:, batch_started_at:)
+    return [] if batch_started_at.blank? || incident_date.blank? || municipio.blank?
+
+    where(deleted_at: nil, estado: estado, municipio: municipio)
+      .where(incident_date: (incident_date - 6.days)..(incident_date + 6.days))
+      .where('created_at < ?', batch_started_at)
+      .order(:incident_date, :id)
+      .to_a
+  end
+
+  def self.possible_duplicate_note(records)
+    return nil if records.empty?
+
+    dates = records.map { |r| r.incident_date.strftime('%d/%m/%Y') }.uniq.join(' y ')
+    ids = records.map(&:id).join(', ')
+    municipio = records.first.municipio
+    estado = records.first.estado
+    "Posible duplicado: ya hay #{records.size} registro(s) de #{municipio}, #{estado} " \
+      "de notas anteriores (fechas de incidente: #{dates}; IDs: #{ids}). Revisa si es la misma persona."
   end
 
   def self.names_are_partial_match(name1, apellido1, apellido_materno1,

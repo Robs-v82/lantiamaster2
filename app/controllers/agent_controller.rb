@@ -783,6 +783,9 @@ class AgentController < ApplicationController
     claude_key = anthropic_api_key
     return render json: { error: "ANTHROPIC_API_KEY no configurada." }, status: :service_unavailable if claude_key.blank?
 
+    # Inicio del lote: registros creados antes de este momento son "de notas anteriores"
+    batch_started_at = Time.current
+
     results = articles.map do |article|
       result = process_single_article(article, organizations, claude_key)
 
@@ -793,7 +796,7 @@ class AgentController < ApplicationController
         municipio = result[:full_code_lookups]&.first&.dig(:municipio)
 
         result[:save_results] = result[:csv_rows].map do |csv_row|
-          save_csv_row_to_db(csv_row, url, estado, municipio, nil)
+          save_csv_row_to_db(csv_row, url, estado, municipio, nil, batch_started_at: batch_started_at)
         end
       end
 
@@ -2257,7 +2260,7 @@ class AgentController < ApplicationController
   # ═══════════════════════════════════════════════════════════════════════════
   private
 
-  def save_csv_row_to_db(csv_row, url, estado, municipio, full_code)
+  def save_csv_row_to_db(csv_row, url, estado, municipio, full_code, batch_started_at: nil)
     return nil if csv_row.blank?
 
     fields = CSV.parse_line(csv_row, col_sep: ",")
@@ -2353,7 +2356,10 @@ class AgentController < ApplicationController
 
       # Check for smart duplicates (nombre + apellido + estado + semana OR alias)
       duplicates = DetentionCapture.find_duplicates(temp_capture)
-      if duplicates.any?
+      strict_duplicates = DetentionCapture.find_duplicates(temp_capture, name_only: false)
+      # Criterio 5 ambiguo: varios candidatos solo por nombre → no fusionar; el registro se crea marcado
+      name_only_ambiguous = strict_duplicates.empty? && duplicates.size > 1
+      if duplicates.any? && !name_only_ambiguous
         duplicate_record = duplicates.first
 
         # Determinar cuál criterio se aplicó
@@ -2419,6 +2425,14 @@ class AgentController < ApplicationController
         )
       end
 
+      # Posibles duplicados: registros previos (no de este lote) del mismo municipio a ±6 días
+      possible_dups = DetentionCapture.possible_duplicates_for(
+        estado: fields[3],
+        municipio: fields[5],
+        incident_date: incident_date,
+        batch_started_at: batch_started_at
+      )
+
       capture = DetentionCapture.create!(
         source_url: url,
         capture_date: capture_date,
@@ -2426,6 +2440,8 @@ class AgentController < ApplicationController
         estado: fields[3],
         municipio: fields[5],
         full_code: fields[4],
+        possible_duplicate: possible_dups.any?,
+        possible_duplicate_note: DetentionCapture.possible_duplicate_note(possible_dups),
         detenidos: detenidos_value,
         organizacion: fields[8],
         grupo_afiliado: fields[9],
@@ -2633,6 +2649,15 @@ class AgentController < ApplicationController
                           .compact.flat_map { |n| n.split(/\s+/) }.map { |t| DetentionCapture.normalize_name(t) }.uniq
 
       return "Criterio 4: Nombres parciales (tokens: #{new_tokens.sort.join(',')} vs #{existing_tokens.sort.join(',')})"
+    end
+
+    # Criterio 5: mismo nombre y municipio, solo uno con apellido paterno
+    norm_municipio_new = DetentionCapture.normalize_name(new_capture.municipio)
+    norm_municipio_old = DetentionCapture.normalize_name(existing_record.municipio)
+    if norm_nombre.present? && dup_norm_nombre == norm_nombre &&
+       norm_municipio_new.present? && norm_municipio_new == norm_municipio_old &&
+       (norm_apellido.blank? != dup_norm_apellido.blank?)
+      return "Criterio 5: Mismo nombre y municipio, solo uno con apellido paterno"
     end
 
     "Criterio desconocido"

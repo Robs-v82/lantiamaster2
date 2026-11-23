@@ -124,6 +124,16 @@
       background-color: white;
     }
 
+    /* Posible duplicado (lote nuevo, mismo municipio y fechas cercanas a registros anteriores) */
+    .captures-table tbody tr.possible-duplicate {
+      background-color: rgba(255, 193, 7, 0.35);
+      border-left: 4px solid #ff9800;
+    }
+
+    .captures-table tbody tr.possible-duplicate:hover {
+      background-color: rgba(255, 193, 7, 0.55);
+    }
+
     .captures-table tbody td {
       padding: 8px;
       font-size: 13px;
@@ -780,7 +790,8 @@
               data-rol="<%= ERB::Util.h(capture.rol) %>"
               data-alias="<%= ERB::Util.h(capture.alias) %>"
               data-deleted-at="<%= capture.deleted_at %>"
-              class="<%= 'complete-record' if capture.full_code.present? && capture.organization_id.present? && [capture.sedena, capture.semar, capture.gn, capture.sscp, capture.fgr, capture.ssp_estatal, capture.fge_pgj, capture.policia_municipal].any? %>">
+              class="<%= [('complete-record' if capture.full_code.present? && capture.organization_id.present? && [capture.sedena, capture.semar, capture.gn, capture.sscp, capture.fgr, capture.ssp_estatal, capture.fge_pgj, capture.policia_municipal].any?), ('possible-duplicate' if capture.possible_duplicate)].compact.join(' ') %>"
+              data-dup-note="<%= ERB::Util.h(capture.possible_duplicate_note) %>">
             <td style="width: 4%;">
               <%= capture.id %>
             </td>
@@ -1108,4 +1119,5 @@
 
 <script src="<%= asset_path('monthly_captures.js') %>" nonce="<%= csp_nonce %>"></script>
 <script src="<%= asset_path('member_hit_creation.js') %>" nonce="<%= csp_nonce %>"></script>
+<script src="<%= asset_path('possible_duplicate_toast.js') %>" nonce="<%= csp_nonce %>"></script>
 
