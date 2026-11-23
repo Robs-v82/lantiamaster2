@@ -959,6 +959,7 @@
                 <option value="Jefe regional" <%= 'selected' if capture.rol == 'Jefe regional' %>>Jefe regional</option>
                 <option value="Narcomenudista" <%= 'selected' if capture.rol == 'Narcomenudista' %>>Narcomenudista</option>
                 <option value="Traficante o distribuidor" <%= 'selected' if capture.rol == 'Traficante o distribuidor' %>>Traficante o distribuidor</option>
+                <option value="Operador" <%= 'selected' if capture.rol == 'Operador' %>>Operador</option>
                 <option value="Otro" <%= 'selected' if capture.rol == 'Otro' %>>Otro</option>
               </select>
               <input type="hidden" id="rol_value_<%= capture.id %>" name="detention_capture[rol]" value="<%= capture.rol %>">

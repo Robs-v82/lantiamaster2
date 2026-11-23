@@ -262,11 +262,11 @@ class AgentController < ApplicationController
     CAMPOS OBLIGATORIOS — nunca deben quedar vacíos:
     - Detenidos: si no se menciona número exacto pero hay al menos una persona detenida, pon 1
     - Fuente: siempre la URL completa de la nota
-    - Rol: siempre un valor exacto del catálogo. Si no se puede determinar, usa "Otro"
+    - Rol: siempre un valor exacto del catálogo. Si no se puede determinar, usa "Operador"
 
     CATÁLOGO DE ROL — únicos valores permitidos, exactamente como aparecen aquí:
-    Extorsionador | Sicario | Líder | Autoridad cooptada | Jefe de célula | Jefe de plaza | Jefe de sicarios | Jefe operativo | Jefe regional | Narcomenudista | Traficante o distribuidor | Otro
-    Nunca uses un valor fuera de este catálogo. Si el rol no está claro, usa "Otro".
+    Extorsionador | Sicario | Líder | Autoridad cooptada | Jefe de célula | Jefe de plaza | Jefe de sicarios | Jefe operativo | Jefe regional | Narcomenudista | Traficante o distribuidor | Operador
+    Nunca uses un valor fuera de este catálogo. Si el rol no está claro, usa "Operador".
 
     ORGANIZACIÓN Y GRUPO AFILIADO — interpretación activa:
     Normaliza cualquier variante, sigla, apodo o nombre alternativo al valor exacto del catálogo. Ejemplos obligatorios:
@@ -313,7 +313,7 @@ class AgentController < ApplicationController
     1. Exactamente 28 campos (separados por coma)
     2. Campos numéricos [0,1,2,4,6,7,15,16,17,18,19,20,21,22,23,24,25,26] contienen SOLO números o están VACÍOS
        (nunca deben contener texto)
-    3. Campo Rol (posición 18) NUNCA está vacío - si no identificas rol claro, usa "Otro"
+    3. Campo Rol (posición 18) NUNCA está vacío - si no identificas rol claro, usa "Operador"
     4. Campo Fuente (posición 28) es una URL válida
     5. Todo campo de texto que contenga comas está entre comillas dobles
 
@@ -2280,6 +2280,9 @@ class AgentController < ApplicationController
       )
       return nil
     end
+
+    # Rol de respaldo: "Operador" si viene vacío o como "Otro" (se usa en el registro temporal y en el create!)
+    fields[17] = "Operador" if fields[17].blank? || fields[17].strip == "Otro"
 
     detenidos_value = fields[7].to_i
 
