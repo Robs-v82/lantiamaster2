@@ -2360,7 +2360,7 @@ class AgentController < ApplicationController
       # Criterio 5 ambiguo: varios candidatos solo por nombre → no fusionar; el registro se crea marcado
       name_only_ambiguous = strict_duplicates.empty? && duplicates.size > 1
       if duplicates.any? && !name_only_ambiguous
-        duplicate_record = duplicates.first
+        duplicate_record = DetentionCapture.preferred_duplicate(duplicates, strict_duplicates)
 
         # Determinar cuál criterio se aplicó
         match_criteria = detect_match_criteria(temp_capture, duplicate_record)

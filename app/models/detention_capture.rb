@@ -92,6 +92,15 @@ class DetentionCapture < ApplicationRecord
     end.map { |dup| dup[:record] }
   end
 
+  # Elige el candidato a fusionar: primero el que ya tiene apellido paterno,
+  # luego el que coincide por criterio estricto (1 a 4), y por último el más antiguo.
+  def self.preferred_duplicate(duplicates, strict_duplicates)
+    strict_ids = strict_duplicates.map(&:id)
+    duplicates.min_by do |d|
+      [d.apellido_paterno.present? ? 0 : 1, strict_ids.include?(d.id) ? 0 : 1, d.id]
+    end
+  end
+
   # Registros activos del mismo estado/municipio, a ±6 días, creados ANTES de este lote.
   # Son los posibles duplicados de un registro nuevo que todavía no se ha guardado.
   def self.possible_duplicates_for(estado:, municipio:, incident_date:, batch_started_at:)
