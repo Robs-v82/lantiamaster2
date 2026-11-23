@@ -1487,14 +1487,15 @@ class AgentController < ApplicationController
     existing_hit = Hit.find_by(link: link)
     if existing_hit.present?
       Rails.logger.info("[create_hit] ℹ️ Hit ya existe con mismo link, reutilizando: #{existing_hit.id}")
-      return render json: {
-        success: true,
-        message: "Hit reutilizado de captura anterior",
-        hit_id: existing_hit.id,
-        legacy_id: existing_hit.legacy_id,
-        pdf_attached: existing_hit.pdf.attached?,
-        hit_reused: true
-      }
+      unless hit_has_evidence?(existing_hit)
+        begin
+          HitSnapshotFetcher.call!(existing_hit, require_members: false)
+        rescue => e
+          Rails.logger.error("[create_hit] ⚠️ SnapshotFetcher Hit ##{existing_hit.id}: #{e.class} #{e.message}")
+        end
+        existing_hit.reload
+      end
+      return render_hit_evidence_response(existing_hit, reused: true)
     end
 
     # Generar legacy_id
@@ -1531,29 +1532,83 @@ class AgentController < ApplicationController
     )
 
     if hit.save
-      # Procesar archivo PDF si existe
-      if params[:hit]&.dig(:pdf).present?
-        begin
-          hit.pdf.attach(params[:hit][:pdf])
-          Rails.logger.info("[create_hit] ✓ PDF adjunto exitosamente: #{params[:hit][:pdf].original_filename}")
-        rescue => e
-          Rails.logger.error("[create_hit] ⚠️ Error al adjuntar PDF: #{e.message}")
-        end
+      national_media = [
+        "infobae.com",
+        "jornada.com.mx",
+        "oem.com.mx",
+        "lasillarota.com",
+        "milenio.com",
+        "proceso.com.mx",
+        "excelsior.com.mx",
+        "elfinanciero.com.mx",
+        "eluniversal.com.mx",
+        "eleconomista.com.mx",
+        "sinembargo.mx",
+        "aristeguinoticias.com",
+        "reforma.com",
+        "univision.com",
+        "latinus.us"
+      ]
+      hit.update_column(:national, national_media.include?(domain))
+
+      # Snapshot igual que create_easy_hit (texto plano o PDF)
+      begin
+        HitSnapshotFetcher.call!(hit, require_members: false)
+      rescue => e
+        Rails.logger.error("[create_hit] ⚠️ SnapshotFetcher Hit ##{hit.id}: #{e.class} #{e.message}")
       end
+      hit.reload
 
       Rails.logger.info("[create_hit] ✓ Hit creado exitosamente: #{hit.id} (legacy_id: #{legacy_id})")
-      render json: {
-        success: true,
-        message: "Hit creado exitosamente",
-        hit_id: hit.id,
-        legacy_id: hit.legacy_id,
-        pdf_attached: hit.pdf.attached?,
-        hit_reused: false
-      }
+      render_hit_evidence_response(hit, reused: false)
     else
       Rails.logger.error("[create_hit] ❌ Error al guardar Hit: #{hit.errors.full_messages.inspect}")
       render json: { success: false, errors: hit.errors.full_messages }
     end
+  end
+
+  # Copia de datasets#upload_hit_pdf_snapshot, con respuesta JSON
+  def upload_hit_pdf_snapshot
+    hit = Hit.find(params[:id])
+    file = params[:pdf_snapshot]
+
+    if file.blank?
+      return render json: { success: false, errors: ["No seleccionaste ningún archivo."] }
+    end
+
+    # Validación mínima: content-type y extensión
+    ct = file.content_type.to_s
+    name = file.original_filename.to_s.downcase
+
+    unless ct == "application/pdf" || name.ends_with?(".pdf")
+      return render json: { success: false, errors: ["El archivo debe ser un PDF."] }
+    end
+
+    hit.pdf_snapshot.attach(file)
+
+    unless hit.pdf_snapshot.attached?
+      return render json: { success: false, errors: ["No se pudo adjuntar el PDF."] }
+    end
+
+    hit.update_columns(
+      backup_source: "pdf",
+      backup_status: "ok",
+      fetch_error: nil,
+      updated_at: Time.current
+    )
+
+    render json: {
+      success: true,
+      message: "PDF agregado como respaldo del hit",
+      hit_id: hit.id,
+      legacy_id: hit.legacy_id,
+      pdf_attached: true,
+      needs_pdf: false
+    }
+  rescue ActiveRecord::RecordNotFound
+    render json: { success: false, errors: ["No se encontró el hit."] }
+  rescue => e
+    render json: { success: false, errors: ["Error: #{e.message}"] }
   end
 
   def create_member_from_capture
@@ -1831,6 +1886,24 @@ class AgentController < ApplicationController
   end
 
   private
+
+  # Evidencia de un Hit: plain text o PDF
+  def hit_has_evidence?(hit)
+    hit.plain_text.present? || hit.pdf_snapshot.attached? || hit.pdf.attached?
+  end
+
+  def render_hit_evidence_response(hit, reused:)
+    render json: {
+      success: true,
+      message: reused ? "Hit reutilizado de captura anterior" : "Hit creado exitosamente",
+      hit_id: hit.id,
+      legacy_id: hit.legacy_id,
+      plain_text_saved: hit.plain_text.present?,
+      pdf_attached: hit.pdf_snapshot.attached?,
+      needs_pdf: !hit_has_evidence?(hit),
+      hit_reused: reused
+    }
+  end
 
   def estimate_gender(firstname)
     return nil if firstname.blank?

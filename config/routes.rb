@@ -193,6 +193,7 @@ Rails.application.routes.draw do
     get  "agent/monthly_captures/export",     to: "agent#monthly_captures_export", as: :agent_monthly_captures_export
     post "agent/detention_captures/:id/create_hit", to: "agent#create_hit_from_capture", as: :create_hit_from_capture
     post "agent/detention_captures/:id/create_member", to: "agent#create_member_from_capture", as: :create_member_from_capture
+    post "agent/hits/:id/upload_pdf_snapshot", to: "agent#upload_hit_pdf_snapshot", as: :upload_agent_hit_pdf_snapshot
     patch "agent/detention_captures/:id",     to: "agent#update_capture",   as: :update_agent_detention
     delete "agent/detention_captures/:id",    to: "agent#delete_capture",   as: :delete_agent_detention
     get   "agent/get_organizations",          to: "agent#get_organizations", as: :get_organizations

@@ -289,6 +289,115 @@
   }
 
   /**
+   * Transitions modal to the PDF upload step (no plain text captured)
+   * Mirrors the upload form used in Easy Hits (upload_hit_pdf_snapshot)
+   */
+  function transitionToPhasePdf(captureId, hitData) {
+    console.log('[MemberHitBtn] Sin plain text para capture', captureId, '→ solicitar PDF', hitData);
+
+    const modal = document.getElementById(`snapshotModal_${captureId}`);
+    const header = modal.querySelector('.snapshot-modal-header h3');
+    const body = modal.querySelector('.snapshot-modal-body');
+    const footer = modal.querySelector('.snapshot-modal-footer');
+
+    modal.dataset.hitId = hitData.hit_id;
+    modal.dataset.legacyId = hitData.legacy_id;
+
+    header.textContent = 'Crear Hit - Respaldo: Subir PDF de la Noticia';
+
+    body.innerHTML = `
+      <p style="opacity:0.8; margin-bottom:10px;">No se pudo capturar el texto de la noticia. Sube el PDF como respaldo del hit.</p>
+      <div class="snapshot-form-group">
+        <input type="file" id="snapshotPdf_${captureId}" name="pdf_snapshot" accept="application/pdf" style="display:none;">
+        <div id="snapshotPdfName_${captureId}" style="border:1px solid #EF4E50; border-radius:0; padding:0.5rem; cursor:pointer;">
+          Haz clic aquí para seleccionar el PDF…
+        </div>
+      </div>
+    `;
+
+    footer.innerHTML = `
+      <button class="snapshot-cancel-btn" data-capture-id="${captureId}">Cancelar</button>
+      <button class="snapshot-upload-pdf-btn" data-capture-id="${captureId}">Subir respaldo</button>
+    `;
+
+    console.log('[MemberHitBtn] ✓ Paso de PDF listo para capture', captureId);
+  }
+
+  /**
+   * Opens the file selector when the red box is clicked (PDF upload step)
+   */
+  document.addEventListener('click', function(e) {
+    const box = e.target.closest('[id^="snapshotPdfName_"]');
+    if (!box) return;
+    const captureId = box.id.replace('snapshotPdfName_', '');
+    const input = document.getElementById(`snapshotPdf_${captureId}`);
+    if (input) input.click();
+  });
+
+  /**
+   * Shows the selected file name (PDF upload step)
+   */
+  document.addEventListener('change', function(e) {
+    if (!e.target.id || !e.target.id.startsWith('snapshotPdf_')) return;
+    const captureId = e.target.id.replace('snapshotPdf_', '');
+    const box = document.getElementById(`snapshotPdfName_${captureId}`);
+    const file = e.target.files && e.target.files[0];
+    if (box) box.textContent = file ? file.name : 'Haz clic aquí para seleccionar el PDF…';
+  });
+
+  /**
+   * Handler for Upload PDF button (PDF upload step)
+   */
+  document.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('snapshot-upload-pdf-btn')) return;
+
+    e.preventDefault();
+    const captureId = e.target.getAttribute('data-capture-id');
+    const modal = document.getElementById(`snapshotModal_${captureId}`);
+    const hitId = modal.dataset.hitId;
+    const legacyId = modal.dataset.legacyId;
+    const fileInput = document.getElementById(`snapshotPdf_${captureId}`);
+
+    if (!fileInput || fileInput.files.length === 0) {
+      alert('❌ Selecciona un PDF para subir como respaldo');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('authenticity_token', document.querySelector('meta[name="csrf-token"]').content);
+    formData.append('pdf_snapshot', fileInput.files[0]);
+
+    console.log('[MemberHitBtn] Enviando PDF a /agent/hits/' + hitId + '/upload_pdf_snapshot');
+
+    fetch(`/agent/hits/${hitId}/upload_pdf_snapshot`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      console.log('[MemberHitBtn] Response data:', data);
+
+      if (data.success) {
+        transitionToPhase2(captureId, {
+          hit_id: data.hit_id,
+          legacy_id: data.legacy_id || legacyId
+        });
+      } else {
+        console.error('[MemberHitBtn] ❌ Error:', data.errors);
+        alert('❌ Error al subir PDF:\n' + (data.errors ? data.errors.join('\n') : 'Error desconocido'));
+      }
+    })
+    .catch(err => {
+      console.error('[MemberHitBtn] ❌ Fetch error:', err);
+      alert('❌ Error al enviar la solicitud: ' + err.message);
+    });
+  });
+
+  /**
    * Handler for Create Hit button
    */
   document.addEventListener('click', function(e) {
@@ -300,15 +409,6 @@
 
     const formData = new FormData();
     formData.append('authenticity_token', document.querySelector('meta[name="csrf-token"]').content);
-
-    // Agregar archivo si existe
-    const fileInput = document.querySelector(`#snapshotFile_${captureId}`);
-    if (fileInput && fileInput.files.length > 0) {
-      formData.append('hit[pdf]', fileInput.files[0]);
-      console.log('[MemberHitBtn] Archivo PDF agregado:', fileInput.files[0].name, '(' + fileInput.files[0].size + ' bytes)');
-    } else {
-      console.log('[MemberHitBtn] No hay archivo PDF seleccionado');
-    }
 
     // Agregar notas si existen
     const notesInput = document.querySelector(`#snapshotNotes_${captureId}`);
@@ -339,11 +439,19 @@
         const reusedMsg = data.hit_reused ? ' (reutilizado)' : '';
         console.log('[MemberHitBtn] Transicionando a Fase 2...');
 
-        // Transition to Phase 2 dynamically (no reload)
-        transitionToPhase2(captureId, {
-          hit_id: data.hit_id,
-          legacy_id: data.legacy_id
-        });
+        if (data.needs_pdf) {
+          // Sin texto plano ni PDF: el usuario debe subir el PDF antes de la Fase 2
+          transitionToPhasePdf(captureId, {
+            hit_id: data.hit_id,
+            legacy_id: data.legacy_id
+          });
+        } else {
+          // Transition to Phase 2 dynamically (no reload)
+          transitionToPhase2(captureId, {
+            hit_id: data.hit_id,
+            legacy_id: data.legacy_id
+          });
+        }
       } else {
         console.error('[MemberHitBtn] ❌ Error:', data.errors);
         alert('❌ Error al crear Hit:\n' + (data.errors ? data.errors.join('\n') : 'Error desconocido'));
