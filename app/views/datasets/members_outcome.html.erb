@@ -877,8 +877,9 @@
                       <% end %>
                     </span>
                     <span class="hit-icon-slot" style="display: inline-block; width: 24px; vertical-align: middle;">
-                      <% if hit.pdf.attached? && hit.pdf.content_type == "application/pdf" %>
-                        <a href="<%= rails_blob_path(hit.pdf, disposition: "inline") %>" target="_blank" style="text-decoration: none;">
+                      <% pdf_att = (hit.pdf.attached? && hit.pdf.content_type == "application/pdf") ? hit.pdf : ((hit.pdf_snapshot.attached? && hit.pdf_snapshot.content_type == "application/pdf") ? hit.pdf_snapshot : nil) %>
+                      <% if pdf_att %>
+                        <a href="<%= rails_blob_path(pdf_att, disposition: "inline") %>" target="_blank" style="text-decoration: none;">
                           <%= image_tag "pdf_icon.png", style: "width: 20px; height: 20px; vertical-align: middle;" %>
                         </a>
                       <% elsif hit_text_matches_member?(hit, hit_owner[hit.id]) %>
@@ -920,8 +921,9 @@
                       <% end %>
                     </span>
                     <span class="hit-icon-slot" style="display: inline-block; width: 24px; vertical-align: middle;">
-                      <% if hit.pdf.attached? && hit.pdf.content_type == "application/pdf" %>
-                        <a href="<%= rails_blob_path(hit.pdf, disposition: "inline") %>" target="_blank" style="text-decoration: none;">
+                      <% pdf_att = (hit.pdf.attached? && hit.pdf.content_type == "application/pdf") ? hit.pdf : ((hit.pdf_snapshot.attached? && hit.pdf_snapshot.content_type == "application/pdf") ? hit.pdf_snapshot : nil) %>
+                      <% if pdf_att %>
+                        <a href="<%= rails_blob_path(pdf_att, disposition: "inline") %>" target="_blank" style="text-decoration: none;">
                           <%= image_tag "pdf_icon.png", style: "width: 20px; height: 20px; vertical-align: middle;" %>
                         </a>
                       <% elsif hit_text_matches_member?(hit, hit_owner[hit.id]) %>
